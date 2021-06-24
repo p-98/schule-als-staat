@@ -38,7 +38,6 @@ export const SiblingTransitionBase: React.FC<SiblingTransitionBaseProps> = ({
         const childrenArray = Array.from(
             containerRef.current?.children as HTMLCollection
         ) as HTMLElement[];
-        console.log(childrenArray[0]?.dataset);
 
         // init elementSwitcher
         const elementMap = children.reduce(
@@ -79,7 +78,6 @@ export const SiblingTransitionBase: React.FC<SiblingTransitionBaseProps> = ({
         if (!containerRef.current) return;
         if (!elementSwitcher) return;
 
-        console.log("starting transition");
         setInTransition(true);
 
         const containerDOM = containerRef.current;
@@ -128,13 +126,6 @@ export const SiblingTransitionBase: React.FC<SiblingTransitionBaseProps> = ({
                     "sibling-transition-base__container-fade"
                 ] as string;
 
-                containerDOM.addEventListener("animationend", () =>
-                    console.log("animation ended")
-                );
-                containerDOM.addEventListener("animationcancel", () =>
-                    console.log("animation canceled")
-                );
-
                 // switch elements
                 setTimeout(() => {
                     if (!elementSwitcher) return;
@@ -153,12 +144,8 @@ export const SiblingTransitionBase: React.FC<SiblingTransitionBaseProps> = ({
                     );
                     containerDOM.style.animationName = "";
 
-                    console.log("finished cleanup");
-
                     setActiveElement(activeElementTarget);
                     setInTransition(false);
-
-                    console.log("state is reset");
                 }, transitionTime);
             })
         );
