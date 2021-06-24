@@ -1,0 +1,15 @@
+overwrite: true
+schema: "./server/src/schema.graphql"
+# documents: "*.gql"
+generates:
+    ./server/src/types/graphql.ts:
+        config:
+            contextType: ./models#IContext
+            typesPrefix: I
+            useIndexSignature: true
+            mappers:
+                Author: ./models#IAuthorModel
+                Book: ./models#IBookModel
+        plugins:
+            - "typescript"
+            - "typescript-resolvers"

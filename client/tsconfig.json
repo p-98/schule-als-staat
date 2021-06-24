@@ -1,0 +1,15 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "isolatedModules": true,
+        "jsx": "preserve",
+        "noEmit": true,
+        "lib": ["ESNext", "DOM"],
+        "baseUrl": ".",
+        "paths": {
+            "Components/*": ["./src/components/*"]
+        }
+    },
+    "include": ["src/**/*", "next-env.d.ts"],
+    "exclude": ["node_modules"]
+}

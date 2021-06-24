@@ -1,0 +1,17 @@
+.transition-height {
+    overflow: hidden;
+    transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    height: auto;
+}
+
+@keyframes transition-height-fade {
+    0% {
+        opacity: 1;
+    }
+    30% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}

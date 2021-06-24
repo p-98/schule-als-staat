@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "lib": ["ESNext"],
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "strict": true,
+        "allowJs": false,
+        // "noPropertyAccessFromIndexSignature": true,
+        "noUncheckedIndexedAccess": true,
+        "useDefineForClassFields": true
+    }
+}

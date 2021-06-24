@@ -1,0 +1,13 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "noEmit": true,
+        "baseUrl": ".",
+        "paths": {
+            "@type/*": ["src/types/*"],
+            "@api/*": ["src/api/*"]
+            // "@server": ["src/server.ts"]
+        }
+    }
+}

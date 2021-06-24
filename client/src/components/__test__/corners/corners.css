@@ -1,0 +1,8 @@
+.mdc-dialog__surface {
+    border-radius: var(--medium-component-border-radius, 4px) !important;
+}
+
+.mdc-dialog .mdc-button,
+.mdc-dialog .mdc-button__ripple {
+    border-radius: var(--small-component-border-radius, 4px) !important;
+}

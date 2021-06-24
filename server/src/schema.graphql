@@ -1,0 +1,40 @@
+" Ein Buch "
+type Book {
+    title: String!
+    author: Author!
+}
+
+" Ein Author "
+type Author {
+    name: String!
+    books: [Book!]!
+}
+
+" Input for addBook mutation "
+input AddBookInput {
+    title: String!
+    author: String!
+}
+
+input AddedBookInput {
+    author: String
+}
+
+" Queries "
+type Query {
+    books: [Book!]!
+    book(title: String!): Book
+
+    authors: [Author!]!
+    author(name: String!): Author
+}
+
+" Mutations "
+type Mutation {
+    addBook(input: AddBookInput!): Book!
+}
+
+" Subscriptions "
+type Subscription {
+    addedBook(input: AddedBookInput!): Book!
+}

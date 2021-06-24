@@ -1,0 +1,62 @@
+.container-transform {
+    /* in fullscreen mode --transition-time is injected via react, because of different timings */
+    --transition-time: 0.3s;
+
+    animation-duration: var(--transition-time);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+
+    transition: height var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1),
+        width var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1),
+        left var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1),
+        top var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1);
+
+    overflow: hidden;
+    width: fit-content;
+}
+.container-transform--portal {
+    display: none;
+    position: absolute;
+}
+
+.container-transform__element {
+    display: none;
+}
+.container-transform__element--fullscreen-element {
+}
+.container-transform__element--fullscreen-handle {
+}
+.container-transform:not(.container-transform--portal)
+    .container-transform__element--fullscreen-handle {
+    display: block;
+}
+
+.container-transform__scrim {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    pointer-events: none;
+    background-color: rgba(0, 0, 0, 0.32);
+
+    opacity: 0;
+    /* transition when closing */
+    transition: opacity var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1);
+}
+.container-transform__scrim--open {
+    opacity: 1;
+    /* transition when opening */
+    transition: opacity calc(0.3 * var(--transition-time)) linear;
+}
+
+@keyframes container-transform__fade {
+    0% {
+        opacity: 1;
+    }
+    30% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}

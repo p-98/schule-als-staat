@@ -1,0 +1,45 @@
+.sibling-transition-base {
+    overflow: hidden;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+
+    --transition-duration: 0.3s;
+
+    animation-duration: var(--transition-duration);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sibling-transition-base__element {
+    width: 100%;
+    max-height: 100%;
+    overflow: auto;
+    visibility: hidden;
+    position: relative;
+    top: 0;
+    right: 0;
+    flex-shrink: 0;
+
+    transition: transform var(--transition-duration)
+        cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* no-transition mode */
+.sibling-transition-base--no-transition > .sibling-transition-base__element {
+    transition: none;
+}
+
+@keyframes sibling-transition-base__container-fade {
+    0% {
+        opacity: 1;
+    }
+
+    30% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}

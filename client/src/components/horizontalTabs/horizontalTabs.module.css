@@ -1,0 +1,23 @@
+.horizontal-tabs {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto 1fr;
+}
+
+.horizontal-tabs__tab-container {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    scroll-behavior: smooth;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+}
+
+.horizontal-tabs__tab-body {
+    width: 100%;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+}

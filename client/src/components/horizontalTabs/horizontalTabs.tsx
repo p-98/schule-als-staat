@@ -1,0 +1,127 @@
+import { useEffect, useRef, useState } from "react";
+import { TabBar, Tab } from "@rmwc/tabs";
+
+// @rmwc/tabs dependencies
+import "@material/tab-bar/dist/mdc.tab-bar.css";
+import "@material/tab/dist/mdc.tab.css";
+import "@material/tab-scroller/dist/mdc.tab-scroller.css";
+import "@material/tab-indicator/dist/mdc.tab-indicator.css";
+import "@material/ripple/dist/mdc.ripple.css";
+import "@rmwc/icon/icon.css";
+
+import styles from "./horizontalTabs.module.css";
+
+interface HorizontalTabsProps extends React.HTMLAttributes<HTMLDivElement> {
+    tabs: {
+        title: string;
+        component: React.JSXElementConstructor<{
+            className?: string;
+        }>;
+    }[];
+}
+const HorizontalTabs: React.FC<HorizontalTabsProps> = ({
+    tabs,
+    className,
+    ...props
+}) => {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [activeTab, setActiveTab] = useState(0);
+    const [observe, setObserve] = useState(true);
+
+    useEffect(() => {
+        if (!observe) return;
+        if (!containerRef.current) return;
+
+        const observerOptions: IntersectionObserverInit = {
+            threshold: 0.5,
+            root: containerRef.current,
+        };
+        const observerCallback: IntersectionObserverCallback = (entries) => {
+            entries.forEach((tabEntry) => {
+                if (tabEntry.intersectionRatio < 0.5) return;
+
+                const tabCollection = tabEntry.target.parentNode?.children;
+                if (!tabCollection) return;
+
+                const tabIndex = Array.from(tabCollection).indexOf(
+                    tabEntry.target
+                );
+                setActiveTab(tabIndex);
+            });
+        };
+        const observer = new IntersectionObserver(
+            observerCallback,
+            observerOptions
+        );
+        // register all child elements
+        Array.from(containerRef.current.children).forEach((tabBody) =>
+            observer.observe(tabBody)
+        );
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [observe]);
+
+    const scrollToTab = (newActiveTab: number): void => {
+        if (!containerRef.current) return;
+
+        const newActiveTabBody = containerRef.current.children[newActiveTab];
+        if (!newActiveTabBody) return;
+
+        // disable main observer until tab is scrolled into view (prevents bugs with TabBar changing activeTabIndex during scroll)
+        setObserve(false);
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (!entries[0]) return;
+                if (entries[0]?.intersectionRatio < 0.5) return;
+
+                observer.disconnect();
+                setObserve(true);
+            },
+            {
+                root: containerRef.current,
+                threshold: 0.5,
+            }
+        );
+        observer.observe(newActiveTabBody);
+
+        // scroll new tab into view
+        setActiveTab(newActiveTab);
+        newActiveTabBody.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+            inline: "center",
+        });
+    };
+
+    return (
+        <div
+            {...props}
+            className={[className, styles["horizontal-tabs"]].join(" ")}
+        >
+            <TabBar activeTabIndex={activeTab}>
+                {tabs.map((tab, index) => (
+                    <Tab onClick={() => scrollToTab(index)} key={tab.title}>
+                        {tab.title}
+                    </Tab>
+                ))}
+            </TabBar>
+            <div
+                className={styles["horizontal-tabs__tab-container"]}
+                ref={containerRef}
+            >
+                {tabs.map((tab) => {
+                    const TabBody = tab.component;
+                    return (
+                        <TabBody
+                            key={tab.title}
+                            className={styles["horizontal-tabs__tab-body"]}
+                        />
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+export default HorizontalTabs;

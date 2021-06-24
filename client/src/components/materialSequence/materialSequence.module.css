@@ -1,0 +1,45 @@
+.material-sequence {
+    display: grid;
+    grid-template-columns: auto;
+    grid-template-rows: 1fr auto;
+    overflow: hidden;
+}
+
+.material-sequence__controller {
+    width: 100%;
+    display: grid;
+    grid-template-rows: auto;
+    grid-template-columns: auto 1fr auto;
+    padding: 8px;
+    box-sizing: border-box;
+}
+.material-sequence__controller--border {
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.material-sequence__button {
+    width: 112px;
+}
+
+.material-sequence__dot-indicator {
+    overflow: auto;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.material-sequence__dot {
+    --dot-diameter: 8px;
+    display: inline-block;
+    width: var(--dot-diameter);
+    height: var(--dot-diameter);
+    border-radius: calc(var(--dot-diameter) / 2);
+    opacity: 0.25;
+    background-color: var(--mdc-theme-primary, #6200ee);
+    transition: opacity 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0 4px;
+}
+.material-sequence__dot--active {
+    opacity: 1;
+}
