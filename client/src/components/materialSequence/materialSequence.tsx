@@ -1,5 +1,10 @@
-import Sequence from "Components/sequence/sequence";
 import { useState } from "react";
+import cn from "classnames";
+import {
+    Modes,
+    SiblingTransitionBase,
+    SiblingTransitionBaseElementProps,
+} from "Components/transition/siblingTransitionBase/siblingTransitionBase";
 
 // @rmwc/button dependencies
 import "@material/button/dist/mdc.button.css";
@@ -8,6 +13,8 @@ import "@material/ripple/dist/mdc.ripple.css";
 import { Button } from "@rmwc/button";
 
 import styles from "./materialSequence.module.css";
+
+export { SiblingTransitionBaseElement as MaterialSequenceElement } from "Components/transition/siblingTransitionBase/siblingTransitionBase";
 
 // dot indicator
 interface DotIndicatorProps {
@@ -20,12 +27,12 @@ const DotIndicator: React.FC<DotIndicatorProps> = ({ count, currentIndex }) => (
             .fill(null)
             .map((_, index) => (
                 <div
-                    className={[
+                    className={cn(
                         styles["material-sequence__dot"],
                         index === currentIndex
                             ? styles["material-sequence__dot--active"]
-                            : "",
-                    ].join(" ")}
+                            : ""
+                    )}
                     // eslint-disable-next-line react/no-array-index-key
                     key={index}
                 />
@@ -36,59 +43,64 @@ const DotIndicator: React.FC<DotIndicatorProps> = ({ count, currentIndex }) => (
 // material sequence
 export interface MaterialSequenceProps
     extends React.HTMLAttributes<HTMLDivElement> {
-    children: React.JSXElementConstructor<{
-        className?: string;
-    }>[];
+    children: React.ReactElement<SiblingTransitionBaseElementProps>[];
     border?: boolean;
 }
 const MaterialSequence: React.FC<MaterialSequenceProps> = ({
     children,
     className,
     border,
-    ...props
+    ...restProps
 }) => {
-    const [visibleElement, setVisibleElement] = useState(0);
+    const [activeElement, setActiveElement] = useState(0);
 
     const back = (): void => {
-        if (visibleElement === 0) return;
+        if (activeElement === 0) return;
 
-        setVisibleElement(visibleElement - 1);
+        setActiveElement(activeElement - 1);
     };
     const next = (): void => {
-        if (visibleElement === children.length - 1) return;
+        if (activeElement === children.length - 1) return;
 
-        setVisibleElement(visibleElement + 1);
+        setActiveElement(activeElement + 1);
     };
 
     return (
         <div
-            {...props}
-            className={[className, styles["material-sequence"]].join(" ")}
+            {...restProps}
+            className={cn(className, styles["material-sequence"])}
         >
-            <Sequence visibleElement={visibleElement}>{children}</Sequence>
+            <SiblingTransitionBase
+                mode={Modes.xAxis}
+                activeElement={activeElement}
+            >
+                {children}
+            </SiblingTransitionBase>
             <div
-                className={[
+                className={cn(
                     styles["material-sequence__controller"],
                     border
                         ? styles["material-sequence__controller--border"]
-                        : "",
-                ].join(" ")}
+                        : ""
+                )}
             >
                 <Button
                     label="zurück"
                     icon="navigate_before"
                     onClick={back}
                     className={styles["material-sequence__button"]}
+                    disabled={activeElement === 0}
                 />
                 <DotIndicator
                     count={children.length}
-                    currentIndex={visibleElement}
+                    currentIndex={activeElement}
                 />
                 <Button
                     label="weiter"
                     trailingIcon="navigate_next"
                     onClick={next}
                     className={styles["material-sequence__button"]}
+                    disabled={activeElement === children.length - 1}
                 />
             </div>
         </div>
