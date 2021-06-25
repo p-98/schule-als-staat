@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { TabBar, Tab } from "@rmwc/tabs";
+import cn from "classnames";
 
 // @rmwc/tabs dependencies
 import "@material/tab-bar/dist/mdc.tab-bar.css";
@@ -11,18 +12,13 @@ import "@rmwc/icon/icon.css";
 
 import styles from "./horizontalTabs.module.css";
 
-interface HorizontalTabsProps extends React.HTMLAttributes<HTMLDivElement> {
-    tabs: {
-        title: string;
-        component: React.JSXElementConstructor<{
-            className?: string;
-        }>;
-    }[];
+interface IHorizontalTabsProps extends React.HTMLAttributes<HTMLDivElement> {
+    children: React.ReactElement<IHorizontalTabsElementProps>[];
 }
-const HorizontalTabs: React.FC<HorizontalTabsProps> = ({
-    tabs,
+const HorizontalTabs: React.FC<IHorizontalTabsProps> = ({
+    children,
     className,
-    ...props
+    ...restProps
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [activeTab, setActiveTab] = useState(0);
@@ -97,13 +93,16 @@ const HorizontalTabs: React.FC<HorizontalTabsProps> = ({
 
     return (
         <div
-            {...props}
-            className={[className, styles["horizontal-tabs"]].join(" ")}
+            {...restProps}
+            className={cn(className, styles["horizontal-tabs"])}
         >
             <TabBar activeTabIndex={activeTab}>
-                {tabs.map((tab, index) => (
-                    <Tab onClick={() => scrollToTab(index)} key={tab.title}>
-                        {tab.title}
+                {children.map((tab, index) => (
+                    <Tab
+                        onClick={() => scrollToTab(index)}
+                        key={tab.props.title}
+                    >
+                        {tab.props.title}
                     </Tab>
                 ))}
             </TabBar>
@@ -111,17 +110,23 @@ const HorizontalTabs: React.FC<HorizontalTabsProps> = ({
                 className={styles["horizontal-tabs__tab-container"]}
                 ref={containerRef}
             >
-                {tabs.map((tab) => {
-                    const TabBody = tab.component;
-                    return (
-                        <TabBody
-                            key={tab.title}
-                            className={styles["horizontal-tabs__tab-body"]}
-                        />
-                    );
-                })}
+                {children}
             </div>
         </div>
     );
 };
 export default HorizontalTabs;
+
+interface IHorizontalTabsElementProps {
+    title: string;
+    children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
+}
+export const HorizontalTabsElement: React.FC<IHorizontalTabsElementProps> = ({
+    children,
+}: IHorizontalTabsElementProps) =>
+    React.cloneElement(children, {
+        className: cn(
+            children.props.className,
+            styles["horizontal-tabs__tab-body"]
+        ),
+    });
