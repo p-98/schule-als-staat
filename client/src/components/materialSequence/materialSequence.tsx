@@ -3,7 +3,7 @@ import cn from "classnames";
 import {
     Modes,
     SiblingTransitionBase,
-    SiblingTransitionBaseElementProps,
+    ISiblingTransitionBaseElementProps,
 } from "Components/transition/siblingTransitionBase/siblingTransitionBase";
 
 // @rmwc/button dependencies
@@ -17,11 +17,14 @@ import styles from "./materialSequence.module.css";
 export { SiblingTransitionBaseElement as MaterialSequenceElement } from "Components/transition/siblingTransitionBase/siblingTransitionBase";
 
 // dot indicator
-interface DotIndicatorProps {
+interface IDotIndicatorProps {
     count: number;
     currentIndex: number;
 }
-const DotIndicator: React.FC<DotIndicatorProps> = ({ count, currentIndex }) => (
+const DotIndicator: React.FC<IDotIndicatorProps> = ({
+    count,
+    currentIndex,
+}) => (
     <div className={styles["material-sequence__dot-indicator"]}>
         {Array(count)
             .fill(null)
@@ -41,12 +44,12 @@ const DotIndicator: React.FC<DotIndicatorProps> = ({ count, currentIndex }) => (
 );
 
 // material sequence
-export interface MaterialSequenceProps
+export interface IMaterialSequenceProps
     extends React.HTMLAttributes<HTMLDivElement> {
-    children: React.ReactElement<SiblingTransitionBaseElementProps>[];
+    children: React.ReactElement<ISiblingTransitionBaseElementProps>[];
     border?: boolean;
 }
-const MaterialSequence: React.FC<MaterialSequenceProps> = ({
+const MaterialSequence: React.FC<IMaterialSequenceProps> = ({
     children,
     className,
     border,

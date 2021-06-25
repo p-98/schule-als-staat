@@ -24,18 +24,18 @@ export function clearDimensions(domElement: HTMLElement): void {
     /* eslint-enable no-param-reassign */
 }
 
-interface Offset {
+interface IOffset {
     top: number;
     left: number;
 }
-export function getOffset(domElement: HTMLElement): Offset {
+export function getOffset(domElement: HTMLElement): IOffset {
     const clientRect = domElement.getBoundingClientRect();
     return {
         top: clientRect.top,
         left: clientRect.left,
     };
 }
-export function setOffset(domElement: HTMLElement, offset: Offset): void {
+export function setOffset(domElement: HTMLElement, offset: IOffset): void {
     const parentClientRect = (domElement.parentElement as HTMLElement).getBoundingClientRect();
     /* eslint-disable no-param-reassign */
     domElement.style.top = `${offset.top - parentClientRect.top}px`;

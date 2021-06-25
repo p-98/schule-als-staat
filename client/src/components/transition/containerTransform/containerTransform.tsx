@@ -18,12 +18,13 @@ usage:
     </ContainerTransform>
 */
 
-interface ContainerTransformProps extends React.HTMLAttributes<HTMLDivElement> {
+interface IContainerTransformProps
+    extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactElement<ContainerTransformElementProps>[];
     activeElement: string;
 }
 
-export const ContainerTransform: React.FC<ContainerTransformProps> = ({
+export const ContainerTransform: React.FC<IContainerTransformProps> = ({
     children,
     activeElement: activeElementTarget,
     ...restProps
@@ -118,19 +119,19 @@ export const ContainerTransform: React.FC<ContainerTransformProps> = ({
     );
 };
 
-interface ContainerTransformElementProps {
-    children: React.ReactElement<HTMLElement>;
+interface IContainerTransformElementProps {
+    children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
     elementKey: string;
 }
 
-export const ContainerTransformElement: React.FC<ContainerTransformElementProps> = ({
+export const ContainerTransformElement: React.FC<IContainerTransformElementProps> = ({
     children,
     elementKey,
-}: ContainerTransformElementProps) =>
+}: IContainerTransformElementProps) =>
     React.cloneElement(children, {
         className: cn(
             children.props.className,
             styles["container-transform__element"]
         ),
         "data-element-key": elementKey,
-    } as Partial<HTMLElement> & React.Attributes);
+    } as Partial<React.HTMLAttributes<HTMLElement>>);

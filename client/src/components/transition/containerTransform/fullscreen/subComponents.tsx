@@ -34,12 +34,12 @@ export const FullscreenContainerTransformWrapper = forwardRef<
     )
 );
 
-export interface FullscreenContainerTransformElementProps {
-    children: React.ReactElement<HTMLElement>;
+export interface IFullscreenContainerTransformElementProps {
+    children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
 }
-export const FullscreenContainerTransformElement: React.FC<FullscreenContainerTransformElementProps> = ({
+export const FullscreenContainerTransformElement: React.FC<IFullscreenContainerTransformElementProps> = ({
     children,
-}: FullscreenContainerTransformElementProps) =>
+}: IFullscreenContainerTransformElementProps) =>
     React.cloneElement(children, {
         className: cn(
             children.props.className,
@@ -48,12 +48,12 @@ export const FullscreenContainerTransformElement: React.FC<FullscreenContainerTr
         ),
     });
 
-export interface FullscreenContainerTransformHandleProps {
-    children: React.ReactElement<HTMLElement>;
+export interface IFullscreenContainerTransformHandleProps {
+    children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
 }
-export const FullscreenContainerTransformHandle: React.FC<FullscreenContainerTransformHandleProps> = ({
+export const FullscreenContainerTransformHandle: React.FC<IFullscreenContainerTransformHandleProps> = ({
     children,
-}: FullscreenContainerTransformHandleProps) =>
+}: IFullscreenContainerTransformHandleProps) =>
     React.cloneElement(children, {
         className: cn(
             children.props.className,
@@ -62,12 +62,12 @@ export const FullscreenContainerTransformHandle: React.FC<FullscreenContainerTra
         ),
     });
 
-interface FullscreenContainerTransformScrimProps {
+interface IFullscreenContainerTransformScrimProps {
     transitionTime: number;
 }
 export const FullscreenContainerTransformScrim = forwardRef<
     HTMLDivElement,
-    FullscreenContainerTransformScrimProps
+    IFullscreenContainerTransformScrimProps
 >(({ transitionTime }, ref) => (
     <div
         ref={ref}

@@ -11,18 +11,18 @@ export { Modes } from "./transitionStyles";
 
 const transitionTime = 300;
 
-export interface SiblingTransitionBaseProps
+export interface ISiblingTransitionBaseProps
     extends React.HTMLAttributes<HTMLDivElement> {
     children: TChildren;
     activeElement: number;
     mode: Modes;
 }
-export const SiblingTransitionBase: React.FC<SiblingTransitionBaseProps> = ({
+export const SiblingTransitionBase: React.FC<ISiblingTransitionBaseProps> = ({
     children,
     activeElement: activeElementTarget,
     mode,
     ...restProps
-}: SiblingTransitionBaseProps) => {
+}: ISiblingTransitionBaseProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     const [inTransition, setInTransition] = useState(false);

@@ -3,16 +3,16 @@ import cn from "classnames";
 
 import styles from "./siblingTransitionBase.module.css";
 
-export type TChildren = React.ReactElement<SiblingTransitionBaseElementProps>[];
+export type TChildren = React.ReactElement<ISiblingTransitionBaseElementProps>[];
 
-export interface SiblingTransitionBaseElementProps {
+export interface ISiblingTransitionBaseElementProps {
     index: number;
     children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
 }
-export const SiblingTransitionBaseElement: React.FC<SiblingTransitionBaseElementProps> = ({
+export const SiblingTransitionBaseElement: React.FC<ISiblingTransitionBaseElementProps> = ({
     index,
     children,
-}: SiblingTransitionBaseElementProps) =>
+}: ISiblingTransitionBaseElementProps) =>
     React.cloneElement(children, {
         className: cn(
             styles["sibling-transition-base__element"],

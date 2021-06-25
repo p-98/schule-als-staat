@@ -45,18 +45,18 @@ usage:
     </FullscreenContainerTransform>
 */
 
-export interface FullscreenContainerTransformProps
+export interface IFullscreenContainerTransformProps
     extends React.HTMLAttributes<HTMLDivElement> {
     children: TChildren;
     renderTo: PortalPropT;
     open: boolean;
 }
-const FullscreenContainerTransform: React.FC<FullscreenContainerTransformProps> = ({
+const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps> = ({
     children,
     renderTo,
     open: openTarget,
     ...restProps
-}: FullscreenContainerTransformProps) => {
+}: IFullscreenContainerTransformProps) => {
     const portalWrapperRef = useRef<HTMLDivElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const scrimRef = useRef<HTMLDivElement>(null);

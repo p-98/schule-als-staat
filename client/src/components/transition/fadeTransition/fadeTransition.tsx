@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import styles from "./fadeTransition.module.css";
 
-export interface FadeTransitionProps
+export interface IFadeTransitionProps
     extends React.HTMLAttributes<HTMLDivElement> {
     open: boolean;
     anchor:
@@ -20,7 +20,7 @@ export interface FadeTransitionProps
  * A Component to perform fade transitions.
  * Children should have dimensions that are independent of the container
  */
-const FadeTransition: React.FC<FadeTransitionProps> = ({
+const FadeTransition: React.FC<IFadeTransitionProps> = ({
     open: openTarget,
     children,
     anchor,

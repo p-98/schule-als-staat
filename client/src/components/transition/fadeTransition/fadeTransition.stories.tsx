@@ -1,5 +1,7 @@
 import { Meta, Story } from "@storybook/react";
-import FadeTransitionComponent, { FadeTransitionProps } from "./fadeTransition";
+import FadeTransitionComponent, {
+    IFadeTransitionProps,
+} from "./fadeTransition";
 
 export default {
     title: "components/transition/Fade Transition",
@@ -23,15 +25,12 @@ export default {
     },
 } as Meta;
 
-const Template: Story<FadeTransitionProps> = ({
+const Template: Story<IFadeTransitionProps> = ({
     anchor,
     className,
     ...args
 }) => (
-    <FadeTransitionComponent
-        {...args}
-        anchor={anchor}
-    >
+    <FadeTransitionComponent {...args} anchor={anchor}>
         <div
             style={{
                 height: "200px",
@@ -54,7 +53,7 @@ Default.decorators = [
                 position: "absolute",
                 top: "50%",
                 left: "50%",
-                border: "1px solid red"
+                border: "1px solid red",
             }}
         >
             {Story()}
