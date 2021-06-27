@@ -7,7 +7,9 @@
         "lib": ["ESNext", "DOM"],
         "baseUrl": ".",
         "paths": {
-            "Components/*": ["./src/components/*"]
+            "Components/*": ["./src/components/*"],
+            "Scenes/*": ["./src/scenes/*"],
+            "Utility/*": ["./src/util/*"]
         }
     },
     "include": ["src/**/*", "next-env.d.ts"],

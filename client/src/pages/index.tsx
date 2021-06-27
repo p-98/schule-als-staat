@@ -1,1 +1,3 @@
-export default () => <>This is a great test</>;
+import Index from "Scenes/index";
+
+export default Index;

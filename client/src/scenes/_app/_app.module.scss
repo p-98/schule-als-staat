@@ -1,0 +1,99 @@
+@use "@material/layout-grid/mixins";
+
+.app {
+    --drawer-transition-time-opening: 250ms;
+    --drawer-transition-time-closing: 200ms;
+
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-end;
+    align-items: stretch;
+}
+
+/*
+    breakpoint for the drawer is 1,144px:
+
+    840px (the minimum width the desktop grid is made for)
+    + 2 * 24px (24px additional margin on each side. Makes 48px if you add the margin of the desktop grid)
+    + 256px (width of the drawer)
+*/
+@mixin app__drawer--desktop {
+    @media (min-width: 1144px) {
+        @content;
+    }
+}
+@mixin app__drawer--modal {
+    @media (max-width: 1143px) {
+        @content;
+    }
+}
+.app__drawer {
+    grid-area: drawer;
+    transform: translateX(0px);
+
+    background-color: aqua;
+
+    // closing timing (accelerated easing)
+    transition: transform var(--drawer-transition-time-opening)
+        cubic-bezier(0.4, 0, 1, 1);
+}
+.app__drawer--open {
+    @include app__drawer--modal() {
+        transform: translateX(256px);
+
+        // opening timing (decelerated easing)
+        transition: transform var(--drawer-transition-time-opening)
+            cubic-bezier(0, 0, 0.2, 1);
+    }
+}
+
+.app__drawer-scrim {
+    display: block;
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.32);
+    pointer-events: none;
+
+    // closing timing (default easing)
+    transition: opacity var(--drawer-transition-time-closing)
+        cubic-bezier(0.4, 0, 0.2, 1);
+}
+.app__drawer--open ~ .app__drawer-scrim {
+    @include app__drawer--modal() {
+        opacity: 1;
+        pointer-events: auto;
+
+        // opening timing (linear)
+        transition: opacity calc(0.3 * var(--drawer-transition-time-opening))
+            linear;
+    }
+}
+
+.app__header-page-wrapper {
+    width: 100%;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    justify-items: center;
+}
+.app__drawer--open ~ .app__header-page-wrapper {
+    @include app__drawer--desktop() {
+        width: calc(100% - 256px);
+    }
+}
+
+.app__header {
+    position: initial;
+}
+
+.app__page {
+    width: 100%;
+    // maximum body size from documentation: https://material.io/design/layout/understanding-layout.html#layout-anatomy
+    max-width: 1040px;
+}
