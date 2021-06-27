@@ -20,7 +20,7 @@ usage:
 
 interface IContainerTransformProps
     extends React.HTMLAttributes<HTMLDivElement> {
-    children: React.ReactElement<ContainerTransformElementProps>[];
+    children: React.ReactElement<IContainerTransformElementProps>[];
     activeElement: string;
 }
 

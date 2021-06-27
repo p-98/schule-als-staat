@@ -1,14 +1,14 @@
 import {
-    FullscreenContainerTransformElementProps,
-    FullscreenContainerTransformHandleProps,
+    IFullscreenContainerTransformElementProps,
+    IFullscreenContainerTransformHandleProps,
 } from "./subComponents";
 
 export type TChildren = React.ReactElement<
-    | FullscreenContainerTransformElementProps
-    | FullscreenContainerTransformHandleProps
+    | IFullscreenContainerTransformElementProps
+    | IFullscreenContainerTransformHandleProps
 >[];
 
 export type TChildrenMap = {
-    Handle: React.ReactElement<FullscreenContainerTransformHandleProps>;
-    Element: React.ReactElement<FullscreenContainerTransformElementProps>;
+    Handle: React.ReactElement<IFullscreenContainerTransformHandleProps>;
+    Element: React.ReactElement<IFullscreenContainerTransformElementProps>;
 };
