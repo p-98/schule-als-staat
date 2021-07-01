@@ -16,14 +16,12 @@ import "@material/ripple/dist/mdc.ripple.css";
 import "@rmwc/icon/icon.css";
 
 // local
-import Drawer from "./_app/components/drawer";
+import Drawer from "./components/drawer";
 
-import styles from "./_app/_app.module.scss";
+import styles from "./_app.module.scss";
 
 const App = ({ Component: Page, pageProps }: AppProps): JSX.Element => {
     const [drawerOpen, setDrawerOpen] = useState(false);
-
-    console.log(drawerOpen);
 
     return (
         <div className={styles["app"]}>

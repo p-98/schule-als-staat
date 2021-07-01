@@ -23,6 +23,12 @@ main features:
 
 screens and features:
 
+-   Login
+    -   QR-Code
+    -   Manuell
+        - Unternehmen
+        - Bürger
+        - Gast
 -   Inbox
     -   Liste aller Mitteilungen
     -   Einzelansicht einer Mitteilung (Links möglich -> blank HTML?)

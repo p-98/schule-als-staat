@@ -1,0 +1,22 @@
+@use "@material/layout-grid/mixins";
+
+.mdc-card__media--square::before {
+    margin-top: 0 !important;
+    padding-top: 100%;
+}
+
+.mdc-layout-grid__cell--span--phone {
+    @include mixins.media-query_(phone) {
+        display: none;
+    }
+}
+.mdc-layout-grid__cell--span--tablet {
+    @include mixins.media-query_(tablet) {
+        display: none;
+    }
+}
+.mdc-layout-grid__cell--span--desktop {
+    @include mixins.media-query_(desktop) {
+        display: none;
+    }
+}

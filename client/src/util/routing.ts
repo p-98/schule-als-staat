@@ -15,5 +15,10 @@ const routingObj: (() => {
         label: "Test 2",
         icon: "build",
     }),
+    () => ({
+        href: "login",
+        label: "Login",
+        icon: "login",
+    }),
 ];
 export default routingObj;

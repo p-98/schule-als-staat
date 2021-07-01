@@ -1,0 +1,42 @@
+.user-banner {
+    height: 56px;
+    display: grid;
+    place-items: center;
+    position: relative;
+    top: -8px;
+}
+
+.user-banner-2 {
+    height: 56px;
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+
+    display: grid;
+    grid-template-columns: 56px auto;
+}
+.user-banner-2::before {
+    background-color: var(--mdc-theme-primary, #6200ee);
+    opacity: 0.12;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.user-banner__avatar {
+    font-size: 36px;
+    place-self: center;
+}
+
+.user-banner__label {
+    padding-left: 8px;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+}
+.user-banner__caption {
+    margin: 3px 0 -6px 0;
+}

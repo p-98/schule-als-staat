@@ -38,7 +38,7 @@
     background-color: aqua;
 
     // closing timing (accelerated easing)
-    transition: transform var(--drawer-transition-time-opening)
+    transition: transform var(--drawer-transition-time-closing)
         cubic-bezier(0.4, 0, 1, 1);
 }
 .app__drawer--open {
@@ -74,7 +74,9 @@
 
 .app__header-page-wrapper {
     width: 100%;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    // closing timing
+    transition: width var(--drawer-transition-time-closing)
+        cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
 
     display: grid;
@@ -85,6 +87,9 @@
 .app__drawer--open ~ .app__header-page-wrapper {
     @include app__drawer--desktop() {
         width: calc(100% - 256px);
+        // opening timing
+        transition: width var(--drawer-transition-time-opening)
+            cubic-bezier(0.4, 0, 0.2, 1);
     }
 }
 
@@ -93,6 +98,7 @@
 }
 
 .app__page {
+    overflow: scroll;
     width: 100%;
     // maximum body size from documentation: https://material.io/design/layout/understanding-layout.html#layout-anatomy
     max-width: 1040px;
