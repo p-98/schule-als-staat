@@ -1,6 +1,5 @@
-import { forwardRef, useState } from "react";
+import { forwardRef } from "react";
 import { CardActions, CardActionButton, CardActionButtons } from "@rmwc/card";
-import { Typography } from "@rmwc/typography";
 import { TextField } from "@rmwc/textfield";
 import { Select } from "@rmwc/select";
 
@@ -8,9 +7,6 @@ import { Select } from "@rmwc/select";
 import "@material/card/dist/mdc.card.css";
 import "@material/button/dist/mdc.button.css";
 import "@material/icon-button/dist/mdc.icon-button.css";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
 
 // textfield imports
 import "@material/textfield/dist/mdc.textfield.css";
@@ -32,21 +28,17 @@ import "@material/menu-surface/dist/mdc.menu-surface.css";
 import "@material/ripple/dist/mdc.ripple.css";
 
 // local
-import {
-    Modes,
-    SiblingTransitionBase,
-    SiblingTransitionBaseElement,
-} from "Components/transition/siblingTransitionBase/siblingTransitionBase";
-import Password from "./password";
+import type { TUser } from "../types";
 
 import styles from "../login.module.css";
 
-interface IManualLoginProps extends React.HTMLAttributes<HTMLDivElement> {
+interface IManualProps extends React.HTMLAttributes<HTMLDivElement> {
     toQR: () => void;
-    toPassword: () => void;
+    onGetUser: (user: TUser) => void;
+    confirmButtonLabel: string;
 }
-const ManualLogin = forwardRef<HTMLDivElement, IManualLoginProps>(
-    ({ toQR, toPassword, ...restProps }, ref) => (
+const Manual = forwardRef<HTMLDivElement, IManualProps>(
+    ({ toQR, onGetUser, confirmButtonLabel, ...restProps }, ref) => (
         <div {...restProps} ref={ref}>
             <div className={styles["login__card-content"]}>
                 <Select
@@ -62,54 +54,15 @@ const ManualLogin = forwardRef<HTMLDivElement, IManualLoginProps>(
                     <CardActionButton onClick={toQR}>
                         QR-Scanner
                     </CardActionButton>
-                    <CardActionButton raised onClick={toPassword}>
-                        Weiter
+                    <CardActionButton
+                        raised
+                        onClick={() => onGetUser("Max Mustermann")}
+                    >
+                        {confirmButtonLabel}
                     </CardActionButton>
                 </CardActionButtons>
             </CardActions>
         </div>
     )
-);
-
-enum EStages {
-    login,
-    password,
-}
-interface IManualProps extends React.HTMLAttributes<HTMLDivElement> {
-    toQR: () => void;
-    onLogin: () => void;
-
-    // display props
-    header: string;
-}
-const Manual = forwardRef<HTMLDivElement, IManualProps>(
-    ({ toQR, onLogin, header, ...restProps }, ref) => {
-        const [stage, setStage] = useState(EStages.login);
-
-        return (
-            <div {...restProps} ref={ref}>
-                <Typography
-                    use="headline6"
-                    className={styles["login__card-header"]}
-                >
-                    {header}
-                </Typography>
-                <SiblingTransitionBase mode={Modes.xAxis} activeElement={stage}>
-                    <SiblingTransitionBaseElement index={EStages.login}>
-                        <ManualLogin
-                            toQR={toQR}
-                            toPassword={() => setStage(EStages.password)}
-                        />
-                    </SiblingTransitionBaseElement>
-                    <SiblingTransitionBaseElement index={EStages.password}>
-                        <Password
-                            onLogin={onLogin}
-                            goBack={() => setStage(EStages.login)}
-                        />
-                    </SiblingTransitionBaseElement>
-                </SiblingTransitionBase>
-            </div>
-        );
-    }
 );
 export default Manual;

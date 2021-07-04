@@ -1,13 +1,5 @@
 .user-banner {
     height: 56px;
-    display: grid;
-    place-items: center;
-    position: relative;
-    top: -8px;
-}
-
-.user-banner-2 {
-    height: 56px;
     position: relative;
     border-radius: 4px;
     overflow: hidden;
@@ -15,7 +7,7 @@
     display: grid;
     grid-template-columns: 56px auto;
 }
-.user-banner-2::before {
+.user-banner::before {
     background-color: var(--mdc-theme-primary, #6200ee);
     opacity: 0.12;
     content: "";

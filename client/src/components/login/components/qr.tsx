@@ -19,6 +19,8 @@ import "@material/typography/dist/mdc.typography.css";
 
 // local
 import styles from "../login.module.css";
+import type { TUser } from "../types";
+import Header from "./header";
 
 /**
  * Prevents react from rerendering the reader every time.
@@ -47,29 +49,24 @@ interface IQRProps extends React.HTMLAttributes<HTMLDivElement> {
     // onScan: (result: string) => void;
     // onError: (error: unknown) => void;
     toManual: () => void;
-    toPassword: () => void;
+    onGetUser: (user: TUser) => void;
 
     // display props
     header: string;
     infoText: string;
 }
 const QR = forwardRef<HTMLDivElement, IQRProps>(
-    ({ toManual, toPassword, header, infoText, ...restProps }, ref) => (
+    ({ toManual, onGetUser, header, infoText, ...restProps }, ref) => (
         <div {...restProps} ref={ref}>
-            <CardMedia square onClick={toPassword}>
+            <CardMedia square onClick={() => onGetUser("Max Mustermann")}>
                 <PreventSSR>
                     <QRRenderSuspense />
                 </PreventSSR>
             </CardMedia>
-            <Typography
-                use="headline6"
-                className={styles["login__card-header"]}
-            >
-                Anmelden
-            </Typography>
+            <Header header={header} />
             <div className={styles["login__card-content"]}>
                 <Typography use="body1" theme="textSecondaryOnBackground">
-                    Scanne den QR-Code auf dem Ausweis um dich anzumelden.
+                    {infoText}
                 </Typography>
             </div>
             <CardActions>

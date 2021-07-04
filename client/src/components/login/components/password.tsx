@@ -1,12 +1,6 @@
 import { forwardRef } from "react";
-import {
-    Card,
-    CardActionButtons,
-    CardActionButton,
-    CardActions,
-} from "@rmwc/card";
+import { CardActionButtons, CardActionButton, CardActions } from "@rmwc/card";
 import { TextField } from "@rmwc/textfield";
-import { Typography } from "@rmwc/typography";
 
 // textfield imports
 import "@material/textfield/dist/mdc.textfield.css";
@@ -21,24 +15,36 @@ import "@material/card/dist/mdc.card.css";
 import "@material/button/dist/mdc.button.css";
 import "@material/icon-button/dist/mdc.icon-button.css";
 
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
-
 // local
 import UserBanner from "./userBanner";
+import type { TUser } from "../types";
 
 import styles from "../login.module.css";
 
 interface IPasswordProps {
     goBack: () => void;
-    onLogin: () => void;
+    onAuthenticate: (user: TUser) => void;
     hideBackButton?: boolean;
+    confirmButtonLabel: string;
+    user: TUser | null;
+    userBannerLabel: string;
 }
 const Password = forwardRef<HTMLDivElement, IPasswordProps>(
-    ({ goBack, hideBackButton = false, ...restProps }, ref) => (
+    (
+        {
+            goBack,
+            hideBackButton = false,
+            confirmButtonLabel,
+            userBannerLabel,
+            onAuthenticate,
+            user,
+            ...restProps
+        },
+        ref
+    ) => (
         <div ref={ref} {...restProps}>
             <div className={styles["login__card-content"]}>
-                <UserBanner />
+                <UserBanner label={userBannerLabel} />
                 <TextField label="Passwort" />
             </div>
             <CardActions>
@@ -53,32 +59,15 @@ const Password = forwardRef<HTMLDivElement, IPasswordProps>(
                     >
                         Zurück
                     </CardActionButton>
-                    <CardActionButton raised>Anmelden</CardActionButton>
+                    <CardActionButton
+                        raised
+                        onClick={() => onAuthenticate(user as TUser)}
+                    >
+                        {confirmButtonLabel}
+                    </CardActionButton>
                 </CardActionButtons>
             </CardActions>
         </div>
     )
 );
 export default Password;
-
-interface IPasswordCardProps {
-    user?: string;
-    onLogin: () => void;
-    goBack: () => void;
-
-    // display props
-    header: string;
-}
-export const PasswordCard: React.FC<IPasswordCardProps> = ({
-    header,
-    user,
-    onLogin,
-    goBack,
-}) => (
-    <Card className={styles["login__card"]}>
-        <Typography use="headline6" className={styles["login__card-header"]}>
-            {header}
-        </Typography>
-        <Password hideBackButton={!!user} goBack={goBack} onLogin={onLogin} />
-    </Card>
-);

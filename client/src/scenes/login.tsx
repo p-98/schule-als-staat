@@ -13,8 +13,11 @@ const LoginPage: React.FC = () => (
         <GridCell span={4}>
             <Login
                 onLogin={() => null}
-                header="Anmelden"
-                infoText="Scanne den QR-Code auf dem Ausweis um dich anzumelden."
+                cardHeader="Anmelden"
+                qrInfoText="Scanne den QR-Code auf dem Ausweis um dich anzumelden."
+                mode="login"
+                confirmButtonLabel="Anmelden"
+                userBannerLabel="Anmelden als"
             />
         </GridCell>
     </PageGrid>
