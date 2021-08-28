@@ -11,6 +11,7 @@ module.exports = {
         "/server/src/types/graphql.ts", //auto generated
         ".eslintrc.js",
         "next-env.d.ts",
+        "./types/**/*.d.ts",
     ],
     overrides: [
         {
@@ -42,6 +43,11 @@ module.exports = {
                 ],
                 "import/no-extraneous-dependencies": "off",
                 "@typescript-eslint/dot-notation": "off",
+                "no-return-assign": ["error", "except-parens"],
+                "no-param-reassign": [
+                    "error",
+                    { props: true, ignorePropertyModificationsFor: ["state"] },
+                ],
             },
             globals: {
                 React: "writable",
