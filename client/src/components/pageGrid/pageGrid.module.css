@@ -3,3 +3,7 @@
     display: grid;
     align-items: center;
 }
+
+.page-grid__cell-child {
+    width: 100%;
+}

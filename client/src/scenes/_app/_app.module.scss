@@ -35,11 +35,13 @@
     grid-area: drawer;
     transform: translateX(0px);
 
-    background-color: aqua;
+    opacity: 1;
 
-    // closing timing (accelerated easing)
+    // 1: closing timing (accelerated easing)
+    // 2: fade-in timing
     transition: transform var(--drawer-transition-time-closing)
-        cubic-bezier(0.4, 0, 1, 1);
+            cubic-bezier(0.4, 0, 1, 1),
+        opacity 2.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .app__drawer--open {
     @include app__drawer--modal() {
@@ -49,6 +51,13 @@
         transition: transform var(--drawer-transition-time-opening)
             cubic-bezier(0, 0, 0.2, 1);
     }
+}
+.app__drawer--transparent {
+    pointer-events: none;
+
+    opacity: 0;
+    // fade-out timing
+    transition: opacity 3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .app__drawer-scrim {
@@ -78,11 +87,6 @@
     transition: width var(--drawer-transition-time-closing)
         cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
-
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    justify-items: center;
 }
 .app__drawer--open ~ .app__header-page-wrapper {
     @include app__drawer--desktop() {
@@ -93,13 +97,15 @@
     }
 }
 
-.app__header {
-    position: initial;
-}
+.app__fullscreen {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    bottom: 0;
+    right: 0;
 
-.app__page {
-    overflow: scroll;
-    width: 100%;
-    // maximum body size from documentation: https://material.io/design/layout/understanding-layout.html#layout-anatomy
-    max-width: 1040px;
+    pointer-events: none;
+}
+.app__fullscreen > * {
+    pointer-events: auto;
 }
