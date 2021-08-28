@@ -19,15 +19,12 @@
 }
 
 .container-transform__element {
-    display: none;
 }
 .container-transform__element--fullscreen-element {
+    width: 100vw;
+    height: 100vh;
 }
 .container-transform__element--fullscreen-handle {
-}
-.container-transform:not(.container-transform--portal)
-    .container-transform__element--fullscreen-handle {
-    display: block;
 }
 
 .container-transform__scrim {

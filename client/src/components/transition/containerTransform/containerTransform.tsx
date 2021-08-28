@@ -5,8 +5,6 @@ import ElementSwitcher from "../util/elementSwitcher";
 
 import styles from "./*containerTransform.module.css";
 
-export * from "./fullscreen/fullscreenContainerTransform";
-
 const transitionTime = 300;
 
 /*
