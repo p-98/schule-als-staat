@@ -3,12 +3,7 @@ import {
     ContainerTransformElement,
 } from "Components/transition/containerTransform/containerTransform";
 import { useState } from "react";
-import { Card } from "@rmwc/card";
-
-// card imports
-import "@material/card/dist/mdc.card.css";
-import "@material/button/dist/mdc.button.css";
-import "@material/icon-button/dist/mdc.icon-button.css";
+import cn from "classnames";
 
 // local
 import {
@@ -32,7 +27,7 @@ function getActiveElement(input: TInput, user: TUser | null) {
     return "qr-scanner";
 }
 
-interface ILoginPropsCommon {
+interface ILoginPropsCommon extends React.HTMLAttributes<HTMLDivElement> {
     cardHeader: string;
     confirmButtonLabel: string;
 }
@@ -94,51 +89,54 @@ const Login: React.FC<ILoginProps> = ({
     );
 
     return (
-        <Card className={styles["login__card"]}>
-            <ContainerTransform
-                activeElement={getActiveElement(input, user)}
-                className={styles["login__transform-container"]}
-            >
-                <ContainerTransformElement elementKey="qr-scanner">
-                    <QR
-                        toManual={() => setInput("manual")}
-                        onGetUser={onGetUser}
-                        header={cardHeader}
-                        infoText={qrInfoText}
-                    />
-                </ContainerTransformElement>
-                <ContainerTransformElement elementKey="qr-password">
-                    <div>
-                        <Header header={cardHeader} />
-                        {PasswordElement}
-                    </div>
-                </ContainerTransformElement>
-                <ContainerTransformElement elementKey="manual">
-                    <div>
-                        <Header header={cardHeader} />
-                        <SiblingTransitionBase
-                            mode={Modes.xAxis}
-                            activeElement={user ? 1 : 0}
-                        >
-                            <SiblingTransitionBaseElement index={0}>
-                                <Manual
-                                    toQR={() => setInput("qr")}
-                                    onGetUser={onGetUser}
-                                    confirmButtonLabel={
-                                        props.mode === "get_user"
-                                            ? confirmButtonLabel
-                                            : "Weiter"
-                                    }
-                                />
-                            </SiblingTransitionBaseElement>
-                            <SiblingTransitionBaseElement index={1}>
-                                {PasswordElement}
-                            </SiblingTransitionBaseElement>
-                        </SiblingTransitionBase>
-                    </div>
-                </ContainerTransformElement>
-            </ContainerTransform>
-        </Card>
+        <ContainerTransform
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...props}
+            activeElement={getActiveElement(input, user)}
+            className={cn(
+                styles["login__transform-container"],
+                props.className
+            )}
+        >
+            <ContainerTransformElement elementKey="qr-scanner">
+                <QR
+                    toManual={() => setInput("manual")}
+                    onGetUser={onGetUser}
+                    header={cardHeader}
+                    infoText={qrInfoText}
+                />
+            </ContainerTransformElement>
+            <ContainerTransformElement elementKey="qr-password">
+                <div>
+                    <Header header={cardHeader} />
+                    {PasswordElement}
+                </div>
+            </ContainerTransformElement>
+            <ContainerTransformElement elementKey="manual">
+                <div>
+                    <Header header={cardHeader} />
+                    <SiblingTransitionBase
+                        mode={Modes.xAxis}
+                        activeElement={user ? 1 : 0}
+                    >
+                        <SiblingTransitionBaseElement index={0}>
+                            <Manual
+                                toQR={() => setInput("qr")}
+                                onGetUser={onGetUser}
+                                confirmButtonLabel={
+                                    props.mode === "get_user"
+                                        ? confirmButtonLabel
+                                        : "Weiter"
+                                }
+                            />
+                        </SiblingTransitionBaseElement>
+                        <SiblingTransitionBaseElement index={1}>
+                            {PasswordElement}
+                        </SiblingTransitionBaseElement>
+                    </SiblingTransitionBase>
+                </div>
+            </ContainerTransformElement>
+        </ContainerTransform>
     );
 };
 export default Login;
