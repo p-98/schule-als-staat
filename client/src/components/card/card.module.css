@@ -1,0 +1,29 @@
+.card {
+    gap: 16px;
+}
+
+.card__header {
+    padding: 0 16px;
+}
+.card__header:first-child {
+    padding-top: 16px;
+}
+
+.card__content {
+    padding: 0 16px;
+
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 8px;
+}
+.card__content:last-child {
+    padding-bottom: 16px;
+}
+
+.card__content + .card__content {
+    padding-top: 8px;
+}
+
+.card__actions--full-bleed {
+    padding: 8px;
+}
