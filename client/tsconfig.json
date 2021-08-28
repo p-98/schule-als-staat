@@ -10,9 +10,9 @@
             "Components/*": ["./src/components/*"],
             "Scenes/*": ["./src/scenes/*"],
             "Utility/*": ["./src/util/*"],
-            "Types/*": ["./src/types/*"]
-        },
-        "typeRoots": ["./src/types", "../node_modules/@types"]
+            "Config": ["../config.ts"],
+            "*": ["./src/@types/*"]
+        }
     },
     "include": ["src/**/*", "next-env.d.ts"],
     "exclude": ["node_modules"]
