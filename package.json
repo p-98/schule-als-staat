@@ -18,6 +18,7 @@
     "author": "Timon Martins",
     "dependencies": {
         "@apollo/client": "^3.3.11",
+        "@reduxjs/toolkit": "^1.6.1",
         "@rmwc/avatar": "^6.1.4",
         "@rmwc/base": "^6.1.4",
         "@rmwc/button": "^6.1.4",
@@ -31,7 +32,10 @@
         "@rmwc/tabs": "^6.1.4",
         "@rmwc/textfield": "^6.1.4",
         "@rmwc/top-app-bar": "^6.1.4",
+        "@rmwc/types": "^6.0.5",
         "@rmwc/typography": "^6.1.4",
+        "@types/react-redux": "^7.1.18",
+        "@types/uuid": "^8.3.1",
         "apollo-server": "^2.21.0",
         "classnames": "^2.3.1",
         "graphql": "^15.5.0",
@@ -40,7 +44,9 @@
         "react": "^17.0.1",
         "react-dom": "^17.0.1",
         "react-qr-reader": "^2.2.1",
-        "react-qr-scanner": "^1.0.0-alpha.7"
+        "react-qr-scanner": "^1.0.0-alpha.7",
+        "react-redux": "^7.2.4",
+        "uuid": "^8.3.2"
     },
     "devDependencies": {
         "@babel/core": "^7.13.15",
