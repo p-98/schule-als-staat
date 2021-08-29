@@ -43,10 +43,10 @@ const Drawer: React.FC = () => {
                     <Navigation />
                 </DrawerContent>
             </MaterialDrawer>
-            <div
+            <button
                 onClick={() => dispatch(close())}
                 className={cn(styles["app__drawer-scrim"], "mdc-drawer-scrim")}
-                role="button"
+                type="button"
                 aria-label="close drawer"
             />
         </>
