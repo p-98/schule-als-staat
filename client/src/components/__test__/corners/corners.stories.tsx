@@ -6,14 +6,13 @@ import {
     DialogButton,
 } from "@rmwc/dialog";
 import { Meta, Story } from "@storybook/react";
-import React, { HtmlHTMLAttributes, ReactElement } from "react";
+import React from "react";
 
 import "@material/dialog/dist/mdc.dialog.css";
 import "@material/button/dist/mdc.button.css";
 import "@material/ripple/dist/mdc.ripple.css";
 
 import "./corners.css";
-import { composeMessage } from "graphql-config";
 
 export default {
     title: "Dialog components/__test__/corners",
@@ -35,12 +34,12 @@ const DialogComponent: React.FC = () => (
 export const DialogTest: Story<{
     smallBorderRadius: number;
     mediumBorderRadius: number;
-}> = (args) => (
+}> = ({ mediumBorderRadius, smallBorderRadius }) => (
     <div
         style={
             {
-                "--medium-component-border-radius": `${args.mediumBorderRadius}px`,
-                "--small-component-border-radius": `${args.smallBorderRadius}px`,
+                "--medium-component-border-radius": `${mediumBorderRadius}px`,
+                "--small-component-border-radius": `${smallBorderRadius}px`,
             } as React.CSSProperties
         }
     >
@@ -58,8 +57,6 @@ interface ModifierProps {
 const Modifier: React.FC<ModifierProps> = ({
     children: child,
 }: ModifierProps) => {
-    console.log("test");
-
     const style = {
         ...child.props.style,
         backgroundColor: "green",

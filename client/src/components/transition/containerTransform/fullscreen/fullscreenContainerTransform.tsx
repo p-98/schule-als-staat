@@ -58,7 +58,6 @@ function updatePortalHandle(
         portalHandleDOM.remove();
     } catch {
         // initial call, so portalHandle does not exist yet
-        console.log("initial portal clone");
     }
 
     // clone new handle
@@ -84,14 +83,11 @@ export interface IFullscreenContainerTransformProps
     children: TChildren;
     renderTo?: PortalPropT;
     open: boolean;
-    /** Is not allowed to change! */
-    elementSwitcherMode?: ElementSwitcher["options"]["mode"];
 }
 const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps> = ({
     children,
     renderTo = "#fullscreen",
     open: openTarget,
-    elementSwitcherMode = "display",
     ...restProps
 }: IFullscreenContainerTransformProps) => {
     const portalWrapperRef = useRef<HTMLDivElement>(null);

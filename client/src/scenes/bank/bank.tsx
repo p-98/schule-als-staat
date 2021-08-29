@@ -105,7 +105,6 @@ const Bank: React.FC = () => {
                         pageGridStyles["page-grid__cell-child"]
                     )}
                     style={{ backgroundColor: "green" }}
-                    elementSwitcherMode="display"
                 >
                     <FullscreenContainerTransformHandle>
                         <Login

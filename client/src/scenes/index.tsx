@@ -1,4 +1,4 @@
-import { Grid, GridCell, GridRow } from "@rmwc/grid";
+import { Grid, GridCell } from "@rmwc/grid";
 
 import "@material/layout-grid/dist/mdc.layout-grid.css";
 
