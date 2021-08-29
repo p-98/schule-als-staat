@@ -26,6 +26,31 @@ function getActiveElement(input: TInput, user: TUser | null) {
     if (user) return "qr-password";
     return "qr-scanner";
 }
+function cleanupLoginProps(props: Partial<ILoginProps>) {
+    const cleanProps = { ...props };
+
+    // cleanup ILoginPropsLogin
+    if (cleanProps.mode === "login") {
+        delete cleanProps.onLogin;
+        delete cleanProps.qrInfoText;
+        delete cleanProps.userBannerLabel;
+    }
+
+    // cleanup ILoginPropsAuthUser
+    if (cleanProps.mode === "authenticate_user") {
+        delete cleanProps.user;
+        delete cleanProps.onAuthenticate;
+        delete cleanProps.userBannerLabel;
+    }
+
+    // cleanup ILoginPropsGetUser
+    if (cleanProps.mode === "get_user") {
+        delete cleanProps.onGetUser;
+        delete cleanProps.qrInfoText;
+    }
+
+    delete cleanProps.mode;
+}
 
 interface ILoginPropsCommon extends React.HTMLAttributes<HTMLDivElement> {
     cardHeader: string;
@@ -57,6 +82,7 @@ type ILoginProps = ILoginPropsLogin | ILoginPropsAuthUser | ILoginPropsGetUser;
 const Login: React.FC<ILoginProps> = ({
     cardHeader,
     confirmButtonLabel,
+    // mode and mode-dependant properties are not extracted, because then type information is lost
     ...props
 }) => {
     const [user, setUser] = useState<TUser | null>(
@@ -91,7 +117,7 @@ const Login: React.FC<ILoginProps> = ({
     return (
         <ContainerTransform
             // eslint-disable-next-line react/jsx-props-no-spreading
-            {...props}
+            {...cleanupLoginProps(props)}
             activeElement={getActiveElement(input, user)}
             className={cn(
                 styles["login__transform-container"],

@@ -32,7 +32,7 @@ const RealToVirtual: React.FC = () => (
         <CardContent>
             <TextField
                 label={`von ${config.currencies.real.short}`}
-                value="1"
+                defaultValue="1"
             />
             <TextField
                 disabled
@@ -54,7 +54,7 @@ const VirtualToReal: React.FC = () => (
         <CardContent>
             <TextField
                 label={`von ${config.currencies.virtual.short}`}
-                value="1"
+                defaultValue="1"
             />
             <TextField
                 disabled

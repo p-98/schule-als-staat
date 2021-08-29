@@ -6,22 +6,22 @@ const routingObj: (() => {
     icon: string;
 })[] = [
     () => ({
-        href: "test1",
+        href: "/test1",
         label: "Test 1",
         icon: "build",
     }),
     () => ({
-        href: "test2",
+        href: "/test2",
         label: "Test 2",
         icon: "build",
     }),
     () => ({
-        href: "login",
+        href: "/login",
         label: "Login",
         icon: "login",
     }),
     () => ({
-        href: "bank",
+        href: "/bank",
         label: "Bank",
         icon: "account_balance",
     }),

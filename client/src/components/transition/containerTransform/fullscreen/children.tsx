@@ -17,8 +17,6 @@ const useChildren = (children: TChildren): TChildrenMap =>
     useMemo(() => {
         if (children.length !== 2) throw Error("Too many children");
 
-        console.log(children[0]?.type, children[1]?.type);
-
         if (children[0]?.type !== childrenTypeMap["Handle"])
             throw Error("Invalid handle");
         if (children[1]?.type !== childrenTypeMap["Element"])

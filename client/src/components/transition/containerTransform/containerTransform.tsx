@@ -16,7 +16,7 @@ usage:
     </ContainerTransform>
 */
 
-interface IContainerTransformProps
+export interface IContainerTransformProps
     extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactElement<IContainerTransformElementProps>[];
     activeElement: string;

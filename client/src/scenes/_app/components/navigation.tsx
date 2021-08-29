@@ -15,8 +15,8 @@ const Navigation: React.FC = () => (
 
             return (
                 // prefetching is disabled because it would load literally every page
-                <Link href={href} passHref prefetch={false}>
-                    <SimpleListItem graphic={icon} text={label} key={label} />
+                <Link href={href} passHref prefetch={false} key={label}>
+                    <SimpleListItem graphic={icon} text={label} />
                 </Link>
             );
         })}
