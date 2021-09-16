@@ -1,4 +1,8 @@
 import { Meta, Story } from "@storybook/react";
+import { Provider } from "react-redux";
+
+// local
+import store from "Utility/redux/store";
 import FullscreenContainerTransformComponent, {
     FullscreenContainerTransformElement,
     FullscreenContainerTransformHandle,
@@ -13,6 +17,7 @@ export default {
             },
         },
     },
+    decorators: [(Story) => <Provider store={store}>{Story()}</Provider>],
 } as Meta;
 
 export const FullscreenContainerTransform: Story<{ open: boolean }> = ({
@@ -33,7 +38,10 @@ export const FullscreenContainerTransform: Story<{ open: boolean }> = ({
             <FullscreenContainerTransformComponent
                 renderTo="#portal"
                 open={open}
-                style={{ border: "1px solid red", boxSizing: "border-box" }}
+                // style={{ border: "1px solid red", boxSizing: "border-box" }}
+                style={{ backgroundColor: "red" }}
+                // locked to true because it is the only relevant element on the screen
+                expectTransformation
             >
                 <FullscreenContainerTransformHandle>
                     <div
@@ -44,8 +52,6 @@ export const FullscreenContainerTransform: Story<{ open: boolean }> = ({
                     <div
                         style={{
                             background: "green",
-                            width: "100%",
-                            height: 100,
                         }}
                     />
                 </FullscreenContainerTransformElement>

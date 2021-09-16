@@ -1,7 +1,7 @@
 .main-app-bar {
     opacity: 1;
     /* fade-in timing */
-    transition: opacity 2.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .main-app-bar--invisible {
@@ -9,5 +9,5 @@
 
     opacity: 0;
     /* fade-out timing */
-    transition: opacity 3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 300ms cubic-bezier(0.4, 0, 1, 1);
 }

@@ -21,7 +21,15 @@ module.exports = {
             "@babel/preset-typescript",
             ["@babel/preset-react", { runtime: "automatic" }],
         ],
-        plugins: ["@babel/plugin-transform-typescript", ...options.plugins],
+        plugins: [
+            "@babel/plugin-transform-typescript",
+            // silence waring
+            [
+                "@babel/plugin-proposal-private-property-in-object",
+                { loose: true },
+            ],
+            ...options.plugins,
+        ],
     }),
 
     /**

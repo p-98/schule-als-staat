@@ -2,23 +2,35 @@
     /* in fullscreen mode --transition-time is injected via react, because of different timings */
     --transition-time: 0.3s;
 
-    animation-duration: var(--transition-time);
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-
-    transition: height var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1),
-        width var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1),
-        left var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1),
-        top var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1);
+    transition-property: height, width, left, top;
+    transition-duration: var(--transition-time);
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 
     overflow: hidden;
     width: fit-content;
 }
 .container-transform--portal {
+    transition-property: all;
+
     display: none;
     position: absolute;
 }
+.container-transform--optimize {
+    will-change: display;
+}
+
+.container-transform__fading-wrapper {
+    animation-duration: var(--transition-time);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+.container-transform__fading-wrapper--optimize {
+    will-change: opacity, contents;
+}
 
 .container-transform__element {
+}
+.container-transform__element--optimize {
+    will-change: display;
 }
 .container-transform__element--fullscreen-element {
     width: 100vw;

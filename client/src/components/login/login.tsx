@@ -26,7 +26,7 @@ function getActiveElement(input: TInput, user: TUser | null) {
     if (user) return "qr-password";
     return "qr-scanner";
 }
-function cleanupLoginProps(props: Partial<ILoginProps>) {
+function cleanupLoginProps(props: Partial<ILoginProps>): Partial<ILoginProps> {
     const cleanProps = { ...props };
 
     // cleanup ILoginPropsLogin
@@ -50,6 +50,8 @@ function cleanupLoginProps(props: Partial<ILoginProps>) {
     }
 
     delete cleanProps.mode;
+
+    return cleanProps;
 }
 
 interface ILoginPropsCommon extends React.HTMLAttributes<HTMLDivElement> {

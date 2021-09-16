@@ -6,12 +6,14 @@ import React, {
     useState,
 } from "react";
 import { PortalChild, PortalPropT } from "@rmwc/base";
+import cn from "classnames";
 
 // local
 import { useFullscreen } from "Utility/hooks/redux/fullscreen";
 import {
     FullscreenContainerTransformScrim,
     FullscreenContainerTransformWrapper,
+    FullscreenContainerTransformFadingWrapper,
 } from "./subComponents";
 import useChildren from "./children";
 import ElementSwitcher from "../../util/elementSwitcher";
@@ -36,8 +38,8 @@ const elementCN = styles[
     "container-transform__element--fullscreen-element"
 ] as string;
 
-const transitionTimeOpening = 3000;
-const transitionTimeClosing = 2500;
+const transitionTimeOpening = 300;
+const transitionTimeClosing = 250;
 
 function getHandleDOM(wrapperDOM: HTMLElement) {
     const handleDOM = wrapperDOM.getElementsByClassName(handleCN)[0];
@@ -45,24 +47,6 @@ function getHandleDOM(wrapperDOM: HTMLElement) {
     if (!handleDOM) throw Error("no handle found");
 
     return handleDOM as HTMLElement;
-}
-
-/** clones the handle to the location inside the portal */
-function updatePortalHandle(
-    wrapperDOM: HTMLElement,
-    portalWrapperDOM: HTMLElement
-) {
-    // delete old handle
-    try {
-        const portalHandleDOM = getHandleDOM(portalWrapperDOM);
-        portalHandleDOM.remove();
-    } catch {
-        // initial call, so portalHandle does not exist yet
-    }
-
-    // clone new handle
-    const handleDOM = getHandleDOM(wrapperDOM);
-    portalWrapperDOM.append(handleDOM.cloneNode(true));
 }
 
 // TODO: return memo
@@ -78,16 +62,43 @@ usage:
     </FullscreenContainerTransform>
 */
 
+export type TOnAfterCloneHandle = (
+    handleDOM: HTMLElement,
+    portalHandleDOM: HTMLElement,
+    action: "opening" | "closing",
+    /** use setTimeout(callback, msToTransformEnd) to execute callback after the transformation is finished */
+    msToTransformEnd: number
+) => void;
+
 export interface IFullscreenContainerTransformProps
     extends React.HTMLAttributes<HTMLDivElement> {
     children: TChildren;
     renderTo?: PortalPropT;
     open: boolean;
+    /**
+     * class names to be applied ADDITIONALLY to the className prop when starting to transition to open; don't pass in classes already applied via className (might cause bugs).
+     * Used to smoothly transition the wrapper (e.g. border-radius).
+     */
+    openClassName?: string;
+    /**
+     * Called after handle is cloned to portal.
+     * Used to smooth out transition of elements that cannot be cloned correctly (e.g. replace video element with img showing the last frame)
+     */
+    onAfterCloneHandle?: TOnAfterCloneHandle;
+    /**
+     * If true, optimizations will be applied.
+     * Don't leave this true permanently or on several elements! (https://developer.mozilla.org/en-US/docs/Web/CSS/will-change).
+     * Prop only needs to be active *before* the transformation occures, because it is held active whilst transforming internally
+     */
+    expectTransformation: boolean;
 }
 const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps> = ({
     children,
     renderTo = "#fullscreen",
     open: openTarget,
+    openClassName,
+    onAfterCloneHandle,
+    expectTransformation,
     ...restProps
 }: IFullscreenContainerTransformProps) => {
     const portalWrapperRef = useRef<HTMLDivElement>(null);
@@ -104,18 +115,53 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
     const { Handle, Element } = useChildren(children);
     const transitionTime = open ? transitionTimeClosing : transitionTimeOpening;
 
+    /** clones the handle to the location inside the portal */
+    const updatePortalHandle = useCallback(
+        (wrapperDOM: HTMLElement, fadingWrapperDOM: HTMLElement) => {
+            // delete old handle
+            try {
+                const portalHandleDOM = getHandleDOM(fadingWrapperDOM);
+                portalHandleDOM.remove();
+            } catch {
+                // initial call, so portalHandle does not exist yet
+            }
+
+            // clone new handle
+            const handleDOM = getHandleDOM(wrapperDOM);
+            fadingWrapperDOM.append(handleDOM.cloneNode(true));
+            const portalHandleDOM = fadingWrapperDOM.lastChild as HTMLElement;
+
+            // optimize for upcoming transition
+            // portalHandleDOM.classList.add(
+            //     styles["container-transform__element--optimize"] as string
+            // );
+
+            // call onAfterHandle for custom smooth transitions
+            onAfterCloneHandle?.(
+                handleDOM,
+                portalHandleDOM,
+                open ? "closing" : "opening",
+                transitionTime
+            );
+        },
+        [onAfterCloneHandle, open, transitionTime]
+    );
+    const clearPortalHandle = useCallback((fadingWrapperDOM: HTMLElement) => {
+        const handleDOM = getHandleDOM(fadingWrapperDOM);
+        handleDOM.remove();
+    }, []);
+
     // transition logic
     const expand = useCallback(() => {
         if (!wrapperRef.current) return;
         if (!portalWrapperRef.current) return;
         if (!elementSwitcher) return;
 
-        fullscreen.lock();
-
         const wrapperDOM = wrapperRef.current;
         const portalWrapperDOM = portalWrapperRef.current;
+        const fadingWrapperDOM = portalWrapperDOM.firstChild as HTMLElement;
 
-        updatePortalHandle(wrapperDOM, portalWrapperDOM);
+        updatePortalHandle(wrapperDOM, fadingWrapperDOM);
         elementSwitcher.setAllStyles();
 
         const handleDOM = getHandleDOM(wrapperDOM);
@@ -143,7 +189,7 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
             setOffset(portalWrapperDOM, { left: 0, top: 0 });
 
             // start fading
-            portalWrapperDOM.style.animationName = styles[
+            fadingWrapperDOM.style.animationName = styles[
                 "container-transform__fade"
             ] as string;
 
@@ -151,6 +197,13 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
             scrimRef.current.classList.add(
                 styles["container-transform__scrim--open"] as string
             );
+
+            // start wrapper transitions
+            // // must be added this way, because the wrapper needs a frame without display:none to apply transitions
+            const openClassNameArr = openClassName?.split(" ") ?? [];
+            portalWrapperDOM.classList.add(...openClassNameArr);
+
+            fullscreen.lock();
         });
 
         // switch elements
@@ -159,20 +212,29 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
         }, 0.3 * transitionTimeOpening);
 
         // finish and cleanup
-        setTimeout(() => {
-            portalWrapperDOM.style.animationName = "";
+        const cleanup = (e: TransitionEvent) => {
+            if (e.propertyName !== "width") return;
+            portalWrapperDOM.removeEventListener("transitionend", cleanup);
+
+            fadingWrapperDOM.style.animationName = "";
 
             // clear container inline styles
             clearOffset(portalWrapperDOM);
             clearDimensions(portalWrapperDOM);
 
-            // clear handle inline styles
-            clearDimensions(portalHandleDOM);
+            clearPortalHandle(fadingWrapperDOM);
 
             setOpen(true);
             setInTransition(false);
-        }, transitionTimeOpening);
-    }, [elementSwitcher, fullscreen]);
+        };
+        portalWrapperDOM.addEventListener("transitionend", cleanup);
+    }, [
+        clearPortalHandle,
+        elementSwitcher,
+        fullscreen,
+        openClassName,
+        updatePortalHandle,
+    ]);
 
     const collapse = useCallback(() => {
         if (!wrapperRef.current) return;
@@ -181,8 +243,9 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
 
         const wrapperDOM = wrapperRef.current;
         const portalWrapperDOM = portalWrapperRef.current;
+        const fadingWrapperDOM = portalWrapperDOM.firstChild as HTMLElement;
 
-        updatePortalHandle(wrapperDOM, portalWrapperDOM);
+        updatePortalHandle(wrapperDOM, fadingWrapperDOM);
         elementSwitcher.setAllStyles();
 
         const handleDOM = getHandleDOM(wrapperDOM);
@@ -203,7 +266,7 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
             setDimensions(portalWrapperDOM, getDimensions(wrapperDOM));
 
             // start fading
-            portalWrapperDOM.style.animationName = styles[
+            fadingWrapperDOM.style.animationName = styles[
                 "container-transform__fade"
             ] as string;
 
@@ -211,6 +274,8 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
             scrimRef.current.classList.remove(
                 styles["container-transform__scrim--open"] as string
             );
+
+            fullscreen.release();
         });
 
         setTimeout(() => {
@@ -218,26 +283,27 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
         }, 0.3 * transitionTimeClosing);
 
         // finish and cleanup
-        setTimeout(() => {
-            portalWrapperDOM.style.animationName = "";
+        const cleanup = (e: TransitionEvent) => {
+            if (e.propertyName !== "width") return;
+            portalWrapperDOM.removeEventListener("transitionend", cleanup);
+
+            fadingWrapperDOM.style.animationName = "";
 
             // clear container inline styles
             clearOffset(portalWrapperDOM);
             clearDimensions(portalWrapperDOM);
 
-            // clear handle inline styles
-            clearDimensions(portalHandleDOM);
+            clearPortalHandle(fadingWrapperDOM);
 
             // switch visible wrapper
             wrapperDOM.style.opacity = "";
             portalWrapperDOM.style.display = "";
 
-            fullscreen.release();
-
             setOpen(false);
             setInTransition(false);
-        }, transitionTimeClosing);
-    }, [elementSwitcher, fullscreen]);
+        };
+        portalWrapperDOM.addEventListener("transitionend", cleanup);
+    }, [clearPortalHandle, elementSwitcher, fullscreen, updatePortalHandle]);
 
     // init
     useEffect(() => {
@@ -247,9 +313,10 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
 
             const wrapperDOM = wrapperRef.current;
             const portalWrapperDOM = portalWrapperRef.current;
+            const fadingWrapperDOM = portalWrapperDOM.firstChild as HTMLElement;
 
             // set initial portal handle
-            updatePortalHandle(wrapperDOM, portalWrapperDOM);
+            updatePortalHandle(wrapperDOM, fadingWrapperDOM);
 
             const elementMap = {
                 Handle: () =>
@@ -280,6 +347,17 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
         open ? collapse() : expand();
     }, [collapse, expand, inTransition, open, openTarget]);
 
+    const expectOrInTransformation = expectTransformation || inTransition;
+
+    useEffect(
+        () =>
+            console.log(
+                "internalExpectTransformation",
+                expectOrInTransformation
+            ),
+        [expectOrInTransformation]
+    );
+
     return useMemo(
         () => (
             <>
@@ -288,8 +366,11 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
                     {...restProps}
                     ref={wrapperRef}
                     transitionTime={transitionTime}
+                    optimize={false}
                 >
-                    {Handle}
+                    {React.cloneElement(Handle, {
+                        optimize: expectOrInTransformation,
+                    })}
                 </FullscreenContainerTransformWrapper>
 
                 <PortalChild renderTo={renderTo}>
@@ -303,13 +384,36 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
                         ref={portalWrapperRef}
                         portal
                         transitionTime={transitionTime}
+                        className={cn(
+                            restProps.className,
+                            open && !inTransition // || (!open && inTransition)
+                                ? openClassName
+                                : ""
+                        )}
+                        optimize={expectOrInTransformation}
                     >
-                        {Element}
+                        <FullscreenContainerTransformFadingWrapper
+                            optimize={expectOrInTransformation}
+                        >
+                            {React.cloneElement(Element, {
+                                optimize: expectOrInTransformation,
+                            })}
+                        </FullscreenContainerTransformFadingWrapper>
                     </FullscreenContainerTransformWrapper>
                 </PortalChild>
             </>
         ),
-        [restProps, transitionTime, Handle, renderTo, Element]
+        [
+            restProps,
+            transitionTime,
+            Handle,
+            expectOrInTransformation,
+            renderTo,
+            open,
+            inTransition,
+            openClassName,
+            Element,
+        ]
     );
 };
 export default FullscreenContainerTransform;

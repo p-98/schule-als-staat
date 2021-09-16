@@ -11,7 +11,7 @@
 }
 
 .page__inner {
-    overflow: scroll;
+    overflow: auto;
     width: 100%;
     /* maximum body size from documentation: https://material.io/design/layout/understanding-layout.html#layout-anatomy */
     max-width: 1040px;
