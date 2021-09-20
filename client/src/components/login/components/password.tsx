@@ -23,6 +23,7 @@ import styles from "../login.module.css";
 
 interface IPasswordProps {
     goBack: () => void;
+    backButtonLabel: string;
     onAuthenticate: (user: TUser) => void;
     hideBackButton?: boolean;
     confirmButtonLabel: string;
@@ -33,6 +34,7 @@ const Password = forwardRef<HTMLDivElement, IPasswordProps>(
     (
         {
             goBack,
+            backButtonLabel,
             hideBackButton = false,
             confirmButtonLabel,
             userBannerLabel,
@@ -57,7 +59,7 @@ const Password = forwardRef<HTMLDivElement, IPasswordProps>(
                             opacity: hideBackButton ? 0 : 1,
                         }}
                     >
-                        Zurück
+                        {backButtonLabel}
                     </CardActionButton>
                     <CardActionButton
                         raised

@@ -40,6 +40,7 @@ function cleanupLoginProps(props: Partial<ILoginProps>): Partial<ILoginProps> {
     if (cleanProps.mode === "authenticate_user") {
         delete cleanProps.user;
         delete cleanProps.onAuthenticate;
+        delete cleanProps.onCancel;
         delete cleanProps.userBannerLabel;
     }
 
@@ -68,6 +69,7 @@ interface ILoginPropsAuthUser extends ILoginPropsCommon {
     mode: "authenticate_user";
     user: TUser;
     onAuthenticate: (user: TUser) => void;
+    onCancel: () => void;
     userBannerLabel: string;
 }
 interface ILoginPropsGetUser extends ILoginPropsCommon {
@@ -80,7 +82,6 @@ type ILoginProps = ILoginPropsLogin | ILoginPropsAuthUser | ILoginPropsGetUser;
  * default login is with QR code
  * Manual login component includes its own password component
  */
-// const Login: React.FC<ILoginProps__Login>
 const Login: React.FC<ILoginProps> = ({
     cardHeader,
     confirmButtonLabel,
@@ -108,7 +109,12 @@ const Login: React.FC<ILoginProps> = ({
 
     const PasswordElement = (
         <Password
-            goBack={() => setUser(null)}
+            goBack={
+                props.mode === "authenticate_user"
+                    ? props.onCancel
+                    : () => setUser(null)
+            }
+            backButtonLabel={props.mode === "login" ? "Zurück" : "Abbrechen"}
             onAuthenticate={onAuthenticate}
             confirmButtonLabel={confirmButtonLabel}
             userBannerLabel={userBannerLabel}

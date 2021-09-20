@@ -29,6 +29,7 @@ import loginStyles from "Components/login/login.module.css";
 import type { TUser } from "./types";
 import UserDashboard from "./components/userDashboard";
 import ChangeCurrencies from "./components/changeCurrencies";
+import { BankUserContext } from "./util/context";
 
 import styles from "./bank.module.css";
 
@@ -84,52 +85,54 @@ const Bank: React.FC = () => {
     ] = usePredictionObserver();
 
     return (
-        <PageGrid>
-            <GridCell desktop={4} tablet={2} phone={0} />
-            <GridCell span={4}>
-                <FullscreenContainerTransform
-                    open={!!user}
-                    className={cn(
-                        "mdc-card",
-                        cardStyles["card"],
-                        pageGridStyles["page-grid__cell-child"]
-                    )}
-                    openClassName={styles["bank__fullscreen-wrapper--open"]}
-                    onAfterCloneHandle={onAfterCloneHandle}
-                    expectTransformation={expectCloseInteraction || !user}
-                    // DEBUG
-                    // style={{ backgroundColor: "green" }}
-                >
-                    <FullscreenContainerTransformHandle>
-                        <Login
-                            mode="get_user"
-                            cardHeader="Konto wählen"
-                            confirmButtonLabel="Bestätigen"
-                            qrInfoText="Scanne den QR-Code auf dem Ausweis, um Informationen über das Konto zu erhalten."
-                            onGetUser={(_user) => setUser(_user)}
-                            // eslint-disable-next-line react/jsx-props-no-spreading
-                            {...predictionListeners}
-                        />
-                    </FullscreenContainerTransformHandle>
-                    <FullscreenContainerTransformElement>
-                        <Page
-                            topAppBar={
-                                <FullscreenAppBar
-                                    // eslint-disable-next-line react/jsx-props-no-spreading
-                                    {...predictionListeners}
-                                    onNav={() => setUser(null)}
-                                />
-                            }
-                        >
-                            <PageGrid>
-                                <UserDashboard />
-                                <ChangeCurrencies />
-                            </PageGrid>
-                        </Page>
-                    </FullscreenContainerTransformElement>
-                </FullscreenContainerTransform>
-            </GridCell>
-        </PageGrid>
+        <BankUserContext.Provider value={user}>
+            <PageGrid>
+                <GridCell desktop={4} tablet={2} phone={0} />
+                <GridCell span={4}>
+                    <FullscreenContainerTransform
+                        open={!!user}
+                        className={cn(
+                            "mdc-card",
+                            cardStyles["card"],
+                            pageGridStyles["page-grid__cell-child"]
+                        )}
+                        openClassName={styles["bank__fullscreen-wrapper--open"]}
+                        onAfterCloneHandle={onAfterCloneHandle}
+                        expectTransformation={expectCloseInteraction || !user}
+                        // DEBUG
+                        // style={{ backgroundColor: "green" }}
+                    >
+                        <FullscreenContainerTransformHandle>
+                            <Login
+                                mode="get_user"
+                                cardHeader="Konto wählen"
+                                confirmButtonLabel="Bestätigen"
+                                qrInfoText="Scanne den QR-Code auf dem Ausweis, um Informationen über das Konto zu erhalten."
+                                onGetUser={(_user) => setUser(_user)}
+                                // eslint-disable-next-line react/jsx-props-no-spreading
+                                {...predictionListeners}
+                            />
+                        </FullscreenContainerTransformHandle>
+                        <FullscreenContainerTransformElement>
+                            <Page
+                                topAppBar={
+                                    <FullscreenAppBar
+                                        // eslint-disable-next-line react/jsx-props-no-spreading
+                                        {...predictionListeners}
+                                        onNav={() => setUser(null)}
+                                    />
+                                }
+                            >
+                                <PageGrid>
+                                    <UserDashboard />
+                                    <ChangeCurrencies />
+                                </PageGrid>
+                            </Page>
+                        </FullscreenContainerTransformElement>
+                    </FullscreenContainerTransform>
+                </GridCell>
+            </PageGrid>
+        </BankUserContext.Provider>
     );
 };
 export default Bank;

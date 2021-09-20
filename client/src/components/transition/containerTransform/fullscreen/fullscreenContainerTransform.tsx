@@ -349,15 +349,6 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
 
     const expectOrInTransformation = expectTransformation || inTransition;
 
-    useEffect(
-        () =>
-            console.log(
-                "internalExpectTransformation",
-                expectOrInTransformation
-            ),
-        [expectOrInTransformation]
-    );
-
     return useMemo(
         () => (
             <>
