@@ -24,22 +24,18 @@ const usePredictionObserver = (): TUsePredictionObserverReturn => {
             onMouseEnter: () => {
                 // prevent default browser behaviour to simulate mouse
                 if (touch) return;
-                console.log("mouse over");
                 setHover(true);
             },
             onMouseLeave: () => {
-                console.log("mouse out");
                 setHover(false);
             },
 
             onTouchStart: () => {
-                console.log("touch start");
                 setTouch(true);
             },
             onTouchEnd: () =>
                 requestAnimationFrame(() =>
                     requestAnimationFrame(() => {
-                        console.log("touch end");
                         setTouch(false);
                     })
                 ),
