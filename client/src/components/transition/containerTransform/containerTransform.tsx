@@ -106,7 +106,8 @@ export const ContainerTransform: React.FC<IContainerTransformProps> = ({
                 {...restProps}
                 className={cn(
                     restProps.className,
-                    styles["container-transform"]
+                    styles["container-transform"],
+                    styles["container-transform__fading-wrapper"]
                 )}
                 ref={containerRef}
             >

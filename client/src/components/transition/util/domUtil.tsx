@@ -3,9 +3,11 @@ export interface IDimensions {
     width: number;
 }
 export function getDimensions(domElement: HTMLElement): IDimensions {
+    /** Using clientRect instead of offsetHeight as it returns more precise floats preventing visual glitches on transitions */
+    const clientRect = domElement.getBoundingClientRect();
     return {
-        height: domElement.offsetHeight,
-        width: domElement.offsetWidth,
+        height: clientRect.height,
+        width: clientRect.width,
     };
 }
 export function setDimensions(
