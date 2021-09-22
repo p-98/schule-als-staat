@@ -27,7 +27,7 @@ import {
     CardActions,
     CardActionButton,
 } from "Components/card/card";
-import Login from "Components/login/login";
+import AuthUser from "Components/login/authUser";
 import config from "Config";
 
 import pageGridStyles from "Components/pageGrid/pageGrid.module.css";
@@ -86,19 +86,19 @@ const VirtualToReal: React.FC = () => {
                     />
                 </CardActions>
             </Card>
-            {user && (
-                <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-                    <Login
-                        mode="authenticate_user"
-                        cardHeader="Wechsel authentifizieren"
-                        user={user ?? ""}
-                        userBannerLabel="Identität bestätigen"
-                        onAuthenticate={() => null}
-                        onCancel={() => setDialogOpen(false)}
-                        confirmButtonLabel="Bestätigen"
-                    />
-                </Dialog>
-            )}
+            <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+                <AuthUser
+                    header="Wechsel authentifizieren"
+                    user={user}
+                    userBannerLabel="Identität bestätigen"
+                    onAuthUser={() => null}
+                    cancelButton={{
+                        label: "Abbrechen",
+                        onClick: () => setDialogOpen(false),
+                    }}
+                    confirmButtonLabel="Bestätigen"
+                />
+            </Dialog>
         </>
     );
 };

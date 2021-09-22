@@ -1,12 +1,14 @@
 import { forwardRef } from "react";
-import { CardActions, CardActionButton, CardActionButtons } from "@rmwc/card";
+import {
+    CardActions,
+    CardActionButton,
+    CardActionButtons,
+    CardContent,
+    CardHeader,
+    CardInner,
+} from "Components/card/card";
 import { TextField } from "@rmwc/textfield";
 import { Select } from "@rmwc/select";
-
-// card imports
-import "@material/card/dist/mdc.card.css";
-import "@material/button/dist/mdc.button.css";
-import "@material/icon-button/dist/mdc.icon-button.css";
 
 // textfield imports
 import "@material/textfield/dist/mdc.textfield.css";
@@ -36,17 +38,20 @@ interface IManualProps extends React.HTMLAttributes<HTMLDivElement> {
     toQR: () => void;
     onGetUser: (user: TUser) => void;
     confirmButtonLabel: string;
+    header: string;
 }
 const Manual = forwardRef<HTMLDivElement, IManualProps>(
-    ({ toQR, onGetUser, confirmButtonLabel, ...restProps }, ref) => (
-        <div {...restProps} ref={ref}>
-            <div className={styles["login__card-content"]}>
+    ({ toQR, onGetUser, confirmButtonLabel, header, ...restProps }, ref) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <CardInner {...restProps} ref={ref}>
+            <CardHeader>{header}</CardHeader>
+            <CardContent>
                 <Select
                     options={["Unternehmen", "Bürger", "Gast"]}
                     label="Benutzerklasse"
                 />
                 <TextField label="Benutzername" />
-            </div>
+            </CardContent>
             <CardActions>
                 <CardActionButtons
                     className={styles["login__card-action-buttons"]}
@@ -62,7 +67,7 @@ const Manual = forwardRef<HTMLDivElement, IManualProps>(
                     </CardActionButton>
                 </CardActionButtons>
             </CardActions>
-        </div>
+        </CardInner>
     )
 );
 export default Manual;

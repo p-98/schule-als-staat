@@ -17,10 +17,10 @@ import FullscreenContainerTransform, {
     TOnAfterCloneHandle,
 } from "Components/transition/containerTransform/fullscreen/fullscreenContainerTransform";
 import PageGrid from "Components/pageGrid/pageGrid";
-import Login from "Components/login/login";
 import Page from "Components/page/page";
 import FullscreenAppBar from "Components/appBar/fullscreenAppBar";
 import usePredictionObserver from "Utility/hooks/predictionObserver/predictionObserver";
+import GetUser from "Components/login/getUser";
 
 import cardStyles from "Components/card/card.module.css";
 import pageGridStyles from "Components/pageGrid/pageGrid.module.css";
@@ -103,9 +103,8 @@ const Bank: React.FC = () => {
                         // style={{ backgroundColor: "green" }}
                     >
                         <FullscreenContainerTransformHandle>
-                            <Login
-                                mode="get_user"
-                                cardHeader="Konto wählen"
+                            <GetUser
+                                header="Konto wählen"
                                 confirmButtonLabel="Bestätigen"
                                 qrInfoText="Scanne den QR-Code auf dem Ausweis, um Informationen über das Konto zu erhalten."
                                 onGetUser={(_user) => setUser(_user)}

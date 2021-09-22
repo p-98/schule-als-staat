@@ -17,9 +17,8 @@ const LoginPage: React.FC = () => (
             <Card className={pageGridStyles["page-grid__cell-child"]}>
                 <Login
                     onLogin={() => null}
-                    cardHeader="Anmelden"
+                    header="Anmelden"
                     qrInfoText="Scanne den QR-Code auf dem Ausweis um dich anzumelden."
-                    mode="login"
                     confirmButtonLabel="Anmelden"
                     userBannerLabel="Anmelden als"
                 />

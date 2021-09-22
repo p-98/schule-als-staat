@@ -2,17 +2,15 @@ import { forwardRef, useMemo } from "react";
 import PreventSSR from "Components/preventSSR/preventSSR";
 import QRReader from "react-qr-scanner";
 import {
-    CardActions,
     CardActionButton,
     CardActionButtons,
+    CardActions,
+    CardContent,
+    CardHeader,
     CardMedia,
-} from "@rmwc/card";
+    CardInner,
+} from "Components/card/card";
 import { Typography } from "@rmwc/typography";
-
-// card imports
-import "@material/card/dist/mdc.card.css";
-import "@material/button/dist/mdc.button.css";
-import "@material/icon-button/dist/mdc.icon-button.css";
 
 // typography imports
 import "@material/typography/dist/mdc.typography.css";
@@ -20,7 +18,6 @@ import "@material/typography/dist/mdc.typography.css";
 // local
 import styles from "../login.module.css";
 import type { TUser } from "../types";
-import Header from "./header";
 
 /**
  * Prevents react from rerendering the reader every time.
@@ -50,18 +47,19 @@ interface IQRProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 const QR = forwardRef<HTMLDivElement, IQRProps>(
     ({ toManual, onGetUser, header, infoText, ...restProps }, ref) => (
-        <div {...restProps} ref={ref}>
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <CardInner {...restProps} ref={ref}>
             <CardMedia square onClick={() => onGetUser("Max Mustermann")}>
                 <PreventSSR>
                     <QRRenderSuspense />
                 </PreventSSR>
             </CardMedia>
-            <Header header={header} />
-            <div className={styles["login__card-content"]}>
+            <CardHeader>{header}</CardHeader>
+            <CardContent>
                 <Typography use="body1" theme="textSecondaryOnBackground">
                     {infoText}
                 </Typography>
-            </div>
+            </CardContent>
             <CardActions>
                 <CardActionButtons
                     className={styles["login__card-action-buttons"]}
@@ -71,7 +69,7 @@ const QR = forwardRef<HTMLDivElement, IQRProps>(
                     </CardActionButton>
                 </CardActionButtons>
             </CardActions>
-        </div>
+        </CardInner>
     )
 );
 export default QR;

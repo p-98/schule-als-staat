@@ -7,6 +7,7 @@ import {
 } from "@rmwc/card";
 import RMWC from "@rmwc/types";
 import cn from "classnames";
+import { forwardRef } from "react";
 
 // card imports
 import "@material/card/dist/mdc.card.css";
@@ -22,14 +23,31 @@ import styles from "./card.module.css";
 // reexport rmwc card
 export * from "@rmwc/card";
 
-export const Card: React.FC<
+export const Card = forwardRef<
+    HTMLDivElement,
     RMWC.ComponentProps<CardProps, React.HTMLProps<HTMLElement>, "div">
-> = ({ className, children, ...restProps }) => (
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    <RMWCCard {...restProps} className={cn(className, styles["card"])}>
+>(({ className, children, ...restProps }, ref) => (
+    <RMWCCard
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...restProps}
+        className={cn(className, styles["card"])}
+        ref={ref}
+    >
         {children}
     </RMWCCard>
-);
+));
+
+export const CardInner = forwardRef<
+    HTMLDivElement,
+    React.ComponentProps<typeof Card>
+>(({ className, ...restProps }, ref) => (
+    <Card
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...restProps}
+        className={cn(className, styles["card__inner"])}
+        ref={ref}
+    />
+));
 
 export const CardHeader: React.FC = ({ children }) => (
     <Typography use="headline6" className={styles["card__header"]}>
