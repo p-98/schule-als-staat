@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, ReactNode } from "react";
 import {
     CardActionButtons,
     CardActionButton,
@@ -8,6 +8,7 @@ import {
     CardInner,
 } from "Components/card/card";
 import { TextField } from "@rmwc/textfield";
+import { ListDivider } from "@rmwc/list";
 
 // textfield imports
 import "@material/textfield/dist/mdc.textfield.css";
@@ -16,6 +17,11 @@ import "@material/notched-outline/dist/mdc.notched-outline.css";
 import "@material/line-ripple/dist/mdc.line-ripple.css";
 import "@material/ripple/dist/mdc.ripple.css";
 import "@rmwc/icon/icon.css";
+
+// list imports
+import "@material/list/dist/mdc.list.css";
+// import "@material/ripple/dist/mdc.ripple.css";
+// import "@rmwc/icon/icon.css";
 
 // local
 import UserBanner from "./userBanner";
@@ -28,21 +34,26 @@ interface IPasswordProps extends React.HTMLAttributes<HTMLDivElement> {
         onClick: () => void;
         label: string;
     };
+    confirmButton: {
+        label: string;
+        danger?: boolean;
+    };
     onAuthUser: TOnAuthUser;
-    confirmButtonLabel: string;
     user: TUser | null;
     userBannerLabel: string;
     header: string;
+    actionSummary?: ReactNode;
 }
 const Password = forwardRef<HTMLDivElement, IPasswordProps>(
     (
         {
             cancelButton,
-            confirmButtonLabel,
+            confirmButton,
             userBannerLabel,
             onAuthUser,
             user,
             header,
+            actionSummary,
             ...restProps
         },
         ref
@@ -50,9 +61,15 @@ const Password = forwardRef<HTMLDivElement, IPasswordProps>(
         // eslint-disable-next-line react/jsx-props-no-spreading
         <CardInner ref={ref} {...restProps}>
             <CardHeader>{header}</CardHeader>
+            {actionSummary && (
+                <>
+                    <CardContent>{actionSummary}</CardContent>
+                    <ListDivider />
+                </>
+            )}
             <CardContent>
                 <UserBanner label={userBannerLabel} />
-                <TextField label="Passwort" />
+                <TextField type="password" label="Passwort" />
             </CardContent>
             <CardActions>
                 <CardActionButtons
@@ -69,8 +86,9 @@ const Password = forwardRef<HTMLDivElement, IPasswordProps>(
                     <CardActionButton
                         raised
                         onClick={() => onAuthUser(user as TUser)}
+                        danger={confirmButton.danger}
                     >
-                        {confirmButtonLabel}
+                        {confirmButton.label}
                     </CardActionButton>
                 </CardActionButtons>
             </CardActions>

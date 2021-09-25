@@ -1,7 +1,7 @@
 import { GridCell } from "@rmwc/grid";
 import { TextField } from "@rmwc/textfield";
 import { Dialog } from "@rmwc/dialog";
-import { useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 
 // grid imports
 import "@material/layout-grid/dist/mdc.layout-grid.css";
@@ -29,36 +29,108 @@ import {
 } from "Components/card/card";
 import AuthUser from "Components/login/authUser";
 import config from "Config";
+import { TOnAuthUser } from "Components/login/types";
+import DisplayInfo from "Components/displayInfo/displayInfo";
 
 import pageGridStyles from "Components/pageGrid/pageGrid.module.css";
 
 import { BankUserContext } from "../util/context";
+import CheckoutSummary from "./checkoutSummary";
+import type { IChangeCurrenciesInfo } from "../types";
 
-const RealToVirtual: React.FC = () => (
-    <Card className={pageGridStyles["page-grid__cell-child"]}>
-        <CardHeader>
-            {config.currencies.real.name} to {config.currencies.virtual.name}
-        </CardHeader>
-        <CardContent>
-            <TextField
-                label={`von ${config.currencies.real.short}`}
-                defaultValue="1"
-            />
-            <TextField
-                disabled
-                label={`in ${config.currencies.virtual.short}`}
-                value="3.141"
-            />
-        </CardContent>
-        <CardActions fullBleed>
-            <CardActionButton label="Wechsel buchen" trailingIcon="swap_vert" />
-        </CardActions>
-    </Card>
+interface IAuthExchangeDialogProps {
+    onAuthUser: TOnAuthUser;
+    onClose: () => void;
+    open: boolean;
+    user: string | null;
+    changeCurrenciesInfo: IChangeCurrenciesInfo;
+}
+const AuthExchangeDialog: React.FC<IAuthExchangeDialogProps> = ({
+    onAuthUser,
+    onClose,
+    open,
+    user,
+    changeCurrenciesInfo,
+}) => (
+    <Dialog open={open} onClose={onClose}>
+        <AuthUser
+            header="Geldwechsel"
+            user={user}
+            userBannerLabel="Identität bestätigen"
+            onAuthUser={onAuthUser}
+            cancelButton={{
+                label: "Abbrechen",
+                onClick: onClose,
+            }}
+            confirmButton={{
+                label: "Wechseln",
+                danger: true,
+            }}
+            actionSummary={<CheckoutSummary info={changeCurrenciesInfo} />}
+        />
+    </Dialog>
 );
+
+const RealToVirtual: React.FC = () => {
+    const user = useContext(BankUserContext);
+    const [dialogOpen, setDialogOpen] = useState(false);
+
+    const changeCurrenciesInfo: IChangeCurrenciesInfo = {
+        baseCurrency: "real",
+        baseValue: 1,
+        targetCurrency: "virtual",
+        targetValue: 3.141,
+    };
+
+    return (
+        <>
+            <Card className={pageGridStyles["page-grid__cell-child"]}>
+                <CardHeader>
+                    {config.currencies.real.name} to{" "}
+                    {config.currencies.virtual.name}
+                </CardHeader>
+                <CardContent>
+                    <TextField
+                        type="number"
+                        label={`von ${config.currencies.real.short}`}
+                        defaultValue="1"
+                    />
+                    <DisplayInfo
+                        label={`in ${config.currencies.virtual.short}`}
+                        selected
+                    >
+                        3.141
+                    </DisplayInfo>
+                </CardContent>
+                <CardActions fullBleed>
+                    <CardActionButton
+                        label="Wechsel buchen"
+                        trailingIcon="swap_vert"
+                        onClick={() => setDialogOpen(true)}
+                    />
+                </CardActions>
+            </Card>
+            <AuthExchangeDialog
+                onAuthUser={() => setDialogOpen(false)}
+                onClose={() => setDialogOpen(false)}
+                open={dialogOpen}
+                user={user}
+                changeCurrenciesInfo={changeCurrenciesInfo}
+            />
+        </>
+    );
+};
 
 const VirtualToReal: React.FC = () => {
     const user = useContext(BankUserContext);
     const [dialogOpen, setDialogOpen] = useState(false);
+
+    const changeCurrenciesInfo: IChangeCurrenciesInfo = {
+        baseCurrency: "virtual",
+        baseValue: 1,
+        targetCurrency: "real",
+        targetValue: 0.32,
+    };
 
     return (
         <>
@@ -70,35 +142,28 @@ const VirtualToReal: React.FC = () => {
                 <CardContent>
                     <TextField
                         label={`von ${config.currencies.virtual.short}`}
-                        defaultValue="1"
+                        defaultValue="0"
                     />
-                    <TextField
-                        disabled
-                        label={`in ${config.currencies.real.short}`}
-                        value="0.32"
-                    />
+                    <DisplayInfo label={`in ${config.currencies.real.short}`}>
+                        0
+                    </DisplayInfo>
                 </CardContent>
                 <CardActions fullBleed>
                     <CardActionButton
                         label="Wechsel buchen"
                         trailingIcon="swap_vert"
                         onClick={() => setDialogOpen(true)}
+                        disabled
                     />
                 </CardActions>
             </Card>
-            <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-                <AuthUser
-                    header="Wechsel authentifizieren"
-                    user={user}
-                    userBannerLabel="Identität bestätigen"
-                    onAuthUser={() => null}
-                    cancelButton={{
-                        label: "Abbrechen",
-                        onClick: () => setDialogOpen(false),
-                    }}
-                    confirmButtonLabel="Bestätigen"
-                />
-            </Dialog>
+            <AuthExchangeDialog
+                onAuthUser={() => setDialogOpen(false)}
+                onClose={() => setDialogOpen(false)}
+                open={dialogOpen}
+                user={user}
+                changeCurrenciesInfo={changeCurrenciesInfo}
+            />
         </>
     );
 };

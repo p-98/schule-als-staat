@@ -44,7 +44,7 @@ const Login: React.FC<ILoginProps> = ({
 
     const PasswordElement = (
         <Password
-            confirmButtonLabel={confirmButtonLabel}
+            confirmButton={{ label: confirmButtonLabel }}
             user={user}
             userBannerLabel={userBannerLabel}
             header={header}

@@ -1,32 +1,31 @@
-import { TextField } from "@rmwc/textfield";
-
-// textfield imports
-import "@material/textfield/dist/mdc.textfield.css";
-import "@material/floating-label/dist/mdc.floating-label.css";
-import "@material/notched-outline/dist/mdc.notched-outline.css";
-import "@material/line-ripple/dist/mdc.line-ripple.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
-
 // local
 import config from "Config";
+import DisplayInfo from "Components/displayInfo/displayInfo";
 import { IChangeCurrenciesInfo } from "../types";
+
+import styles from "../bank.module.css";
 
 interface ICheckoutSummaryProps {
     info: IChangeCurrenciesInfo;
 }
 const CheckoutSummary: React.FC<ICheckoutSummaryProps> = ({ info }) => (
-    <>
-        <TextField
-            disabled
-            label={`von ${config.currencies[info.baseCurrency].short}`}
-            value={info.baseValue}
-        />
-        <TextField
-            disabled
-            label={`in ${config.currencies[info.targetCurrency].short}`}
-            value={info.targetValue}
-        />
-    </>
+    <div className={styles["bank-checkout-summary"]}>
+        <DisplayInfo
+            label="Bezahlen"
+            className={styles["bank-checkout-summary__value"]}
+            icon="keyboard_arrow_left"
+        >
+            {info.baseValue}
+            {config.currencies[info.baseCurrency].symbol}
+        </DisplayInfo>
+        <DisplayInfo
+            label="Erhalten"
+            className={styles["bank-checkout-summary__value"]}
+            icon="keyboard_arrow_right"
+        >
+            {info.targetValue}
+            {config.currencies[info.targetCurrency].symbol}
+        </DisplayInfo>
+    </div>
 );
 export default CheckoutSummary;

@@ -1,28 +1,29 @@
 import { GridCell } from "@rmwc/grid";
-import { TextField } from "@rmwc/textfield";
+import DisplayInfo from "Components/displayInfo/displayInfo";
 
 // grid imports
 import "@material/layout-grid/dist/mdc.layout-grid.css";
-
-// textfield imports
-import "@material/textfield/dist/mdc.textfield.css";
-import "@material/floating-label/dist/mdc.floating-label.css";
-import "@material/notched-outline/dist/mdc.notched-outline.css";
-import "@material/line-ripple/dist/mdc.line-ripple.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
 
 // local
 import { Card, CardHeader, CardContent } from "Components/card/card";
 
 import pageGridStyles from "Components/pageGrid/pageGrid.module.css";
 
+const userTypeIcons = {
+    citizen: "person",
+    guest: "person_outline",
+    company: "domain",
+};
 const UserInfo: React.FC = () => (
     <Card className={pageGridStyles["page-grid__cell-child"]}>
         <CardHeader>Benutzerinformationen</CardHeader>
         <CardContent>
-            <TextField disabled label="Benutzerklasse" value="Bürger" />
-            <TextField disabled label="Benutzername" value="Max Mustermann" />
+            <DisplayInfo icon="group" label="Benutzerklasse">
+                Bürger
+            </DisplayInfo>
+            <DisplayInfo icon={userTypeIcons.citizen} label="Benutzername">
+                Max Mustermann
+            </DisplayInfo>
         </CardContent>
     </Card>
 );
@@ -31,12 +32,12 @@ const AccountInfo: React.FC = () => (
     <Card className={pageGridStyles["page-grid__cell-child"]}>
         <CardHeader>Kontoinformationen</CardHeader>
         <CardContent>
-            <TextField disabled label="Kontostand" value="219$" />
-            <TextField
-                disabled
-                label="Rückwechselguthaben"
-                value="10€ (100$)"
-            />
+            <DisplayInfo icon="account_balance" label="Kontostand">
+                219π
+            </DisplayInfo>
+            <DisplayInfo icon="price_change" label="Rückwechselguthaben">
+                10€ (31.410π)
+            </DisplayInfo>
         </CardContent>
     </Card>
 );
