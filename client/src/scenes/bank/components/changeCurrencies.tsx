@@ -27,15 +27,15 @@ import {
     CardActions,
     CardActionButton,
 } from "Components/card/card";
-import AuthUser from "Components/login/authUser";
+import { AuthUser } from "Components/login/authUser";
 import config from "Config";
 import { TOnAuthUser } from "Components/login/types";
-import DisplayInfo from "Components/displayInfo/displayInfo";
+import { DisplayInfo } from "Components/displayInfo/displayInfo";
 
 import pageGridStyles from "Components/pageGrid/pageGrid.module.css";
 
 import { BankUserContext } from "../util/context";
-import CheckoutSummary from "./checkoutSummary";
+import { CheckoutSummary } from "./checkoutSummary";
 import type { IChangeCurrenciesInfo } from "../types";
 
 interface IAuthExchangeDialogProps {
@@ -168,7 +168,7 @@ const VirtualToReal: React.FC = () => {
     );
 };
 
-const ChangeCurrencies: React.FC = () => (
+export const ChangeCurrencies: React.FC = () => (
     <>
         <GridCell desktop={2} tablet={0} phone={0} />
         <GridCell span={4}>
@@ -180,4 +180,3 @@ const ChangeCurrencies: React.FC = () => (
         <GridCell desktop={2} tablet={0} phone={0} />
     </>
 );
-export default ChangeCurrencies;

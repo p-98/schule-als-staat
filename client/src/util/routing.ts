@@ -1,10 +1,4 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-
-const routingObj: (() => {
-    label: string;
-    href: string;
-    icon: string;
-})[] = [
+export default [
     () => ({
         href: "/test1",
         label: "Test 1",
@@ -30,5 +24,8 @@ const routingObj: (() => {
         label: "Kontoinformationen",
         icon: "person",
     }),
-];
-export default routingObj;
+] as (() => {
+    href: string;
+    label: string;
+    icon: string;
+})[];

@@ -1,11 +1,11 @@
-import DisplayInfo from "Components/displayInfo/displayInfo";
+import { DisplayInfo } from "Components/displayInfo/displayInfo";
 
 // local
 import { Card, CardHeader, CardContent } from "Components/card/card";
 
 import pageGridStyles from "Components/pageGrid/pageGrid.module.css";
 
-const AccountInfo: React.FC = () => (
+export const AccountInfo: React.FC = () => (
     <Card className={pageGridStyles["page-grid__cell-child"]}>
         <CardHeader>Kontoinformationen</CardHeader>
         <CardContent>
@@ -18,4 +18,3 @@ const AccountInfo: React.FC = () => (
         </CardContent>
     </Card>
 );
-export default AccountInfo;

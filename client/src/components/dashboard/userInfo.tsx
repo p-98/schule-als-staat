@@ -1,4 +1,4 @@
-import DisplayInfo from "Components/displayInfo/displayInfo";
+import { DisplayInfo } from "Components/displayInfo/displayInfo";
 
 // local
 import { Card, CardHeader, CardContent } from "Components/card/card";
@@ -10,7 +10,7 @@ const userTypeIcons = {
     guest: "person_outline",
     company: "domain",
 };
-const UserInfo: React.FC = () => (
+export const UserInfo: React.FC = () => (
     <Card className={pageGridStyles["page-grid__cell-child"]}>
         <CardHeader>Benutzerinformationen</CardHeader>
         <CardContent>
@@ -23,4 +23,3 @@ const UserInfo: React.FC = () => (
         </CardContent>
     </Card>
 );
-export default UserInfo;

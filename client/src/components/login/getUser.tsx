@@ -7,18 +7,18 @@ import {
     ContainerTransformElement,
 } from "Components/transition/containerTransform/containerTransform";
 import type { TUser } from "Utility/types";
-import QR from "./components/qr";
-import Manual from "./components/manual";
+import { QR } from "./components/qr";
+import { Manual } from "./components/manual";
 
 import styles from "./login.module.css";
 
-interface IGetUserProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface IGetUserProps extends React.HTMLAttributes<HTMLDivElement> {
     confirmButtonLabel?: string;
     onGetUser: (user: TUser) => void;
     header: string;
     qrInfoText: string;
 }
-const GetUser: React.FC<IGetUserProps> = ({
+export const GetUser: React.FC<IGetUserProps> = ({
     confirmButtonLabel,
     onGetUser,
     header,
@@ -56,4 +56,3 @@ const GetUser: React.FC<IGetUserProps> = ({
         </ContainerTransform>
     );
 };
-export default GetUser;

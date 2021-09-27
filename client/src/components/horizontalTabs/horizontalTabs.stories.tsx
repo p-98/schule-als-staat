@@ -1,5 +1,6 @@
 import { Meta, Story } from "@storybook/react";
-import HorizontalTabsComponent, {
+import {
+    HorizontalTabs as HorizontalTabsComponent,
     HorizontalTabsElement,
 } from "./horizontalTabs";
 

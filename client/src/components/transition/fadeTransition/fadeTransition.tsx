@@ -20,7 +20,7 @@ export interface IFadeTransitionProps
  * A Component to perform fade transitions.
  * Children should have dimensions that are independent of the container
  */
-const FadeTransition: React.FC<IFadeTransitionProps> = ({
+export const FadeTransition: React.FC<IFadeTransitionProps> = ({
     open: openTarget,
     children,
     anchor,
@@ -128,4 +128,3 @@ const FadeTransition: React.FC<IFadeTransitionProps> = ({
         [anchor, children, open, props]
     );
 };
-export default FadeTransition;

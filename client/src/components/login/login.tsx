@@ -12,10 +12,10 @@ import {
     Modes,
 } from "Components/transition/siblingTransitionBase/siblingTransitionBase";
 import type { TUser } from "Utility/types";
-import QR from "./components/qr";
+import { QR } from "./components/qr";
 import { TOnAuthUser } from "./types";
-import Password from "./components/password";
-import Manual from "./components/manual";
+import { Password } from "./components/password";
+import { Manual } from "./components/manual";
 
 import styles from "./login.module.css";
 
@@ -25,14 +25,14 @@ function getActiveElement(useQR: boolean, user: TUser | null) {
     return "qr-scanner";
 }
 
-interface ILoginProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ILoginProps extends React.HTMLAttributes<HTMLDivElement> {
     header: string;
     qrInfoText: string;
     confirmButtonLabel: string;
     userBannerLabel: string;
     onLogin: TOnAuthUser;
 }
-const Login: React.FC<ILoginProps> = ({
+export const Login: React.FC<ILoginProps> = ({
     header,
     qrInfoText,
     confirmButtonLabel,
@@ -98,4 +98,3 @@ const Login: React.FC<ILoginProps> = ({
         </ContainerTransform>
     );
 };
-export default Login;

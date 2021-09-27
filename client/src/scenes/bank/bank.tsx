@@ -11,28 +11,29 @@ import "@material/button/dist/mdc.button.css";
 import "@material/icon-button/dist/mdc.icon-button.css";
 
 // local
-import FullscreenContainerTransform, {
+import {
+    FullscreenContainerTransform,
     FullscreenContainerTransformElement,
     FullscreenContainerTransformHandle,
 } from "Components/transition/containerTransform/fullscreen/fullscreenContainerTransform";
-import PageGrid from "Components/pageGrid/pageGrid";
-import Page from "Components/page/page";
-import FullscreenAppBar from "Components/appBar/fullscreenAppBar";
+import { PageGrid } from "Components/pageGrid/pageGrid";
+import { Page } from "Components/page/page";
+import { FullscreenAppBar } from "Components/appBar/fullscreenAppBar";
 import usePredictionObserver from "Utility/hooks/predictionObserver/predictionObserver";
-import GetUser from "Components/login/getUser";
+import { GetUser } from "Components/login/getUser";
 import { onAfterCloneHandle } from "Utility/adapters/GetUser-FullscreenContainerTransform";
 import type { TUser } from "Utility/types";
 
 import cardStyles from "Components/card/card.module.css";
 import pageGridStyles from "Components/pageGrid/pageGrid.module.css";
 
-import UserDashboard from "./components/userDashboard";
-import ChangeCurrencies from "./components/changeCurrencies";
+import { UserDashboard } from "./components/userDashboard";
+import { ChangeCurrencies } from "./components/changeCurrencies";
 import { BankUserContext } from "./util/context";
 
 import styles from "./bank.module.css";
 
-const Bank: React.FC = () => {
+export const Bank: React.FC = () => {
     const [user, setUser] = useState<TUser | null>(null);
     const [
         expectCloseInteraction,
@@ -87,4 +88,3 @@ const Bank: React.FC = () => {
         </BankUserContext.Provider>
     );
 };
-export default Bank;

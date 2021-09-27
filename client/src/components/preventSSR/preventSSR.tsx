@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const PreventSSR: React.FC = ({ children }) => {
+export const PreventSSR: React.FC = ({ children }) => {
     const [renderChildren, setRenderChildren] = useState(false);
 
     useEffect(() => {
@@ -11,4 +11,3 @@ const PreventSSR: React.FC = ({ children }) => {
 
     return <>{children}</>;
 };
-export default PreventSSR;

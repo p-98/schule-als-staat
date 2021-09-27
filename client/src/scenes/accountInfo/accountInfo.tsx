@@ -8,24 +8,25 @@ import "@material/layout-grid/dist/mdc.layout-grid.css";
 // local
 import { TUser } from "Utility/types";
 import usePredictionObserver from "Utility/hooks/predictionObserver/predictionObserver";
-import PageGrid from "Components/pageGrid/pageGrid";
-import Page from "Components/page/page";
-import FullscreenContainerTransform, {
+import { PageGrid } from "Components/pageGrid/pageGrid";
+import { Page } from "Components/page/page";
+import {
+    FullscreenContainerTransform,
     FullscreenContainerTransformElement,
     FullscreenContainerTransformHandle,
 } from "Components/transition/containerTransform/fullscreen/fullscreenContainerTransform";
 import { onAfterCloneHandle } from "Utility/adapters/GetUser-FullscreenContainerTransform";
-import GetUser from "Components/login/getUser";
-import FullscreenAppBar from "Components/appBar/fullscreenAppBar";
+import { GetUser } from "Components/login/getUser";
+import { FullscreenAppBar } from "Components/appBar/fullscreenAppBar";
 
 import cardStyles from "Components/card/card.module.css";
 import pageGridStyles from "Components/pageGrid/pageGrid.module.css";
 
-import Dashboard from "./components/dashboard";
+import { Dashboard } from "./components/dashboard";
 
 import styles from "./accountInfo.module.css";
 
-const AccountInfo: React.FC = () => {
+export const AccountInfo: React.FC = () => {
     const [user, setUser] = useState<TUser | null>(null);
     const [
         expectCloseInteraction,
@@ -79,4 +80,3 @@ const AccountInfo: React.FC = () => {
         </PageGrid>
     );
 };
-export default AccountInfo;

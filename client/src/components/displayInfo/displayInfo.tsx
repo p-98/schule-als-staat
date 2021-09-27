@@ -13,13 +13,14 @@ import "@material/typography/dist/mdc.typography.css";
 // local
 import styles from "./displayInfo.module.css";
 
-interface IDisplayInfoProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface IDisplayInfoProps
+    extends React.HTMLAttributes<HTMLDivElement> {
     label: string;
     icon?: IconPropT;
     activated?: boolean;
     selected?: boolean;
 }
-const DisplayInfo: React.FC<IDisplayInfoProps> = ({
+export const DisplayInfo: React.FC<IDisplayInfoProps> = ({
     label,
     icon,
     children,
@@ -59,5 +60,3 @@ const DisplayInfo: React.FC<IDisplayInfoProps> = ({
         </div>
     </div>
 );
-
-export default DisplayInfo;

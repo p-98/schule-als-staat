@@ -48,6 +48,7 @@ module.exports = {
                     "error",
                     { props: true, ignorePropertyModificationsFor: ["state"] },
                 ],
+                "import/prefer-default-export": "off",
             },
             globals: {
                 React: "writable",

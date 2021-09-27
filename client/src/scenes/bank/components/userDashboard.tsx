@@ -4,10 +4,9 @@ import { GridCell } from "@rmwc/grid";
 import "@material/layout-grid/dist/mdc.layout-grid.css";
 
 // local
-import UserInfo from "Components/dashboard/userInfo";
-import AccountInfo from "Components/dashboard/accountInfo";
+import { UserInfo, AccountInfo } from "Components/dashboard/dashboard";
 
-const UserDashboard: React.FC = () => (
+export const UserDashboard: React.FC = () => (
     <>
         <GridCell desktop={2} tablet={0} phone={0} />
         <GridCell span={4}>
@@ -19,4 +18,3 @@ const UserDashboard: React.FC = () => (
         <GridCell desktop={2} tablet={0} phone={0} />
     </>
 );
-export default UserDashboard;

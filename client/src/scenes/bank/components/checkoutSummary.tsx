@@ -1,14 +1,14 @@
 // local
 import config from "Config";
-import DisplayInfo from "Components/displayInfo/displayInfo";
+import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import { IChangeCurrenciesInfo } from "../types";
 
 import styles from "../bank.module.css";
 
-interface ICheckoutSummaryProps {
+export interface ICheckoutSummaryProps {
     info: IChangeCurrenciesInfo;
 }
-const CheckoutSummary: React.FC<ICheckoutSummaryProps> = ({ info }) => (
+export const CheckoutSummary: React.FC<ICheckoutSummaryProps> = ({ info }) => (
     <div className={styles["bank-checkout-summary"]}>
         <DisplayInfo
             label="Bezahlen"
@@ -28,4 +28,3 @@ const CheckoutSummary: React.FC<ICheckoutSummaryProps> = ({ info }) => (
         </DisplayInfo>
     </div>
 );
-export default CheckoutSummary;

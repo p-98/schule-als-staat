@@ -25,12 +25,12 @@ import "@material/list/dist/mdc.list.css";
 
 // local
 import type { TUser } from "Utility/types";
-import UserBanner from "./userBanner";
+import { UserBanner } from "./userBanner";
 import type { TOnAuthUser } from "../types";
 
 import styles from "../login.module.css";
 
-interface IPasswordProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface IPasswordProps extends React.HTMLAttributes<HTMLDivElement> {
     cancelButton?: {
         onClick: () => void;
         label: string;
@@ -45,7 +45,7 @@ interface IPasswordProps extends React.HTMLAttributes<HTMLDivElement> {
     header: string;
     actionSummary?: ReactNode;
 }
-const Password = forwardRef<HTMLDivElement, IPasswordProps>(
+export const Password = forwardRef<HTMLDivElement, IPasswordProps>(
     (
         {
             cancelButton,
@@ -96,4 +96,3 @@ const Password = forwardRef<HTMLDivElement, IPasswordProps>(
         </CardInner>
     )
 );
-export default Password;

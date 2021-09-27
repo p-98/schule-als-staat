@@ -17,11 +17,11 @@ import {
     useDispatch,
     close,
 } from "Utility/hooks/redux/drawer";
-import Navigation from "./navigation";
+import { Navigation } from "./navigation";
 
 import styles from "../_app.module.scss";
 
-const Drawer: React.FC = () => {
+export const Drawer: React.FC = () => {
     const { locked: fullscreenInUse } = useFullscreen();
     const open = useSelector(selectDrawerOpen);
 
@@ -52,4 +52,3 @@ const Drawer: React.FC = () => {
         </>
     );
 };
-export default Drawer;

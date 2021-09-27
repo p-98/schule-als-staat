@@ -12,10 +12,11 @@ import "@rmwc/icon/icon.css";
 
 import styles from "./horizontalTabs.module.css";
 
-interface IHorizontalTabsProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface IHorizontalTabsProps
+    extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactElement<IHorizontalTabsElementProps>[];
 }
-const HorizontalTabs: React.FC<IHorizontalTabsProps> = ({
+export const HorizontalTabs: React.FC<IHorizontalTabsProps> = ({
     children,
     className,
     ...restProps
@@ -115,9 +116,8 @@ const HorizontalTabs: React.FC<IHorizontalTabsProps> = ({
         </div>
     );
 };
-export default HorizontalTabs;
 
-interface IHorizontalTabsElementProps {
+export interface IHorizontalTabsElementProps {
     title: string;
     children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
 }

@@ -1,3 +1,4 @@
-import AuthUser from "./components/password";
+import { Password, IPasswordProps } from "./components/password";
 
-export default AuthUser;
+export const AuthUser = Password;
+export type IAuthUserProps = IPasswordProps;

@@ -49,7 +49,7 @@ export interface IMaterialSequenceProps
     children: React.ReactElement<ISiblingTransitionBaseElementProps>[];
     border?: boolean;
 }
-const MaterialSequence: React.FC<IMaterialSequenceProps> = ({
+export const MaterialSequence: React.FC<IMaterialSequenceProps> = ({
     children,
     className,
     border,
@@ -109,4 +109,3 @@ const MaterialSequence: React.FC<IMaterialSequenceProps> = ({
         </div>
     );
 };
-export default MaterialSequence;

@@ -15,7 +15,7 @@ import {
     FullscreenContainerTransformWrapper,
     FullscreenContainerTransformFadingWrapper,
 } from "./subComponents";
-import useChildren from "./children";
+import { useChildren } from "./children";
 import ElementSwitcher from "../../util/elementSwitcher";
 import { TChildren } from "./types";
 import {
@@ -51,8 +51,6 @@ function getHandleDOM(wrapperDOM: HTMLElement) {
 
 // TODO: return memo
 // TODO: check function memo
-// TODO: eliminate border-radius when expanding
-// TODO: wrap transition into different div element so shadows dont fade out and in again
 
 /*
 usage:
@@ -92,7 +90,7 @@ export interface IFullscreenContainerTransformProps
      */
     expectTransformation: boolean;
 }
-const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps> = ({
+export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps> = ({
     children,
     renderTo = "#fullscreen",
     open: openTarget,
@@ -407,4 +405,3 @@ const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps>
         ]
     );
 };
-export default FullscreenContainerTransform;

@@ -34,13 +34,13 @@ import type { TUser } from "Utility/types";
 
 import styles from "../login.module.css";
 
-interface IManualProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface IManualProps extends React.HTMLAttributes<HTMLDivElement> {
     toQR: () => void;
     onGetUser: (user: TUser) => void;
     confirmButtonLabel: string;
     header: string;
 }
-const Manual = forwardRef<HTMLDivElement, IManualProps>(
+export const Manual = forwardRef<HTMLDivElement, IManualProps>(
     ({ toQR, onGetUser, confirmButtonLabel, header, ...restProps }, ref) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <CardInner {...restProps} ref={ref}>
@@ -70,4 +70,3 @@ const Manual = forwardRef<HTMLDivElement, IManualProps>(
         </CardInner>
     )
 );
-export default Manual;

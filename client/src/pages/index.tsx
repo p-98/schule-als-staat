@@ -1,3 +1,3 @@
-import Index from "Scenes/index";
+import { Index } from "Scenes/index";
 
 export default Index;

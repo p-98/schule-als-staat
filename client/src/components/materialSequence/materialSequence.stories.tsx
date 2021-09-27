@@ -1,5 +1,6 @@
 import { Meta, Story } from "@storybook/react";
-import MaterialSequenceComponent, {
+import {
+    MaterialSequence as MaterialSequenceComponent,
     MaterialSequenceElement,
 } from "./materialSequence";
 

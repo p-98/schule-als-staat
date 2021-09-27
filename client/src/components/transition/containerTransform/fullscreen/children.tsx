@@ -13,7 +13,7 @@ const childrenTypeMap = {
 /**
  * check for correct children and return them
  */
-const useChildren = (children: TChildren): TChildrenMap =>
+export const useChildren = (children: TChildren): TChildrenMap =>
     useMemo(() => {
         if (children.length !== 2) throw Error("Too many children");
 
@@ -27,4 +27,3 @@ const useChildren = (children: TChildren): TChildrenMap =>
             Element: children[1],
         };
     }, [children]);
-export default useChildren;

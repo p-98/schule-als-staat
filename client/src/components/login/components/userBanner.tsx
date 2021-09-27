@@ -3,8 +3,8 @@ import { Typography } from "@rmwc/typography";
 
 // avatar imports
 import "@rmwc/avatar/avatar.css";
-// import "@rmwc/icon/icon.css";
-// import "@material/ripple/dist/mdc.ripple.css";
+import "@rmwc/icon/icon.css";
+import "@material/ripple/dist/mdc.ripple.css";
 
 // typography imports
 import "@material/typography/dist/mdc.typography.css";
@@ -12,10 +12,10 @@ import "@material/typography/dist/mdc.typography.css";
 // local
 import styles from "./userBanner.module.css";
 
-interface UserBannerProps {
+export interface UserBannerProps {
     label: string;
 }
-const UserBanner: React.FC<UserBannerProps> = ({ label }) => (
+export const UserBanner: React.FC<UserBannerProps> = ({ label }) => (
     <div className={styles["user-banner"]}>
         <Avatar
             className={styles["user-banner__avatar"]}
@@ -34,5 +34,3 @@ const UserBanner: React.FC<UserBannerProps> = ({ label }) => (
         </div>
     </div>
 );
-
-export default UserBanner;

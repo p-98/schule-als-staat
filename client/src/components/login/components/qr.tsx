@@ -1,5 +1,5 @@
 import { forwardRef, useMemo } from "react";
-import PreventSSR from "Components/preventSSR/preventSSR";
+import { PreventSSR } from "Components/preventSSR/preventSSR";
 import QRReader from "react-qr-scanner";
 import {
     CardActionButton,
@@ -36,7 +36,7 @@ const QRRenderSuspense: React.FC = () =>
         []
     );
 
-interface IQRProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface IQRProps extends React.HTMLAttributes<HTMLDivElement> {
     // onScan: (result: string) => void;
     // onError: (error: unknown) => void;
     toManual: () => void;
@@ -46,7 +46,7 @@ interface IQRProps extends React.HTMLAttributes<HTMLDivElement> {
     header: string;
     infoText: string;
 }
-const QR = forwardRef<HTMLDivElement, IQRProps>(
+export const QR = forwardRef<HTMLDivElement, IQRProps>(
     ({ toManual, onGetUser, header, infoText, ...restProps }, ref) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <CardInner {...restProps} ref={ref}>
@@ -73,4 +73,3 @@ const QR = forwardRef<HTMLDivElement, IQRProps>(
         </CardInner>
     )
 );
-export default QR;

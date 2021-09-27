@@ -1,3 +1,3 @@
-import Login from "Scenes/login";
+import { Login } from "Scenes/login";
 
 export default Login;

@@ -8,7 +8,7 @@ import "@rmwc/icon/icon.css";
 
 import routingObj from "Utility/routing";
 
-const Navigation: React.FC = () => (
+export const Navigation: React.FC = () => (
     <List>
         {routingObj.map((generator) => {
             const { label, href, icon } = generator();
@@ -22,4 +22,3 @@ const Navigation: React.FC = () => (
         })}
     </List>
 );
-export default Navigation;

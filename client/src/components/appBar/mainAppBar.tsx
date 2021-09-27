@@ -14,13 +14,15 @@ import { toggle, useDispatch } from "Utility/hooks/redux/drawer";
 
 import styles from "./mainAppBar.module.css";
 
-const MainAppBar: React.FC<
-    RMWC.ComponentProps<
-        SimpleTopAppBarProps,
-        React.HTMLProps<HTMLElement>,
-        "div"
-    >
-> = ({ className, ...restProps }) => {
+export type IMainAppBarProps = RMWC.ComponentProps<
+    SimpleTopAppBarProps,
+    React.HTMLProps<HTMLElement>,
+    "div"
+>;
+export const MainAppBar: React.FC<IMainAppBarProps> = ({
+    className,
+    ...restProps
+}) => {
     const { locked: fullscreenInUse } = useFullscreen();
 
     const dispatch = useDispatch();
@@ -39,4 +41,3 @@ const MainAppBar: React.FC<
         />
     );
 };
-export default MainAppBar;

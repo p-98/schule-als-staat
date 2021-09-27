@@ -2,8 +2,9 @@ import { Meta, Story } from "@storybook/react";
 import { Provider } from "react-redux";
 
 // local
-import store from "Utility/redux/store";
-import FullscreenContainerTransformComponent, {
+import { store } from "Utility/redux/store";
+import {
+    FullscreenContainerTransform as FullscreenContainerTransformComponent,
     FullscreenContainerTransformElement,
     FullscreenContainerTransformHandle,
 } from "./fullscreenContainerTransform";

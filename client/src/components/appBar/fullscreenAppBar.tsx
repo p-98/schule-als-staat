@@ -7,7 +7,7 @@ import "@material/icon-button/dist/mdc.icon-button.css";
 import "@material/ripple/dist/mdc.ripple.css";
 import "@rmwc/icon/icon.css";
 
-type IFullscreenAppBarProps = Omit<
+export type IFullscreenAppBarProps = Omit<
     RMWC.ComponentProps<
         SimpleTopAppBarProps,
         React.HTMLProps<HTMLElement>,
@@ -15,8 +15,7 @@ type IFullscreenAppBarProps = Omit<
     >,
     "navigationIcon"
 >;
-const FullscreenAppBar: React.FC<IFullscreenAppBarProps> = (props) => (
+export const FullscreenAppBar: React.FC<IFullscreenAppBarProps> = (props) => (
     // eslint-disable-next-line react/jsx-props-no-spreading
     <SimpleTopAppBar {...props} navigationIcon={{ icon: "arrow_back" }} />
 );
-export default FullscreenAppBar;
