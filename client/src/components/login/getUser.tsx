@@ -6,9 +6,9 @@ import {
     ContainerTransform,
     ContainerTransformElement,
 } from "Components/transition/containerTransform/containerTransform";
+import type { TUser } from "Utility/types";
 import QR from "./components/qr";
 import Manual from "./components/manual";
-import { TUser } from "./types";
 
 import styles from "./login.module.css";
 

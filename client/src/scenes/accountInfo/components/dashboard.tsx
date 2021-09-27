@@ -7,7 +7,7 @@ import "@material/layout-grid/dist/mdc.layout-grid.css";
 import UserInfo from "Components/dashboard/userInfo";
 import AccountInfo from "Components/dashboard/accountInfo";
 
-const UserDashboard: React.FC = () => (
+const Dashboard: React.FC = () => (
     <>
         <GridCell desktop={2} tablet={0} phone={0} />
         <GridCell span={4}>
@@ -19,4 +19,4 @@ const UserDashboard: React.FC = () => (
         <GridCell desktop={2} tablet={0} phone={0} />
     </>
 );
-export default UserDashboard;
+export default Dashboard;

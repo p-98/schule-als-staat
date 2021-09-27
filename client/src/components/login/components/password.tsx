@@ -24,8 +24,9 @@ import "@material/list/dist/mdc.list.css";
 // import "@rmwc/icon/icon.css";
 
 // local
+import type { TUser } from "Utility/types";
 import UserBanner from "./userBanner";
-import type { TOnAuthUser, TUser } from "../types";
+import type { TOnAuthUser } from "../types";
 
 import styles from "../login.module.css";
 

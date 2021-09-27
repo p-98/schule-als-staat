@@ -16,8 +16,9 @@ import { Typography } from "@rmwc/typography";
 import "@material/typography/dist/mdc.typography.css";
 
 // local
+import type { TUser } from "Utility/types";
+
 import styles from "../login.module.css";
-import type { TUser } from "../types";
 
 /**
  * Prevents react from rerendering the reader every time.

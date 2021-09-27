@@ -11,8 +11,9 @@ import {
     SiblingTransitionBaseElement,
     Modes,
 } from "Components/transition/siblingTransitionBase/siblingTransitionBase";
+import type { TUser } from "Utility/types";
 import QR from "./components/qr";
-import { TOnAuthUser, TUser } from "./types";
+import { TOnAuthUser } from "./types";
 import Password from "./components/password";
 import Manual from "./components/manual";
 

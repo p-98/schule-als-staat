@@ -25,5 +25,10 @@ const routingObj: (() => {
         label: "Bank",
         icon: "account_balance",
     }),
+    () => ({
+        href: "/accountInfo",
+        label: "Kontoinformationen",
+        icon: "person",
+    }),
 ];
 export default routingObj;

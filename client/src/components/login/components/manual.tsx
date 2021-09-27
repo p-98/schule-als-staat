@@ -30,7 +30,7 @@ import "@material/menu-surface/dist/mdc.menu-surface.css";
 import "@material/ripple/dist/mdc.ripple.css";
 
 // local
-import type { TUser } from "../types";
+import type { TUser } from "Utility/types";
 
 import styles from "../login.module.css";
 

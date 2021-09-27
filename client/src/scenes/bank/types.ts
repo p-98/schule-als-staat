@@ -1,6 +1,5 @@
+// local
 import config from "Config";
-
-export type TUser = string;
 
 export interface IChangeCurrenciesInfo {
     baseCurrency: keyof typeof config.currencies;
