@@ -55,23 +55,27 @@ export const CardHeader: React.FC = ({ children }) => (
     </Typography>
 );
 
-export interface ICardContentProps {
+export interface ICardContentProps
+    extends React.HTMLAttributes<HTMLDivElement> {
     text?: string;
 }
-export const CardContent: React.FC<ICardContentProps> = ({
-    text,
-    children,
-}) => (
-    <div className={styles["card__content"]}>
-        {/* if text is provided return Typography with text */}
-        {text ? (
-            <Typography use="body1" theme="textSecondaryOnBackground">
-                {text}
-            </Typography>
-        ) : (
-            children
-        )}
-    </div>
+export const CardContent = forwardRef<HTMLDivElement, ICardContentProps>(
+    ({ text, children, ...restProps }, ref) => (
+        <div
+            {...restProps}
+            className={cn(restProps.className, styles["card__content"])}
+            ref={ref}
+        >
+            {/* if text is provided return Typography with text */}
+            {text ? (
+                <Typography use="body1" theme="textSecondaryOnBackground">
+                    {text}
+                </Typography>
+            ) : (
+                children
+            )}
+        </div>
+    )
 );
 
 export const CardActions: React.FC<
