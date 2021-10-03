@@ -5,6 +5,11 @@ import cn from "classnames";
 // grid imports
 import "@material/layout-grid/dist/mdc.layout-grid.css";
 
+// card imports
+import "@material/card/dist/mdc.card.css";
+import "@material/button/dist/mdc.button.css";
+import "@material/icon-button/dist/mdc.icon-button.css";
+
 // local
 import { TUser } from "Utility/types";
 import usePredictionObserver from "Utility/hooks/predictionObserver/predictionObserver";

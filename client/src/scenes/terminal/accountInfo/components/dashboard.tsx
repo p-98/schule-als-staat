@@ -4,7 +4,7 @@ import { GridCell } from "@rmwc/grid";
 import "@material/layout-grid/dist/mdc.layout-grid.css";
 
 // local
-import { UserInfo, AccountInfo } from "Components/dashboard/dashboard";
+import { UserInfo, BankAccountInfo } from "Components/dashboard/dashboard";
 
 export const Dashboard: React.FC = () => (
     <>
@@ -13,7 +13,7 @@ export const Dashboard: React.FC = () => (
             <UserInfo />
         </GridCell>
         <GridCell>
-            <AccountInfo />
+            <BankAccountInfo />
         </GridCell>
         <GridCell desktop={2} tablet={0} phone={0} />
     </>

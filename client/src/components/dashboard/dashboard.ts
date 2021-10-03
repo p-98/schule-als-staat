@@ -1,2 +1,2 @@
-export * from "./accountInfo";
+export * from "./bankAccountInfo";
 export * from "./userInfo";

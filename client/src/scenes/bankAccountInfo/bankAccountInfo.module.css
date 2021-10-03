@@ -1,0 +1,13 @@
+.bank-account-info__transactions {
+    margin: 0 -16px -16px -16px;
+}
+
+.bank-account-info__transaction-list-item.bank-account-info__transaction-list-item--positive
+    > div {
+    color: var(--mdc-theme-custom-balance-positive, #018786);
+}
+
+.bank-account-info__transaction-list-item.bank-account-info__transaction-list-item--negative
+    > div {
+    color: var(--mdc-theme-custom-balance-negative, #b00020);
+}

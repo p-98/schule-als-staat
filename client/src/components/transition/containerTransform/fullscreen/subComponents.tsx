@@ -30,10 +30,8 @@ export const FullscreenContainerTransformWrapper = forwardRef<
             className={cn(
                 className,
                 styles["container-transform"],
-                portal ? styles["container-transform--portal"] : "",
-                portal && optimize
-                    ? styles["container-transform--optimize"]
-                    : ""
+                portal && styles["container-transform--portal"],
+                portal && optimize && styles["container-transform--optimize"]
             )}
             style={
                 {

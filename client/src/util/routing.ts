@@ -20,9 +20,14 @@ export default [
         icon: "account_balance",
     }),
     () => ({
-        href: "/accountInfo",
+        href: "/terminal/accountInfo",
         label: "Kontoinformationen",
         icon: "person",
+    }),
+    () => ({
+        href: "/bankAccountInfo",
+        label: "Bankkonto",
+        icon: "account_balance",
     }),
 ] as (() => {
     href: string;

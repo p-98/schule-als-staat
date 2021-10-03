@@ -6,4 +6,8 @@ body,
     padding: 0;
     margin: 0;
     overflow: hidden;
+
+    /* global custom properties */
+    --mdc-theme-custom-balance-positive: green;
+    --mdc-theme-custom-balance-negative: red;
 }
