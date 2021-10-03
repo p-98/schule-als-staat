@@ -1,4 +1,4 @@
-assumptions:
+# Design decisions
 
 -   different, independant classes of users
     -   Unternehmen
@@ -9,7 +9,7 @@ assumptions:
 -   Eine Person, die ein Unternehmen gründet, muss bei diesem einen Arbeitsvertrag haben
 -   Eine Person kann nur einen Arbeitsvertrag haben
 
-main features:
+# Main features
 
 -   Bezahlen/Kasse
 -   Mitarbeiterverwaltung
@@ -21,17 +21,17 @@ main features:
 -   Polizei/Strafverfolgung
 -   Warenlager
 
-screens and features:
+# Pages (with features)
 
--   Login
-    -   QR-Code
+- Login
+    - QR-Code
     -   Manuell
         - Unternehmen
         - Bürger
         - Gast
--   Inbox
-    -   Liste aller Mitteilungen
-    -   Einzelansicht einer Mitteilung (Links möglich -> blank HTML?)
+- Inbox
+    - Liste aller Mitteilungen
+    - Einzelansicht einer Mitteilung (Links möglich -> blank HTML?)
 -   Konto
     -   aktueller Kontostand
     -   alle Transaktionen abrufen
