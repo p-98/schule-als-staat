@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { GridCell } from "@rmwc/grid";
-import cn from "classnames";
 
 // grid imports
 import "@material/layout-grid/dist/mdc.layout-grid.css";
@@ -24,7 +23,7 @@ import { onAfterCloneHandle } from "Utility/adapters/GetUser-FullscreenContainer
 import { GetUser } from "Components/login/getUser";
 import { FullscreenAppBar } from "Components/appBar/fullscreenAppBar";
 
-import cardStyles from "Components/card/card.module.css";
+import { cardClassNames } from "Components/card/card";
 
 import { Dashboard } from "./components/dashboard";
 
@@ -43,7 +42,7 @@ export const AccountInfo: React.FC = () => {
             <GridCell span={4}>
                 <FullscreenContainerTransform
                     open={!!user}
-                    className={cn("mdc-card", cardStyles["card"])}
+                    className={cardClassNames}
                     openClassName={
                         styles["account-info__fullscreen-wrapper--open"]
                     }

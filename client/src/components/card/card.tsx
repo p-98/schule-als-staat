@@ -23,6 +23,8 @@ import styles from "./card.module.css";
 // reexport rmwc card
 export * from "@rmwc/card";
 
+export const cardClassNames = cn("mdc-card", styles["card"]);
+
 export const Card = forwardRef<
     HTMLDivElement,
     RMWC.ComponentProps<CardProps, React.HTMLProps<HTMLElement>, "div">
