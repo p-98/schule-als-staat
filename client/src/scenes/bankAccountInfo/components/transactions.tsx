@@ -1,32 +1,24 @@
-import { List, SimpleListItem } from "@rmwc/list";
-import { SimpleDialog } from "@rmwc/dialog";
+import { SimpleListItem } from "@rmwc/list";
 import React, { useState } from "react";
 import cn from "classnames";
-
-// list imports
-import "@material/list/dist/mdc.list.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
 
 // dialog imports
 import "@material/dialog/dist/mdc.dialog.css";
 import "@material/button/dist/mdc.button.css";
+import "@material/ripple/dist/mdc.ripple.css";
+
+// list imports
+import "@material/list/dist/mdc.list.css";
 // import "@material/ripple/dist/mdc.ripple.css";
+import "@rmwc/icon/icon.css";
 
 // local
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardActions,
-    CardActionButtons,
-    CardActionButton,
-} from "Components/card/card";
+import { CardContent } from "Components/card/card";
+import { SimpleDialog } from "Components/dialog/dialog";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import { ITransaction } from "Utility/types";
 import { generateListItemInfo } from "../util/listItemInfo";
 import { generateTransactionDetails } from "../util/transactionDetails";
-import transactions from "../transactions.data";
 import { parseCurrency } from "../util/parseCurrency";
 
 import styles from "../bankAccountInfo.module.css";
@@ -44,12 +36,10 @@ const DetailDialog: React.FC<IDetailDialogProps> = ({
 }) => (
     <SimpleDialog
         open={open}
-        onClose={onClose}
-        acceptLabel="Test"
-        cancelLabel="Schließen"
+        cancel={{ label: "Schließen", handler: onClose }}
         title="Details"
     >
-        {/* <CardContent>
+        <CardContent>
             {Object.entries(generateTransactionDetails(transaction)).map(
                 ([label, content]) => (
                     <DisplayInfo label={label} key={label}>
@@ -57,7 +47,7 @@ const DetailDialog: React.FC<IDetailDialogProps> = ({
                     </DisplayInfo>
                 )
             )}
-        </CardContent> */}
+        </CardContent>
     </SimpleDialog>
 );
 
@@ -67,10 +57,10 @@ export interface ITransactionListItemInfo {
     icon: string;
     balance: number;
 }
-interface ITransactionListItemProps {
+export interface ITransactionListItemProps {
     transaction: ITransaction;
 }
-const TransactionListItem: React.FC<ITransactionListItemProps> = ({
+export const TransactionListItem: React.FC<ITransactionListItemProps> = ({
     transaction,
 }) => {
     const [showDetails, setShowDetails] = useState(false);
@@ -103,24 +93,3 @@ const TransactionListItem: React.FC<ITransactionListItemProps> = ({
         </>
     );
 };
-
-export const Transactions: React.FC = () => (
-    <Card>
-        <CardHeader>Transaktionen</CardHeader>
-        <CardContent>
-            <List twoLine className={styles["bank-account-info__transactions"]}>
-                {transactions.map((transaction) => (
-                    <TransactionListItem
-                        transaction={transaction}
-                        key={transaction.id}
-                    />
-                ))}
-            </List>
-        </CardContent>
-        <CardActions>
-            <CardActionButtons>
-                <CardActionButton>Mehr anzeigen</CardActionButton>
-            </CardActionButtons>
-        </CardActions>
-    </Card>
-);

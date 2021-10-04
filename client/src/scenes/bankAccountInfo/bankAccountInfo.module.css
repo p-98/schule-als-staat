@@ -2,6 +2,10 @@
     margin: 0 -16px -16px -16px;
 }
 
+.bank-account-info__fullscreen-container--open {
+    border-radius: 0px;
+}
+
 .bank-account-info__transaction-list-item.bank-account-info__transaction-list-item--positive
     > div {
     color: var(--mdc-theme-custom-balance-positive, #018786);
