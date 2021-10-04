@@ -1,5 +1,4 @@
 import { useState } from "react";
-import cn from "classnames";
 
 // local
 import {
@@ -16,8 +15,6 @@ import { QR } from "./components/qr";
 import { TOnAuthUser } from "./types";
 import { Password } from "./components/password";
 import { Manual } from "./components/manual";
-
-import styles from "./login.module.css";
 
 function getActiveElement(useQR: boolean, user: TUser | null) {
     if (!useQR) return "manual";
@@ -58,10 +55,6 @@ export const Login: React.FC<ILoginProps> = ({
         <ContainerTransform
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...restProps}
-            className={cn(
-                restProps.className,
-                styles["login__transform-container"]
-            )}
             activeElement={getActiveElement(useQR, user)}
         >
             <ContainerTransformElement elementKey="qr-scanner">

@@ -25,7 +25,6 @@ import { onAfterCloneHandle } from "Utility/adapters/GetUser-FullscreenContainer
 import type { TUser } from "Utility/types";
 
 import cardStyles from "Components/card/card.module.css";
-import pageGridStyles from "Components/pageGrid/pageGrid.module.css";
 
 import { UserDashboard } from "./components/userDashboard";
 import { ChangeCurrencies } from "./components/changeCurrencies";
@@ -47,11 +46,7 @@ export const Bank: React.FC = () => {
                 <GridCell span={4}>
                     <FullscreenContainerTransform
                         open={!!user}
-                        className={cn(
-                            "mdc-card",
-                            cardStyles["card"],
-                            pageGridStyles["page-grid__cell-child"]
-                        )}
+                        className={cn("mdc-card", cardStyles["card"])}
                         openClassName={styles["bank__fullscreen-wrapper--open"]}
                         onAfterCloneHandle={onAfterCloneHandle}
                         expectTransformation={expectCloseInteraction || !user}

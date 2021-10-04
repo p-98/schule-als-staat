@@ -3,15 +3,13 @@ import { DisplayInfo } from "Components/displayInfo/displayInfo";
 // local
 import { Card, CardHeader, CardContent } from "Components/card/card";
 
-import pageGridStyles from "Components/pageGrid/pageGrid.module.css";
-
 const userTypeIcons = {
     citizen: "person",
     guest: "person_outline",
     company: "domain",
 };
 export const UserInfo: React.FC = () => (
-    <Card className={pageGridStyles["page-grid__cell-child"]}>
+    <Card>
         <CardHeader>Benutzerinformationen</CardHeader>
         <CardContent>
             <DisplayInfo icon="group" label="Benutzerklasse">

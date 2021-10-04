@@ -9,6 +9,8 @@ import {
     FullscreenContainerTransformHandle,
 } from "./fullscreenContainerTransform";
 
+import styles from "../*containerTransform.module.css";
+
 export default {
     title: "components/transition/Fullscreen Container Transform",
     argTypes: {
@@ -39,10 +41,10 @@ export const FullscreenContainerTransform: Story<{ open: boolean }> = ({
             <FullscreenContainerTransformComponent
                 renderTo="#portal"
                 open={open}
-                // style={{ border: "1px solid red", boxSizing: "border-box" }}
-                style={{ backgroundColor: "red" }}
+                // style={{ backgroundColor: "red" }}
                 // locked to true because it is the only relevant element on the screen
                 expectTransformation
+                className={styles["container-transform--story"]}
             >
                 <FullscreenContainerTransformHandle>
                     <div

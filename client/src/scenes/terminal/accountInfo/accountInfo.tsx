@@ -25,7 +25,6 @@ import { GetUser } from "Components/login/getUser";
 import { FullscreenAppBar } from "Components/appBar/fullscreenAppBar";
 
 import cardStyles from "Components/card/card.module.css";
-import pageGridStyles from "Components/pageGrid/pageGrid.module.css";
 
 import { Dashboard } from "./components/dashboard";
 
@@ -44,11 +43,7 @@ export const AccountInfo: React.FC = () => {
             <GridCell span={4}>
                 <FullscreenContainerTransform
                     open={!!user}
-                    className={cn(
-                        "mdc-card",
-                        cardStyles["card"],
-                        pageGridStyles["page-grid__cell-child"]
-                    )}
+                    className={cn("mdc-card", cardStyles["card"])}
                     openClassName={
                         styles["account-info__fullscreen-wrapper--open"]
                     }

@@ -8,13 +8,11 @@ import "@material/layout-grid/dist/mdc.layout-grid.css";
 import { PageGrid } from "Components/pageGrid/pageGrid";
 import { Login as LoginComponent } from "Components/login/login";
 
-import pageGridStyles from "Components/pageGrid/pageGrid.module.css";
-
 export const Login: React.FC = () => (
     <PageGrid>
         <GridCell desktop={4} tablet={2} phone={0} />
         <GridCell span={4}>
-            <Card className={pageGridStyles["page-grid__cell-child"]}>
+            <Card>
                 <LoginComponent
                     onLogin={() => null}
                     header="Anmelden"

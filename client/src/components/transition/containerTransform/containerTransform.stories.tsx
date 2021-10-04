@@ -1,8 +1,9 @@
 import { Meta, Story } from "@storybook/react";
 import {
-    ContainerTransform as ContainerTransformCompoent,
+    ContainerTransform as ContainerTransformComponent,
     ContainerTransformElement,
 } from "./containerTransform";
+import styles from "./*containerTransform.module.css";
 
 export default {
     title: "components/transition/Container Transform",
@@ -19,11 +20,12 @@ export default {
 export const ContainerTransform: Story<{ activeElement: string }> = ({
     activeElement,
 }) => (
-    <ContainerTransformCompoent
+    <ContainerTransformComponent
         activeElement={activeElement}
         style={{
             border: "1px solid red",
         }}
+        className={styles["container-transform--story"]}
     >
         <ContainerTransformElement elementKey="blue">
             <div
@@ -45,7 +47,7 @@ export const ContainerTransform: Story<{ activeElement: string }> = ({
                 }}
             />
         </ContainerTransformElement>
-    </ContainerTransformCompoent>
+    </ContainerTransformComponent>
 );
 ContainerTransform.args = {
     activeElement: "blue",

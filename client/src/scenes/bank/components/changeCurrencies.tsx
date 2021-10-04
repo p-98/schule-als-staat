@@ -84,7 +84,7 @@ const RealToVirtual: React.FC = () => {
 
     return (
         <>
-            <Card className={pageGridStyles["page-grid__cell-child"]}>
+            <Card>
                 <CardHeader>
                     {config.currencies.real.name} to{" "}
                     {config.currencies.virtual.name}
@@ -134,7 +134,7 @@ const VirtualToReal: React.FC = () => {
 
     return (
         <>
-            <Card className={pageGridStyles["page-grid__cell-child"]}>
+            <Card>
                 <CardHeader>
                     {config.currencies.virtual.name} to{" "}
                     {config.currencies.real.name}
