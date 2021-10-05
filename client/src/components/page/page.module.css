@@ -2,7 +2,6 @@
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
-    justify-items: center;
 }
 
 .page__header {
@@ -10,9 +9,15 @@
     position: initial !important;
 }
 
-.page__inner {
+.page__scroll-container {
     overflow: auto;
+    display: grid;
+    justify-items: center;
+}
+
+.page__inner {
     width: 100%;
     /* maximum body size from documentation: https://material.io/design/layout/understanding-layout.html#layout-anatomy */
     max-width: 1040px;
+    min-height: 100%;
 }

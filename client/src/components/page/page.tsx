@@ -13,10 +13,11 @@ export const Page: React.FC<IPageProps> = ({
     ...restProps
 }) => (
     <div {...restProps} className={cn(styles["page"], restProps.className)}>
-        {/* TopAppBarProp defaults to an empty div */}
         {cloneElement(topAppBar, {
             className: cn(styles["page__header"], topAppBar.props.className),
         })}
-        <div className={styles["page__inner"]}>{children}</div>
+        <div className={styles["page__scroll-container"]}>
+            <div className={styles["page__inner"]}>{children}</div>
+        </div>
     </div>
 );
