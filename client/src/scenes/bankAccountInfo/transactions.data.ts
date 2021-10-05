@@ -1,4 +1,5 @@
 import { ITransaction } from "Utility/types";
+import { reassignIDs, repeatArr } from "Utility/dataMockup";
 
 const transactions: ITransaction[] = [
     {
@@ -69,16 +70,4 @@ const transactions: ITransaction[] = [
         additionalInfo: "Sofortkauf",
     },
 ];
-
-function repeatArr<T>(arr: T[], times: number): T[] {
-    if (times === 1) return arr;
-
-    return arr.concat(repeatArr(arr, times - 1));
-}
-function reassignIDs(arr: ITransaction[]): ITransaction[] {
-    return arr.map((transaction, index) => ({
-        ...transaction,
-        id: index.toString(),
-    }));
-}
 export default reassignIDs(repeatArr(transactions, 5));
