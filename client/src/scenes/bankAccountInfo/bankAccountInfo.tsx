@@ -29,6 +29,7 @@ import {
 } from "Components/transition/containerTransform/fullscreen/fullscreenContainerTransform";
 import { Page } from "Components/page/page";
 import { FullscreenAppBar } from "Components/appBar/fullscreenAppBar";
+import { GridScrollColumn } from "Components/gridScrollColumn/gridScrollCell";
 import transactions from "./transactions.data";
 import { TransactionListItem } from "./components/transactions";
 import { Transactions } from "./transactions";
@@ -75,36 +76,44 @@ export const BankAccountInfo: React.FC = () => {
         <PageGrid>
             <GridCell desktop={1} tablet={1} phone={0} />
             <GridCell span={4} tablet={6}>
-                <BasicBankAccountInfo />
+                <GridScrollColumn desktop>
+                    <BasicBankAccountInfo />
+                </GridScrollColumn>
             </GridCell>
             <GridCell desktop={0} tablet={1} phone={0} />
             <GridCell desktop={0} tablet={1} phone={0} />
             <GridCell desktop={6} tablet={6} phone={4}>
-                <FullscreenContainerTransform
-                    open={showAllTransactions}
-                    expectTransformation={false}
-                    className={cardClassNames}
-                    openClassName={
-                        styles["bank-account-info__fullscreen-container--open"]
-                    }
-                >
-                    <FullscreenContainerTransformHandle>
-                        <TransactionsCard
-                            onShowAll={() => setShowAllTransactions(true)}
-                        />
-                    </FullscreenContainerTransformHandle>
-                    <FullscreenContainerTransformElement>
-                        <Page
-                            topAppBar={
-                                <FullscreenAppBar
-                                    onNav={() => setShowAllTransactions(false)}
-                                />
-                            }
-                        >
-                            <Transactions />
-                        </Page>
-                    </FullscreenContainerTransformElement>
-                </FullscreenContainerTransform>
+                <GridScrollColumn desktop>
+                    <FullscreenContainerTransform
+                        open={showAllTransactions}
+                        expectTransformation={false}
+                        className={cardClassNames}
+                        openClassName={
+                            styles[
+                                "bank-account-info__fullscreen-container--open"
+                            ]
+                        }
+                    >
+                        <FullscreenContainerTransformHandle>
+                            <TransactionsCard
+                                onShowAll={() => setShowAllTransactions(true)}
+                            />
+                        </FullscreenContainerTransformHandle>
+                        <FullscreenContainerTransformElement>
+                            <Page
+                                topAppBar={
+                                    <FullscreenAppBar
+                                        onNav={() =>
+                                            setShowAllTransactions(false)
+                                        }
+                                    />
+                                }
+                            >
+                                <Transactions />
+                            </Page>
+                        </FullscreenContainerTransformElement>
+                    </FullscreenContainerTransform>
+                </GridScrollColumn>
             </GridCell>
         </PageGrid>
     );

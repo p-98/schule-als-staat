@@ -1,0 +1,46 @@
+@use "sass:map";
+@use "@material/layout-grid/mixins";
+@use "@material/layout-grid/variables";
+@use "@material/top-app-bar/variables" as top-app-bar;
+
+.grid-scroll-column {
+    // provide computed value for app bar height
+    --app-bar-height: #{top-app-bar.$row-height};
+    @media (max-width: #{top-app-bar.$mobile-breakpoint}) {
+        --app-bar-height: #{top-app-bar.$mobile-row-height};
+    }
+
+    margin: calc(-1 * var(--grid-gutter)) calc(-0.5 * var(--grid-gutter));
+    overflow: auto;
+
+    @each $size in map.keys(variables.$columns) {
+        @include mixins.media-query_($size) {
+            // provide computed values for grid margin and gutter
+            --grid-margin: var(
+                --mdc-layout-grid-margin-#{$size},
+                #{map.get(variables.$default-margin, $size)}
+            );
+            --grid-gutter: var(
+                --mdc-layout-grid-gutter-#{$size},
+                #{map.get(variables.$default-gutter, $size)}
+            );
+
+            // generate classes for activating scroll behaviour
+            &--scroll-#{$size} {
+                max-height: calc(100vh - var(--app-bar-height));
+
+                // adjust top and bottom margins, as there is no top and bottom element
+                margin: calc(-1 * var(--grid-margin))
+                    calc(-0.5 * var(--grid-gutter));
+
+                & > .grid-scroll-column__inner {
+                    padding: var(--grid-margin) calc(0.5 * var(--grid-gutter));
+                }
+            }
+        }
+    }
+
+    & > .grid-scroll-column__inner {
+        padding: var(--grid-gutter) calc(0.5 * var(--grid-gutter));
+    }
+}
