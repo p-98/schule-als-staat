@@ -8,6 +8,10 @@
     background: initial;
 }
 
+.card__media {
+    margin-bottom: 4px;
+}
+
 .card__header {
     padding: 0 16px;
 }

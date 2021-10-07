@@ -4,6 +4,8 @@ import {
     CardProps,
     CardActions as RMWCCardActions,
     CardActionsProps,
+    CardMedia as RMWCCardMedia,
+    CardMediaProps,
 } from "@rmwc/card";
 import RMWC, { ThemePropT } from "@rmwc/types";
 import cn from "classnames";
@@ -47,6 +49,18 @@ export const CardInner = forwardRef<
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...restProps}
         className={cn(className, styles["card__inner"])}
+        ref={ref}
+    />
+));
+
+export const CardMedia = forwardRef<
+    HTMLDivElement,
+    RMWC.ComponentProps<CardMediaProps, React.HTMLProps<HTMLElement>, "div">
+>(({ className, ...restProps }, ref) => (
+    <RMWCCardMedia
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...restProps}
+        className={cn(className, styles["card__media"])}
         ref={ref}
     />
 ));
