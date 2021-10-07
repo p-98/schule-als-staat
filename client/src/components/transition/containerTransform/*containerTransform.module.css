@@ -9,10 +9,17 @@
     overflow: hidden;
 }
 .container-transform--portal {
-    transition-property: all;
+    /* transition when closing */
+    transition: box-shadow var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1),
+        all var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1);
 
     display: none;
     position: absolute;
+}
+.container-transform--open {
+    /* transition when opening */
+    transition: box-shadow calc(0.3 * var(--transition-time)) linear,
+        all var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1);
 }
 .container-transform--optimize {
     will-change: display;

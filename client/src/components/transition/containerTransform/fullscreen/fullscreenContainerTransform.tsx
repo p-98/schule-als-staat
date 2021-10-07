@@ -196,6 +196,12 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
                 styles["container-transform__scrim--open"] as string
             );
 
+            // fade in elevation
+            portalWrapperDOM.classList.add(
+                "mdc-elevation--z8",
+                styles["container-transform--open"] as string
+            );
+
             // start wrapper transitions
             // // must be added this way, because the wrapper needs a frame without display:none to apply transitions
             const openClassNameArr = openClassName?.split(" ") ?? [];
@@ -271,6 +277,12 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
             // fade out scrim
             scrimRef.current.classList.remove(
                 styles["container-transform__scrim--open"] as string
+            );
+
+            // fade out elevation
+            portalWrapperDOM.classList.remove(
+                "mdc-elevation--z8",
+                styles["container-transform--open"] as string
             );
 
             fullscreen.release();
