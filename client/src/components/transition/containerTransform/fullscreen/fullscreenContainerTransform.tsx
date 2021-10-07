@@ -129,11 +129,6 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
             fadingWrapperDOM.append(handleDOM.cloneNode(true));
             const portalHandleDOM = fadingWrapperDOM.lastChild as HTMLElement;
 
-            // optimize for upcoming transition
-            // portalHandleDOM.classList.add(
-            //     styles["container-transform__element--optimize"] as string
-            // );
-
             // call onAfterHandle for custom smooth transitions
             onAfterCloneHandle?.(
                 handleDOM,
@@ -196,16 +191,14 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
                 styles["container-transform__scrim--open"] as string
             );
 
-            // fade in elevation
+            // start wrapper transitions
+            // must be added this way, because the wrapper needs a frame without display:none to apply transitions
+            const openClassNameArr = openClassName?.split(" ") ?? [];
             portalWrapperDOM.classList.add(
+                ...openClassNameArr,
                 "mdc-elevation--z8",
                 styles["container-transform--open"] as string
             );
-
-            // start wrapper transitions
-            // // must be added this way, because the wrapper needs a frame without display:none to apply transitions
-            const openClassNameArr = openClassName?.split(" ") ?? [];
-            portalWrapperDOM.classList.add(...openClassNameArr);
 
             fullscreen.lock();
         });
@@ -278,13 +271,6 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
             scrimRef.current.classList.remove(
                 styles["container-transform__scrim--open"] as string
             );
-
-            // fade out elevation
-            portalWrapperDOM.classList.remove(
-                "mdc-elevation--z8",
-                styles["container-transform--open"] as string
-            );
-
             fullscreen.release();
         });
 
@@ -387,9 +373,14 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
                         transitionTime={transitionTime}
                         className={cn(
                             restProps.className,
-                            open && !inTransition // || (!open && inTransition)
-                                ? openClassName
-                                : ""
+                            // openClassNames, are manually applied for the time of the transition
+                            open &&
+                                !inTransition &&
+                                cn(
+                                    openClassName,
+                                    "mdc-elevation--z8",
+                                    styles["container-transform--open"]
+                                )
                         )}
                         optimize={expectOrInTransformation}
                     >
