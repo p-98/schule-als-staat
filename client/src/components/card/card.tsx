@@ -5,9 +5,9 @@ import {
     CardActions as RMWCCardActions,
     CardActionsProps,
 } from "@rmwc/card";
-import RMWC from "@rmwc/types";
+import RMWC, { ThemePropT } from "@rmwc/types";
 import cn from "classnames";
-import { forwardRef } from "react";
+import React, { forwardRef } from "react";
 
 // card imports
 import "@material/card/dist/mdc.card.css";
@@ -51,8 +51,20 @@ export const CardInner = forwardRef<
     />
 ));
 
-export const CardHeader: React.FC = ({ children }) => (
-    <Typography use="headline6" className={styles["card__header"]}>
+interface ICardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+    theme?: ThemePropT;
+}
+export const CardHeader: React.FC<ICardHeaderProps> = ({
+    children,
+    className,
+    ...restProps
+}) => (
+    <Typography
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...restProps}
+        use="headline6"
+        className={cn(className, styles["card__header"])}
+    >
         {children}
     </Typography>
 );
