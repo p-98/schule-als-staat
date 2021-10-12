@@ -1,4 +1,3 @@
-import config from "Config";
 import {
     IChangeTransaction,
     IPurchaseTransaction,
@@ -35,7 +34,7 @@ const generatorMap = {
         vendor,
         additionalInfo,
     }: IPurchaseTransaction) => {
-        const displayAsVendor = typeof includedTax !== "undefined";
+        const displayAsVendor = includedTax !== undefined;
 
         const transactionDetails: TTransactionDetails = {
             Transaktionsart: "Kauf",

@@ -78,6 +78,7 @@ export const CardHeader: React.FC<ICardHeaderProps> = ({
         {...restProps}
         use="headline6"
         className={cn(className, styles["card__header"])}
+        theme="textPrimaryOnBackground"
     >
         {children}
     </Typography>

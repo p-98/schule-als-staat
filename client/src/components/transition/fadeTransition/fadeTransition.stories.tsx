@@ -1,5 +1,6 @@
 import { Meta, Story } from "@storybook/react";
-import FadeTransitionComponent, {
+import {
+    FadeTransition as FadeTransitionComponent,
     IFadeTransitionProps,
 } from "./fadeTransition";
 

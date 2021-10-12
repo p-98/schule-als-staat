@@ -31,9 +31,6 @@ import { AuthUser } from "Components/login/authUser";
 import config from "Config";
 import { TOnAuthUser } from "Components/login/types";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
-
-import pageGridStyles from "Components/pageGrid/pageGrid.module.css";
-
 import { BankUserContext } from "../util/context";
 import { CheckoutSummary } from "./checkoutSummary";
 import type { IChangeCurrenciesInfo } from "../types";

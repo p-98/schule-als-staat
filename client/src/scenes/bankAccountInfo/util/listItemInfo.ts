@@ -51,7 +51,7 @@ const generatorMap = {
 
         if (vendor === "Warenlager") return generateWarehouseInfo(transaction);
 
-        const displayAsVendor = typeof includedTax !== "undefined";
+        const displayAsVendor = includedTax !== undefined;
 
         return {
             infoText: displayAsVendor ? customer : vendor,
