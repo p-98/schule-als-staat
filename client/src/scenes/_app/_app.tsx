@@ -9,7 +9,7 @@ import { Page } from "Components/page/page";
 import { store } from "Utility/redux/store";
 import { MainAppBar } from "Components/appBar/mainAppBar";
 import { Drawer } from "./components/drawer";
-import theme from "./theme";
+import theme from "../../util/theme";
 
 // theme imports
 import "@material/theme/dist/mdc.theme.css";
