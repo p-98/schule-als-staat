@@ -17,9 +17,9 @@ import { CardContent } from "Components/card/card";
 import { SimpleDialog } from "Components/dialog/dialog";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import { ITransaction } from "Utility/types";
+import { parseCurrency } from "Utility/parseCurrency";
 import { generateListItemInfo } from "../util/listItemInfo";
 import { generateTransactionDetails } from "../util/transactionDetails";
-import { parseCurrency } from "../util/parseCurrency";
 
 import styles from "../bankAccountInfo.module.css";
 

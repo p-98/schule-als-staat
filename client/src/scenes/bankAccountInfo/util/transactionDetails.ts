@@ -4,8 +4,8 @@ import {
     ITransaction,
     ITransferTransaction,
 } from "Utility/types";
+import { parseCurrency } from "Utility/parseCurrency";
 import type { TTransactionDetails } from "../components/transactions";
-import { parseCurrency } from "./parseCurrency";
 
 const generatorMap = {
     transfer: (transaction: ITransferTransaction) => ({
