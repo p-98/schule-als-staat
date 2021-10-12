@@ -29,6 +29,11 @@ export default [
         label: "Bankkonto",
         icon: "account_balance",
     }),
+    () => ({
+        href: "/vote",
+        label: "Abstimmungen",
+        icon: "ballot",
+    }),
 ] as (() => {
     href: string;
     label: string;

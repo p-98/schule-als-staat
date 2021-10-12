@@ -5,6 +5,7 @@
     padding-top: 100%;
 }
 
+// enable use of <GridCell phone={0}/> by not rendering them at all (prevents weird spacing behaviour)
 .mdc-layout-grid__cell--span--phone {
     @include mixins.media-query_(phone) {
         display: none;
@@ -21,6 +22,12 @@
     }
 }
 
+// remove dots from ListDivider
 .mdc-list-divider {
     list-style: none;
+}
+
+// prevent linke breaks in ListItem meta
+.mdc-list-item__meta {
+    white-space: nowrap;
 }

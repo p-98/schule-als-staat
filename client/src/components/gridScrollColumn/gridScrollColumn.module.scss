@@ -42,5 +42,7 @@
 
     & > .grid-scroll-column__inner {
         padding: var(--grid-gutter) calc(0.5 * var(--grid-gutter));
+        display: grid;
+        gap: var(--mdc-layout-grid-gutter-desktop, 24px);
     }
 }
