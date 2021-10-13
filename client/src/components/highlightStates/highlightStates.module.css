@@ -1,0 +1,28 @@
+.highlighted-states {
+    position: relative;
+}
+.highlighted-states::before {
+    border-radius: inherit;
+}
+
+.highlighted-states--activated::before {
+    background-color: var(--mdc-theme-primary, #6200ee);
+    opacity: 0.12;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.highlighted-states--selected::before {
+    background-color: var(--mdc-theme-primary, #6200ee);
+    opacity: 0.08;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}

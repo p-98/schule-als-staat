@@ -1,8 +1,6 @@
 .display-info {
     height: 56px;
-    position: relative;
     border-radius: 4px;
-    overflow: hidden;
 
     display: grid;
     grid-template-columns: 1fr;
@@ -12,28 +10,8 @@
 .display-info--icon {
     grid-template-columns: 24px 1fr;
 }
-.display-info:not(.display-info--activated):not(.display-info--selected) {
+.display-info:not(.display-info--highlighted) {
     background-color: whitesmoke;
-}
-.display-info--selected::before {
-    background-color: var(--mdc-theme-primary, #6200ee);
-    opacity: 0.08;
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-}
-.display-info--activated::before {
-    background-color: var(--mdc-theme-primary, #6200ee);
-    opacity: 0.12;
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
 }
 
 .display-info__icon {

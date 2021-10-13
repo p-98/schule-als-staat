@@ -6,6 +6,8 @@ import {
     CardActionsProps,
     CardMedia as RMWCCardMedia,
     CardMediaProps,
+    CardPrimaryAction as RMWCCardPrimaryAction,
+    CardMediaContentProps,
 } from "@rmwc/card";
 import RMWC, { ThemePropT } from "@rmwc/types";
 import cn from "classnames";
@@ -71,6 +73,7 @@ interface ICardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
 export const CardHeader: React.FC<ICardHeaderProps> = ({
     children,
     className,
+    theme,
     ...restProps
 }) => (
     <Typography
@@ -78,7 +81,7 @@ export const CardHeader: React.FC<ICardHeaderProps> = ({
         {...restProps}
         use="headline6"
         className={cn(className, styles["card__header"])}
-        theme="textPrimaryOnBackground"
+        theme={theme ?? "textPrimaryOnBackground"}
     >
         {children}
     </Typography>
@@ -121,4 +124,17 @@ export const CardActions: React.FC<
     >
         {children}
     </RMWCCardActions>
+);
+
+export const CardPrimaryAction: React.FC<
+    RMWC.ComponentProps<
+        CardMediaContentProps,
+        React.HTMLProps<HTMLElement>,
+        "div"
+    >
+> = ({ children, ...restProps }) => (
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    <RMWCCardPrimaryAction {...restProps}>
+        <CardInner>{children}</CardInner>
+    </RMWCCardPrimaryAction>
 );

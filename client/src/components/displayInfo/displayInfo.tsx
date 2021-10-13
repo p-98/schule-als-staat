@@ -11,6 +11,8 @@ import "@rmwc/icon/icon.css";
 import "@material/typography/dist/mdc.typography.css";
 
 // local
+import { HightlightStates } from "Components/highlightStates/highlightStates";
+
 import styles from "./displayInfo.module.css";
 
 export interface IDisplayInfoProps
@@ -28,35 +30,36 @@ export const DisplayInfo: React.FC<IDisplayInfoProps> = ({
     selected = false,
     ...restProps
 }) => (
-    <div
-        {...restProps}
-        className={cn(
-            restProps.className,
-            styles["display-info"],
-            activated && styles["display-info--activated"],
-            selected && styles["display-info--selected"],
-            icon && styles["display-info--icon"]
-        )}
-    >
-        {icon && (
-            <Theme use="textSecondaryOnBackground" wrap>
-                <Icon
-                    icon={{ icon, size: "large" }}
-                    className={styles["display-info__icon"]}
-                />
-            </Theme>
-        )}
-        <div className={styles["display-info__label"]}>
-            <Typography
-                use="caption"
-                className={styles["display-info__caption"]}
-                theme="textSecondaryOnBackground"
-            >
-                {label}
-            </Typography>
-            <Typography use="subtitle1" theme="textPrimaryOnBackground">
-                {children}
-            </Typography>
+    <HightlightStates activated={activated} selected={selected}>
+        <div
+            {...restProps}
+            className={cn(
+                restProps.className,
+                styles["display-info"],
+                (activated || selected) && styles["display-info--highlighted"],
+                icon && styles["display-info--icon"]
+            )}
+        >
+            {icon && (
+                <Theme use="textSecondaryOnBackground" wrap>
+                    <Icon
+                        icon={{ icon, size: "large" }}
+                        className={styles["display-info__icon"]}
+                    />
+                </Theme>
+            )}
+            <div className={styles["display-info__label"]}>
+                <Typography
+                    use="caption"
+                    className={styles["display-info__caption"]}
+                    theme="textSecondaryOnBackground"
+                >
+                    {label}
+                </Typography>
+                <Typography use="subtitle1" theme="textPrimaryOnBackground">
+                    {children}
+                </Typography>
+            </div>
         </div>
-    </div>
+    </HightlightStates>
 );
