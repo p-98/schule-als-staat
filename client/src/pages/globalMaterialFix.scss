@@ -31,3 +31,8 @@
 .mdc-list-item__meta {
     white-space: nowrap;
 }
+
+// make activated data-table row look more decent
+.rmwc-data-table__row--activated {
+    background-color: unset !important;
+}

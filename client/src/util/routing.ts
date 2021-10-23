@@ -34,6 +34,11 @@ export default [
         label: "Abstimmungen",
         icon: "ballot",
     }),
+    () => ({
+        href: "/pos",
+        label: "Kasse",
+        icon: "shopping_cart",
+    }),
 ] as (() => {
     href: string;
     label: string;
