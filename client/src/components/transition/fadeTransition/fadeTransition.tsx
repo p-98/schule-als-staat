@@ -15,6 +15,7 @@ export interface IFadeTransitionProps
         | "left"
         | "top-left"
         | "fullscreen";
+    onTransitionFinish: (open: boolean, activeElementDOM?: HTMLElement) => void;
 }
 /**
  * A Component to perform fade transitions.
@@ -24,6 +25,7 @@ export const FadeTransition: React.FC<IFadeTransitionProps> = ({
     open: openTarget,
     children,
     anchor,
+    onTransitionFinish,
     ...props
 }) => {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -57,15 +59,18 @@ export const FadeTransition: React.FC<IFadeTransitionProps> = ({
         const onTransitionEnd = (e: TransitionEvent) => {
             if (e.propertyName !== "height") return;
 
+            containerDOM.removeEventListener("transitionend", onTransitionEnd);
+
             containerDOM.style.width = "";
             containerDOM.style.height = "";
 
-            containerDOM.removeEventListener("transitionend", onTransitionEnd);
+            onTransitionFinish?.(true, containerDOM);
+
             setOpen(true);
             setInTransition(false);
         };
         containerDOM.addEventListener("transitionend", onTransitionEnd);
-    }, [anchor]);
+    }, [anchor, onTransitionFinish]);
 
     const onClose = useCallback(() => {
         const containerDOM = containerRef.current as HTMLDivElement;
@@ -79,11 +84,14 @@ export const FadeTransition: React.FC<IFadeTransitionProps> = ({
 
         const onTransitionEnd = () => {
             containerDOM.removeEventListener("transitionend", onTransitionEnd);
+
+            onTransitionFinish?.(false);
+
             setOpen(false);
             setInTransition(false);
         };
         containerDOM.addEventListener("transitionend", onTransitionEnd);
-    }, [anchor]);
+    }, [anchor, onTransitionFinish]);
 
     useEffect(() => {
         if (inTransition) return;

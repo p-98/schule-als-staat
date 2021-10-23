@@ -89,6 +89,7 @@ export interface IFullscreenContainerTransformProps
      * Prop only needs to be active *before* the transformation occures, because it is held active whilst transforming internally
      */
     expectTransformation: boolean;
+    onTransformFinish?: (open: boolean, activeElementDOM: HTMLElement) => void;
 }
 export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps> = ({
     children,
@@ -97,6 +98,7 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
     openClassName,
     onAfterCloneHandle,
     expectTransformation,
+    onTransformFinish,
     ...restProps
 }: IFullscreenContainerTransformProps) => {
     const portalWrapperRef = useRef<HTMLDivElement>(null);
@@ -221,6 +223,11 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
 
             clearPortalHandle(fadingWrapperDOM);
 
+            onTransformFinish?.(
+                true,
+                elementSwitcher.getActiveElementDOM("Element")
+            );
+
             setOpen(true);
             setInTransition(false);
         };
@@ -231,6 +238,7 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
         fullscreen,
         openClassName,
         updatePortalHandle,
+        onTransformFinish,
     ]);
 
     const collapse = useCallback(() => {
@@ -295,11 +303,22 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
             wrapperDOM.style.opacity = "";
             portalWrapperDOM.style.display = "";
 
+            onTransformFinish?.(
+                false,
+                elementSwitcher.getActiveElementDOM("Handle")
+            );
+
             setOpen(false);
             setInTransition(false);
         };
         portalWrapperDOM.addEventListener("transitionend", cleanup);
-    }, [clearPortalHandle, elementSwitcher, fullscreen, updatePortalHandle]);
+    }, [
+        clearPortalHandle,
+        elementSwitcher,
+        fullscreen,
+        updatePortalHandle,
+        onTransformFinish,
+    ]);
 
     // init
     useEffect(() => {

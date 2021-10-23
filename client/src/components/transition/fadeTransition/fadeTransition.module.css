@@ -3,10 +3,13 @@
     height: 0;
     width: 0;
     overflow: visible;
+    pointer-events: none;
 
     --transition-time: 150ms;
 }
 .fade-transition--open {
+    pointer-events: auto;
+
     --transition-time: 75ms;
 }
 
