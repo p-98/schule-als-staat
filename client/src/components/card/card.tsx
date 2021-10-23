@@ -9,7 +9,7 @@ import {
     CardPrimaryAction as RMWCCardPrimaryAction,
     CardMediaContentProps,
 } from "@rmwc/card";
-import RMWC, { ThemePropT } from "@rmwc/types";
+import RMWC from "@rmwc/types";
 import cn from "classnames";
 import React, { forwardRef } from "react";
 
@@ -22,6 +22,8 @@ import "@material/icon-button/dist/mdc.icon-button.css";
 import "@material/typography/dist/mdc.typography.css";
 
 // local
+import { TWithThemeProp } from "Utility/types";
+
 import styles from "./card.module.css";
 
 // reexport rmwc card
@@ -67,15 +69,9 @@ export const CardMedia = forwardRef<
     />
 ));
 
-interface ICardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-    theme?: ThemePropT;
-}
-export const CardHeader: React.FC<ICardHeaderProps> = ({
-    children,
-    className,
-    theme,
-    ...restProps
-}) => (
+export const CardHeader: React.FC<
+    TWithThemeProp<React.HTMLAttributes<HTMLDivElement>>
+> = ({ children, className, theme, ...restProps }) => (
     <Typography
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...restProps}

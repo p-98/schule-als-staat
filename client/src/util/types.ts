@@ -1,6 +1,20 @@
+import { ThemePropT } from "@rmwc/types";
 import { IChangeCurrenciesInfo } from "Scenes/bank/types";
 
 export type TUser = string;
+
+// helpter types
+
+// this type resolves to unknwon, if T = any, and never otherwise
+type TValidToNever<T> = T extends string
+    ? T extends number
+        ? unknown
+        : never
+    : never;
+export type TIsAny<T> = [TValidToNever<T>] extends [never] ? false : true;
+
+// types for rmwc wrappers
+export type TWithThemeProp<T = unknown> = T & { theme?: ThemePropT };
 
 // transaction types
 export interface ITransactionBase {
