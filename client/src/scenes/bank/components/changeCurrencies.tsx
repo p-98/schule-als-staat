@@ -88,6 +88,7 @@ const RealToVirtual: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                     <TextField
+                        id="real-to-virtual__input"
                         type="number"
                         label={`von ${config.currencies.real.short}`}
                         defaultValue="1"
@@ -138,6 +139,7 @@ const VirtualToReal: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                     <TextField
+                        id="virtual-to-real__input"
                         label={`von ${config.currencies.virtual.short}`}
                         defaultValue="0"
                     />

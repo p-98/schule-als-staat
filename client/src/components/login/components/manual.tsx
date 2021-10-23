@@ -2,7 +2,6 @@ import { forwardRef } from "react";
 import {
     CardActions,
     CardActionButton,
-    CardActionButtons,
     CardContent,
     CardHeader,
     CardInner,
@@ -32,8 +31,6 @@ import "@material/ripple/dist/mdc.ripple.css";
 // local
 import type { TUser } from "Utility/types";
 
-import styles from "../login.module.css";
-
 export interface IManualProps extends React.HTMLAttributes<HTMLDivElement> {
     toQR: () => void;
     onGetUser: (user: TUser) => void;
@@ -50,22 +47,16 @@ export const Manual = forwardRef<HTMLDivElement, IManualProps>(
                     options={["Unternehmen", "Bürger", "Gast"]}
                     label="Benutzerklasse"
                 />
-                <TextField label="Benutzername" />
+                <TextField id="login__manual" label="Benutzername" />
             </CardContent>
-            <CardActions>
-                <CardActionButtons
-                    className={styles["login__card-action-buttons"]}
+            <CardActions dialogLayout>
+                <CardActionButton onClick={toQR}>QR-Scanner</CardActionButton>
+                <CardActionButton
+                    raised
+                    onClick={() => onGetUser("Max Mustermann")}
                 >
-                    <CardActionButton onClick={toQR}>
-                        QR-Scanner
-                    </CardActionButton>
-                    <CardActionButton
-                        raised
-                        onClick={() => onGetUser("Max Mustermann")}
-                    >
-                        {confirmButtonLabel}
-                    </CardActionButton>
-                </CardActionButtons>
+                    {confirmButtonLabel}
+                </CardActionButton>
             </CardActions>
         </CardInner>
     )

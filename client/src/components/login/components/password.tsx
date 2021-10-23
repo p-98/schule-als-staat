@@ -1,6 +1,5 @@
 import { forwardRef, ReactNode } from "react";
 import {
-    CardActionButtons,
     CardActionButton,
     CardActions,
     CardContent,
@@ -27,8 +26,6 @@ import "@material/list/dist/mdc.list.css";
 import type { TUser } from "Utility/types";
 import { UserBanner } from "./userBanner";
 import type { TOnAuthUser } from "../types";
-
-import styles from "../login.module.css";
 
 export interface IPasswordProps extends React.HTMLAttributes<HTMLDivElement> {
     cancelButton?: {
@@ -70,28 +67,28 @@ export const Password = forwardRef<HTMLDivElement, IPasswordProps>(
             )}
             <CardContent>
                 <UserBanner label={userBannerLabel} />
-                <TextField type="password" label="Passwort" />
+                <TextField
+                    type="password"
+                    id={`login__password--user#${user ?? ""}`}
+                    label="Passwort"
+                />
             </CardContent>
-            <CardActions>
-                <CardActionButtons
-                    className={styles["login__card-action-buttons"]}
+            <CardActions dialogLayout>
+                <CardActionButton
+                    onClick={() => cancelButton?.onClick()}
+                    style={{
+                        opacity: cancelButton ? 1 : 0,
+                    }}
                 >
-                    <CardActionButton
-                        onClick={() => cancelButton?.onClick()}
-                        style={{
-                            opacity: cancelButton ? 1 : 0,
-                        }}
-                    >
-                        {cancelButton?.label}
-                    </CardActionButton>
-                    <CardActionButton
-                        raised
-                        onClick={() => onAuthUser(user as TUser)}
-                        danger={confirmButton.danger}
-                    >
-                        {confirmButton.label}
-                    </CardActionButton>
-                </CardActionButtons>
+                    {cancelButton?.label}
+                </CardActionButton>
+                <CardActionButton
+                    raised
+                    onClick={() => onAuthUser(user as TUser)}
+                    danger={confirmButton.danger}
+                >
+                    {confirmButton.label}
+                </CardActionButton>
             </CardActions>
         </CardInner>
     )

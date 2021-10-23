@@ -13,11 +13,6 @@
     grid-gap: 8px;
 }
 
-.login__card-action-buttons {
-    width: 100%;
-    justify-content: space-between;
-}
-
 .login__qr-video {
     position: absolute;
     top: 0;
@@ -25,4 +20,11 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.login__qr-focus-catch {
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    z-index: -1;
 }

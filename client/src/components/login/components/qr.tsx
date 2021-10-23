@@ -3,7 +3,6 @@ import { PreventSSR } from "Components/preventSSR/preventSSR";
 import QRReader from "react-qr-scanner";
 import {
     CardActionButton,
-    CardActionButtons,
     CardActions,
     CardContent,
     CardHeader,
@@ -11,6 +10,7 @@ import {
     CardInner,
 } from "Components/card/card";
 import { Typography } from "@rmwc/typography";
+import { MDCDialogFoundation } from "@material/dialog";
 
 // typography imports
 import "@material/typography/dist/mdc.typography.css";
@@ -35,10 +35,19 @@ const QRRenderSuspense: React.FC = () =>
         ),
         []
     );
+const QRFocusCatch: React.FC = () => (
+    <div aria-hidden="true" className={styles["login__qr-focus-catch"]}>
+        <input type="text" />
+    </div>
+);
 
 export interface IQRProps extends React.HTMLAttributes<HTMLDivElement> {
     // onScan: (result: string) => void;
     // onError: (error: unknown) => void;
+    cancel?: {
+        label: string;
+        handler: () => void;
+    };
     toManual: () => void;
     onGetUser: (user: TUser) => void;
 
@@ -47,10 +56,18 @@ export interface IQRProps extends React.HTMLAttributes<HTMLDivElement> {
     infoText: string;
 }
 export const QR = forwardRef<HTMLDivElement, IQRProps>(
-    ({ toManual, onGetUser, header, infoText, ...restProps }, ref) => (
+    ({ toManual, cancel, onGetUser, header, infoText, ...restProps }, ref) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <CardInner {...restProps} ref={ref}>
-            <CardMedia square onClick={() => onGetUser("Max Mustermann")}>
+            <CardMedia
+                square
+                onClick={() => onGetUser("Max Mustermann")}
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...{
+                    [MDCDialogFoundation.strings.INITIAL_FOCUS_ATTRIBUTE]: true,
+                }}
+            >
+                <QRFocusCatch />
                 <PreventSSR>
                     <QRRenderSuspense />
                 </PreventSSR>
@@ -61,14 +78,15 @@ export const QR = forwardRef<HTMLDivElement, IQRProps>(
                     {infoText}
                 </Typography>
             </CardContent>
-            <CardActions>
-                <CardActionButtons
-                    className={styles["login__card-action-buttons"]}
-                >
-                    <CardActionButton onClick={toManual}>
-                        Manuelle Eingabe
+            <CardActions dialogLayout>
+                {cancel && (
+                    <CardActionButton onClick={cancel.handler}>
+                        {cancel.label}
                     </CardActionButton>
-                </CardActionButtons>
+                )}
+                <CardActionButton onClick={toManual}>
+                    Manuelle Eingabe
+                </CardActionButton>
             </CardActions>
         </CardInner>
     )

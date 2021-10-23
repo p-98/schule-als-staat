@@ -106,16 +106,28 @@ export const CardContent = forwardRef<HTMLDivElement, ICardContentProps>(
     )
 );
 
-export const CardActions: React.FC<
-    RMWC.ComponentProps<CardActionsProps, React.HTMLProps<HTMLElement>, "div">
-> = ({ fullBleed, children, className, ...restProps }) => (
+export type ICardActionsProps = RMWC.ComponentProps<
+    CardActionsProps,
+    React.HTMLProps<HTMLElement>,
+    "div"
+> & { dialogLayout?: boolean };
+/** When dialogLayout is used, the CardActionButtons component must be emitted */
+export const CardActions: React.FC<ICardActionsProps> = ({
+    fullBleed,
+    children,
+    className,
+    dialogLayout,
+    ...restProps
+}) => (
     <RMWCCardActions
         // eslint-disable-next-line react/jsx-props-no-spreading
         {...restProps}
         fullBleed={fullBleed}
         className={cn(
             className,
-            fullBleed ? styles["card__actions--full-bleed"] : null
+            styles["card__actions"],
+            fullBleed && styles["card__actions--full-bleed"],
+            dialogLayout && styles["card__actions--dialog-layout"]
         )}
     >
         {children}

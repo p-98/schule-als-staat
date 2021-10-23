@@ -17,7 +17,7 @@ export const Login: React.FC = () => (
                     onLogin={() => null}
                     header="Anmelden"
                     qrInfoText="Scanne den QR-Code auf dem Ausweis um dich anzumelden."
-                    confirmButtonLabel="Anmelden"
+                    confirmButton={{ label: "Anmelden" }}
                     userBannerLabel="Anmelden als"
                 />
             </Card>
