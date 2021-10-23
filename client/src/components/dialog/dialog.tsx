@@ -1,6 +1,13 @@
 import React from "react";
-import { Dialog as RMWCDialog } from "@rmwc/dialog";
+import {
+    Dialog as RMWCDialog,
+    DialogOnClosedEventT,
+    DialogOnCloseEventT,
+    DialogOnOpenedEventT,
+    DialogOnOpenEventT,
+} from "@rmwc/dialog";
 import { PortalPropT } from "@rmwc/base";
+import { MDCDialogFoundation } from "@material/dialog";
 
 // dialog imports
 import "@material/dialog/dist/mdc.dialog.css";
@@ -26,6 +33,8 @@ export interface SimpleDialogProps
         label: string;
         handler: () => void;
         danger?: boolean;
+        disabled?: boolean;
+        isDefaultAction?: boolean;
     };
     cancel?: {
         label: string;
@@ -35,34 +44,66 @@ export interface SimpleDialogProps
 
     // forwarded dialog props
     open?: boolean;
+    onOpen?: (e: DialogOnOpenEventT) => void;
+    onClose?: (e: DialogOnCloseEventT) => void;
+    onOpened?: (e: DialogOnOpenedEventT) => void;
+    onClosed?: (e: DialogOnClosedEventT) => void;
     preventOutsideDismiss?: boolean;
     renderToPortal?: PortalPropT;
 }
-export const SimpleDialog = React.memo<SimpleDialogProps>(
-    ({ title, accept, cancel, children, ...restProps }) => (
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        <RMWCDialog {...restProps} onClose={cancel?.handler}>
-            <CardInner>
-                {title && <CardHeader>{title}</CardHeader>}
-                {children}
-                {(cancel || accept) && (
-                    <CardActions className={styles["dialog__actions"]}>
-                        {cancel && (
-                            <CardActionButton onClick={cancel.handler}>
-                                {cancel.label}
-                            </CardActionButton>
+export const SimpleDialog = React.memo(
+    React.forwardRef<HTMLDivElement, SimpleDialogProps>(
+        ({ title, accept, cancel, children, ...restProps }, ref) => {
+            const defaultProp = accept?.isDefaultAction
+                ? {
+                      [MDCDialogFoundation.strings
+                          .BUTTON_DEFAULT_ATTRIBUTE]: true,
+                  }
+                : {};
+
+            return (
+                <RMWCDialog
+                    // eslint-disable-next-line react/jsx-props-no-spreading
+                    {...restProps}
+                    onClose={(e) => {
+                        if (e.detail.action === "accept") accept?.handler();
+                        if (e.detail.action === "close") cancel?.handler();
+                    }}
+                    ref={ref}
+                    // needed to make focus traps work correctly as disabled button is not focusable
+                    key={accept?.disabled?.toString()}
+                >
+                    <CardInner className={styles["dialog__card-inner"]}>
+                        {title && <CardHeader>{title}</CardHeader>}
+                        {children}
+                        {(cancel || accept) && (
+                            <CardActions dialogLayout>
+                                {cancel && (
+                                    <CardActionButton
+                                        data-mdc-dialog-action="close"
+                                        // eslint-disable-next-line react/jsx-props-no-spreading
+                                        {...(accept?.disabled && defaultProp)}
+                                    >
+                                        {cancel.label}
+                                    </CardActionButton>
+                                )}
+                                {accept && (
+                                    <CardActionButton
+                                        danger={accept.danger}
+                                        disabled={accept.disabled}
+                                        // eslint-disable-next-line react/jsx-props-no-spreading
+                                        {...defaultProp}
+                                        data-mdc-dialog-action="accept"
+                                        // raised={accept.isDefaultAction}
+                                    >
+                                        {accept.label}
+                                    </CardActionButton>
+                                )}
+                            </CardActions>
                         )}
-                        {accept && (
-                            <CardActionButton
-                                danger={accept.danger}
-                                onClick={accept.handler}
-                            >
-                                {accept.label}
-                            </CardActionButton>
-                        )}
-                    </CardActions>
-                )}
-            </CardInner>
-        </RMWCDialog>
+                    </CardInner>
+                </RMWCDialog>
+            );
+        }
     )
 );
