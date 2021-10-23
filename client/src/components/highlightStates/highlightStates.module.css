@@ -1,28 +1,56 @@
 .highlighted-states {
     position: relative;
+    overflow: hidden;
+
+    --highlight-color: var(--mdc-theme-primary, #6200ee);
 }
 .highlighted-states::before {
-    border-radius: inherit;
+    background-color: var(--highlight-color);
+    opacity: 0;
+    content: "";
+    position: absolute;
+    top: calc(50% - 100%);
+    left: calc(50% - 100%);
+    height: 200%;
+    width: 200%;
+    border-radius: 50%;
+    transition: opacity 15ms linear, background-color 15ms linear;
+}
+
+.highlighted-states--secondary {
+    --highlight-color: var(--mdc-theme-secondary, #018786);
 }
 
 .highlighted-states--activated::before {
-    background-color: var(--mdc-theme-primary, #6200ee);
     opacity: 0.12;
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
+}
+.highlighted-states--activated:not(.highlighted-states--non-interactive):hover::before {
+    opacity: 0.16;
+}
+.highlighted-states--activated:not(.highlighted-states--non-interactive):focus::before {
+    transition-duration: 75ms;
+    opacity: 0.24;
 }
 
 .highlighted-states--selected::before {
-    background-color: var(--mdc-theme-primary, #6200ee);
     opacity: 0.08;
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
+}
+.highlighted-states--selected:not(.highlighted-states--non-interactive):hover::before {
+    opacity: 0.12;
+}
+.highlighted-states--selected:not(.highlighted-states--non-interactive):focus::before {
+    transition-duration: 75ms;
+    opacity: 0.2;
+}
+
+/* ripple compatability */
+[class~="mdc-ripple-upgraded"].highlighted-states--activated::after,
+.highlighted-states--selected::after {
+    background-color: var(--highlight-color);
+}
+[class~="mdc-ripple-upgraded"].highlighted-states--activated {
+    --mdc-ripple-fg-opacity: 0.24;
+}
+[class~="mdc-ripple-upgraded"].highlighted-states--selected {
+    --mdc-ripple-fg-opacity: 0.2;
 }
