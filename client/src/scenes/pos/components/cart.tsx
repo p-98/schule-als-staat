@@ -62,7 +62,7 @@ interface ICartProps {
 }
 export const Cart = React.memo<ICartProps>(
     ({ open, cart, products: productsProp, onCancel, onToCheckout }) => {
-        const [discount, setDiscount] = useState<"" | number>("");
+        const [discount, setDiscount] = useState<number>(0);
         const discountRef = useRef<HTMLInputElement>(null);
         const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -81,7 +81,7 @@ export const Cart = React.memo<ICartProps>(
                 title="Warenkorb"
                 accept={{
                     label: "Zur Kasse",
-                    handler: () => onToCheckout(discount === "" ? 0 : discount),
+                    handler: () => onToCheckout(discount),
                     disabled: products.length === 0,
                     isDefaultAction: true,
                 }}
@@ -124,7 +124,7 @@ export const Cart = React.memo<ICartProps>(
                     <TextField
                         type="number"
                         label={`Vergünstigung (in ${config.currencies.virtual.short})`}
-                        value={discount}
+                        value={discount || ""}
                         id="discount"
                         onChange={(e) =>
                             setDiscount(parseInt(e.currentTarget.value, 10))
