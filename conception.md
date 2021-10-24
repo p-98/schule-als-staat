@@ -29,6 +29,13 @@
         - Unternehmen
         - Bürger
         - Gast
+- Grenzkontrolle
+    - Ausweis scannen
+    - Nutzerinformationen
+        - Person
+        - Verbleibende Pflichtzeit im Staat
+        - Verlässt/Betritt den Staat
+        - Zollgebühren (nur bei betreten)
 - Inbox
     - Liste aller Mitteilungen
     - Einzelansicht einer Mitteilung (Links möglich -> blank HTML?)
