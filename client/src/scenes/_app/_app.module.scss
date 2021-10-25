@@ -34,25 +34,33 @@
 .app__drawer {
     grid-area: drawer;
     transform: translateX(0px);
-
-    opacity: 1;
+    visibility: hidden;
 
     // 1: closing timing (accelerated easing)
-    // 2: fade-in timing
+    // 2: delay visibility hidden
     transition: transform var(--drawer-transition-time-closing)
             cubic-bezier(0.4, 0, 1, 1),
-        opacity 250ms cubic-bezier(0, 0, 0.2, 1);
+        visibility 0s linear var(--drawer-transition-time-closing);
 }
 .app__drawer--open {
+    visibility: visible;
+    opacity: 1;
+
+    // 1: reset delay visibility
+    // 2: fade-in timing
+    transition: visibility 0s linear 0s,
+        opacity 250ms cubic-bezier(0, 0, 0.2, 1);
+
     @include app__drawer--modal() {
         transform: translateX(256px);
 
+        // fullscreen cannot be triggered, when modal is open => opacity transition not needed
         // opening timing (decelerated easing)
         transition: transform var(--drawer-transition-time-opening)
             cubic-bezier(0, 0, 0.2, 1);
     }
 }
-.app__drawer--transparent {
+.app__drawer--open.app__drawer--transparent {
     pointer-events: none;
 
     opacity: 0;
@@ -63,22 +71,28 @@
 .app__drawer-scrim {
     display: block;
     opacity: 0;
+    visibility: hidden;
     background-color: rgba(0, 0, 0, 0.32);
     border: none;
     pointer-events: none;
 
-    // closing timing (default easing)
+    // 1: closing timing (default easing)
+    // 2: delay visibility hidden
     transition: opacity var(--drawer-transition-time-closing)
-        cubic-bezier(0.4, 0, 0.2, 1);
+            cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0s linear var(--drawer-transition-time-closing);
 }
 .app__drawer--open ~ .app__drawer-scrim {
     @include app__drawer--modal() {
         opacity: 1;
+        visibility: visible;
         pointer-events: auto;
 
-        // opening timing (linear)
+        // 1: opening timing (linear)
+        // 2: reset visibility hidden delay
         transition: opacity calc(0.3 * var(--drawer-transition-time-opening))
-            linear;
+                linear,
+            visibility 0s linear 0s;
     }
 }
 
