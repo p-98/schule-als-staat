@@ -10,9 +10,6 @@
 }
 
 .page__scroll-container {
-    /* enable correct positioning of overlays with position: absolute */
-    position: relative;
-
     overflow: auto;
     display: grid;
     justify-items: center;
