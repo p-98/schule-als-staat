@@ -1,6 +1,7 @@
 // local
 import config from "Config";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
+import { CardContent } from "Components/card/card";
 import { IChangeCurrenciesInfo } from "../types";
 
 import styles from "../bank.module.css";
@@ -9,7 +10,7 @@ export interface ICheckoutSummaryProps {
     info: IChangeCurrenciesInfo;
 }
 export const CheckoutSummary: React.FC<ICheckoutSummaryProps> = ({ info }) => (
-    <div className={styles["bank-checkout-summary"]}>
+    <CardContent>
         <DisplayInfo
             label="Bezahlen"
             className={styles["bank-checkout-summary__value"]}
@@ -26,5 +27,5 @@ export const CheckoutSummary: React.FC<ICheckoutSummaryProps> = ({ info }) => (
             {info.targetValue}
             {config.currencies[info.targetCurrency].symbol}
         </DisplayInfo>
-    </div>
+    </CardContent>
 );

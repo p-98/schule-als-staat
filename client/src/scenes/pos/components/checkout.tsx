@@ -1,5 +1,12 @@
+import { useState } from "react";
+
+// local
 import { Login } from "Components/login/login";
-import { Dialog } from "Components/dialog/dialog";
+import { Dialog, SimpleDialog } from "Components/dialog/dialog";
+import { useForceRemount } from "Utility/hooks/forceRemount";
+import { IProduct } from "Utility/types";
+import { CartTable } from "./cartTable";
+import { useFilteredCart } from "../util/filteredCart";
 
 import styles from "../pos.module.css";
 
@@ -7,21 +14,58 @@ interface ICheckoutProps {
     open: boolean;
     onCheckout: () => void;
     onGoBack: () => void;
+    cart: Record<string, number>;
+    products: IProduct[];
+    discount?: number;
 }
 export const Checkout: React.FC<ICheckoutProps> = ({
     open,
     onCheckout,
     onGoBack,
-}) => (
-    <Dialog open={open}>
-        <Login
-            header="Bezahlen"
-            qrInfoText="QR-Code auf dem Ausweis scannen, um zu bezahlen."
-            confirmButton={{ label: "bezahlen", danger: true }}
-            userBannerLabel="Zahlung autorisieren von"
-            onLogin={onCheckout}
-            cancelButton={{ label: "Zurück", handler: onGoBack }}
-            className={styles["pos__checkout-login"]}
-        />
-    </Dialog>
-);
+    cart,
+    products,
+    discount,
+}) => {
+    const [client, setClient] = useState<string>();
+    const [loginKey, remountLogin] = useForceRemount();
+
+    return (
+        <>
+            <Dialog open={open && !client}>
+                <Login
+                    header="Anmelden"
+                    qrInfoText="QR-Code auf dem Ausweis scannen, um fortzufahren."
+                    confirmButton={{ label: "Bestätigen" }}
+                    userBannerLabel="Weiter als"
+                    onLogin={(user) => setClient(user)}
+                    cancelButton={{ label: "Zurück", handler: onGoBack }}
+                    className={styles["pos__checkout-login"]}
+                    key={loginKey}
+                />
+            </Dialog>
+            <SimpleDialog
+                open={open && !!client}
+                accept={{
+                    handler: onCheckout,
+                    label: "Bezahlen",
+                    danger: true,
+                    isDefaultAction: true,
+                    raised: true,
+                }}
+                cancel={{
+                    label: "Abbrechen",
+                    handler: () => {
+                        remountLogin();
+                        setClient(undefined);
+                    },
+                }}
+                title="Bezahlen"
+            >
+                <CartTable
+                    filteredCart={useFilteredCart(products, cart)}
+                    discount={discount}
+                />
+            </SimpleDialog>
+        </>
+    );
+};

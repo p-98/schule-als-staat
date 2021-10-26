@@ -42,6 +42,7 @@ export const POS: React.FC = () => {
 
     const [cart, setCart] = useState(emptyCart);
     const [stage, setStage] = useState<TStages>("shop");
+    const [discount, setDiscount] = useState<number>();
 
     return (
         <>
@@ -68,8 +69,14 @@ export const POS: React.FC = () => {
             />
             <Cart
                 open={stage === "cart"}
-                onCancel={() => setStage("shop")}
-                onToCheckout={() => setStage("checkout")}
+                onCancel={() => {
+                    setDiscount(undefined);
+                    setStage("shop");
+                }}
+                onToCheckout={(_discount) => {
+                    setDiscount(_discount);
+                    setStage("checkout");
+                }}
                 products={products}
                 cart={cart}
                 key={`cart${id(cart)}`}
@@ -78,7 +85,11 @@ export const POS: React.FC = () => {
                 onCheckout={() => {
                     setStage("shop");
                     setCart(emptyCart);
+                    setDiscount(undefined);
                 }}
+                cart={cart}
+                products={products}
+                discount={discount}
                 open={stage === "checkout"}
                 onGoBack={() => setStage("cart")}
                 key={`checkout${id(cart)}`}

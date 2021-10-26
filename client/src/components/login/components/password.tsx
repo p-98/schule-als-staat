@@ -61,7 +61,7 @@ export const Password = forwardRef<HTMLDivElement, IPasswordProps>(
             <CardHeader>{header}</CardHeader>
             {actionSummary && (
                 <>
-                    <CardContent>{actionSummary}</CardContent>
+                    {actionSummary}
                     <ListDivider />
                 </>
             )}

@@ -88,6 +88,7 @@ export interface IProduct {
     name: string;
     price: number;
 }
+export type TFilteredCart = (IProduct & { quantity: number })[];
 
 // helper functions
 export const isNumberArray = (arr: unknown): arr is number[] =>

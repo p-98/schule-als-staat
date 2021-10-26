@@ -2,10 +2,6 @@
     border-radius: 0px;
 }
 
-.bank-checkout-summary {
-    display: grid;
-    gap: 8px;
-}
 .bank-checkout-summary__value:first-child i {
     color: var(--mdc-theme-error, #b00020) !important;
 }

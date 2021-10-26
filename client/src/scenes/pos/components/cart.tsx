@@ -1,6 +1,4 @@
 import React, { useRef, useState } from "react";
-import cn from "classnames";
-import { SimpleDataTable } from "@rmwc/data-table";
 import { TextField } from "@rmwc/textfield";
 
 // textfield imports
@@ -14,38 +12,13 @@ import "@rmwc/icon/icon.css";
 // grid imports
 import "@material/layout-grid/dist/mdc.layout-grid.css";
 
-// data-table imports
-import "@material/data-table/dist/mdc.data-table.css";
-import "@rmwc/data-table/data-table.css";
-// import "@rmwc/icon/icon.css";
-
 // local
 import type { IProduct } from "Utility/types";
-import { parseCurrency } from "Utility/parseCurrency";
 import { SimpleDialog } from "Components/dialog/dialog";
 import { CardContent } from "Components/card/card";
 import config from "Config";
-import {
-    activatedClassName,
-    nonInteractiveClassName,
-} from "Components/highlightStates/highlightStates";
-
-import styles from "../pos.module.css";
-
-const useMergedProducts = (
-    products: IProduct[],
-    cart: Record<string, number>
-) =>
-    products.reduce<(IProduct & { quantity: number })[]>(
-        (mergedProducts, product) => {
-            const quantity = cart[product.id] as number;
-
-            if (quantity > 0) mergedProducts.push({ ...product, quantity });
-
-            return mergedProducts;
-        },
-        []
-    );
+import { useFilteredCart } from "../util/filteredCart";
+import { CartTable } from "./cartTable";
 
 // enum Columns {
 //     Product,
@@ -66,14 +39,8 @@ export const Cart = React.memo<ICartProps>(
         const discountRef = useRef<HTMLInputElement>(null);
         const dialogRef = useRef<HTMLDivElement>(null);
 
-        const products = useMergedProducts(productsProp, cart);
+        const filteredCart = useFilteredCart(productsProp, cart);
 
-        const total = products.reduce(
-            (_total, product) => _total + product.price,
-            0
-        );
-
-        let rowIndex = -1;
         return (
             <SimpleDialog
                 open={open}
@@ -82,44 +49,12 @@ export const Cart = React.memo<ICartProps>(
                 accept={{
                     label: "Zur Kasse",
                     handler: () => onToCheckout(discount),
-                    disabled: products.length === 0,
+                    disabled: filteredCart.length === 0,
                     isDefaultAction: true,
                 }}
                 cancel={{ label: "Zurück", handler: onCancel }}
             >
-                <CardContent className={styles["pos__data-table-card-content"]}>
-                    <SimpleDataTable
-                        headers={[["Produkt", "Menge", "Preis"]]}
-                        data={[
-                            ...products.map(({ name, quantity, price }) => [
-                                name,
-                                quantity,
-                                parseCurrency(quantity * price),
-                            ]),
-                            ["Gesamt", "", parseCurrency(total)],
-                        ]}
-                        getCellProps={(cell, index, isHead) => {
-                            if (index === 0 && !isHead) rowIndex += 1;
-
-                            const totalRow =
-                                rowIndex === products.length && !isHead;
-
-                            return {
-                                isNumeric: index && !isHead,
-                                className: cn(
-                                    totalRow &&
-                                        cn(
-                                            activatedClassName,
-                                            nonInteractiveClassName
-                                        )
-                                ),
-                                ...(totalRow && {
-                                    style: { fontWeight: "500" },
-                                }),
-                            };
-                        }}
-                    />
-                </CardContent>
+                <CartTable filteredCart={filteredCart} />
                 <CardContent>
                     <TextField
                         type="number"

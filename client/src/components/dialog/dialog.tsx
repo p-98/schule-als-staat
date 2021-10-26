@@ -35,6 +35,7 @@ export interface SimpleDialogProps
         danger?: boolean;
         disabled?: boolean;
         isDefaultAction?: boolean;
+        raised?: boolean;
     };
     cancel?: {
         label: string;
@@ -91,10 +92,10 @@ export const SimpleDialog = React.memo(
                                     <CardActionButton
                                         danger={accept.danger}
                                         disabled={accept.disabled}
+                                        raised={accept.raised}
                                         // eslint-disable-next-line react/jsx-props-no-spreading
                                         {...defaultProp}
                                         data-mdc-dialog-action="accept"
-                                        // raised={accept.isDefaultAction}
                                     >
                                         {accept.label}
                                     </CardActionButton>

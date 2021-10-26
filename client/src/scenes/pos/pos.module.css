@@ -15,4 +15,8 @@
 
 .pos__data-table-card-content {
     overflow: hidden;
+    min-height: 108px;
+}
+.pos__data-table-card-content {
+    max-height: calc(100vh - 32px);
 }
