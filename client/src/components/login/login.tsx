@@ -42,7 +42,6 @@ export interface ILoginProps extends React.HTMLAttributes<HTMLDivElement> {
     cancelButton?: { label: string; handler: () => void };
     userBannerLabel: string;
     onLogin: TOnAuthUser;
-    actionSummary?: ReactNode;
 }
 export const Login: React.FC<ILoginProps> = ({
     header,
@@ -51,7 +50,6 @@ export const Login: React.FC<ILoginProps> = ({
     cancelButton,
     userBannerLabel,
     onLogin,
-    actionSummary,
     ...restProps
 }) => {
     const [useQR, setUseQR] = useState(true);
@@ -74,7 +72,6 @@ export const Login: React.FC<ILoginProps> = ({
             header={header}
             onAuthUser={onLogin}
             cancelButton={{ label: "Zurück", onClick: () => setUser(null) }}
-            actionSummary={actionSummary}
         />
     );
 
