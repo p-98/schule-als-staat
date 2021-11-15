@@ -12,6 +12,8 @@ module.exports = {
         ".eslintrc.js",
         "next-env.d.ts",
         "./types/**/*.d.ts",
+        "next.config.js",
+        "client/webpack-plugins", // production plugins,
     ],
     overrides: [
         {
@@ -21,12 +23,13 @@ module.exports = {
                 project: ["server/tsconfig.json", "client/tsconfig.json"],
                 tsconfigRootDir: path.resolve(rootPath),
             },
-            plugins: ["@typescript-eslint"],
+            plugins: ["@typescript-eslint", "react-pug"],
             extends: [
                 "eslint:recommended",
                 "plugin:@typescript-eslint/eslint-recommended",
                 "plugin:@typescript-eslint/recommended",
                 "plugin:@typescript-eslint/recommended-requiring-type-checking",
+                "plugin:react-pug/all",
                 "airbnb-typescript",
                 "airbnb/hooks",
                 "prettier",
@@ -49,6 +52,7 @@ module.exports = {
                     { props: true, ignorePropertyModificationsFor: ["state"] },
                 ],
                 "import/prefer-default-export": "off",
+                "react-pug/prop-types": "off",
             },
             globals: {
                 React: "writable",
