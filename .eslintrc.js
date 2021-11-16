@@ -53,6 +53,7 @@ module.exports = {
                 ],
                 "import/prefer-default-export": "off",
                 "react-pug/prop-types": "off",
+                "react-pug/quotes": "off",
             },
             globals: {
                 React: "writable",
