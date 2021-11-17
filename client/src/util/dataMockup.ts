@@ -10,3 +10,6 @@ export function reassignIDs<T extends { id: string }>(arr: T[]): T[] {
         id: index.toString(),
     }));
 }
+
+export const pickRandom = <T extends unknown>(arr: T[]): T =>
+    arr[Math.floor(Math.random() * arr.length)] as T;
