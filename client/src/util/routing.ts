@@ -39,6 +39,11 @@ export default [
         label: "Kasse",
         icon: "shopping_cart",
     }),
+    () => ({
+        href: "/borderControl",
+        label: "Grenzkontolle",
+        icon: "swap_horiz",
+    }),
 ] as (() => {
     href: string;
     label: string;

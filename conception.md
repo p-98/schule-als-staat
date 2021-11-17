@@ -1,10 +1,13 @@
 # Design decisions
 
--   different, independant classes of users
+-   different, independent classes of users
     -   Unternehmen
     -   Privatperson
     -   (staatliche) Institution
     -   Gast
+        - when entering the state, the id card is assigned an 'identity' with a name, which is removed when leaving
+        - a card can have several identities one after another
+        - identities are not kept in the system even when removed from the id card
 -   Unternehen und Unternehmer sind verschiedene Accounts
 -   Eine Person, die ein Unternehmen gründet, muss bei diesem einen Arbeitsvertrag haben
 -   Eine Person kann nur einen Arbeitsvertrag haben
@@ -31,11 +34,16 @@
         - Gast
 - Grenzkontrolle
     - Ausweis scannen
-    - Nutzerinformationen
+    - Bürger
         - Person
         - Verbleibende Pflichtzeit im Staat
-        - Verlässt/Betritt den Staat
-        - Zollgebühren (nur bei betreten)
+        - Verlässt/Betritt den Staat (highlighted)
+        - Zoll
+    - Unternehmen
+        - Zoll
+    - Gast
+        - Benutzeridentität erstellen
+        - Benutzeridentität löschen
 - Inbox
     - Liste aller Mitteilungen
     - Einzelansicht einer Mitteilung (Links möglich -> blank HTML?)

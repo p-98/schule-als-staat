@@ -31,7 +31,7 @@ export interface SimpleDialogProps
     extends React.HTMLAttributes<HTMLDivElement> {
     accept?: {
         label: string;
-        handler: () => void;
+        handler?: () => void;
         danger?: boolean;
         disabled?: boolean;
         isDefaultAction?: boolean;
@@ -39,7 +39,7 @@ export interface SimpleDialogProps
     };
     cancel?: {
         label: string;
-        handler: () => void;
+        handler?: () => void;
     };
     title?: string;
 
@@ -67,8 +67,9 @@ export const SimpleDialog = React.memo(
                     // eslint-disable-next-line react/jsx-props-no-spreading
                     {...restProps}
                     onClose={(e) => {
-                        if (e.detail.action === "accept") accept?.handler();
-                        if (e.detail.action === "close") cancel?.handler();
+                        restProps.onClose?.(e);
+                        if (e.detail.action === "accept") accept?.handler?.();
+                        if (e.detail.action === "close") cancel?.handler?.();
                     }}
                     ref={ref}
                     // needed to make focus traps work correctly as disabled button is not focusable
