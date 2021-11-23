@@ -1,98 +1,72 @@
-import React, { useState, useMemo } from "react";
-import { GridCell } from "@rmwc/grid";
-import { Fab } from "@rmwc/fab";
+import React, { useState } from "react";
+import { TextField } from "@rmwc/textfield";
 
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
-
-// icon-button imports
-import "@material/icon-button/dist/mdc.icon-button.css";
-import "@rmwc/icon/icon.css";
+// textfield imports
+import "@material/textfield/dist/mdc.textfield.css";
+import "@material/floating-label/dist/mdc.floating-label.css";
+import "@material/notched-outline/dist/mdc.notched-outline.css";
+import "@material/line-ripple/dist/mdc.line-ripple.css";
 import "@material/ripple/dist/mdc.ripple.css";
-
-// fab imports
-import "@material/fab/dist/mdc.fab.css";
-// import "@rmwc/icon/icon.css";
-// import "@material/ripple/dist/mdc.ripple.css";
+import "@rmwc/icon/icon.css";
 
 // local
-import { PageGrid } from "Components/pageGrid/pageGrid";
-import { id } from "Utility/objectId";
-import { ProductCard } from "./components/productCard";
-import products from "./pos.data";
-import { Cart } from "./components/cart";
-
-import styles from "./pos.module.css";
+import { POS as POSComponent } from "Components/pos/pos";
+import { useCart } from "Components/pos/util/useCart";
+import { CardContent } from "Components/card/card";
+import config from "Config";
 import { Checkout } from "./components/checkout";
+import products from "./pos.data";
 
-type TStages = "shop" | "cart" | "checkout";
+interface IDiscountInputProps {
+    value: number;
+    onChange: (value: number) => void;
+}
+const DiscountInput: React.FC<IDiscountInputProps> = ({ value, onChange }) => (
+    <CardContent>
+        <TextField
+            type="number"
+            label={`Vergünstigung (in ${config.currencies.virtual.short})`}
+            value={value || ""}
+            id="discount"
+            onChange={(e) => onChange(parseInt(e.currentTarget.value, 10))}
+        />
+    </CardContent>
+);
 
 export const POS: React.FC = () => {
-    const emptyCart = useMemo(
-        () =>
-            products.reduce<Record<string, number>>(
-                (cartObj, product) => ({ ...cartObj, [product.id]: 0 }),
-                {}
-            ),
-        []
-    );
-
-    const [cart, setCart] = useState(emptyCart);
-    const [stage, setStage] = useState<TStages>("shop");
-    const [discount, setDiscount] = useState<number>();
+    const [cart, cartActions] = useCart();
+    const [checkoutOpen, setCheckoutOpen] = useState(false);
+    const [discount, setDiscount] = useState(0);
 
     return (
         <>
-            <PageGrid>
-                {products.map((product) => (
-                    <GridCell desktop={3} tablet={2} phone={2} key={product.id}>
-                        <ProductCard
-                            product={product}
-                            quantity={cart[product.id] as number}
-                            setQuantity={(quantity) =>
-                                setCart({
-                                    ...cart,
-                                    [product.id]: quantity,
-                                })
-                            }
-                        />
-                    </GridCell>
-                ))}
-            </PageGrid>
-            <Fab
-                icon="shopping_cart"
-                className={styles["pos__fab"]}
-                onClick={() => setStage("cart")}
-            />
-            <Cart
-                open={stage === "cart"}
-                onCancel={() => {
-                    setDiscount(undefined);
-                    setStage("shop");
-                }}
-                onToCheckout={(_discount) => {
-                    setDiscount(_discount);
-                    setStage("checkout");
-                }}
-                products={products}
+            <POSComponent
                 cart={cart}
-                key={`cart${id(cart)}`}
+                cartActions={cartActions}
+                products={products}
+                proceed={{
+                    label: "Zur Kasse",
+                    handler: () => setCheckoutOpen(true),
+                }}
+                onClosedCart={() => setDiscount(0)}
+                additionalCartContent={
+                    <DiscountInput
+                        value={discount}
+                        onChange={(newDiscount) => setDiscount(newDiscount)}
+                    />
+                }
             />
             <Checkout
                 onCheckout={() => {
-                    setStage("shop");
-                    setCart(emptyCart);
-                    setDiscount(undefined);
+                    setCheckoutOpen(false);
+                    cartActions.clear();
+                    setDiscount(0);
                 }}
                 cart={cart}
                 products={products}
-                discount={discount}
-                open={stage === "checkout"}
-                onGoBack={() => setStage("cart")}
-                key={`checkout${id(cart)}`}
+                discount={discount || undefined}
+                open={checkoutOpen}
+                onGoBack={() => setCheckoutOpen(false)}
             />
         </>
     );

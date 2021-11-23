@@ -5,8 +5,7 @@ import { Login } from "Components/login/login";
 import { Dialog, SimpleDialog } from "Components/dialog/dialog";
 import { useForceRemount } from "Utility/hooks/forceRemount";
 import { IProduct } from "Utility/types";
-import { CartTable } from "./cartTable";
-import { useFilteredCart } from "../util/filteredCart";
+import { CartTable } from "Components/pos/pos";
 
 import styles from "../pos.module.css";
 
@@ -46,7 +45,7 @@ export const Checkout: React.FC<ICheckoutProps> = ({
             <SimpleDialog
                 open={open && !!client}
                 accept={{
-                    onAccept: onCheckout,
+                    onAccepted: onCheckout,
                     label: "Bezahlen",
                     danger: true,
                     isDefaultAction: true,
@@ -62,7 +61,8 @@ export const Checkout: React.FC<ICheckoutProps> = ({
                 title="Bezahlen"
             >
                 <CartTable
-                    filteredCart={useFilteredCart(products, cart)}
+                    cart={cart}
+                    products={products}
                     discount={discount}
                 />
             </SimpleDialog>
