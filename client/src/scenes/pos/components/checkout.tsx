@@ -46,7 +46,7 @@ export const Checkout: React.FC<ICheckoutProps> = ({
             <SimpleDialog
                 open={open && !!client}
                 accept={{
-                    handler: onCheckout,
+                    onAccept: onCheckout,
                     label: "Bezahlen",
                     danger: true,
                     isDefaultAction: true,
@@ -54,7 +54,7 @@ export const Checkout: React.FC<ICheckoutProps> = ({
                 }}
                 cancel={{
                     label: "Abbrechen",
-                    handler: () => {
+                    onCancel: () => {
                         remountLogin();
                         setClient(undefined);
                     },

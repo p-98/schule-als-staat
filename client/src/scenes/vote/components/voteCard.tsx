@@ -43,11 +43,11 @@ const SubmitButton: React.FC<ISubmitButtonProps> = ({ onSubmit }) => {
                 open={showConfirmation}
                 cancel={{
                     label: "Abbrechen",
-                    handler: () => setShowConfirmation(false),
+                    onCancel: () => setShowConfirmation(false),
                 }}
                 accept={{
                     label: "Bestätigen",
-                    handler: () => {
+                    onAccept: () => {
                         onSubmit();
                         setShowConfirmation(false);
                     },

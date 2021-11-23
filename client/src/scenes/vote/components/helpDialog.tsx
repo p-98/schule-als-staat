@@ -24,7 +24,7 @@ export const HelpDialog: React.FC<IHelpDialogProps> = ({
     <SimpleDialog
         open={open}
         title="Erklärung der Abstimmung"
-        cancel={{ label: "Schließen", handler: onClose }}
+        cancel={{ label: "Schließen", onCancel: onClose }}
     >
         {explanationMap[voteType]}
     </SimpleDialog>

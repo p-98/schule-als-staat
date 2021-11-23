@@ -48,11 +48,11 @@ export const Cart = React.memo<ICartProps>(
                 title="Warenkorb"
                 accept={{
                     label: "Zur Kasse",
-                    handler: () => onToCheckout(discount),
+                    onAccept: () => onToCheckout(discount),
                     disabled: filteredCart.length === 0,
                     isDefaultAction: true,
                 }}
-                cancel={{ label: "Zurück", handler: onCancel }}
+                cancel={{ label: "Zurück", onCancel }}
             >
                 <CartTable filteredCart={filteredCart} />
                 <CardContent>

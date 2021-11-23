@@ -36,7 +36,7 @@ const DetailDialog: React.FC<IDetailDialogProps> = ({
 }) => (
     <SimpleDialog
         open={open}
-        cancel={{ label: "Schließen", handler: onClose }}
+        cancel={{ label: "Schließen", onCancel: onClose }}
         title="Details"
     >
         <CardContent>
