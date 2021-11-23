@@ -9,7 +9,9 @@ import "@material/line-ripple/dist/mdc.line-ripple.css";
 import "@material/ripple/dist/mdc.ripple.css";
 import "@rmwc/icon/icon.css";
 
-export const useCustoms = (user: string): [ReactElement, () => void] => {
+export const useCustoms = (
+    user: string
+): [ReactElement, () => void, number] => {
     const [customs, setCustoms] = useState(0);
 
     const inputElement = (
@@ -26,5 +28,5 @@ export const useCustoms = (user: string): [ReactElement, () => void] => {
         user;
     };
 
-    return [inputElement, chargeCustoms];
+    return [inputElement, chargeCustoms, customs];
 };

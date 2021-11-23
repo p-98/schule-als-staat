@@ -9,14 +9,14 @@ export const CompanyDialog: React.FC<TWithCrossingDialogProps> = ({
     user,
     onClosed,
 }) => {
-    const [customsInput, chargeCustoms] = useCustoms(user);
+    const [customsInput, chargeCustoms, customs] = useCustoms(user);
 
     return (
         <SimpleDialog
             open={!!user}
             onClosed={onClosed}
             onClose={chargeCustoms}
-            accept={{ label: "OK" }}
+            accept={{ label: customs ? "Zollgebühren abbuchen" : "Schließen" }}
             title="Wareneinführung"
         >
             <CardContent>

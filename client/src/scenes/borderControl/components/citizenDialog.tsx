@@ -1,10 +1,4 @@
 import { useRef } from "react";
-import { ListDivider } from "@rmwc/list";
-
-// list imports
-import "@material/list/dist/mdc.list.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
 
 // local
 import { SimpleDialog } from "Components/dialog/dialog";
@@ -21,14 +15,17 @@ export const CitizenDialog: React.FC<TWithCrossingDialogProps> = ({
     onClosed,
 }) => {
     const action = useRef(pickRandom(actions));
-    const [customsInput, chargeCustoms] = useCustoms(user);
+    const [customsInput, chargeCustoms, customs] = useCustoms(user);
 
     return (
         <SimpleDialog
             open={!!user}
             onClosed={onClosed}
-            accept={{ label: "OK", isDefaultAction: true }}
-            onClose={chargeCustoms}
+            accept={{
+                label: customs ? "Zollgebühren abbuchen" : "OK",
+                isDefaultAction: true,
+                onAccept: chargeCustoms,
+            }}
             title="Grenzübergang"
         >
             <CardContent>
@@ -37,8 +34,9 @@ export const CitizenDialog: React.FC<TWithCrossingDialogProps> = ({
                     {user}
                 </DisplayInfo>
             </CardContent>
-            <ListDivider />
-            <CardContent>{customsInput}</CardContent>
+            {action.current === actions[0] && (
+                <CardContent>{customsInput}</CardContent>
+            )}
         </SimpleDialog>
     );
 };
