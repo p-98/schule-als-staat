@@ -44,6 +44,9 @@
     - Gast
         - Benutzeridentität erstellen
         - Benutzeridentität löschen
+- Warenlager
+    - Automatisch generierte Einkaufslisten
+    - Bestellungen aufrufen und Abholung markieren
 - Inbox
     - Liste aller Mitteilungen
     - Einzelansicht einer Mitteilung (Links möglich -> blank HTML?)
@@ -74,6 +77,7 @@
         -   bezahlen
             -   Authentifizierung über QR-Code
             -   Eventuell bestätigung über PIN
+    - Warenlagerbestellung
 -   Bank
     -   Nutzer mit QR-Code authentifizieren
     -   Kontostand und Rückwechselguthaben abrufen

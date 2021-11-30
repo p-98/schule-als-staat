@@ -40,6 +40,11 @@ export default [
         icon: "shopping_cart",
     }),
     () => ({
+        href: "/warehouse",
+        label: "Warenlager",
+        icon: "store",
+    }),
+    () => ({
         href: "/borderControl",
         label: "Grenzkontolle",
         icon: "swap_horiz",
