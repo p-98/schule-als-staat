@@ -1,1 +1,1 @@
-export { Vote as default } from "Scenes/vote/vote";
+export { Vote as default } from "Scenes/citizen/vote/vote";
