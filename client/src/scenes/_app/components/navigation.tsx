@@ -23,7 +23,7 @@ export const Navigation: React.FC = () => {
                         <SimpleListItem
                             graphic={icon}
                             text={label}
-                            activated={pathname.startsWith(href)}
+                            activated={`${pathname}/`.startsWith(`${href}/`)}
                         />
                     </Link>
                 );
