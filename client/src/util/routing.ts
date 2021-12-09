@@ -49,6 +49,16 @@ export default [
         label: "Grenzkontolle",
         icon: "swap_horiz",
     }),
+    () => ({
+        href: "/orderSummary",
+        label: "Einkaufslisten",
+        icon: "add_shopping_cart",
+    }),
+    () => ({
+        href: "/orders",
+        label: "Bestellungen",
+        icon: "store",
+    }),
 ] as (() => {
     href: string;
     label: string;

@@ -46,7 +46,9 @@
         - Benutzeridentität löschen
 - Warenlager
     - Automatisch generierte Einkaufslisten
+        - Tabelle: Produkt ID, Produktname, Anzahl
     - Bestellungen aufrufen und Abholung markieren
+        - Tabelle: dateFor, Kunde, Produkt ID, Produktname, Anzahl bestellt, Anzahl abgeholt
 - Inbox
     - Liste aller Mitteilungen
     - Einzelansicht einer Mitteilung (Links möglich -> blank HTML?)
