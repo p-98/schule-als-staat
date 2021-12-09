@@ -24,7 +24,7 @@ export const DetailPage: React.FC<TWithVoteProp> = ({ vote }) => (
         </GridCell>
         <GridCell desktop={0} tablet={0} phone={0} />
         <GridCell span={5}>
-            <GridScrollColumn>
+            <GridScrollColumn desktop>
                 <VoteCard vote={vote} />
             </GridScrollColumn>
         </GridCell>
