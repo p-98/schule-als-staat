@@ -1,0 +1,12 @@
+@use "Components/pageGrid/custom-properties";
+
+.data-table {
+}
+.data-table--fill-page {
+    @include custom-properties.app-bar-height();
+    @include custom-properties.grid-margin();
+    @include custom-properties.grid-inner-height();
+
+    width: 100%;
+    max-height: var(--grid-inner-height);
+}
