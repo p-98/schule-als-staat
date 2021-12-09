@@ -1,0 +1,43 @@
+@use "sass:map";
+@use "@material/layout-grid/mixins" as layout-grid-mixins;
+@use "@material/layout-grid/variables" as layout-grid-vars;
+@use "@material/top-app-bar/variables" as top-app-bar;
+
+/** provide computed value for app bar height */
+@mixin app-bar-height {
+    --app-bar-height: #{top-app-bar.$row-height};
+    @media (max-width: #{top-app-bar.$mobile-breakpoint}) {
+        --app-bar-height: #{top-app-bar.$mobile-row-height};
+    }
+}
+
+/** provide computed value for grid margin */
+@mixin grid-margin {
+    @each $size in map.keys(layout-grid-vars.$columns) {
+        @include layout-grid-mixins.media-query_($size) {
+            --grid-margin: var(
+                --mdc-layout-grid-margin-#{$size},
+                #{map.get(layout-grid-vars.$default-margin, $size)}
+            );
+        }
+    }
+}
+
+/** provide computed value for grid gutter */
+@mixin grid-gutter {
+    @each $size in map.keys(layout-grid-vars.$columns) {
+        @include layout-grid-mixins.media-query_($size) {
+            --grid-gutter: var(
+                --mdc-layout-grid-gutter-#{$size},
+                #{map.get(layout-grid-vars.$default-gutter, $size)}
+            );
+        }
+    }
+}
+
+/** provide computed value for real vertical space usable by components. Depends on --grid-margin, --app-bar-height */
+@mixin grid-inner-height {
+    --grid-inner-height: calc(
+        100vh - var(--app-bar-height) - (2 * var(--grid-margin))
+    );
+}

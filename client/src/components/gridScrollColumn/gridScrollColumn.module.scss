@@ -1,30 +1,18 @@
 @use "sass:map";
-@use "@material/layout-grid/mixins";
-@use "@material/layout-grid/variables";
-@use "@material/top-app-bar/variables" as top-app-bar;
+@use "@material/layout-grid/mixins" as layout-grid-mixins;
+@use "@material/layout-grid/variables" as layout-grid-vars;
+@use "Components/pageGrid/custom-properties";
 
 .grid-scroll-column {
-    // provide computed value for app bar height
-    --app-bar-height: #{top-app-bar.$row-height};
-    @media (max-width: #{top-app-bar.$mobile-breakpoint}) {
-        --app-bar-height: #{top-app-bar.$mobile-row-height};
-    }
+    @include custom-properties.app-bar-height();
+    @include custom-properties.grid-margin();
+    @include custom-properties.grid-gutter();
 
     margin: calc(-1 * var(--grid-gutter)) calc(-0.5 * var(--grid-gutter));
     overflow: auto;
 
-    @each $size in map.keys(variables.$columns) {
-        @include mixins.media-query_($size) {
-            // provide computed values for grid margin and gutter
-            --grid-margin: var(
-                --mdc-layout-grid-margin-#{$size},
-                #{map.get(variables.$default-margin, $size)}
-            );
-            --grid-gutter: var(
-                --mdc-layout-grid-gutter-#{$size},
-                #{map.get(variables.$default-gutter, $size)}
-            );
-
+    @each $size in map.keys(layout-grid-vars.$columns) {
+        @include layout-grid-mixins.media-query_($size) {
             // generate classes for activating scroll behaviour
             &--scroll-#{$size} {
                 max-height: calc(100vh - var(--app-bar-height));
@@ -43,6 +31,6 @@
     & > .grid-scroll-column__inner {
         padding: var(--grid-gutter) calc(0.5 * var(--grid-gutter));
         display: grid;
-        gap: var(--mdc-layout-grid-gutter-desktop, 24px);
+        gap: var(--grid-gutter);
     }
 }
