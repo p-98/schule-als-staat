@@ -18,6 +18,6 @@
 .page__inner {
     width: 100%;
     /* maximum body size from documentation: https://material.io/design/layout/understanding-layout.html#layout-anatomy */
-    max-width: 1040px;
+    max-width: calc(1040px + (2 * 24px));
     min-height: 100%;
 }

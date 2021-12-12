@@ -1,0 +1,133 @@
+/* toggle */
+.drawer-toggle {
+    --drawer-transition-time-opening: 250ms;
+    --drawer-transition-time-closing: 200ms;
+    --mdc-accelerated-easing: cubic-bezier(0.4, 0, 1, 1);
+    --mdc-decelerated-easing: cubic-bezier(0, 0, 0.2, 1);
+    --mdc-default-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+    position: relative;
+}
+
+/* drawer */
+.drawer-toggle__drawer {
+    z-index: 2;
+    height: 100%;
+    position: absolute;
+    visibility: hidden;
+
+    &:not(.drawer-toggle__drawer--right) {
+        left: 0;
+        transform: translateX(-100%);
+    }
+    &.drawer-toggle__drawer--right {
+        right: 0;
+        transform: translateX(100%);
+
+        /* mdc fixes */
+        border-right-width: 0;
+        border-left-style: solid;
+        border-left-width: 1px;
+    }
+
+    /* 1: closing timing (default easing) */
+    /* 2: delay visibility hidden */
+    transition: transform var(--drawer-transition-time-closing)
+            var(--mdc-default-easing),
+        visibility 0s linear var(--drawer-transition-time-closing);
+
+    /* mobile has different easing */
+    @media (max-width: 1343px) {
+        /* 1: closing timing (accelerated easing) */
+        /* 2: delay visibility hidden */
+        transition: transform var(--drawer-transition-time-closing)
+                var(--mdc-accelerated-easing),
+            visibility 0s linear var(--drawer-transition-time-closing);
+    }
+}
+
+.drawer-toggle--open > .drawer-toggle__drawer {
+    transform: translateX(0%);
+    opacity: 1;
+    visibility: visible;
+
+    /* 1: opening timing (default easing) */
+    /* 2: delay visibility hidden */
+    /* 3: fade in timing after fullscreen is disabled */
+    transition: transform var(--drawer-transition-time-opening)
+            var(--mdc-default-easing),
+        visibility 0s linear 0s, opacity 250ms var(--mdc-decelerated-easing);
+
+    /* mobile has different easing */
+    @media (max-width: 1343px) {
+        /* 1: opening timing (decelerated easing) */
+        /* 2: delay visibility hidden */
+        transition: transform var(--drawer-transition-time-opening)
+                var(--mdc-decelerated-easing),
+            visibility 0s linear 0s;
+    }
+}
+.drawer-toggle--fullscreen-enabled > .drawer-toggle__drawer {
+    opacity: 0;
+    pointer-events: none;
+    /* 1: fade out timing when fullscreen is enabled */
+    transition: opacity 300ms var(--mdc-accelerated-easing);
+}
+
+/* scrim */
+.drawer-toggle__scrim {
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.32);
+    border: none;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+
+    /* 1: closing timing (accelerated easing) */
+    /* 2: delay visibility hidden */
+    transition: opacity var(--drawer-transition-time-closing)
+            var(--mdc-accelerated-easing),
+        visibility 0s linear var(--drawer-transition-time-closing);
+}
+@media (max-width: 1343px) {
+    .drawer-toggle--open > .drawer-toggle__scrim {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+
+        /* 1: opening timing (decelerated easing) */
+        /* 2: delay visibility hidden */
+        transition: opacity var(--drawer-transition-time-opening)
+                var(--mdc-decelerated-easing),
+            visibility 0s linear 0s;
+    }
+}
+
+/* children */
+.drawer-toggle__children {
+    z-index: 0;
+    position: absolute;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    /* close timing (default easing) */
+    transition: width var(--drawer-transition-time-closing)
+        var(--mdc-default-easing);
+}
+.drawer-toggle__drawer--right ~ .drawer-toggle__children {
+    left: 0;
+}
+/* calculated as max width of content + width of drawer(256px) */
+@media (min-width: 1344px) {
+    .drawer-toggle--open > .drawer-toggle__children {
+        width: calc(100% - 256px);
+        /* open timing (default easing) */
+        transition: width var(--drawer-transition-time-opening)
+            var(--mdc-default-easing);
+    }
+}
