@@ -7,11 +7,16 @@
     --mdc-default-easing: cubic-bezier(0.4, 0, 0.2, 1);
 
     position: relative;
+    display: flex;
+    justify-content: flex-end;
+    &__drawer--right {
+        justify-content: flex-start;
+    }
 }
 
 /* drawer */
 .drawer-toggle__drawer {
-    z-index: 2;
+    z-index: 6;
     height: 100%;
     position: absolute;
     visibility: hidden;
@@ -76,7 +81,7 @@
 
 /* scrim */
 .drawer-toggle__scrim {
-    z-index: 1;
+    z-index: 5;
     position: absolute;
     top: 0;
     left: 0;
@@ -110,17 +115,11 @@
 
 /* children */
 .drawer-toggle__children {
-    z-index: 0;
-    position: absolute;
-    right: 0;
     height: 100%;
     width: 100%;
     /* close timing (default easing) */
     transition: width var(--drawer-transition-time-closing)
         var(--mdc-default-easing);
-}
-.drawer-toggle__drawer--right ~ .drawer-toggle__children {
-    left: 0;
 }
 /* calculated as max width of content + width of drawer(256px) */
 @media (min-width: 1344px) {
