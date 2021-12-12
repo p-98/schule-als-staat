@@ -43,6 +43,12 @@ export const DrawerToggle: React.FC<IDrawerToggleProps> = ({
                 fullscreenLocked && styles["drawer-toggle--fullscreen-enabled"]
             )}
         >
+            <button
+                type="button"
+                aria-label="close drawer"
+                className={styles["drawer-toggle__scrim"]}
+                onClick={() => drawerDispatch(close())}
+            />
             {cloneElement(drawer, {
                 className: cn(
                     drawer.props.className,
@@ -50,12 +56,6 @@ export const DrawerToggle: React.FC<IDrawerToggleProps> = ({
                     rightDrawer && styles["drawer-toggle__drawer--right"]
                 ),
             })}
-            <button
-                type="button"
-                aria-label="close drawer"
-                className={styles["drawer-toggle__scrim"]}
-                onClick={() => drawerDispatch(close())}
-            />
             {cloneElement(children, {
                 className: cn(
                     children.props.className,

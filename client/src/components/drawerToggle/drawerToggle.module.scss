@@ -16,6 +16,7 @@
 
 /* drawer */
 .drawer-toggle__drawer {
+    /* z-index same as mdc default */
     z-index: 6;
     height: 100%;
     position: absolute;
@@ -81,7 +82,8 @@
 
 /* scrim */
 .drawer-toggle__scrim {
-    z-index: 5;
+    /* z-index same as drawer */
+    z-index: 6;
     position: absolute;
     top: 0;
     left: 0;
