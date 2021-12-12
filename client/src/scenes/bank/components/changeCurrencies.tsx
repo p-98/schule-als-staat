@@ -41,6 +41,7 @@ interface IAuthExchangeDialogProps {
     open: boolean;
     user: string | null;
     changeCurrenciesInfo: IChangeCurrenciesInfo;
+    id: string;
 }
 const AuthExchangeDialog: React.FC<IAuthExchangeDialogProps> = ({
     onAuthUser,
@@ -48,6 +49,7 @@ const AuthExchangeDialog: React.FC<IAuthExchangeDialogProps> = ({
     open,
     user,
     changeCurrenciesInfo,
+    id,
 }) => (
     <Dialog open={open} onClose={onClose}>
         <AuthUser
@@ -64,6 +66,7 @@ const AuthExchangeDialog: React.FC<IAuthExchangeDialogProps> = ({
                 danger: true,
             }}
             actionSummary={<CheckoutSummary info={changeCurrenciesInfo} />}
+            id={id}
         />
     </Dialog>
 );
@@ -114,6 +117,7 @@ const RealToVirtual: React.FC = () => {
                 open={dialogOpen}
                 user={user}
                 changeCurrenciesInfo={changeCurrenciesInfo}
+                id="real-to-virtual"
             />
         </>
     );
@@ -162,6 +166,7 @@ const VirtualToReal: React.FC = () => {
                 open={dialogOpen}
                 user={user}
                 changeCurrenciesInfo={changeCurrenciesInfo}
+                id="virtual-to-real"
             />
         </>
     );

@@ -41,6 +41,7 @@ export interface IPasswordProps extends React.HTMLAttributes<HTMLDivElement> {
     userBannerLabel: string;
     header: string;
     actionSummary?: ReactNode;
+    id?: string;
 }
 export const Password = forwardRef<HTMLDivElement, IPasswordProps>(
     (
@@ -52,6 +53,7 @@ export const Password = forwardRef<HTMLDivElement, IPasswordProps>(
             user,
             header,
             actionSummary,
+            id,
             ...restProps
         },
         ref
@@ -69,7 +71,7 @@ export const Password = forwardRef<HTMLDivElement, IPasswordProps>(
                 <UserBanner label={userBannerLabel} />
                 <TextField
                     type="password"
-                    id={`login__password--user#${user ?? ""}`}
+                    id={`login_password#${id ?? user ?? ""}`}
                     label="Passwort"
                 />
             </CardContent>

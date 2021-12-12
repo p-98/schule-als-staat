@@ -199,7 +199,7 @@ export const SiblingTransitionBase = forwardRef<
                     {checkedChildren}
                 </div>
             ),
-            [checkedChildren, restProps]
+            [checkedChildren, refProp, restProps]
         );
     }
 );

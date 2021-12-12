@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 // local
 import {
@@ -63,9 +63,9 @@ export const Login: React.FC<ILoginProps> = ({
     // focus should not be trapped in initial state
     if (activeElement === "qr-scanner") trapFocus = () => undefined;
 
-    const createPasswordElement = (ref?: React.Ref<HTMLDivElement>) => (
+    const createPasswordElement = (id: string) => (
         <Password
-            ref={ref}
+            id={id}
             confirmButton={confirmButton}
             user={user}
             userBannerLabel={userBannerLabel}
@@ -93,7 +93,7 @@ export const Login: React.FC<ILoginProps> = ({
                 />
             </ContainerTransformElement>
             <ContainerTransformElement elementKey="qr-password">
-                {createPasswordElement()}
+                {createPasswordElement("qr")}
             </ContainerTransformElement>
             <ContainerTransformElement elementKey="manual">
                 <div>
@@ -111,7 +111,7 @@ export const Login: React.FC<ILoginProps> = ({
                             />
                         </SiblingTransitionBaseElement>
                         <SiblingTransitionBaseElement index={1}>
-                            {createPasswordElement()}
+                            {createPasswordElement("manual")}
                         </SiblingTransitionBaseElement>
                     </SiblingTransitionBase>
                 </div>
