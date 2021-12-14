@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { GridCell } from "@rmwc/grid";
-import { PageGrid } from "Components/pageGrid/pageGrid";
 import { Typography } from "@rmwc/typography";
 import { List, ListDivider } from "@rmwc/list";
 
@@ -17,6 +16,8 @@ import "@rmwc/icon/icon.css";
 
 // local
 import { Card, CardContent, CardHeader } from "Components/card/card";
+import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
+import { GridPage } from "Components/page/page";
 import { VoteListItem } from "./components/voteListeItem";
 import votes from "./votes.data";
 
@@ -45,7 +46,8 @@ export const Vote: React.FC = () => {
     }, [votes, forceRerender]);
 
     return (
-        <PageGrid>
+        <GridPage>
+            <DrawerAppBarHandle title="Abstimmungen" />
             <GridCell desktop={3} tablet={1} phone={0} />
             <GridCell span={6} phone={4}>
                 <Card>
@@ -110,6 +112,6 @@ export const Vote: React.FC = () => {
                     </CardContent>
                 </Card>
             </GridCell>
-        </PageGrid>
+        </GridPage>
     );
 };

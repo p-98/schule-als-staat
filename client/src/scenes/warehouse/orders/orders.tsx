@@ -14,7 +14,8 @@ import "@rmwc/icon/icon.css";
 
 // local
 import { SimpleDataTable } from "Components/data-table/data-table";
-import { PageGrid } from "Components/pageGrid/pageGrid";
+import { GridPage } from "Components/page/page";
+import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import data from "../warehouse.data";
 
 const tableData = data.map(
@@ -33,7 +34,8 @@ const tableData = data.map(
 );
 
 export const Orders: React.FC = () => (
-    <PageGrid>
+    <GridPage>
+        <DrawerAppBarHandle title="Bestellungen" />
         <GridCell span={12}>
             <SimpleDataTable
                 stickyRows={1}
@@ -56,5 +58,5 @@ export const Orders: React.FC = () => (
                 fillPage
             />
         </GridCell>
-    </PageGrid>
+    </GridPage>
 );

@@ -48,6 +48,13 @@ function getHandleDOM(wrapperDOM: HTMLElement) {
 
     return handleDOM as HTMLElement;
 }
+function getElementDOM(wrapperDOM: HTMLElement) {
+    const elementDOM = wrapperDOM.getElementsByClassName(elementCN)[0];
+
+    if (!elementDOM) throw Error("no element found");
+
+    return elementDOM as HTMLElement;
+}
 
 // TODO: return memo
 // TODO: check function memo
@@ -155,33 +162,33 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
         const wrapperDOM = wrapperRef.current;
         const portalWrapperDOM = portalWrapperRef.current;
         const fadingWrapperDOM = portalWrapperDOM.firstChild as HTMLElement;
+        const fullscreenDOM = portalWrapperDOM.parentElement as HTMLElement;
 
         updatePortalHandle(wrapperDOM, fadingWrapperDOM);
         elementSwitcher.setAllStyles();
 
         const handleDOM = getHandleDOM(wrapperDOM);
         const portalHandleDOM = getHandleDOM(portalWrapperDOM);
+        const portalElementDOM = getElementDOM(portalWrapperDOM);
 
         // fix container appearance
         setOffset(portalWrapperDOM, getOffset(wrapperDOM));
         setDimensions(portalWrapperDOM, getDimensions(wrapperDOM));
 
-        // fix portal handle dimensions
+        // fix portal handle and element dimensions
         setDimensions(portalHandleDOM, getDimensions(handleDOM));
+        setDimensions(portalElementDOM, getDimensions(fullscreenDOM));
 
         // switch visible wrapper
         wrapperDOM.style.opacity = "0";
         portalWrapperDOM.style.display = "block";
 
-        // set new appearance (start transition)
         requestAnimationFrame(() => {
             if (!scrimRef.current) return;
 
-            setDimensions(
-                portalWrapperDOM,
-                getDimensions(portalWrapperDOM.parentElement as HTMLElement)
-            );
-            setOffset(portalWrapperDOM, { left: 0, top: 0 });
+            // fixed styles are cleared, default styles are set via css
+            clearDimensions(portalWrapperDOM);
+            clearOffset(portalWrapperDOM);
 
             // start fading
             fadingWrapperDOM.style.animationName = styles[
@@ -204,7 +211,6 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
 
             fullscreen.lock();
         });
-
         // switch elements
         setTimeout(() => {
             elementSwitcher.switchTo("Element");
@@ -217,11 +223,9 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
 
             fadingWrapperDOM.style.animationName = "";
 
-            // clear container inline styles
-            clearOffset(portalWrapperDOM);
-            clearDimensions(portalWrapperDOM);
-
+            // clear handle and element inline styles
             clearPortalHandle(fadingWrapperDOM);
+            clearDimensions(portalElementDOM);
 
             onTransformFinish?.(
                 true,
@@ -249,19 +253,18 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
         const wrapperDOM = wrapperRef.current;
         const portalWrapperDOM = portalWrapperRef.current;
         const fadingWrapperDOM = portalWrapperDOM.firstChild as HTMLElement;
+        const fullscreenDOM = portalWrapperDOM.parentElement as HTMLElement;
 
         updatePortalHandle(wrapperDOM, fadingWrapperDOM);
         elementSwitcher.setAllStyles();
 
         const handleDOM = getHandleDOM(wrapperDOM);
         const portalHandleDOM = getHandleDOM(portalWrapperDOM);
+        const portalElementDOM = getElementDOM(portalWrapperDOM);
 
-        // fix container appearance
-        setOffset(portalWrapperDOM, getOffset(portalWrapperDOM));
-        setDimensions(portalWrapperDOM, getDimensions(portalWrapperDOM));
-
-        // fix handle dimensions in final state
+        // fix portal handle dimensions in final state and element dimensions
         setDimensions(portalHandleDOM, getDimensions(handleDOM));
+        setDimensions(portalElementDOM, getDimensions(fullscreenDOM));
 
         requestAnimationFrame(() => {
             if (!scrimRef.current) return;
@@ -297,7 +300,9 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
             clearOffset(portalWrapperDOM);
             clearDimensions(portalWrapperDOM);
 
+            // clear portal handle and element inline styles
             clearPortalHandle(fadingWrapperDOM);
+            clearDimensions(portalElementDOM);
 
             // switch visible wrapper
             wrapperDOM.style.opacity = "";

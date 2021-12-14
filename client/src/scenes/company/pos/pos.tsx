@@ -13,6 +13,7 @@ import "@rmwc/icon/icon.css";
 import { POS as POSComponent } from "Components/pos/pos";
 import { useCart } from "Components/pos/util/useCart";
 import { CardContent } from "Components/card/card";
+import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import config from "Config";
 import { Checkout } from "./components/checkout";
 import products from "./pos.data";
@@ -40,6 +41,7 @@ export const POS: React.FC = () => {
 
     return (
         <>
+            <DrawerAppBarHandle title="Kasse" />
             <POSComponent
                 cart={cart}
                 cartActions={cartActions}

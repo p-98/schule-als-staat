@@ -12,8 +12,7 @@ import "@material/icon-button/dist/mdc.icon-button.css";
 // local
 import { TUser } from "Utility/types";
 import usePredictionObserver from "Utility/hooks/predictionObserver/predictionObserver";
-import { PageGrid } from "Components/pageGrid/pageGrid";
-import { Page } from "Components/page/page";
+import { GridPage } from "Components/page/page";
 import {
     FullscreenContainerTransform,
     FullscreenContainerTransformElement,
@@ -21,7 +20,10 @@ import {
 } from "Components/transition/containerTransform/fullscreen/fullscreenContainerTransform";
 import { onAfterCloneHandle } from "Utility/adapters/GetUser-FullscreenContainerTransform";
 import { GetUser } from "Components/login/getUser";
-import { FullscreenAppBar } from "Components/appBar/fullscreenAppBar";
+import {
+    DrawerAppBarHandle,
+    FullscreenAppBarHandle,
+} from "Components/dynamicAppBar/presets";
 
 import { cardClassNames } from "Components/card/card";
 
@@ -37,7 +39,8 @@ export const AccountInfo: React.FC = () => {
     ] = usePredictionObserver();
 
     return (
-        <PageGrid>
+        <GridPage>
+            <DrawerAppBarHandle title="Kontoinformationen" />
             <GridCell desktop={4} tablet={2} phone={0} />
             <GridCell span={4}>
                 <FullscreenContainerTransform
@@ -60,22 +63,18 @@ export const AccountInfo: React.FC = () => {
                         />
                     </FullscreenContainerTransformHandle>
                     <FullscreenContainerTransformElement>
-                        <Page
-                            topAppBar={
-                                <FullscreenAppBar
-                                    // eslint-disable-next-line react/jsx-props-no-spreading
-                                    {...predictionListeners}
-                                    onNav={() => setUser(null)}
-                                />
-                            }
-                        >
-                            <PageGrid>
-                                <Dashboard />
-                            </PageGrid>
-                        </Page>
+                        <GridPage>
+                            <FullscreenAppBarHandle
+                                // eslint-disable-next-line react/jsx-props-no-spreading
+                                {...predictionListeners}
+                                onClose={() => setUser(null)}
+                                render={!!user}
+                            />
+                            <Dashboard />
+                        </GridPage>
                     </FullscreenContainerTransformElement>
                 </FullscreenContainerTransform>
             </GridCell>
-        </PageGrid>
+        </GridPage>
     );
 };

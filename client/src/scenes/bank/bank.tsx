@@ -15,9 +15,11 @@ import {
     FullscreenContainerTransformElement,
     FullscreenContainerTransformHandle,
 } from "Components/transition/containerTransform/fullscreen/fullscreenContainerTransform";
-import { PageGrid } from "Components/pageGrid/pageGrid";
-import { Page } from "Components/page/page";
-import { FullscreenAppBar } from "Components/appBar/fullscreenAppBar";
+import { GridPage } from "Components/page/page";
+import {
+    DrawerAppBarHandle,
+    FullscreenAppBarHandle,
+} from "Components/dynamicAppBar/presets";
 import usePredictionObserver from "Utility/hooks/predictionObserver/predictionObserver";
 import { GetUser } from "Components/login/getUser";
 import { onAfterCloneHandle } from "Utility/adapters/GetUser-FullscreenContainerTransform";
@@ -40,7 +42,8 @@ export const Bank: React.FC = () => {
 
     return (
         <BankUserContext.Provider value={user}>
-            <PageGrid>
+            <DrawerAppBarHandle title="Bank" />
+            <GridPage>
                 <GridCell desktop={4} tablet={2} phone={0} />
                 <GridCell span={4}>
                     <FullscreenContainerTransform
@@ -56,29 +59,23 @@ export const Bank: React.FC = () => {
                                 confirmButtonLabel="Bestätigen"
                                 qrInfoText="Scanne den QR-Code auf dem Ausweis, um Informationen über das Konto zu erhalten."
                                 onGetUser={(_user) => setUser(_user)}
-                                // eslint-disable-next-line react/jsx-props-no-spreading
-                                {...predictionListeners}
                             />
                         </FullscreenContainerTransformHandle>
                         <FullscreenContainerTransformElement>
-                            <Page
-                                topAppBar={
-                                    <FullscreenAppBar
-                                        // eslint-disable-next-line react/jsx-props-no-spreading
-                                        {...predictionListeners}
-                                        onNav={() => setUser(null)}
-                                    />
-                                }
-                            >
-                                <PageGrid>
-                                    <UserDashboard />
-                                    <ChangeCurrencies />
-                                </PageGrid>
-                            </Page>
+                            <GridPage>
+                                <FullscreenAppBarHandle
+                                    // eslint-disable-next-line react/jsx-props-no-spreading
+                                    {...predictionListeners}
+                                    onClose={() => setUser(null)}
+                                    render={!!user}
+                                />
+                                <UserDashboard />
+                                <ChangeCurrencies />
+                            </GridPage>
                         </FullscreenContainerTransformElement>
                     </FullscreenContainerTransform>
                 </GridCell>
-            </PageGrid>
+            </GridPage>
         </BankUserContext.Provider>
     );
 };

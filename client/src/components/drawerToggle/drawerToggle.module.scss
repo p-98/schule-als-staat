@@ -52,17 +52,16 @@
     }
 }
 
+/* open state */
 .drawer-toggle--open > .drawer-toggle__drawer {
     transform: translateX(0%);
-    opacity: 1;
     visibility: visible;
 
     /* 1: opening timing (default easing) */
     /* 2: delay visibility hidden */
-    /* 3: fade in timing after fullscreen is disabled */
     transition: transform var(--drawer-transition-time-opening)
             var(--mdc-default-easing),
-        visibility 0s linear 0s, opacity 250ms var(--mdc-decelerated-easing);
+        visibility 0s linear 0s;
 
     /* mobile has different easing */
     @media (max-width: 1343px) {
@@ -72,12 +71,6 @@
                 var(--mdc-decelerated-easing),
             visibility 0s linear 0s;
     }
-}
-.drawer-toggle--fullscreen-enabled > .drawer-toggle__drawer {
-    opacity: 0;
-    pointer-events: none;
-    /* 1: fade out timing when fullscreen is enabled */
-    transition: opacity 300ms var(--mdc-accelerated-easing);
 }
 
 /* scrim */

@@ -11,7 +11,7 @@ import "@rmwc/icon/icon.css";
 import "@material/ripple/dist/mdc.ripple.css";
 
 // local
-import { PageGrid } from "Components/pageGrid/pageGrid";
+import { GridPage } from "Components/page/page";
 import { IProduct } from "Utility/types";
 import { ProductCard } from "./components/productCard";
 import { Cart } from "./components/cart";
@@ -39,7 +39,7 @@ export const POS: React.FC<TWithCartProps<IPOSProps>> = ({
 
     return (
         <>
-            <PageGrid>
+            <GridPage>
                 {products.map((product) => (
                     <GridCell desktop={3} tablet={2} phone={2} key={product.id}>
                         <ProductCard
@@ -49,7 +49,7 @@ export const POS: React.FC<TWithCartProps<IPOSProps>> = ({
                         />
                     </GridCell>
                 ))}
-            </PageGrid>
+            </GridPage>
             <Fab
                 icon="shopping_cart"
                 className={styles["pos__fab"]}

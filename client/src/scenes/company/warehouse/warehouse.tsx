@@ -3,6 +3,7 @@ import { useState } from "react";
 // local
 import { useCart } from "Components/pos/util/useCart";
 import { POS } from "Components/pos/pos";
+import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import products from "./warehouse.data";
 import { Checkout } from "./components/checkout";
 
@@ -12,6 +13,7 @@ export const Warehouse: React.FC = () => {
 
     return (
         <>
+            <DrawerAppBarHandle title="Warenlager" />
             <POS
                 cart={cart}
                 cartActions={cartActions}

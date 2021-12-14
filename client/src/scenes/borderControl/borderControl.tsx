@@ -5,10 +5,11 @@ import { GridCell } from "@rmwc/grid";
 import "@material/layout-grid/dist/mdc.layout-grid.css";
 
 // local
-import { PageGrid } from "Components/pageGrid/pageGrid";
+import { GridPage } from "Components/page/page";
 import { GetUser } from "Components/login/getUser";
 import { Card } from "Components/card/card";
 import { pickRandom } from "Utility/dataMockup";
+import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { CrossingDialog } from "./components/dialogs";
 
 const users = ["Max Mustermann", "Donuts Inc Ltd.", "Fj3bK"];
@@ -17,7 +18,8 @@ export const BorderControl: React.FC = () => {
     const [user, setUser] = useState<string>();
 
     return (
-        <PageGrid>
+        <GridPage>
+            <DrawerAppBarHandle title="Grenzkontrolle" />
             <GridCell desktop={4} tablet={2} phone={0} />
             <GridCell>
                 <Card>
@@ -33,6 +35,6 @@ export const BorderControl: React.FC = () => {
                     onClosed={() => setUser(undefined)}
                 />
             </GridCell>
-        </PageGrid>
+        </GridPage>
     );
 };

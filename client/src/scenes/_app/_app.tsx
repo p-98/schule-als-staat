@@ -13,11 +13,10 @@ import "@rmwc/theme/theme.css";
 import "@material/drawer/dist/mdc.drawer.css";
 
 // local
-import { Page } from "Components/page/page";
 import { store } from "Utility/redux/store";
-import { MainAppBar } from "Components/appBar/mainAppBar";
 import { DrawerToggle } from "Components/drawerToggle/drawerToggle";
 import { useSelector, selectDrawerOpen } from "Utility/hooks/redux/drawer";
+import { DynamicAppBarDisplay } from "Components/dynamicAppBar/dynamicAppBar";
 import { Navigation } from "./components/navigation";
 import theme from "../../util/theme";
 
@@ -41,10 +40,16 @@ const App = ({ Component, pageProps }: AppProps): JSX.Element => {
                 </Drawer>
             }
         >
-            <Page topAppBar={<MainAppBar />}>
-                <Component {...pageProps} />
-                <div id="fullscreen" className={styles["app__fullscreen"]} />
-            </Page>
+            <div className={styles["app__bar-wrapper"]}>
+                <DynamicAppBarDisplay />
+                <div className={styles["app__fullscreen-wrapper"]}>
+                    <Component {...pageProps} />
+                    <div
+                        id="fullscreen"
+                        className={styles["app__fullscreen"]}
+                    />
+                </div>
+            </div>
         </DrawerToggle>
     );
 };

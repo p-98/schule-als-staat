@@ -5,7 +5,8 @@ import "@material/layout-grid/dist/mdc.layout-grid.css";
 
 // local
 import { SimpleDataTable } from "Components/data-table/data-table";
-import { PageGrid } from "Components/pageGrid/pageGrid";
+import { GridPage } from "Components/page/page";
+import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import data from "../warehouse.data";
 
 /* eslint-disable no-param-reassign */
@@ -23,7 +24,8 @@ const tableData = Object.values(
 /* eslint-enable no-param-reassign */
 
 export const OrderSummary: React.FC = () => (
-    <PageGrid>
+    <GridPage>
+        <DrawerAppBarHandle title="Einkaufslisten" />
         <GridCell span={12}>
             <SimpleDataTable
                 stickyRows={1}
@@ -32,5 +34,5 @@ export const OrderSummary: React.FC = () => (
                 fillPage
             />
         </GridCell>
-    </PageGrid>
+    </GridPage>
 );

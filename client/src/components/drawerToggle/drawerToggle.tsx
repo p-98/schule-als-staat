@@ -8,7 +8,6 @@ import cn from "classnames";
 
 // local
 import { useDispatch, close } from "Utility/hooks/redux/drawer";
-import { useFullscreen } from "Utility/hooks/redux/fullscreen";
 
 import styles from "./drawerToggle.module.scss";
 
@@ -31,7 +30,6 @@ export const DrawerToggle: React.FC<IDrawerToggleProps> = ({
         throw TypeError("drawer is not a valid react element");
 
     const drawerDispatch = useDispatch();
-    const { locked: fullscreenLocked } = useFullscreen();
 
     return (
         <div
@@ -39,8 +37,7 @@ export const DrawerToggle: React.FC<IDrawerToggleProps> = ({
             className={cn(
                 restProps.className,
                 styles["drawer-toggle"],
-                open && styles["drawer-toggle--open"],
-                fullscreenLocked && styles["drawer-toggle--fullscreen-enabled"]
+                open && styles["drawer-toggle--open"]
             )}
         >
             <button

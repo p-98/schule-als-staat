@@ -27,8 +27,8 @@ import {
     FullscreenContainerTransformHandle,
     TOnAfterCloneHandle,
 } from "Components/transition/containerTransform/fullscreen/fullscreenContainerTransform";
-import { Page } from "Components/page/page";
-import { FullscreenAppBar } from "Components/appBar/fullscreenAppBar";
+import { GridPage } from "Components/page/page";
+import { FullscreenAppBarHandle } from "Components/dynamicAppBar/presets";
 import usePredictionObserver from "Utility/hooks/predictionObserver/predictionObserver";
 import { DetailPage } from "./detailPage";
 
@@ -103,17 +103,15 @@ export const VoteListItem: React.FC<TWithVoteProp> = ({ vote }) => {
                     />
                 </FullscreenContainerTransformHandle>
                 <FullscreenContainerTransformElement>
-                    <Page
-                        topAppBar={
-                            <FullscreenAppBar
-                                onNav={() => setShowDetails(false)}
-                                // eslint-disable-next-line react/jsx-props-no-spreading
-                                {...closeListeners}
-                            />
-                        }
-                    >
+                    <GridPage>
+                        <FullscreenAppBarHandle
+                            // eslint-disable-next-line react/jsx-props-no-spreading
+                            {...closeListeners}
+                            onClose={() => setShowDetails(false)}
+                            render={showDetails}
+                        />
                         <DetailPage vote={vote} />
-                    </Page>
+                    </GridPage>
                 </FullscreenContainerTransformElement>
             </FullscreenContainerTransform>
         </Theme>

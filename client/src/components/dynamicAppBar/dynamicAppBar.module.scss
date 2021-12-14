@@ -1,0 +1,15 @@
+@use "Components/pageGrid/custom-properties";
+
+.dynamic-app-bar {
+    @include custom-properties.app-bar-height();
+
+    height: var(--app-bar-height);
+    position: relative;
+}
+.dynamic-app-bar__app-bar {
+    position: absolute;
+    opacity: 0;
+}
+.dynamic-app-bar__app-bar button {
+    user-select: none;
+}

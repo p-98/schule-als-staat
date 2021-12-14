@@ -15,6 +15,10 @@
 
     display: none;
     position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
 }
 .container-transform--open {
     /* transition when opening */
@@ -32,6 +36,10 @@
     animation-duration: var(--transition-time);
     animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
+.container-transform--portal > .container-transform__fading-wrapper {
+    width: 100%;
+    height: 100%;
+}
 .container-transform__fading-wrapper--optimize {
     will-change: opacity, contents;
 }
@@ -42,8 +50,8 @@
     will-change: display;
 }
 .container-transform__element--fullscreen-element {
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
 }
 .container-transform__element--fullscreen-handle {
 }

@@ -11,7 +11,7 @@ import "@material/ripple/dist/mdc.ripple.css";
 import "@rmwc/icon/icon.css";
 
 // local
-import { PageGrid } from "Components/pageGrid/pageGrid";
+import { GridPage } from "Components/page/page";
 import { BankAccountInfo as BasicBankAccountInfo } from "Components/dashboard/dashboard";
 import {
     CardInner,
@@ -27,12 +27,14 @@ import {
     FullscreenContainerTransformHandle,
     FullscreenContainerTransformElement,
 } from "Components/transition/containerTransform/fullscreen/fullscreenContainerTransform";
-import { Page } from "Components/page/page";
-import { FullscreenAppBar } from "Components/appBar/fullscreenAppBar";
 import { GridScrollColumn } from "Components/gridScrollColumn/gridScrollCell";
+import {
+    DrawerAppBarHandle,
+    FullscreenAppBarHandle,
+} from "Components/dynamicAppBar/presets";
 import transactions from "./transactions.data";
 import { TransactionListItem } from "./components/transactions";
-import { Transactions } from "./transactions";
+import { AllTransactionsPage } from "./transactions";
 
 import styles from "./bankAccountInfo.module.css";
 
@@ -73,7 +75,8 @@ export const BankAccountInfo: React.FC = () => {
     const [showAllTransactions, setShowAllTransactions] = useState(false);
 
     return (
-        <PageGrid>
+        <GridPage>
+            <DrawerAppBarHandle title="Bankkonto" />
             <GridCell desktop={1} tablet={1} phone={0} />
             <GridCell span={4} tablet={6}>
                 <GridScrollColumn desktop>
@@ -100,21 +103,19 @@ export const BankAccountInfo: React.FC = () => {
                             />
                         </FullscreenContainerTransformHandle>
                         <FullscreenContainerTransformElement>
-                            <Page
-                                topAppBar={
-                                    <FullscreenAppBar
-                                        onNav={() =>
-                                            setShowAllTransactions(false)
-                                        }
-                                    />
-                                }
-                            >
-                                <Transactions />
-                            </Page>
+                            <GridPage>
+                                <FullscreenAppBarHandle
+                                    onClose={() =>
+                                        setShowAllTransactions(false)
+                                    }
+                                    render={showAllTransactions}
+                                />
+                                <AllTransactionsPage />
+                            </GridPage>
                         </FullscreenContainerTransformElement>
                     </FullscreenContainerTransform>
                 </GridScrollColumn>
             </GridCell>
-        </PageGrid>
+        </GridPage>
     );
 };

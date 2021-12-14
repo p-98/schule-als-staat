@@ -5,11 +5,13 @@ import { Card } from "Components/card/card";
 import "@material/layout-grid/dist/mdc.layout-grid.css";
 
 // local
-import { PageGrid } from "Components/pageGrid/pageGrid";
+import { GridPage } from "Components/page/page";
 import { Login as LoginComponent } from "Components/login/login";
+import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 
 export const Login: React.FC = () => (
-    <PageGrid>
+    <GridPage>
+        <DrawerAppBarHandle title="Login" />
         <GridCell desktop={4} tablet={2} phone={0} />
         <GridCell span={4}>
             <Card>
@@ -22,5 +24,5 @@ export const Login: React.FC = () => (
                 />
             </Card>
         </GridCell>
-    </PageGrid>
+    </GridPage>
 );
