@@ -13,3 +13,9 @@
 .dynamic-app-bar__app-bar button {
     user-select: none;
 }
+
+.app-bar__drawer-toggle {
+    @media (min-width: 1344px) {
+        visibility: hidden;
+    }
+}

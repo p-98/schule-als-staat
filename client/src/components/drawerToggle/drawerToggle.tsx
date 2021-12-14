@@ -37,7 +37,12 @@ export const DrawerToggle: React.FC<IDrawerToggleProps> = ({
             className={cn(
                 restProps.className,
                 styles["drawer-toggle"],
-                open && styles["drawer-toggle--open"]
+                open
+                    ? styles["drawer-toggle--open"]
+                    : styles["drawer-toggle--closed"],
+                rightDrawer
+                    ? styles["drawer-toggle--right"]
+                    : styles["drawer-toggle--left"]
             )}
         >
             <button
@@ -49,8 +54,7 @@ export const DrawerToggle: React.FC<IDrawerToggleProps> = ({
             {cloneElement(drawer, {
                 className: cn(
                     drawer.props.className,
-                    styles["drawer-toggle__drawer"],
-                    rightDrawer && styles["drawer-toggle__drawer--right"]
+                    styles["drawer-toggle__drawer"]
                 ),
             })}
             {cloneElement(children, {

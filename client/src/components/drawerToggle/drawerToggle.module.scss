@@ -1,3 +1,15 @@
+/* breakpoint calculated as max width of content + width of drawer(256px) */
+@mixin large {
+    @media (min-width: 1344px) {
+        @content;
+    }
+}
+@mixin small {
+    @media (max-width: 1343px) {
+        @content;
+    }
+}
+
 /* toggle */
 .drawer-toggle {
     --drawer-transition-time-opening: 250ms;
@@ -8,54 +20,36 @@
 
     position: relative;
     display: flex;
-    justify-content: flex-end;
-    &__drawer--right {
+    &--left {
+        justify-content: flex-end;
+    }
+    &--right {
         justify-content: flex-start;
     }
 }
 
-/* drawer */
+/* drawer (open default) */
 .drawer-toggle__drawer {
     /* z-index same as mdc default */
     z-index: 6;
     height: 100%;
     position: absolute;
-    visibility: hidden;
+    visibility: visible;
 
-    &:not(.drawer-toggle__drawer--right) {
+    .drawer-toggle--left > & {
         left: 0;
-        transform: translateX(-100%);
     }
-    &.drawer-toggle__drawer--right {
+    .drawer-toggle--right > & {
         right: 0;
-        transform: translateX(100%);
+    }
+    transform: translateX(0%);
 
-        /* mdc fixes */
+    /* fix mdc styles for right drawer */
+    .drawer-toggle--right > & {
         border-right-width: 0;
         border-left-style: solid;
         border-left-width: 1px;
     }
-
-    /* 1: closing timing (default easing) */
-    /* 2: delay visibility hidden */
-    transition: transform var(--drawer-transition-time-closing)
-            var(--mdc-default-easing),
-        visibility 0s linear var(--drawer-transition-time-closing);
-
-    /* mobile has different easing */
-    @media (max-width: 1343px) {
-        /* 1: closing timing (accelerated easing) */
-        /* 2: delay visibility hidden */
-        transition: transform var(--drawer-transition-time-closing)
-                var(--mdc-accelerated-easing),
-            visibility 0s linear var(--drawer-transition-time-closing);
-    }
-}
-
-/* open state */
-.drawer-toggle--open > .drawer-toggle__drawer {
-    transform: translateX(0%);
-    visibility: visible;
 
     /* 1: opening timing (default easing) */
     /* 2: delay visibility hidden */
@@ -73,7 +67,28 @@
     }
 }
 
-/* scrim */
+/* drawer closed state */
+@include small() {
+    .drawer-toggle--closed {
+        &.drawer-toggle--left > .drawer-toggle__drawer {
+            transform: translateX(-100%);
+        }
+        &.drawer-toggle--right > .drawer-toggle__drawer {
+            transform: translateX(100%);
+        }
+        & > .drawer-toggle__drawer {
+            visibility: hidden;
+
+            /* 1: closing timing (accelerated easing) */
+            /* 2: delay visibility hidden */
+            transition: transform var(--drawer-transition-time-closing)
+                    var(--mdc-accelerated-easing),
+                visibility 0s linear var(--drawer-transition-time-closing);
+        }
+    }
+}
+
+/* scrim (closed default) */
 .drawer-toggle__scrim {
     /* z-index same as drawer */
     z-index: 6;
@@ -94,7 +109,8 @@
             var(--mdc-accelerated-easing),
         visibility 0s linear var(--drawer-transition-time-closing);
 }
-@media (max-width: 1343px) {
+/* scrim open state */
+@include small() {
     .drawer-toggle--open > .drawer-toggle__scrim {
         visibility: visible;
         opacity: 1;
@@ -108,20 +124,20 @@
     }
 }
 
-/* children */
+/* children (open default) */
 .drawer-toggle__children {
     height: 100%;
-    width: 100%;
-    /* close timing (default easing) */
-    transition: width var(--drawer-transition-time-closing)
+    width: calc(100% - 256px);
+    /* open timing (default easing) */
+    transition: width var(--drawer-transition-time-opening)
         var(--mdc-default-easing);
 }
-/* calculated as max width of content + width of drawer(256px) */
-@media (min-width: 1344px) {
-    .drawer-toggle--open > .drawer-toggle__children {
-        width: calc(100% - 256px);
-        /* open timing (default easing) */
-        transition: width var(--drawer-transition-time-opening)
-            var(--mdc-default-easing);
+/* children closed state */
+@include small() {
+    .drawer-toggle__children {
+        width: 100%;
+        /* closing timing (accelerated easing, because it is only visible, when the drawer fades out accelerated) */
+        transition: width var(--drawer-transition-time-closing)
+            var(--mdc-accelerated-easing);
     }
 }
