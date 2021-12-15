@@ -3,7 +3,8 @@
 import type { AppProps } from "next/app";
 import { Provider as ReduxProvider } from "react-redux";
 import { ThemeProvider } from "@rmwc/theme";
-import { Drawer, DrawerHeader, DrawerContent, DrawerTitle } from "@rmwc/drawer";
+import { Drawer, DrawerContent } from "@rmwc/drawer";
+import { ListDivider } from "@rmwc/list";
 
 // theme imports
 import "@material/theme/dist/mdc.theme.css";
@@ -12,12 +13,18 @@ import "@rmwc/theme/theme.css";
 // drawer imports
 import "@material/drawer/dist/mdc.drawer.css";
 
+// list imports
+import "@material/list/dist/mdc.list.css";
+import "@material/ripple/dist/mdc.ripple.css";
+import "@rmwc/icon/icon.css";
+
 // local
 import { store } from "Utility/redux/store";
 import { DrawerToggle } from "Components/drawerToggle/drawerToggle";
 import { useSelector, selectDrawerOpen } from "Utility/hooks/redux/drawer";
 import { DynamicAppBarDisplay } from "Components/dynamicAppBar/dynamicAppBar";
 import { Navigation } from "./components/navigation";
+import { DrawerHeader } from "./components/drawerHeader";
 import theme from "../../util/theme";
 
 import styles from "./_app.module.scss";
@@ -31,9 +38,8 @@ const App = ({ Component, pageProps }: AppProps): JSX.Element => {
             open={drawerOpen}
             drawer={
                 <Drawer>
-                    <DrawerHeader>
-                        <DrawerTitle>Schule als Staat</DrawerTitle>
-                    </DrawerHeader>
+                    <DrawerHeader />
+                    <ListDivider />
                     <DrawerContent>
                         <Navigation />
                     </DrawerContent>

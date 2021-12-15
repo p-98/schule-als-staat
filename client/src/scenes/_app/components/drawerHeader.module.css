@@ -1,0 +1,19 @@
+.drawer-header {
+    height: 192px;
+
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+.drawer-header__avatar {
+    font-size: 56px;
+    margin-bottom: 4px;
+}
+
+.badge {
+    font-weight: bold;
+    padding: 0 8px;
+    border-radius: calc(var(--mdc-typography-caption-line-height, 1.25rem) / 2);
+}
