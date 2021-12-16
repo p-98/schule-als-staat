@@ -7,8 +7,6 @@ import {
 import cn from "classnames";
 
 // local
-import { useDispatch, close } from "Utility/hooks/redux/drawer";
-
 import styles from "./drawerToggle.module.scss";
 
 interface IDrawerToggleProps extends HTMLAttributes<HTMLDivElement> {
@@ -16,20 +14,20 @@ interface IDrawerToggleProps extends HTMLAttributes<HTMLDivElement> {
     children: ReactElement<HTMLAttributes<HTMLElement>>;
     rightDrawer?: boolean;
     open: boolean;
+    onClose: () => void;
 }
 export const DrawerToggle: React.FC<IDrawerToggleProps> = ({
     children,
     drawer,
     rightDrawer,
     open,
+    onClose,
     ...restProps
 }) => {
     if (!isValidElement<HTMLAttributes<HTMLElement>>(children))
         throw TypeError("children is not a valid react element");
     if (!isValidElement(drawer))
         throw TypeError("drawer is not a valid react element");
-
-    const drawerDispatch = useDispatch();
 
     return (
         <div
@@ -49,7 +47,7 @@ export const DrawerToggle: React.FC<IDrawerToggleProps> = ({
                 type="button"
                 aria-label="close drawer"
                 className={styles["drawer-toggle__scrim"]}
-                onClick={() => drawerDispatch(close())}
+                onClick={onClose}
             />
             {cloneElement(drawer, {
                 className: cn(

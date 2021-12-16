@@ -21,7 +21,12 @@ import "@rmwc/icon/icon.css";
 // local
 import { store } from "Utility/redux/store";
 import { DrawerToggle } from "Components/drawerToggle/drawerToggle";
-import { useSelector, selectDrawerOpen } from "Utility/hooks/redux/drawer";
+import {
+    useSelector,
+    selectDrawerOpen,
+    useDispatch,
+    close,
+} from "Utility/hooks/redux/drawer";
 import { DynamicAppBarDisplay } from "Components/dynamicAppBar/dynamicAppBar";
 import { Navigation } from "./components/navigation";
 import { DrawerHeader } from "./components/drawerHeader";
@@ -31,11 +36,13 @@ import styles from "./_app.module.scss";
 
 const App = ({ Component, pageProps }: AppProps): JSX.Element => {
     const drawerOpen = useSelector(selectDrawerOpen);
+    const drawerDispatch = useDispatch();
 
     return (
         <DrawerToggle
             className={styles["app"]}
             open={drawerOpen}
+            onClose={() => drawerDispatch(close())}
             drawer={
                 <Drawer>
                     <DrawerHeader />
