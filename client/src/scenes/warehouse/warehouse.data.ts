@@ -1,6 +1,6 @@
 import { reassignIDs, repeatArr } from "Utility/dataMockup";
 
-interface IWarehouseOrderFragment {
+export interface IWarehouseOrderFragment {
     id: string;
     dateFor: string;
     customer: {
@@ -57,4 +57,23 @@ const transactions: IWarehouseOrderFragment[] = [
         collected: 0,
     },
 ];
-export default reassignIDs(repeatArr(transactions, 5));
+
+const repeated = reassignIDs(repeatArr(transactions, 5));
+
+const sorted = repeated.sort((f1, f2) => {
+    if (f1.dateFor !== f2.dateFor)
+        return new Date(f1.dateFor) > new Date(f2.dateFor) ? -1 : 1;
+
+    if (f1.customer.name !== f2.customer.name)
+        return f1.customer.name > f2.customer.name ? 1 : -1;
+
+    if (f1.product.id !== f2.product.id)
+        return f1.product.id > f2.product.id ? 1 : -1;
+
+    return 0;
+});
+export default sorted;
+
+export const dates = sorted
+    .map((fragment) => fragment.dateFor)
+    .filter((v, i, a) => a.indexOf(v) === i);
