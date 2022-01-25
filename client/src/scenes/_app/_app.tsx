@@ -41,6 +41,7 @@ const App = ({ Component, pageProps }: AppProps): JSX.Element => {
     return (
         <DrawerToggle
             className={styles["app"]}
+            id="rmwcPortal"
             open={drawerOpen}
             onClose={() => drawerDispatch(close())}
             drawer={

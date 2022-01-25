@@ -25,3 +25,10 @@
 .app__fullscreen > * {
     pointer-events: auto;
 }
+
+.navigation__list-item {
+}
+.navigation__list-item--disabled {
+    opacity: 0.38;
+    pointer-events: none;
+}

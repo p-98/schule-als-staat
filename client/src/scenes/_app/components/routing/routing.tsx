@@ -1,4 +1,25 @@
+// local
+import { selectLoggedIn } from "Utility/redux/slices/companyAdminSlice";
+import { store } from "Utility/redux/store";
+import {
+    Top as CompanyAdminTop,
+    Bottom as CompanyAdminBottom,
+} from "./companyAdministration";
+
 export default [
+    () => <CompanyAdminTop key="CompanyAdminTop" />,
+    () => ({
+        href: "/bank",
+        label: "Fake",
+        icon: "login",
+        disabled: !selectLoggedIn(store.getState()),
+    }),
+    ({ forceUpdate }) => (
+        <CompanyAdminBottom
+            key="CompanyAdminBottom"
+            forceNavUpdate={forceUpdate}
+        />
+    ),
     () => ({
         href: "/test1",
         label: "Test 1",
@@ -59,8 +80,13 @@ export default [
         label: "Bestellungen",
         icon: "store",
     }),
-] as (() => {
-    href: string;
-    label: string;
-    icon: string;
-})[];
+] as ((props: {
+    forceUpdate: () => void;
+}) =>
+    | {
+          href: string;
+          label: string;
+          icon: string;
+          disabled?: boolean;
+      }
+    | React.ReactElement)[];
