@@ -1,4 +1,11 @@
-import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+    CSSProperties,
+    forwardRef,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from "react";
 import cn from "classnames";
 
 // local
@@ -7,8 +14,6 @@ import { clearDimensions, getDimensions, setDimensions } from "../util/domUtil";
 import ElementSwitcher from "../util/elementSwitcher";
 
 import styles from "./*containerTransform.module.css";
-
-const transitionTime = 300;
 
 /*
 usage:
@@ -27,6 +32,7 @@ export interface IContainerTransformProps
         activeElement: string,
         activeElementDOM: HTMLElement
     ) => void;
+    transitionTime?: number;
 }
 
 export const ContainerTransform = forwardRef<
@@ -38,6 +44,7 @@ export const ContainerTransform = forwardRef<
             children,
             activeElement: activeElementTarget,
             onTransformFinish,
+            transitionTime = 300,
             ...restProps
         },
         refProp
@@ -82,6 +89,9 @@ export const ContainerTransform = forwardRef<
             setInTransition(true);
 
             const containerDOM = containerRef.current;
+            const fadingWrapperDOM = containerDOM.querySelector(
+                `.${styles["container-transform__fading-wrapper"] as string}`
+            ) as HTMLElement;
 
             // fix container dimensions
             setDimensions(containerDOM, getDimensions(containerDOM));
@@ -92,11 +102,12 @@ export const ContainerTransform = forwardRef<
                 (activeElementTargetDOM) =>
                     getDimensions(activeElementTargetDOM)
             );
+
             requestAnimationFrame(() => {
                 setDimensions(containerDOM, targetDimensions);
 
                 // start fading
-                containerDOM.style.animationName = styles[
+                fadingWrapperDOM.style.animationName = styles[
                     "container-transform__fade"
                 ] as string;
             });
@@ -108,7 +119,7 @@ export const ContainerTransform = forwardRef<
 
             // finish & cleanup
             setTimeout(() => {
-                containerDOM.style.animationName = "";
+                fadingWrapperDOM.style.animationName = "";
                 clearDimensions(containerDOM);
 
                 onTransformFinish?.(
@@ -125,6 +136,7 @@ export const ContainerTransform = forwardRef<
             elementSwitcher,
             inTransition,
             onTransformFinish,
+            transitionTime,
         ]);
 
         return useMemo(
@@ -133,15 +145,25 @@ export const ContainerTransform = forwardRef<
                     {...restProps}
                     className={cn(
                         restProps.className,
-                        styles["container-transform"],
-                        styles["container-transform__fading-wrapper"]
+                        styles["container-transform"]
                     )}
+                    style={
+                        {
+                            "--transition-time": `${transitionTime}ms`,
+                        } as CSSProperties
+                    }
                     ref={initRefsFactory(refProp, containerRef)}
                 >
-                    {children}
+                    <div
+                        className={
+                            styles["container-transform__fading-wrapper"]
+                        }
+                    >
+                        {children}
+                    </div>
                 </div>
             ),
-            [children, refProp, restProps]
+            [children, refProp, restProps, transitionTime]
         );
     }
 );

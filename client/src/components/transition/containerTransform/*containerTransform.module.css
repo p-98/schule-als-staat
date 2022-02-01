@@ -1,6 +1,5 @@
 .container-transform {
-    /* in fullscreen mode --transition-time is injected via react, because of different timings */
-    --transition-time: 0.3s;
+    /* --transition-time is injected via react, because of different timings */
 
     transition-property: height, width, left, top;
     transition-duration: var(--transition-time);
