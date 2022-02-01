@@ -1,0 +1,9 @@
+.dot {
+    height: var(--dot-size);
+    width: var(--dot-size);
+    border-radius: 50%;
+    background-color: var(
+        --mdc-theme-text-secondary-on-background,
+        rgba(0, 0, 0, 0.54)
+    ) !important;
+}
