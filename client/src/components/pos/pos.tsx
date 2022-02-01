@@ -1,23 +1,16 @@
 import React, { useState } from "react";
 import { GridCell } from "@rmwc/grid";
-import { Fab } from "@rmwc/fab";
 
 // grid imports
 import "@material/layout-grid/dist/mdc.layout-grid.css";
 
-// fab imports
-import "@material/fab/dist/mdc.fab.css";
-import "@rmwc/icon/icon.css";
-import "@material/ripple/dist/mdc.ripple.css";
-
 // local
 import { GridPage } from "Components/page/page";
+import { Fab } from "Components/fab/fab";
 import { IProduct } from "Utility/types";
 import { ProductCard } from "./components/productCard";
 import { Cart } from "./components/cart";
 import { TWithCartProps } from "./util/types";
-
-import styles from "./pos.module.css";
 
 export { CartTable } from "./components/cartTable";
 
@@ -50,11 +43,7 @@ export const POS: React.FC<TWithCartProps<IPOSProps>> = ({
                     </GridCell>
                 ))}
             </GridPage>
-            <Fab
-                icon="shopping_cart"
-                className={styles["pos__fab"]}
-                onClick={() => setCartOpen(true)}
-            />
+            <Fab icon="shopping_cart" onClick={() => setCartOpen(true)} />
             <Cart
                 open={cartOpen}
                 onCancelled={() => {
