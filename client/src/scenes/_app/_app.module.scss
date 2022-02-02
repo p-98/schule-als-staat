@@ -11,6 +11,7 @@
 .app__fullscreen-wrapper {
     position: relative;
     display: grid;
+    overflow: hidden;
 }
 
 .app__fullscreen {
