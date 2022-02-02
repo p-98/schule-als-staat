@@ -9,9 +9,9 @@ import {
 export default [
     () => <CompanyAdminTop key="CompanyAdminTop" />,
     () => ({
-        href: "/bank",
-        label: "Fake",
-        icon: "login",
+        href: "/products",
+        label: "Produktverwaltung",
+        icon: "category",
         disabled: !selectLoggedIn(store.getState()),
     }),
     ({ forceUpdate }) => (

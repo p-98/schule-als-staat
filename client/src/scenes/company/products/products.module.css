@@ -1,0 +1,75 @@
+.product__stats-card-header {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2px;
+}
+.product__header-text {
+    margin-left: 40px;
+}
+
+.product__back-icon {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+}
+
+.product__stats {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+
+.stats {
+    overflow: hidden;
+}
+.stats__content {
+    display: grid;
+    height: 100%;
+    padding: 0 8px 4px !important;
+}
+.stats__dropdown-root {
+    display: flex;
+    justify-content: flex-end;
+}
+.stats__chart-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.dropdown__handle {
+    height: 28px !important;
+    padding: 0 4px 0 8px !important;
+}
+.dropdown__handle > i {
+    margin-left: 2px !important;
+}
+
+.add-fab {
+    display: block;
+    overflow: hidden;
+    width: initial;
+    height: initial;
+    user-select: initial;
+
+    border-radius: 28px;
+    transition-property: all;
+}
+.add-fab--expanded {
+    border-radius: 4px !important;
+    background-color: var(--mdc-theme-surface, #fff);
+    box-shadow: 0px 7px 8px -4px rgb(0 0 0 / 20%),
+        0px 12px 17px 2px rgb(0 0 0 / 14%), 0px 5px 22px 4px rgb(0 0 0 / 12%) !important;
+}
+.add-fab__fab {
+    position: initial;
+    box-shadow: none !important;
+    background-color: transparent;
+}
+.add-fab__edit-product {
+    width: 360px;
+    height: 260px;
+}
