@@ -5,12 +5,15 @@
     -   Privatperson
     -   (staatliche) Institution
     -   Gast
-        - when entering the state, the id card is assigned an 'identity' with a name, which is removed when leaving
-        - a card can have several identities one after another
-        - identities are not kept in the system even when removed from the id card
+        -   when entering the state, the id card is assigned an 'identity' with a name, which is removed when leaving
+        -   a card can have several identities one after another
+        -   identities are not kept in the system even when removed from the id card
 -   Unternehen und Unternehmer sind verschiedene Accounts
 -   Eine Person, die ein Unternehmen gründet, muss bei diesem einen Arbeitsvertrag haben
 -   Eine Person kann nur einen Arbeitsvertrag haben
+-   Gehaltsauszahlungen
+    -   Im Arbeitsvertrag steht eine Stundenzahl und ein Stundenlohn
+    -   Arbeitszeiten werden digital getrackt und nach Stunden direkt beim logout bezahlt
 
 # Main features
 
@@ -26,32 +29,32 @@
 
 # Pages (with features)
 
-- Login
-    - QR-Code
+-   Login
+    -   QR-Code
     -   Manuell
-        - Unternehmen
-        - Bürger
-        - Gast
-- Grenzkontrolle
-    - Ausweis scannen
-    - Bürger
-        - Person
-        - Verbleibende Pflichtzeit im Staat
-        - Verlässt/Betritt den Staat (highlighted)
-        - Zoll
-    - Unternehmen
-        - Zoll
-    - Gast
-        - Benutzeridentität erstellen
-        - Benutzeridentität löschen
-- Warenlager
-    - Automatisch generierte Einkaufslisten
-        - Tabelle: Produkt ID, Produktname, Anzahl
-    - Bestellungen aufrufen und Abholung markieren
-        - Tabelle: dateFor, Kunde, Produkt ID, Produktname, Anzahl bestellt, Anzahl abgeholt
-- Inbox
-    - Liste aller Mitteilungen
-    - Einzelansicht einer Mitteilung (Links möglich -> blank HTML?)
+        -   Unternehmen
+        -   Bürger
+        -   Gast
+-   Grenzkontrolle
+    -   Ausweis scannen
+    -   Bürger
+        -   Person
+        -   Verbleibende Pflichtzeit im Staat
+        -   Verlässt/Betritt den Staat (highlighted)
+        -   Zoll
+    -   Unternehmen
+        -   Zoll
+    -   Gast
+        -   Benutzeridentität erstellen
+        -   Benutzeridentität löschen
+-   Warenlager
+    -   Automatisch generierte Einkaufslisten
+        -   Tabelle: Produkt ID, Produktname, Anzahl
+    -   Bestellungen aufrufen und Abholung markieren
+        -   Tabelle: dateFor, Kunde, Produkt ID, Produktname, Anzahl bestellt, Anzahl abgeholt
+-   Inbox
+    -   Liste aller Mitteilungen
+    -   Einzelansicht einer Mitteilung (Links möglich -> blank HTML?)
 -   Konto
     -   aktueller Kontostand
     -   alle Transaktionen abrufen
@@ -79,7 +82,13 @@
         -   bezahlen
             -   Authentifizierung über QR-Code
             -   Eventuell bestätigung über PIN
-    - Warenlagerbestellung
+    -   Warenlagerbestellung
+    -   Finanzen
+        -   Diagramm mit Umsatz, Gewinn, Ausgaben für Mitarbeiter
+        -   Top 3 Produkte nach Umsatz, Verkaufszahl
+        -   Bonuszahlungen
+    -   Arbeitszeitentracking
+        -   Schicht starten/beenden
 -   Bank
     -   Nutzer mit QR-Code authentifizieren
     -   Kontostand und Rückwechselguthaben abrufen
