@@ -19,11 +19,12 @@ const generatorMap = {
     change: (transaction: IChangeTransaction) => ({
         Zeitpunkt: transaction.date,
         Transaktionsart: "Wechsel",
-        Bezahlt: parseCurrency(transaction.baseValue, transaction.baseCurrency),
-        Erhalten: parseCurrency(
-            transaction.targetValue,
-            transaction.targetCurrency
-        ),
+        Bezahlt: parseCurrency(transaction.baseValue, {
+            currency: transaction.baseCurrency,
+        }),
+        Erhalten: parseCurrency(transaction.targetValue, {
+            currency: transaction.targetCurrency,
+        }),
     }),
     purchase: ({
         customer,
