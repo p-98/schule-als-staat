@@ -23,29 +23,8 @@
     gap: 16px;
 }
 
-.stats {
-    overflow: hidden;
-}
-.stats__content {
-    display: grid;
+.product__chart-card-content {
     height: 100%;
-    padding: 0 8px 4px !important;
-}
-.stats__dropdown-root {
-    display: flex;
-    justify-content: flex-end;
-}
-.stats__chart-wrapper {
-    position: relative;
-    overflow: hidden;
-}
-
-.dropdown__handle {
-    height: 28px !important;
-    padding: 0 4px 0 8px !important;
-}
-.dropdown__handle > i {
-    margin-left: 2px !important;
 }
 
 .add-fab {

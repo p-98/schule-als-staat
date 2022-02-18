@@ -1,5 +1,6 @@
 import { Chart } from "react-chartjs-2";
 import type { ChartType, TooltipItem } from "chart.js";
+import tinycolor from "tinycolor2";
 
 // local
 import theme from "Utility/theme";
@@ -46,6 +47,15 @@ Chart.defaults.plugins.tooltip = {
     titleColor: theme.onSecondary as string,
 };
 
+Chart.defaults.datasets.line = {
+    ...Chart.defaults.datasets.line,
+    cubicInterpolationMode: "monotone",
+    borderJoinStyle: "round",
+    borderCapStyle: "round",
+    pointRadius: 3,
+    pointBorderWidth: 0,
+};
+
 export const barScaleX = {
     grid: {
         drawTicks: false,
@@ -60,6 +70,13 @@ export const barScaleY = {
         drawBorder: false,
     },
 };
+
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const themeLine = (color: string) => ({
+    borderColor: tinycolor(color).setAlpha(0.35).toHslString(),
+    pointBackgroundColor: color,
+    backgroundColor: color,
+});
 
 export const noTitles = (): string => "";
 

@@ -1,0 +1,7 @@
+.dropdown__handle {
+    height: 28px !important;
+    padding: 0 4px 0 8px !important;
+}
+.dropdown__handle > i {
+    margin-left: 2px !important;
+}

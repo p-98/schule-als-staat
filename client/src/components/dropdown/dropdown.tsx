@@ -15,7 +15,7 @@ import "@material/list/dist/mdc.list.css";
 // import '@rmwc/icon/icon.css';
 
 // local
-import styles from "../products.module.css";
+import styles from "./dropdown.module.css";
 
 interface IDropdownProps extends Omit<SimpleMenuProps, "handle"> {
     options: string[];

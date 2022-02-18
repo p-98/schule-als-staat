@@ -34,6 +34,15 @@
     padding-top: 8px;
 }
 
+.card__chart-content {
+    display: grid;
+    padding: 0 8px 4px !important;
+}
+.card__chart-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
 .card__actions {
 }
 .card__actions--full-bleed {

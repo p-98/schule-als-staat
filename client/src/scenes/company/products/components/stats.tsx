@@ -1,8 +1,6 @@
 import { HTMLAttributes, useState } from "react";
 import "chartjs-adapter-date-fns";
 import { IconButton } from "@rmwc/icon-button";
-import tinycolor from "tinycolor2";
-import cn from "classnames";
 import type { ScatterDataPoint } from "chart.js";
 
 // icon-button imports
@@ -11,10 +9,10 @@ import "@rmwc/icon/icon.css";
 import "@material/ripple/dist/mdc.ripple.css";
 
 // local
-import { CardContent, CardHeader, CardInner } from "Components/card/card";
-import { Line } from "Components/chart/chart";
+import { CardChartContent, CardHeader, CardInner } from "Components/card/card";
+import { Line, themeLine } from "Components/chart/chart";
 import theme from "Utility/theme";
-import { Dropdown } from "./dropdown";
+import { Dropdown } from "Components/dropdown/dropdown";
 
 import styles from "../products.module.css";
 
@@ -56,7 +54,6 @@ export const Stats: React.FC<IStatsProps> = ({ onGoBack, ...restProps }) => {
         <CardInner
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...restProps}
-            className={cn(restProps.className, styles["stats"])}
         >
             <CardHeader className={styles["product__stats-card-header"]}>
                 <IconButton
@@ -72,96 +69,73 @@ export const Stats: React.FC<IStatsProps> = ({ onGoBack, ...restProps }) => {
                     onSelect={(e) => setDate(e.detail.index)}
                     options={dates}
                     rootProps={{ className: styles["stats__dropdown-root"] }}
-                    className={styles["stats__dropdown"]}
                     anchorCorner="topRight"
                     renderToPortal
                 >
                     {dates[date]}
                 </Dropdown>
             </CardHeader>
-            <CardContent className={styles["stats__content"]}>
-                <div className={styles["stats__chart-wrapper"]}>
-                    <Line
-                        data={{
-                            datasets: [
-                                {
-                                    type: "bar",
-                                    label: "Verkäufe",
-                                    yAxisID: "yQuantity",
-                                    data: (sales as unknown) as ScatterDataPoint[],
-                                    hidden: true,
-                                },
-                                {
-                                    label: "Umsatz",
-                                    data: (revenue as unknown) as ScatterDataPoint[],
-                                    yAxisID: "yMoney",
-                                    borderColor: tinycolor(theme.primary)
-                                        .setAlpha(0.25)
-                                        .toHslString(),
-                                    pointBackgroundColor: theme.primary,
-                                    backgroundColor: theme.primary,
-                                },
-                                {
-                                    label: "Gewinn",
-                                    data: (profit as unknown) as ScatterDataPoint[],
-                                    yAxisID: "yMoney",
-                                    borderColor: tinycolor(theme.secondary)
-                                        .setAlpha(0.35)
-                                        .toHslString(),
-                                    pointBackgroundColor: theme.secondary,
-                                    backgroundColor: theme.secondary,
-                                },
-                            ],
-                        }}
-                        options={{
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            // stacked: false,
-                            datasets: {
-                                line: {
-                                    cubicInterpolationMode: "monotone",
-                                    borderJoinStyle: "round",
-                                    borderCapStyle: "round",
-                                    pointRadius: 3,
-                                    pointBorderWidth: 0,
+            <CardChartContent className={styles["product__chart-card-content"]}>
+                <Line
+                    data={{
+                        datasets: [
+                            {
+                                type: "bar",
+                                label: "Verkäufe",
+                                yAxisID: "yQuantity",
+                                data: (sales as unknown) as ScatterDataPoint[],
+                                hidden: true,
+                            },
+                            {
+                                label: "Umsatz",
+                                data: (revenue as unknown) as ScatterDataPoint[],
+                                yAxisID: "yMoney",
+                                ...themeLine(theme.primary as string),
+                            },
+                            {
+                                label: "Gewinn",
+                                data: (profit as unknown) as ScatterDataPoint[],
+                                yAxisID: "yMoney",
+                                ...themeLine(theme.secondary as string),
+                            },
+                        ],
+                    }}
+                    options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            yMoney: {
+                                type: "linear",
+                                display: true,
+                                position: "left",
+                            },
+                            yQuantity: {
+                                type: "linear",
+                                display: true,
+                                position: "right",
+                                min: 0,
+                                grid: {
+                                    drawOnChartArea: false,
                                 },
                             },
-                            scales: {
-                                yMoney: {
-                                    type: "linear",
-                                    display: true,
-                                    position: "left",
+                            x: {
+                                type: "timeseries",
+                                time: {
+                                    unit: total ? "day" : "hour",
+                                    displayFormats: {
+                                        day: "dd.MM.",
+                                        hour: "H",
+                                    },
+                                    tooltipFormat: total ? "dd.MM." : "H 'Uhr'",
                                 },
-                                yQuantity: {
-                                    type: "linear",
-                                    display: true,
-                                    position: "right",
-                                    min: 0,
-                                    grid: {
-                                        drawOnChartArea: false,
-                                    },
-                                },
-                                x: {
-                                    type: "timeseries",
-                                    time: {
-                                        unit: total ? "day" : "hour",
-                                        displayFormats: {
-                                            day: "dd.MM.",
-                                            hour: "H",
-                                        },
-                                        tooltipFormat: total
-                                            ? "dd.MM."
-                                            : "H 'Uhr'",
-                                    },
-                                    ticks: {
-                                        source: "data",
-                                    },
+                                ticks: {
+                                    source: "data",
                                 },
                             },
-                        }}
-                    />
-                </div>
-            </CardContent>
+                        },
+                    }}
+                />
+            </CardChartContent>
         </CardInner>
     );
 };

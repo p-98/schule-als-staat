@@ -105,6 +105,19 @@ export const CardContent = forwardRef<HTMLDivElement, ICardContentProps>(
         </div>
     )
 );
+export const CardChartContent = forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLDivElement>
+>(({ children, className, ...restProps }, ref) => (
+    <CardContent
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...restProps}
+        className={cn(className, styles["card__chart-content"])}
+        ref={ref}
+    >
+        <div className={styles["card__chart-wrapper"]}>{children}</div>
+    </CardContent>
+));
 
 export type ICardActionsProps = RMWC.ComponentProps<
     CardActionsProps,
