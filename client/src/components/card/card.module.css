@@ -18,6 +18,10 @@
 .card__header:first-child {
     padding-top: 16px;
 }
+.card__subtitle {
+    display: block;
+    margin-top: 4px;
+}
 
 .card__content {
     padding: 0 16px;

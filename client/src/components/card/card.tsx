@@ -82,6 +82,19 @@ export const CardHeader: React.FC<
         {children}
     </Typography>
 );
+export const CardSubtitle: React.FC<
+    TWithThemeProp<React.HTMLAttributes<HTMLDivElement>>
+> = ({ children, className, theme, ...restProps }) => (
+    <Typography
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        {...restProps}
+        use="subtitle2"
+        className={cn(className, styles["card__subtitle"])}
+        theme={theme ?? "textSecondaryOnBackground"}
+    >
+        {children}
+    </Typography>
+);
 
 export interface ICardContentProps
     extends React.HTMLAttributes<HTMLDivElement> {
