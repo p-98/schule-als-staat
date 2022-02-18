@@ -13,7 +13,7 @@ import { ResultCharts } from "./resultCharts";
 export const DetailPage: React.FC<TWithVoteProp> = ({ vote }) => (
     <>
         <GridCell desktop={1} tablet={0} phone={0} />
-        <GridCell span={5}>
+        <GridCell desktop={5} tablet={4}>
             <GridScrollColumn desktop>
                 <DescriptionCard vote={vote} />
                 {checkPropertyType("result", vote, isNumberArray) && (
@@ -22,7 +22,7 @@ export const DetailPage: React.FC<TWithVoteProp> = ({ vote }) => (
             </GridScrollColumn>
         </GridCell>
         <GridCell desktop={0} tablet={0} phone={0} />
-        <GridCell span={5}>
+        <GridCell desktop={5} tablet={4}>
             <GridScrollColumn desktop>
                 <VoteCard vote={vote} />
             </GridScrollColumn>
