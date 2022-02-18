@@ -14,6 +14,12 @@ export default [
         icon: "category",
         disabled: !selectLoggedIn(store.getState()),
     }),
+    () => ({
+        href: "/finances",
+        label: "Finanzen",
+        icon: "attach_money",
+        disabled: !selectLoggedIn(store.getState()),
+    }),
     ({ forceUpdate }) => (
         <CompanyAdminBottom
             key="CompanyAdminBottom"

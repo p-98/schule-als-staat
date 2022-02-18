@@ -1,0 +1,25 @@
+@use "sass:map";
+@use "@material/layout-grid/mixins" as layout-grid-mixins;
+
+.finances__scroll-cell {
+    @include layout-grid-mixins.media-query_(tablet) {
+        order: 1;
+    }
+    @include layout-grid-mixins.media-query_(phone) {
+        order: 1;
+    }
+}
+
+.chart__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.chart__dropdown-root {
+    display: flex;
+}
+
+.bonus-payout__add-user:last-child {
+    background-color: initial;
+    background-color: #e0e0e080;
+}

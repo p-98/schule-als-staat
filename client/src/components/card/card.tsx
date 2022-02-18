@@ -98,7 +98,7 @@ export const CardSubtitle: React.FC<
 
 export interface ICardContentProps
     extends React.HTMLAttributes<HTMLDivElement> {
-    text?: string;
+    text?: string | React.ReactNode;
 }
 export const CardContent = forwardRef<HTMLDivElement, ICardContentProps>(
     ({ text, children, ...restProps }, ref) => (
