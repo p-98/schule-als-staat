@@ -47,7 +47,9 @@ export const Finances: React.FC = () => {
                 </GridScrollColumn>
             </GridCell>
             <GridCell span={8}>
-                <Chart />
+                <GridScrollColumn desktop>
+                    <Chart />
+                </GridScrollColumn>
             </GridCell>
         </GridPage>
     );
