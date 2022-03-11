@@ -27,28 +27,7 @@
     height: 100%;
 }
 
-.add-fab {
-    display: block;
-    overflow: hidden;
-    width: initial;
-    height: initial;
-    user-select: initial;
-
-    border-radius: 28px;
-    transition-property: all;
-}
-.add-fab--expanded {
-    border-radius: 4px !important;
-    background-color: var(--mdc-theme-surface, #fff);
-    box-shadow: 0px 7px 8px -4px rgb(0 0 0 / 20%),
-        0px 12px 17px 2px rgb(0 0 0 / 14%), 0px 5px 22px 4px rgb(0 0 0 / 12%) !important;
-}
-.add-fab__fab {
-    position: initial;
-    box-shadow: none !important;
-    background-color: transparent;
-}
 .add-fab__edit-product {
     width: 360px;
-    height: 260px;
+    max-width: 100%;
 }

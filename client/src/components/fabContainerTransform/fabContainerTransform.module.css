@@ -1,0 +1,26 @@
+.fab-container-transform {
+    display: block;
+    overflow: hidden;
+    width: initial;
+    height: initial;
+    user-select: initial;
+
+    border-radius: 28px;
+    transition-property: all;
+}
+.fab-container-transform--expanded {
+    border-radius: 4px !important;
+    background-color: var(--mdc-theme-surface, #fff);
+    box-shadow: 0px 7px 8px -4px rgb(0 0 0 / 20%),
+        0px 12px 17px 2px rgb(0 0 0 / 14%), 0px 5px 22px 4px rgb(0 0 0 / 12%) !important;
+}
+
+.fab-container-transform__fab {
+    position: initial;
+    box-shadow: none !important;
+    background-color: transparent;
+}
+
+.fab-container-transform__card {
+    max-width: calc(100vw - 2 * 16px);
+}
