@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import { Typography } from "@rmwc/typography";
 import {
     Card as RMWCCard,
@@ -9,6 +10,7 @@ import {
     CardPrimaryAction as RMWCCardPrimaryAction,
     CardMediaContentProps,
 } from "@rmwc/card";
+import { ListDivider } from "@rmwc/list";
 import RMWC from "@rmwc/types";
 import cn from "classnames";
 import React, { forwardRef } from "react";
@@ -20,6 +22,11 @@ import "@material/icon-button/dist/mdc.icon-button.css";
 
 // typography imports
 import "@material/typography/dist/mdc.typography.css";
+
+// list imports
+import "@material/list/dist/mdc.list.css";
+import "@material/ripple/dist/mdc.ripple.css";
+import "@rmwc/icon/icon.css";
 
 // local
 import { TWithThemeProp } from "Utility/types";
@@ -36,7 +43,6 @@ export const Card = forwardRef<
     RMWC.ComponentProps<CardProps, React.HTMLProps<HTMLElement>, "div">
 >(({ className, children, ...restProps }, ref) => (
     <RMWCCard
-        // eslint-disable-next-line react/jsx-props-no-spreading
         {...restProps}
         className={cn(className, styles["card"])}
         ref={ref}
@@ -50,7 +56,6 @@ export const CardInner = forwardRef<
     React.ComponentProps<typeof Card>
 >(({ className, ...restProps }, ref) => (
     <Card
-        // eslint-disable-next-line react/jsx-props-no-spreading
         {...restProps}
         className={cn(className, styles["card__inner"])}
         ref={ref}
@@ -62,7 +67,6 @@ export const CardMedia = forwardRef<
     RMWC.ComponentProps<CardMediaProps, React.HTMLProps<HTMLElement>, "div">
 >(({ className, ...restProps }, ref) => (
     <RMWCCardMedia
-        // eslint-disable-next-line react/jsx-props-no-spreading
         {...restProps}
         className={cn(className, styles["card__media"])}
         ref={ref}
@@ -73,7 +77,6 @@ export const CardHeader: React.FC<
     TWithThemeProp<React.HTMLAttributes<HTMLDivElement>>
 > = ({ children, className, theme, ...restProps }) => (
     <Typography
-        // eslint-disable-next-line react/jsx-props-no-spreading
         {...restProps}
         use="headline6"
         className={cn(className, styles["card__header"])}
@@ -86,7 +89,6 @@ export const CardSubtitle: React.FC<
     TWithThemeProp<React.HTMLAttributes<HTMLDivElement>>
 > = ({ children, className, theme, ...restProps }) => (
     <Typography
-        // eslint-disable-next-line react/jsx-props-no-spreading
         {...restProps}
         use="subtitle2"
         className={cn(className, styles["card__subtitle"])}
@@ -123,7 +125,6 @@ export const CardChartContent = forwardRef<
     React.HTMLAttributes<HTMLDivElement>
 >(({ children, className, ...restProps }, ref) => (
     <CardContent
-        // eslint-disable-next-line react/jsx-props-no-spreading
         {...restProps}
         className={cn(className, styles["card__chart-content"])}
         ref={ref}
@@ -146,7 +147,6 @@ export const CardActions: React.FC<ICardActionsProps> = ({
     ...restProps
 }) => (
     <RMWCCardActions
-        // eslint-disable-next-line react/jsx-props-no-spreading
         {...restProps}
         fullBleed={fullBleed}
         className={cn(
@@ -167,8 +167,17 @@ export const CardPrimaryAction: React.FC<
         "div"
     >
 > = ({ children, ...restProps }) => (
-    // eslint-disable-next-line react/jsx-props-no-spreading
     <RMWCCardPrimaryAction {...restProps}>
         <CardInner>{children}</CardInner>
     </RMWCCardPrimaryAction>
+);
+
+export const CardDivider: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+    className,
+    ...restProps
+}) => (
+    <ListDivider
+        {...restProps}
+        className={cn(className, styles["card__divider"])}
+    />
 );

@@ -2,7 +2,6 @@ import { useCallback, useState } from "react";
 import { TextField } from "@rmwc/textfield";
 import { Typography } from "@rmwc/typography";
 import { Chip, ChipSet } from "@rmwc/chip";
-import { ListDivider } from "@rmwc/list";
 
 // textfield imports
 import "@material/textfield/dist/mdc.textfield.css";
@@ -20,11 +19,6 @@ import "@material/chips/dist/mdc.chips.css";
 // import "@rmwc/icon/icon.css";
 // import "@material/ripple/dist/mdc.ripple.css";
 
-// list imports
-import "@material/list/dist/mdc.list.css";
-// import "@material/ripple/dist/mdc.ripple.css";
-// import "@rmwc/icon/icon.css";
-
 // local
 import {
     Card,
@@ -32,6 +26,7 @@ import {
     CardHeader,
     CardActionButton,
     CardContent,
+    CardDivider,
 } from "Components/card/card";
 import config from "Config";
 import { reassignIDs, repeatArr } from "Utility/dataMockup";
@@ -101,8 +96,8 @@ export const BonusPayout: React.FC = () => {
                         onClick={() => setShowAddDialog(true)}
                     />
                 </ChipSet>
-                <ListDivider />
             </CardContent>
+            <CardDivider />
             <CardContent>
                 <TextField
                     label={`Betrag in ${config.currencies.virtual.short}`}

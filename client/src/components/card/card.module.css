@@ -56,3 +56,7 @@
     flex-wrap: wrap;
     justify-content: flex-end;
 }
+
+.card__divider {
+    margin: 0 16px;
+}
