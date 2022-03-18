@@ -47,6 +47,13 @@
     overflow: hidden;
 }
 
+.card__list-caption:not(.card__list-caption--twoline) {
+    margin-bottom: 8px;
+}
+.card__list {
+    margin: -16px;
+}
+
 .card__actions {
 }
 .card__actions--full-bleed {

@@ -10,7 +10,7 @@ import {
     CardPrimaryAction as RMWCCardPrimaryAction,
     CardMediaContentProps,
 } from "@rmwc/card";
-import { ListDivider } from "@rmwc/list";
+import { ListDivider, List } from "@rmwc/list";
 import RMWC from "@rmwc/types";
 import cn from "classnames";
 import React, { forwardRef } from "react";
@@ -120,6 +120,7 @@ export const CardContent = forwardRef<HTMLDivElement, ICardContentProps>(
         </div>
     )
 );
+
 export const CardChartContent = forwardRef<
     HTMLDivElement,
     React.HTMLAttributes<HTMLDivElement>
@@ -130,6 +131,34 @@ export const CardChartContent = forwardRef<
         ref={ref}
     >
         <div className={styles["card__chart-wrapper"]}>{children}</div>
+    </CardContent>
+));
+
+export interface ICardListContentProps
+    extends React.HTMLAttributes<HTMLDivElement> {
+    caption?: string;
+    twoLine?: boolean;
+}
+export const CardListContent = forwardRef<
+    HTMLDivElement,
+    ICardListContentProps
+>(({ children, className, caption, twoLine, ...restProps }, ref) => (
+    <CardContent {...restProps} className={className} ref={ref}>
+        {caption && (
+            <Typography
+                use="caption"
+                theme="textPrimaryOnBackground"
+                className={cn(
+                    styles["card__list-caption"],
+                    twoLine && styles["card__list-caption--twoline"]
+                )}
+            >
+                {caption}
+            </Typography>
+        )}
+        <List className={styles["card__list"]} twoLine={twoLine}>
+            {children}
+        </List>
     </CardContent>
 ));
 

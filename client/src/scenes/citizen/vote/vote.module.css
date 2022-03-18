@@ -1,8 +1,3 @@
-.vote__list {
-    padding-top: 0;
-    margin: 0 -16px -16px -16px;
-}
-
 .vote__list-item {
     box-sizing: border-box;
 }

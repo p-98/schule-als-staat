@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { GridCell } from "@rmwc/grid";
-import { Typography } from "@rmwc/typography";
-import { List, ListDivider } from "@rmwc/list";
+import { ListDivider } from "@rmwc/list";
 
 // grid imports
 import "@material/layout-grid/dist/mdc.layout-grid.css";
@@ -15,13 +14,11 @@ import "@material/ripple/dist/mdc.ripple.css";
 import "@rmwc/icon/icon.css";
 
 // local
-import { Card, CardContent, CardHeader } from "Components/card/card";
+import { Card, CardHeader, CardListContent } from "Components/card/card";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { GridPage } from "Components/page/page";
 import { VoteListItem } from "./components/voteListeItem";
 import votes from "./votes.data";
-
-import styles from "./vote.module.css";
 
 const useForceRerender = () => {
     const [, setCounter] = useState(0);
@@ -52,64 +49,35 @@ export const Vote: React.FC = () => {
             <GridCell span={6} phone={4}>
                 <Card>
                     <CardHeader>Abstimmungen</CardHeader>
-                    <CardContent>
-                        <Typography
-                            use="caption"
-                            theme="textPrimaryOnBackground"
-                            className={styles["vote__list-caption"]}
-                        >
-                            Noch nicht abgestimmt
-                        </Typography>
-                        <List className={styles["vote__list"]}>
-                            {votes
-                                .filter(
-                                    (vote) =>
-                                        vote.end > now &&
-                                        vote.vote === undefined
-                                )
-                                .map((vote) => (
-                                    <VoteListItem vote={vote} key={vote.id} />
-                                ))}
-                        </List>
-                    </CardContent>
+                    <CardListContent caption="Noch nicht abgestimmt">
+                        {votes
+                            .filter(
+                                (vote) =>
+                                    vote.end > now && vote.vote === undefined
+                            )
+                            .map((vote) => (
+                                <VoteListItem vote={vote} key={vote.id} />
+                            ))}
+                    </CardListContent>
                     <ListDivider />
-                    <CardContent>
-                        <Typography
-                            use="caption"
-                            theme="textPrimaryOnBackground"
-                            className={styles["vote__list-caption"]}
-                        >
-                            Bereits abgestimmt
-                        </Typography>
-                        <List className={styles["vote__list"]}>
-                            {votes
-                                .filter(
-                                    (vote) =>
-                                        vote.end > now &&
-                                        vote.vote !== undefined
-                                )
-                                .map((vote) => (
-                                    <VoteListItem vote={vote} key={vote.id} />
-                                ))}
-                        </List>
-                    </CardContent>
+                    <CardListContent caption="Bereits abgestimmt">
+                        {votes
+                            .filter(
+                                (vote) =>
+                                    vote.end > now && vote.vote !== undefined
+                            )
+                            .map((vote) => (
+                                <VoteListItem vote={vote} key={vote.id} />
+                            ))}
+                    </CardListContent>
                     <ListDivider />
-                    <CardContent>
-                        <Typography
-                            use="caption"
-                            theme="textPrimaryOnBackground"
-                            className={styles["vote__list-caption"]}
-                        >
-                            Beendet
-                        </Typography>
-                        <List className={styles["vote__list"]}>
-                            {votes
-                                .filter((vote) => vote.end <= now)
-                                .map((vote) => (
-                                    <VoteListItem vote={vote} key={vote.id} />
-                                ))}
-                        </List>
-                    </CardContent>
+                    <CardListContent caption="Beendet">
+                        {votes
+                            .filter((vote) => vote.end <= now)
+                            .map((vote) => (
+                                <VoteListItem vote={vote} key={vote.id} />
+                            ))}
+                    </CardListContent>
                 </Card>
             </GridCell>
         </GridPage>
