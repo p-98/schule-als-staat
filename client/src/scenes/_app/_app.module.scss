@@ -3,6 +3,10 @@
     width: 100vw;
 }
 
+.app__drawer-divider {
+    margin: 0 !important;
+}
+
 .app__bar-wrapper {
     display: grid;
     grid-template-rows: auto 1fr;

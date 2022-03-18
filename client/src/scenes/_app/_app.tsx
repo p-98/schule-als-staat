@@ -48,7 +48,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
             drawer={
                 <Drawer>
                     <DrawerHeader />
-                    <ListDivider />
+                    <ListDivider className={styles["app__drawer-divider"]} />
                     <DrawerContent>
                         <Navigation />
                     </DrawerContent>
