@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 
 import type { AppProps } from "next/app";
+import { useMemo } from "react";
 import { Provider as ReduxProvider } from "react-redux";
 import { ThemeProvider } from "@rmwc/theme";
 import { Drawer, DrawerContent } from "@rmwc/drawer";
@@ -34,7 +35,7 @@ import theme from "../../util/theme";
 
 import styles from "./_app.module.scss";
 
-const App = ({ Component, pageProps }: AppProps): JSX.Element => {
+const App: React.FC<AppProps> = ({ Component, pageProps }) => {
     const drawerOpen = useSelector(selectDrawerOpen);
     const drawerDispatch = useDispatch();
 
@@ -54,21 +55,26 @@ const App = ({ Component, pageProps }: AppProps): JSX.Element => {
                 </Drawer>
             }
         >
-            <div className={styles["app__bar-wrapper"]}>
-                <DynamicAppBarDisplay />
-                <div className={styles["app__fullscreen-wrapper"]}>
-                    <Component {...pageProps} />
-                    <div
-                        id="fullscreen"
-                        className={styles["app__fullscreen"]}
-                    />
-                </div>
-            </div>
+            {useMemo(
+                () => (
+                    <div className={styles["app__bar-wrapper"]}>
+                        <DynamicAppBarDisplay />
+                        <div className={styles["app__fullscreen-wrapper"]}>
+                            <Component {...pageProps} />
+                            <div
+                                id="fullscreen"
+                                className={styles["app__fullscreen"]}
+                            />
+                        </div>
+                    </div>
+                ),
+                [Component, pageProps]
+            )}
         </DrawerToggle>
     );
 };
 
-const Provider = (appProps: AppProps): JSX.Element => (
+const Provider: React.FC<AppProps> = (appProps) => (
     <ReduxProvider store={store}>
         <ThemeProvider options={theme}>
             <App {...appProps} />
