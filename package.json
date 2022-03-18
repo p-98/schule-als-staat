@@ -38,6 +38,7 @@
         "@rmwc/tabs": "^6.1.4",
         "@rmwc/textfield": "^6.1.4",
         "@rmwc/theme": "^6.1.4",
+        "@rmwc/tooltip": "^6.1.4",
         "@rmwc/top-app-bar": "^6.1.4",
         "@rmwc/types": "^6.0.5",
         "@rmwc/typography": "^6.1.4",

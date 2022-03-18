@@ -194,10 +194,10 @@ export const CardPrimaryAction: React.FC<
         CardMediaContentProps,
         React.HTMLProps<HTMLElement>,
         "div"
-    >
-> = ({ children, ...restProps }) => (
+    > & { innerProps?: React.ComponentProps<typeof CardInner> }
+> = ({ children, innerProps, ...restProps }) => (
     <RMWCCardPrimaryAction {...restProps}>
-        <CardInner>{children}</CardInner>
+        <CardInner {...innerProps}>{children}</CardInner>
     </RMWCCardPrimaryAction>
 );
 

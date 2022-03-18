@@ -15,6 +15,12 @@ export default [
         disabled: !selectLoggedIn(store.getState()),
     }),
     () => ({
+        href: "/employees",
+        label: "Mitarbeiterverwaltung",
+        icon: "badge",
+        disabled: !selectLoggedIn(store.getState()),
+    }),
+    () => ({
         href: "/finances",
         label: "Finanzen",
         icon: "attach_money",

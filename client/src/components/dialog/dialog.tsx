@@ -7,6 +7,7 @@ import {
     DialogOnOpenEventT,
 } from "@rmwc/dialog";
 import { PortalPropT } from "@rmwc/base";
+import { Typography } from "@rmwc/typography";
 import { MDCDialogFoundation } from "@material/dialog";
 
 // dialog imports
@@ -14,10 +15,14 @@ import "@material/dialog/dist/mdc.dialog.css";
 import "@material/button/dist/mdc.button.css";
 import "@material/ripple/dist/mdc.ripple.css";
 
+// typography imports
+import "@material/typography/dist/mdc.typography.css";
+
 // local
 import {
     CardInner,
     CardHeader,
+    CardContent,
     CardActions,
     CardActionButton,
 } from "Components/card/card";
@@ -44,6 +49,8 @@ export interface SimpleDialogProps
         onCancelled?: () => void;
     };
     title?: string;
+    /** a simple content text */
+    content?: React.ReactNode;
 
     // forwarded dialog props
     open?: boolean;
@@ -56,7 +63,7 @@ export interface SimpleDialogProps
 }
 export const SimpleDialog = React.memo(
     React.forwardRef<HTMLDivElement, SimpleDialogProps>(
-        ({ title, accept, cancel, children, ...restProps }, ref) => {
+        ({ title, content, accept, cancel, children, ...restProps }, ref) => {
             const defaultProp = accept?.isDefaultAction
                 ? {
                       [MDCDialogFoundation.strings
@@ -86,6 +93,16 @@ export const SimpleDialog = React.memo(
                 >
                     <CardInner className={styles["dialog__card-inner"]}>
                         {title && <CardHeader>{title}</CardHeader>}
+                        {content && (
+                            <CardContent>
+                                <Typography
+                                    use="body1"
+                                    theme="textSecondaryOnBackground"
+                                >
+                                    {content}
+                                </Typography>
+                            </CardContent>
+                        )}
                         {children}
                         {(cancel || accept) && (
                             <CardActions dialogLayout>

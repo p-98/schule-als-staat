@@ -14,6 +14,9 @@
 -   Gehaltsauszahlungen
     -   Im Arbeitsvertrag steht eine Stundenzahl und ein Stundenlohn
     -   Arbeitszeiten werden digital getrackt und nach Stunden direkt beim logout bezahlt
+-   Anstellungsverfahren
+    -   Unternehmen schickt Angebot an Person
+    -   Angebot kann angenommen oder mit optionalem Grund abgelehnt werden
 
 # Main features
 
@@ -74,7 +77,10 @@
         -   Übersicht ausstehender Vertragsangebote
         -   Übersicht aller Mitarbeiter
             -   Mitarbeiter genauere Informationen
-            -   Arbeitsvertrag ansehen/bearbeiten/kündigen
+                -   Aktuell im Dienst? Wenn ja, wie lange?
+                -   Anzahl ausgezahlter Stunden
+                -   Graph: zu viel oder zu wenig gearbeitet
+            -   Arbeitsvertrag ansehen/kündigen
     -   Kasse
         -   shopping-panel
         -   Warenkorb

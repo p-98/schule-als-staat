@@ -9,6 +9,7 @@
     opacity: 0;
     content: "";
     position: absolute;
+    pointer-events: none;
     top: calc(50% - 100%);
     left: calc(50% - 100%);
     height: 200%;

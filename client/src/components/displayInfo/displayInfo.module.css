@@ -7,9 +7,17 @@
     padding: 0 16px;
     gap: 12px;
 }
-.display-info--icon {
+.display-info--with-icon {
     grid-template-columns: 24px 1fr;
 }
+.display-info--with-trailing-icon {
+    grid-template-columns: 1fr 24px;
+    padding-right: 12px;
+}
+.display-info--with-icon.display-info--with-trailing-icon {
+    grid-template-columns: 24px 1fr 24px;
+}
+
 .display-info:not(.display-info--highlighted) {
     background-color: whitesmoke;
 }
@@ -17,6 +25,9 @@
 .display-info__icon {
     font-size: 24px;
     place-self: center;
+}
+.display-info__icon--trailing {
+    cursor: pointer;
 }
 
 .display-info__label {
