@@ -15,7 +15,12 @@ import { TWithCartProps } from "./util/types";
 export { CartTable } from "./components/cartTable";
 
 interface IPOSProps {
-    proceed: { label: string; handler?: () => void };
+    proceed: {
+        label: string;
+        handler?: () => void;
+        raised?: boolean;
+        danger?: boolean;
+    };
     additionalCartContent?: React.ReactNode;
     products: IProduct[];
     onClosedCart?: () => void;
@@ -56,6 +61,8 @@ export const POS: React.FC<TWithCartProps<IPOSProps>> = ({
                         setCartOpen(false);
                         proceed.handler?.();
                     },
+                    raised: proceed.raised,
+                    danger: proceed.danger,
                 }}
                 products={products}
                 cart={cart}

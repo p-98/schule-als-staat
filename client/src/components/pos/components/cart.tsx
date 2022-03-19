@@ -10,7 +10,12 @@ interface ICartProps {
     cart: TCart;
     products: IProduct[];
     onCancelled: () => void;
-    proceed: { label: string; handler: () => void };
+    proceed: {
+        label: string;
+        handler: () => void;
+        raised?: boolean;
+        danger?: boolean;
+    };
     additionalContent?: React.ReactNode;
 }
 export const Cart = React.memo<ICartProps>(
@@ -23,6 +28,8 @@ export const Cart = React.memo<ICartProps>(
                 onAccept: proceed.handler,
                 disabled: Object.values(cart).length === 0,
                 isDefaultAction: true,
+                raised: proceed.raised,
+                danger: proceed.danger,
             }}
             cancel={{ label: "Zurück", onCancelled }}
         >
