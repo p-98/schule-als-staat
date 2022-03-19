@@ -14,6 +14,7 @@ import { POS as POSComponent } from "Components/pos/pos";
 import { useCart } from "Components/pos/util/useCart";
 import { CardContent } from "Components/card/card";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
+import { useForceRemount } from "Utility/hooks/forceRemount";
 import config from "Config";
 import { Checkout } from "./components/checkout";
 import products from "./pos.data";
@@ -38,6 +39,7 @@ export const POS: React.FC = () => {
     const [cart, cartActions] = useCart();
     const [checkoutOpen, setCheckoutOpen] = useState(false);
     const [discount, setDiscount] = useState(0);
+    const [checkoutKey, remountCheckout] = useForceRemount();
 
     return (
         <>
@@ -48,7 +50,10 @@ export const POS: React.FC = () => {
                 products={products}
                 proceed={{
                     label: "Zur Kasse",
-                    handler: () => setCheckoutOpen(true),
+                    handler: () => {
+                        remountCheckout();
+                        setCheckoutOpen(true);
+                    },
                 }}
                 onClosedCart={() => setDiscount(0)}
                 additionalCartContent={
@@ -69,6 +74,7 @@ export const POS: React.FC = () => {
                 discount={discount || undefined}
                 open={checkoutOpen}
                 onGoBack={() => setCheckoutOpen(false)}
+                key={checkoutKey}
             />
         </>
     );
