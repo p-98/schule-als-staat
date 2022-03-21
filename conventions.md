@@ -11,3 +11,7 @@ _This is because otherwise css import order might be messed up through importing
     2. node_modules style imports
     3. local imports
     4. local style imports
+
+# Design
+
+-   FullscreenContainerTransform is not nested

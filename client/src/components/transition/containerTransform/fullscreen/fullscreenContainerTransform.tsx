@@ -9,7 +9,6 @@ import { PortalChild, PortalPropT } from "@rmwc/base";
 import cn from "classnames";
 
 // local
-import { useFullscreen } from "Utility/hooks/redux/fullscreen";
 import {
     FullscreenContainerTransformScrim,
     FullscreenContainerTransformWrapper,
@@ -113,7 +112,6 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
     const scrimRef = useRef<HTMLDivElement>(null);
 
     const [inTransition, setInTransition] = useState(false);
-    const fullscreen = useFullscreen();
     const [open, setOpen] = useState(openTarget);
     const [elementSwitcher, setElementSwitcher] = useState<
         undefined | ElementSwitcher
@@ -208,8 +206,6 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
                 "mdc-elevation--z8",
                 styles["container-transform--open"] as string
             );
-
-            fullscreen.lock();
         });
         // switch elements
         setTimeout(() => {
@@ -239,7 +235,6 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
     }, [
         clearPortalHandle,
         elementSwitcher,
-        fullscreen,
         openClassName,
         updatePortalHandle,
         onTransformFinish,
@@ -282,7 +277,6 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
             scrimRef.current.classList.remove(
                 styles["container-transform__scrim--open"] as string
             );
-            fullscreen.release();
         });
 
         setTimeout(() => {
@@ -320,7 +314,6 @@ export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransfor
     }, [
         clearPortalHandle,
         elementSwitcher,
-        fullscreen,
         updatePortalHandle,
         onTransformFinish,
     ]);
