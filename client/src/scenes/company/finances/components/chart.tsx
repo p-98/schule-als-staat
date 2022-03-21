@@ -57,6 +57,7 @@ export const Chart: React.FC = () => {
                     options={options}
                     anchorCorner="topRight"
                     onSelect={(e) => setDisplay(e.detail.index)}
+                    renderToPortal
                 >
                     {options[display]}
                 </Dropdown>
