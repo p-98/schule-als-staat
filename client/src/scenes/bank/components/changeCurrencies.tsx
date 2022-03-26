@@ -51,7 +51,7 @@ const AuthExchangeDialog: React.FC<IAuthExchangeDialogProps> = ({
     changeCurrenciesInfo,
     id,
 }) => (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onClose} renderToPortal>
         <AuthUser
             header="Geldwechsel"
             user={user}

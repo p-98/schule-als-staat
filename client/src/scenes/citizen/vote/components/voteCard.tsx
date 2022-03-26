@@ -53,6 +53,7 @@ const SubmitButton: React.FC<ISubmitButtonProps> = ({ onSubmit }) => {
                     },
                     danger: true,
                 }}
+                renderToPortal
             >
                 <CardContent text="Dies kann nicht rückgängig gemacht werden." />
             </SimpleDialog>
