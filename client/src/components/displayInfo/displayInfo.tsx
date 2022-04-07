@@ -1,14 +1,8 @@
-import { Icon } from "@rmwc/icon";
-import { Typography } from "@rmwc/typography";
-import { Theme } from "@rmwc/theme";
-import { IconPropT } from "@rmwc/types";
+import { Icon } from "Components/material/icon";
+import { Typography } from "Components/material/typography";
+import { Theme } from "Components/material/theme";
+import { IconPropT } from "Components/material/types";
 import cn from "classnames";
-
-// icon imports
-import "@rmwc/icon/icon.css";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
 
 // local
 import { HightlightStates } from "Components/highlightStates/highlightStates";

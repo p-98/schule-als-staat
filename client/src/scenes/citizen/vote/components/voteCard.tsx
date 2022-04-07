@@ -1,17 +1,4 @@
 import React, { useState } from "react";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
-
-// radio imports
-import "@material/radio/dist/mdc.radio.css";
-import "@material/form-field/dist/mdc.form-field.css";
-import "@material/ripple/dist/mdc.ripple.css";
-
-// slider imports
-import "@material/slider/dist/mdc.slider.css";
-
-// local
 import {
     Card,
     CardActionButton,
@@ -21,8 +8,10 @@ import {
     CardActions,
     CardContent,
     CardHeader,
-} from "Components/card/card";
-import { SimpleDialog } from "Components/dialog/dialog";
+} from "Components/material/card";
+import { SimpleDialog } from "Components/material/dialog";
+
+// local
 import { TWithVoteProp } from "Utility/types";
 import { HelpDialog } from "./helpDialog";
 import { voteTypeMap } from "./voteComponents";

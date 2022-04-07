@@ -1,20 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { GridCell } from "@rmwc/grid";
-import { ListDivider } from "@rmwc/list";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
-
-// list imports
-import "@material/list/dist/mdc.list.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
+import { GridCell } from "Components/material/grid";
+import { ListDivider } from "Components/material/list";
+import { Card, CardHeader, CardListContent } from "Components/material/card";
 
 // local
-import { Card, CardHeader, CardListContent } from "Components/card/card";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { GridPage } from "Components/page/page";
 import { VoteListItem } from "./components/voteListeItem";

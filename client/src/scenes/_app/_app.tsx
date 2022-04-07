@@ -3,21 +3,9 @@
 import type { AppProps } from "next/app";
 import { useMemo } from "react";
 import { Provider as ReduxProvider } from "react-redux";
-import { ThemeProvider } from "@rmwc/theme";
-import { Drawer, DrawerContent } from "@rmwc/drawer";
-import { ListDivider } from "@rmwc/list";
-
-// theme imports
-import "@material/theme/dist/mdc.theme.css";
-import "@rmwc/theme/theme.css";
-
-// drawer imports
-import "@material/drawer/dist/mdc.drawer.css";
-
-// list imports
-import "@material/list/dist/mdc.list.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
+import { ThemeProvider } from "Components/material/theme";
+import { Drawer, DrawerContent } from "Components/material/drawer";
+import { ListDivider } from "Components/material/list";
 
 // local
 import { store } from "Utility/redux/store";

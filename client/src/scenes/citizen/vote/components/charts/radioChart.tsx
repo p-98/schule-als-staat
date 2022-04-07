@@ -1,5 +1,6 @@
 import React from "react";
 import tinycolor from "tinycolor2";
+import { Card, CardContent, CardHeader } from "Components/material/card";
 
 // local
 import {
@@ -10,7 +11,6 @@ import {
     noTitles,
 } from "Components/chart/chart";
 import theme from "Utility/theme";
-import { Card, CardContent, CardHeader } from "Components/card/card";
 import type { IVoteWithResult, TWithVoteProp } from "Utility/types";
 import { ChartWrapper } from "./chartWrapper";
 

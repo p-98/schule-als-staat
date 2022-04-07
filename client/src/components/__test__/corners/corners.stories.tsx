@@ -8,10 +8,6 @@ import {
 import { Meta, Story } from "@storybook/react";
 import React from "react";
 
-import "@material/dialog/dist/mdc.dialog.css";
-import "@material/button/dist/mdc.button.css";
-import "@material/ripple/dist/mdc.ripple.css";
-
 import "./corners.css";
 
 export default {

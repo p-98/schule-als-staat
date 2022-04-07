@@ -1,13 +1,5 @@
-import { Avatar } from "@rmwc/avatar";
-import { Typography } from "@rmwc/typography";
-
-// avatar imports
-import "@rmwc/avatar/avatar.css";
-import "@rmwc/icon/icon.css";
-import "@material/ripple/dist/mdc.ripple.css";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
+import { Avatar } from "Components/material/avatar";
+import { Typography } from "Components/material/typography";
 
 // local
 import styles from "./userBanner.module.css";

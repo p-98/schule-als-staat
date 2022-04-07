@@ -1,8 +1,5 @@
-import { GridCell } from "@rmwc/grid";
-import { Card } from "Components/card/card";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
+import { GridCell } from "Components/material/grid";
+import { Card } from "Components/material/card";
 
 // local
 import { GridPage } from "Components/page/page";

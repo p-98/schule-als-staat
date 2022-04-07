@@ -14,19 +14,9 @@ import {
     TopAppBarNavigationIcon,
     TopAppBarTitle,
     TopAppBarActionItem,
-} from "@rmwc/top-app-bar";
-import { ThemeProvider } from "@rmwc/theme";
+} from "Components/material/top-app-bar";
+import { ThemeProvider } from "Components/material/theme";
 import cn from "classnames";
-
-// theme imports
-import "@material/theme/dist/mdc.theme.css";
-import "@rmwc/theme/theme.css";
-
-// top-app-bar imports
-import "@material/top-app-bar/dist/mdc.top-app-bar.css";
-import "@material/icon-button/dist/mdc.icon-button.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
 
 // local
 import styles from "./dynamicAppBar.module.scss";

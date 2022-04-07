@@ -1,13 +1,5 @@
-import { IconButton } from "@rmwc/icon-button";
-import { Typography } from "@rmwc/typography";
-
-// icon-button imports
-import "@material/icon-button/dist/mdc.icon-button.css";
-import "@rmwc/icon/icon.css";
-import "@material/ripple/dist/mdc.ripple.css";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
+import { IconButton } from "Components/material/icon-button";
+import { Typography } from "Components/material/typography";
 
 // local
 import styles from "../orderSummary.module.scss";

@@ -8,12 +8,9 @@ import {
     CardHeader,
     CardMedia,
     CardInner,
-} from "Components/card/card";
-import { Typography } from "@rmwc/typography";
+} from "Components/material/card";
+import { Typography } from "Components/material/typography";
 import { MDCDialogFoundation } from "@material/dialog";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
 
 // local
 import type { TUser } from "Utility/types";

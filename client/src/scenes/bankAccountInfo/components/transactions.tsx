@@ -1,20 +1,10 @@
-import { SimpleListItem } from "@rmwc/list";
+import { SimpleListItem } from "Components/material/list";
 import React, { useState } from "react";
 import cn from "classnames";
-
-// dialog imports
-import "@material/dialog/dist/mdc.dialog.css";
-import "@material/button/dist/mdc.button.css";
-import "@material/ripple/dist/mdc.ripple.css";
-
-// list imports
-import "@material/list/dist/mdc.list.css";
-// import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
+import { CardContent } from "Components/material/card";
+import { SimpleDialog } from "Components/material/dialog";
 
 // local
-import { CardContent } from "Components/card/card";
-import { SimpleDialog } from "Components/dialog/dialog";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import { ITransaction } from "Utility/types";
 import { parseCurrency } from "Utility/parseCurrency";

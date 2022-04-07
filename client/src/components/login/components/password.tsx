@@ -6,16 +6,8 @@ import {
     CardHeader,
     CardInner,
     CardDivider,
-} from "Components/card/card";
-import { TextField } from "@rmwc/textfield";
-
-// textfield imports
-import "@material/textfield/dist/mdc.textfield.css";
-import "@material/floating-label/dist/mdc.floating-label.css";
-import "@material/notched-outline/dist/mdc.notched-outline.css";
-import "@material/line-ripple/dist/mdc.line-ripple.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
+} from "Components/material/card";
+import { TextField } from "Components/material/textfield";
 
 // local
 import type { TUser } from "Utility/types";

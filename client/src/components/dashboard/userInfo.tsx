@@ -1,7 +1,5 @@
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
-
-// local
-import { Card, CardHeader, CardContent } from "Components/card/card";
+import { Card, CardHeader, CardContent } from "Components/material/card";
 
 const userTypeIcons = {
     citizen: "person",

@@ -1,20 +1,9 @@
-import { GridCell } from "@rmwc/grid";
-import { TextField } from "@rmwc/textfield";
+import { GridCell } from "Components/material/grid";
+import { TextField } from "Components/material/textfield";
 import { useState } from "react";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
-
-// textfield imports
-import "@material/textfield/dist/mdc.textfield.css";
-import "@material/floating-label/dist/mdc.floating-label.css";
-import "@material/notched-outline/dist/mdc.notched-outline.css";
-import "@material/line-ripple/dist/mdc.line-ripple.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
+import { SimpleDataTable } from "Components/material/data-table";
 
 // local
-import { SimpleDataTable } from "Components/data-table/data-table";
 import { GridPage } from "Components/page/page";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { DrawerToggle } from "Components/drawerToggle/drawerToggle";

@@ -1,23 +1,8 @@
 import { useState } from "react";
-import { triggerWindowResize } from "@rmwc/base";
-import { SimpleListItem, ListItemText } from "@rmwc/list";
-import { Theme } from "@rmwc/theme";
-import { Typography } from "@rmwc/typography";
-
-// list imports
-import "@material/list/dist/mdc.list.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
-
-// theme imports
-import "@material/theme/dist/mdc.theme.css";
-import "@rmwc/theme/theme.css";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
-
-// elevation imports
-import "@material/elevation/dist/mdc.elevation.css";
+import { triggerWindowResize } from "Components/material/base";
+import { SimpleListItem, ListItemText } from "Components/material/list";
+import { Theme } from "Components/material/theme";
+import { Typography } from "Components/material/typography";
 
 // local
 import { TWithVoteProp } from "Utility/types";

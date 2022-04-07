@@ -1,11 +1,8 @@
 import { useState } from "react";
-import { GridCell } from "@rmwc/grid";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
+import { GridCell } from "Components/material/grid";
+import { SimpleDataTable } from "Components/material/data-table";
 
 // local
-import { SimpleDataTable } from "Components/data-table/data-table";
 import { GridPage } from "Components/page/page";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { repeatArr } from "Utility/dataMockup";

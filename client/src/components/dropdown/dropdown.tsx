@@ -1,18 +1,10 @@
 import React from "react";
-import { Button } from "@rmwc/button";
-import { SimpleMenu, MenuItem, SimpleMenuProps } from "@rmwc/menu";
-
-// button imports
-import "@material/button/dist/mdc.button.css";
-import "@rmwc/icon/icon.css";
-import "@material/ripple/dist/mdc.ripple.css";
-
-// menu imports
-import "@material/menu/dist/mdc.menu.css";
-import "@material/menu-surface/dist/mdc.menu-surface.css";
-// import '@material/ripple/dist/mdc.ripple.css';
-import "@material/list/dist/mdc.list.css";
-// import '@rmwc/icon/icon.css';
+import { Button } from "Components/material/button";
+import {
+    SimpleMenu,
+    MenuItem,
+    SimpleMenuProps,
+} from "Components/material/menu";
 
 // local
 import styles from "./dropdown.module.css";

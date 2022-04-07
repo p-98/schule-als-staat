@@ -3,17 +3,9 @@ import {
     IconButton,
     IconButtonProps,
     IconButtonHTMLProps,
-} from "@rmwc/icon-button";
-import { Typography } from "@rmwc/typography";
-import RMWC from "@rmwc/types";
-
-// icon-button imports
-import "@material/icon-button/dist/mdc.icon-button.css";
-import "@rmwc/icon/icon.css";
-import "@material/ripple/dist/mdc.ripple.css";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
+} from "Components/material/icon-button";
+import { Typography } from "Components/material/typography";
+import RMWC from "Components/material/types";
 
 // local
 import styles from "./textIconButton.module.css";

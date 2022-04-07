@@ -1,13 +1,6 @@
 import { useState } from "react";
-import { GridCell } from "@rmwc/grid";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
-
-// card imports
-import "@material/card/dist/mdc.card.css";
-import "@material/button/dist/mdc.button.css";
-import "@material/icon-button/dist/mdc.icon-button.css";
+import { GridCell } from "Components/material/grid";
+import { cardClassNames } from "Components/material/card";
 
 // local
 import { TUser } from "Utility/types";
@@ -24,9 +17,6 @@ import {
     DrawerAppBarHandle,
     FullscreenAppBarHandle,
 } from "Components/dynamicAppBar/presets";
-
-import { cardClassNames } from "Components/card/card";
-
 import { Dashboard } from "./components/dashboard";
 
 import styles from "./accountInfo.module.css";

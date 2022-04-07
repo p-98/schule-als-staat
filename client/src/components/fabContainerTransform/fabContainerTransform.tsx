@@ -7,10 +7,10 @@ import React, {
     useRef,
 } from "react";
 import cn from "classnames";
-import { IconPropT } from "@rmwc/types";
+import { IconPropT } from "Components/material/types";
+import { Fab, fabClassName } from "Components/material/fab";
 
 // local
-import { Fab, fabClassName } from "Components/fab/fab";
 import {
     ContainerTransform,
     ContainerTransformElement,

@@ -1,26 +1,10 @@
 import Image from "next/image";
 import { useState, useRef } from "react";
 import cn from "classnames";
-import { Typography } from "@rmwc/typography";
-import { Icon } from "@rmwc/icon";
-import { ListDivider } from "@rmwc/list";
-import { Tooltip } from "@rmwc/tooltip";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
-
-// icon imports
-import "@rmwc/icon/icon.css";
-
-// list imports
-import "@material/list/dist/mdc.list.css";
-import "@material/ripple/dist/mdc.ripple.css";
-// import "@rmwc/icon/icon.css";
-
-// tooltip imports
-import "@rmwc/tooltip/tooltip.css";
-
-// local
+import { Typography } from "Components/material/typography";
+import { Icon } from "Components/material/icon";
+import { ListDivider } from "Components/material/list";
+import { Tooltip } from "Components/material/tooltip";
 import {
     Card,
     CardSubtitle,
@@ -31,9 +15,11 @@ import {
     CardActionButton,
     CardPrimaryAction,
     CardContent,
-} from "Components/card/card";
+} from "Components/material/card";
+import { SimpleDialog } from "Components/material/dialog";
+
+// local
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
-import { SimpleDialog } from "Components/dialog/dialog";
 import { parseCurrency } from "Utility/parseCurrency";
 import type { TEmployee } from "../employees.data";
 

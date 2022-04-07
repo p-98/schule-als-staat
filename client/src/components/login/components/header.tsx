@@ -1,7 +1,4 @@
-import { Typography } from "@rmwc/typography";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
+import { Typography } from "Components/material/typography";
 
 // local
 import styles from "../login.module.css";

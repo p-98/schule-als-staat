@@ -5,7 +5,7 @@ import React, {
     useRef,
     useState,
 } from "react";
-import { PortalChild, PortalPropT } from "@rmwc/base";
+import { PortalChild, PortalPropT } from "Components/material/base";
 import cn from "classnames";
 
 // local

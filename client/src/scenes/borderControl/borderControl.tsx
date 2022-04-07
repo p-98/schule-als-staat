@@ -1,13 +1,10 @@
 import { useState } from "react";
-import { GridCell } from "@rmwc/grid";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
+import { GridCell } from "Components/material/grid";
+import { Card } from "Components/material/card";
 
 // local
 import { GridPage } from "Components/page/page";
 import { GetUser } from "Components/login/getUser";
-import { Card } from "Components/card/card";
 import { pickRandom } from "Utility/dataMockup";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { CrossingDialog } from "./components/dialogs";

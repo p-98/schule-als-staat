@@ -1,5 +1,7 @@
-import { CardContent } from "Components/card/card";
-import { SimpleDialog } from "Components/dialog/dialog";
+import { CardContent } from "Components/material/card";
+import { SimpleDialog } from "Components/material/dialog";
+
+// local
 import { IVote } from "Utility/types";
 
 const explanationMap = {

@@ -1,14 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { TabBar, Tab } from "@rmwc/tabs";
+import { TabBar, Tab } from "Components/material/tabs";
 import cn from "classnames";
-
-// @rmwc/tabs dependencies
-import "@material/tab-bar/dist/mdc.tab-bar.css";
-import "@material/tab/dist/mdc.tab.css";
-import "@material/tab-scroller/dist/mdc.tab-scroller.css";
-import "@material/tab-indicator/dist/mdc.tab-indicator.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
 
 import styles from "./horizontalTabs.module.css";
 

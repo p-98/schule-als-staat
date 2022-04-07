@@ -1,33 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { TextField } from "@rmwc/textfield";
-import { MenuSurfaceAnchor, MenuSurface } from "@rmwc/menu";
-import { List, ListItem } from "@rmwc/list";
-
-// textfield imports
-import "@material/textfield/dist/mdc.textfield.css";
-import "@material/floating-label/dist/mdc.floating-label.css";
-import "@material/notched-outline/dist/mdc.notched-outline.css";
-import "@material/line-ripple/dist/mdc.line-ripple.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
-
-// menu imports
-import "@material/menu/dist/mdc.menu.css";
-import "@material/menu-surface/dist/mdc.menu-surface.css";
-// import "@material/ripple/dist/mdc.ripple.css";
-import "@material/list/dist/mdc.list.css";
-// import "@rmwc/icon/icon.css";
-
-// list imports
-// import "@material/list/dist/mdc.list.css";
-// import "@material/ripple/dist/mdc.ripple.css";
-// import "@rmwc/icon/icon.css";
+import { TextField } from "Components/material/textfield";
+import { MenuSurfaceAnchor, MenuSurface } from "Components/material/menu";
+import { List, ListItem } from "Components/material/list";
+import { CardContent } from "Components/material/card";
+import { SimpleDialog } from "Components/material/dialog";
+import { Fab } from "Components/material/fab";
 
 // local
-import { CardContent } from "Components/card/card";
 import { useForceRemount } from "Utility/hooks/forceRemount";
-import { SimpleDialog } from "Components/dialog/dialog";
-import { Fab } from "Components/fab/fab";
 import config from "Config";
 
 import styles from "../employees.module.scss";

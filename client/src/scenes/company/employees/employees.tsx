@@ -1,8 +1,5 @@
 import React from "react";
-import { GridCell } from "@rmwc/grid";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
+import { GridCell } from "Components/material/grid";
 
 // local
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";

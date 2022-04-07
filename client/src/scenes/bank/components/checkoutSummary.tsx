@@ -1,7 +1,8 @@
+import { CardContent } from "Components/material/card";
+
 // local
 import config from "Config";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
-import { CardContent } from "Components/card/card";
 import { IChangeCurrenciesInfo } from "../types";
 
 import styles from "../bank.module.css";

@@ -1,4 +1,4 @@
-import { ThemeProviderProps } from "@rmwc/theme";
+import { ThemeProviderProps } from "Components/material/theme";
 
 const theme: ThemeProviderProps["options"] = {
     primary: "#6200ee",

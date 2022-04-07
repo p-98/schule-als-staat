@@ -1,13 +1,8 @@
 import React from "react";
-import { List, SimpleListItem } from "@rmwc/list";
+import { List, SimpleListItem } from "Components/material/list";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import cn from "classnames";
-
-// list imports
-import "@material/list/dist/mdc.list.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
 
 // local
 import routingObj from "Scenes/_app/components/routing/routing";

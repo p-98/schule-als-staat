@@ -1,4 +1,4 @@
-import { ThemePropT } from "@rmwc/types";
+import { ThemePropT } from "Components/material/types";
 import { IChangeCurrenciesInfo } from "Scenes/bank/types";
 
 export type TUser = string;

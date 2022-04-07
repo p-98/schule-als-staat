@@ -5,12 +5,11 @@
 
 # Imports
 
-_This is because otherwise css import order might be messed up through importing the same file as one of the local modules._
+_This is because otherwise css import order might be messed up._
 
-    1. node_modules imports
-    2. node_modules style imports
-    3. local imports
-    4. local style imports
+    1. node_modules imports & imports from "Components/material/*"
+    2. local imports
+    3. local style imports
 
 # Design
 

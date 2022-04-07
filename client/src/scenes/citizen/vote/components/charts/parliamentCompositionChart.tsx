@@ -1,8 +1,5 @@
 import React from "react";
 import tinycolor from "tinycolor2";
-
-// local
-import { colonLabels, Doughnut, noTitles } from "Components/chart/chart";
 import {
     IVoteWithChartInfo,
     IVoteWithResult,
@@ -12,7 +9,10 @@ import {
     checkPropertyType,
     TWithVoteProp,
 } from "Utility/types";
-import { Card, CardContent, CardHeader } from "Components/card/card";
+import { Card, CardContent, CardHeader } from "Components/material/card";
+
+// local
+import { colonLabels, Doughnut, noTitles } from "Components/chart/chart";
 import { ChartWrapper } from "./chartWrapper";
 
 // define types

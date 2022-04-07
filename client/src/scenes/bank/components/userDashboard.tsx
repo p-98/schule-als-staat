@@ -1,7 +1,4 @@
-import { GridCell } from "@rmwc/grid";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
+import { GridCell } from "Components/material/grid";
 
 // local
 import { UserInfo, BankAccountInfo } from "Components/dashboard/dashboard";

@@ -5,12 +5,7 @@ import {
     SiblingTransitionBase,
     ISiblingTransitionBaseElementProps,
 } from "Components/transition/siblingTransitionBase/siblingTransitionBase";
-
-// @rmwc/button dependencies
-import "@material/button/dist/mdc.button.css";
-import "@rmwc/icon/icon.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import { Button } from "@rmwc/button";
+import { Button } from "Components/material/button";
 
 import styles from "./materialSequence.module.css";
 

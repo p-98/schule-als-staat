@@ -1,16 +1,13 @@
-import { Typography } from "@rmwc/typography";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
-
-// local
+import { Typography } from "Components/material/typography";
 import {
     Card,
     CardContent,
     CardHeader,
     CardMedia,
     CardMediaContent,
-} from "Components/card/card";
+} from "Components/material/card";
+
+// local
 import { TWithVoteProp } from "Utility/types";
 
 import styles from "../vote.module.css";

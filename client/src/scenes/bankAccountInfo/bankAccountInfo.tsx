@@ -1,18 +1,6 @@
-import { GridCell } from "@rmwc/grid";
-import { List } from "@rmwc/list";
+import { GridCell } from "Components/material/grid";
+import { List } from "Components/material/list";
 import { useState } from "react";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
-
-// list imports
-import "@material/list/dist/mdc.list.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
-
-// local
-import { GridPage } from "Components/page/page";
-import { BankAccountInfo as BasicBankAccountInfo } from "Components/dashboard/dashboard";
 import {
     CardInner,
     CardContent,
@@ -21,7 +9,11 @@ import {
     CardActionButtons,
     CardActionButton,
     cardClassNames,
-} from "Components/card/card";
+} from "Components/material/card";
+
+// local
+import { GridPage } from "Components/page/page";
+import { BankAccountInfo as BasicBankAccountInfo } from "Components/dashboard/dashboard";
 import {
     FullscreenContainerTransform,
     FullscreenContainerTransformHandle,

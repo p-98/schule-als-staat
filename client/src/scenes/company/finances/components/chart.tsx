@@ -3,9 +3,9 @@ import { format } from "date-fns";
 import { useState } from "react";
 import { Tick, Chart as ChartJS, ScatterDataPoint } from "chart.js";
 import tinycolor from "tinycolor2";
+import { Card, CardChartContent, CardHeader } from "Components/material/card";
 
 // local
-import { Card, CardChartContent, CardHeader } from "Components/card/card";
 import { Dropdown } from "Components/dropdown/dropdown";
 import { Line, themeLine } from "Components/chart/chart";
 import theme from "Utility/theme";

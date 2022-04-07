@@ -1,11 +1,5 @@
 import { ComponentProps } from "react";
-import { TopAppBarNavigationIcon } from "@rmwc/top-app-bar";
-
-// top-app-bar imports
-import "@material/top-app-bar/dist/mdc.top-app-bar.css";
-import "@material/icon-button/dist/mdc.icon-button.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
+import { TopAppBarNavigationIcon } from "Components/material/top-app-bar";
 
 // local
 import { toggle, useDispatch } from "Utility/hooks/redux/drawer";

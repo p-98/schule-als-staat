@@ -1,7 +1,8 @@
 import React from "react";
+import { SimpleDialog } from "Components/material/dialog";
+
 // local
 import type { IProduct } from "Utility/types";
-import { SimpleDialog } from "Components/dialog/dialog";
 import { CartTable } from "./cartTable";
 import { TCart } from "../util/useCart";
 

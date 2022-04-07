@@ -1,8 +1,8 @@
 import { useState } from "react";
+import { Dialog, SimpleDialog } from "Components/material/dialog";
 
 // local
 import { Login } from "Components/login/login";
-import { Dialog, SimpleDialog } from "Components/dialog/dialog";
 import { useForceRemount } from "Utility/hooks/forceRemount";
 import { IProduct } from "Utility/types";
 import { CartTable } from "Components/pos/pos";

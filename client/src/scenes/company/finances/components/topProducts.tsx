@@ -1,16 +1,8 @@
-import { List, SimpleListItem } from "@rmwc/list";
-import { Typography } from "@rmwc/typography";
-
-// list imports
-import "@material/list/dist/mdc.list.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
+import { List, SimpleListItem } from "Components/material/list";
+import { Typography } from "Components/material/typography";
+import { Card, CardHeader, CardSubtitle } from "Components/material/card";
 
 // local
-import { Card, CardHeader, CardSubtitle } from "Components/card/card";
 import { parseCurrency } from "Utility/parseCurrency";
 import { products } from "../finances.data";
 

@@ -7,26 +7,13 @@ import React, {
     TransitionEvent,
 } from "react";
 import cn from "classnames";
-import { GridCell } from "@rmwc/grid";
-import { ListDivider, SimpleListItem } from "@rmwc/list";
-import { Avatar } from "@rmwc/avatar";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
-
-// list imports
-import "@material/list/dist/mdc.list.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
-
-// avatar imports
-import "@rmwc/avatar/avatar.css";
-// import "@rmwc/icon/icon.css";
-// import "@material/ripple/dist/mdc.ripple.css";
+import { GridCell } from "Components/material/grid";
+import { ListDivider, SimpleListItem } from "Components/material/list";
+import { Avatar } from "Components/material/avatar";
+import { Card, CardHeader, CardListContent } from "Components/material/card";
 
 // local
 import { GridPage } from "Components/page/page";
-import { Card, CardHeader, CardListContent } from "Components/card/card";
 import { parseCurrency } from "Utility/parseCurrency";
 import { AddOfferFab } from "./addOfferFab";
 

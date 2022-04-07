@@ -5,28 +5,9 @@ import {
     CardContent,
     CardHeader,
     CardInner,
-} from "Components/card/card";
-import { TextField } from "@rmwc/textfield";
-import { Select } from "@rmwc/select";
-
-// textfield imports
-import "@material/textfield/dist/mdc.textfield.css";
-// import "@material/floating-label/dist/mdc.floating-label.css";
-// import "@material/notched-outline/dist/mdc.notched-outline.css";
-// import "@material/line-ripple/dist/mdc.line-ripple.css";
-// import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
-
-// select imports
-import "@rmwc/select/select.css";
-import "@material/select/dist/mdc.select.css";
-import "@material/floating-label/dist/mdc.floating-label.css";
-import "@material/notched-outline/dist/mdc.notched-outline.css";
-import "@material/line-ripple/dist/mdc.line-ripple.css";
-import "@material/list/dist/mdc.list.css";
-import "@material/menu/dist/mdc.menu.css";
-import "@material/menu-surface/dist/mdc.menu-surface.css";
-import "@material/ripple/dist/mdc.ripple.css";
+} from "Components/material/card";
+import { TextField } from "Components/material/textfield";
+import { Select } from "Components/material/select";
 
 // local
 import type { TUser } from "Utility/types";

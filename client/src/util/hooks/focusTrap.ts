@@ -1,4 +1,8 @@
-import { focusTrapFactory, FocusOptions, FocusTrap } from "@rmwc/base";
+import {
+    focusTrapFactory,
+    FocusOptions,
+    FocusTrap,
+} from "Components/material/base";
 import { RefObject, useEffect, useRef } from "react";
 
 export const useFocusTrapOld = (

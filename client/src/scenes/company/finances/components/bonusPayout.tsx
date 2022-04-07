@@ -1,25 +1,7 @@
 import { useCallback, useState } from "react";
-import { TextField } from "@rmwc/textfield";
-import { Typography } from "@rmwc/typography";
-import { Chip, ChipSet } from "@rmwc/chip";
-
-// textfield imports
-import "@material/textfield/dist/mdc.textfield.css";
-import "@material/floating-label/dist/mdc.floating-label.css";
-import "@material/notched-outline/dist/mdc.notched-outline.css";
-import "@material/line-ripple/dist/mdc.line-ripple.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
-
-// chip
-import "@material/chips/dist/mdc.chips.css";
-// import "@rmwc/icon/icon.css";
-// import "@material/ripple/dist/mdc.ripple.css";
-
-// local
+import { TextField } from "Components/material/textfield";
+import { Typography } from "Components/material/typography";
+import { Chip, ChipSet } from "Components/material/chip";
 import {
     Card,
     CardActions,
@@ -27,10 +9,12 @@ import {
     CardActionButton,
     CardContent,
     CardDivider,
-} from "Components/card/card";
+} from "Components/material/card";
+import { SimpleDialog } from "Components/material/dialog";
+
+// local
 import config from "Config";
 import { reassignIDs, repeatArr } from "Utility/dataMockup";
-import { SimpleDialog } from "Components/dialog/dialog";
 import { parseCurrency } from "Utility/parseCurrency";
 
 import styles from "../finances.module.scss";

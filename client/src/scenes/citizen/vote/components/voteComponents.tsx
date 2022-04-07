@@ -1,18 +1,7 @@
 import React, { useState } from "react";
-import { Radio } from "@rmwc/radio";
-import { Typography } from "@rmwc/typography";
-import { Slider } from "@rmwc/slider";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
-
-// radio imports
-import "@material/radio/dist/mdc.radio.css";
-import "@material/form-field/dist/mdc.form-field.css";
-import "@material/ripple/dist/mdc.ripple.css";
-
-// slider imports
-import "@material/slider/dist/mdc.slider.css";
+import { Radio } from "Components/material/radio";
+import { Typography } from "Components/material/typography";
+import { Slider } from "Components/material/slider";
 
 // local
 import { IVoteRadio, IVoteConsensus, TWithVoteProp } from "Utility/types";

@@ -1,24 +1,11 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { ListDivider } from "@rmwc/list";
-import { Typography } from "@rmwc/typography";
-import { Button } from "@rmwc/button";
-
-// list imports
-import "@material/list/dist/mdc.list.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
-
-// button imports
-import "@material/button/dist/mdc.button.css";
-// import "@rmwc/icon/icon.css";
-// import "@material/ripple/dist/mdc.ripple.css";
+import { ListDivider } from "Components/material/list";
+import { Typography } from "Components/material/typography";
+import { Button } from "Components/material/button";
+import { SimpleDialog } from "Components/material/dialog";
 
 // local
-import { SimpleDialog } from "Components/dialog/dialog";
 import { AuthUser } from "Components/login/authUser";
 import { useDispatch } from "Utility/hooks/redux";
 import {

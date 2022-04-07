@@ -1,6 +1,7 @@
+import { CardContent } from "Components/material/card";
+import { SimpleDialog } from "Components/material/dialog";
+
 // local
-import { CardContent } from "Components/card/card";
-import { SimpleDialog } from "Components/dialog/dialog";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import type { TWithCrossingDialogProps } from "../util/types";
 import { useCustoms } from "../util/useCustoms";

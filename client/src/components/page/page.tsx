@@ -1,14 +1,7 @@
 import cn from "classnames";
 import React, { forwardRef, HTMLAttributes } from "react";
-import { Theme } from "@rmwc/theme";
-import { Grid } from "@rmwc/grid";
-
-// theme imports
-import "@material/theme/dist/mdc.theme.css";
-import "@rmwc/theme/theme.css";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
+import { Theme } from "Components/material/theme";
+import { Grid } from "Components/material/grid";
 
 // local
 import styles from "./page.module.css";

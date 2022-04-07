@@ -1,15 +1,14 @@
 import { HTMLAttributes, useState } from "react";
 import "chartjs-adapter-date-fns";
-import { IconButton } from "@rmwc/icon-button";
+import { IconButton } from "Components/material/icon-button";
 import type { ScatterDataPoint } from "chart.js";
-
-// icon-button imports
-import "@material/icon-button/dist/mdc.icon-button.css";
-import "@rmwc/icon/icon.css";
-import "@material/ripple/dist/mdc.ripple.css";
+import {
+    CardChartContent,
+    CardHeader,
+    CardInner,
+} from "Components/material/card";
 
 // local
-import { CardChartContent, CardHeader, CardInner } from "Components/card/card";
 import { Line, themeLine } from "Components/chart/chart";
 import theme from "Utility/theme";
 import { Dropdown } from "Components/dropdown/dropdown";

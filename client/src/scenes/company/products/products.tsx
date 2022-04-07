@@ -1,18 +1,6 @@
 import { useState } from "react";
-import { GridCell } from "@rmwc/grid";
-import { Typography } from "@rmwc/typography";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
-
-// typography imports
-import "@material/typography/dist/mdc.typography.css";
-
-// local
-import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
-import { GridPage } from "Components/page/page";
-import { useCompanyAdminRedirect } from "Utility/hooks/useRedirect";
-import { IProduct } from "Utility/types";
+import { GridCell } from "Components/material/grid";
+import { Typography } from "Components/material/typography";
 import {
     Card,
     CardActions,
@@ -21,7 +9,13 @@ import {
     CardActionIcon,
     CardInner,
     CardHeader,
-} from "Components/card/card";
+} from "Components/material/card";
+
+// local
+import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
+import { GridPage } from "Components/page/page";
+import { useCompanyAdminRedirect } from "Utility/hooks/useRedirect";
+import { IProduct } from "Utility/types";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import {
     SiblingTransitionBase,

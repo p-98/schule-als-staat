@@ -1,12 +1,9 @@
 import React, { useState } from "react";
-import { GridCell } from "@rmwc/grid";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
+import { GridCell } from "Components/material/grid";
+import { Fab } from "Components/material/fab";
 
 // local
 import { GridPage } from "Components/page/page";
-import { Fab } from "Components/fab/fab";
 import { IProduct } from "Utility/types";
 import { ProductCard } from "./components/productCard";
 import { Cart } from "./components/cart";

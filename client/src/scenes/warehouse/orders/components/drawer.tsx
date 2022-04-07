@@ -3,35 +3,13 @@ import {
     DrawerContent,
     DrawerHeader,
     DrawerTitle,
-} from "@rmwc/drawer";
-import { TextField } from "@rmwc/textfield";
-import { Select } from "@rmwc/select";
+} from "Components/material/drawer";
+import { TextField } from "Components/material/textfield";
+import { Select } from "Components/material/select";
 import { HTMLAttributes } from "react";
-
-// drawer imports
-import "@material/drawer/dist/mdc.drawer.css";
-
-// textfield imports
-import "@material/textfield/dist/mdc.textfield.css";
-import "@material/floating-label/dist/mdc.floating-label.css";
-import "@material/notched-outline/dist/mdc.notched-outline.css";
-import "@material/line-ripple/dist/mdc.line-ripple.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
-
-// select imports
-import "@rmwc/select/select.css";
-import "@material/select/dist/mdc.select.css";
-// import '@material/floating-label/dist/mdc.floating-label.css';
-// import '@material/notched-outline/dist/mdc.notched-outline.css';
-// import '@material/line-ripple/dist/mdc.line-ripple.css';
-import "@material/list/dist/mdc.list.css";
-import "@material/menu/dist/mdc.menu.css";
-import "@material/menu-surface/dist/mdc.menu-surface.css";
-// import '@material/ripple/dist/mdc.ripple.css';
+import { CardContent, CardInner } from "Components/material/card";
 
 // local
-import { CardContent, CardInner } from "Components/card/card";
 import type { TFilter, TDispatchFilter } from "../util/useFilter";
 
 interface IDrawerProps extends HTMLAttributes<HTMLElement> {

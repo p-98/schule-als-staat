@@ -1,9 +1,6 @@
-import { Grid } from "@rmwc/grid";
+import { Grid } from "Components/material/grid";
 import cn from "classnames";
 import { forwardRef } from "react";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
 
 // local
 import styles from "./pageGrid.module.css";

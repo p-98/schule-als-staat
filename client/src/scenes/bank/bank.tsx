@@ -1,13 +1,6 @@
-import { GridCell } from "@rmwc/grid";
+import { GridCell } from "Components/material/grid";
 import { useState } from "react";
-
-// grid imports
-import "@material/layout-grid/dist/mdc.layout-grid.css";
-
-// card imports
-import "@material/card/dist/mdc.card.css";
-import "@material/button/dist/mdc.button.css";
-import "@material/icon-button/dist/mdc.icon-button.css";
+import { cardClassNames } from "Components/material/card";
 
 // local
 import {
@@ -24,9 +17,6 @@ import usePredictionObserver from "Utility/hooks/predictionObserver/predictionOb
 import { GetUser } from "Components/login/getUser";
 import { onAfterCloneHandle } from "Utility/adapters/GetUser-FullscreenContainerTransform";
 import type { TUser } from "Utility/types";
-
-import { cardClassNames } from "Components/card/card";
-
 import { UserDashboard } from "./components/userDashboard";
 import { ChangeCurrencies } from "./components/changeCurrencies";
 import { BankUserContext } from "./util/context";

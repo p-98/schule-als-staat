@@ -1,15 +1,10 @@
 import cn from "classnames";
-import { SimpleDataTable } from "@rmwc/data-table";
-
-// data-table imports
-import "@material/data-table/dist/mdc.data-table.css";
-import "@rmwc/data-table/data-table.css";
-import "@rmwc/icon/icon.css";
+import { SimpleDataTable } from "Components/material/data-table";
+import { CardContent } from "Components/material/card";
 
 // local
 import type { IProduct } from "Utility/types";
 import { parseCurrency } from "Utility/parseCurrency";
-import { CardContent } from "Components/card/card";
 import {
     activatedClassName,
     nonInteractiveClassName,

@@ -1,8 +1,8 @@
 import { useRef } from "react";
+import { CardContent } from "Components/material/card";
+import { SimpleDialog } from "Components/material/dialog";
 
 // local
-import { SimpleDialog } from "Components/dialog/dialog";
-import { CardContent } from "Components/card/card";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import { pickRandom } from "Utility/dataMockup";
 import type { TWithCrossingDialogProps } from "../util/types";

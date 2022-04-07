@@ -1,5 +1,6 @@
 import React from "react";
 import tinycolor from "tinycolor2";
+import { Card, CardContent, CardHeader } from "Components/material/card";
 
 // local
 import theme from "Utility/theme";
@@ -19,7 +20,6 @@ import {
     checkPropertyType,
     isStringArray,
 } from "Utility/types";
-import { Card, CardContent, CardHeader } from "Components/card/card";
 import { ChartWrapper } from "./chartWrapper";
 
 // define types
