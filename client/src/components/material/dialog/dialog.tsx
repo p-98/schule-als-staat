@@ -25,7 +25,7 @@ import {
     CardContent,
     CardActions,
     CardActionButton,
-} from "Components/card/card";
+} from "Components/material/card/";
 
 import styles from "./dialog.module.css";
 
