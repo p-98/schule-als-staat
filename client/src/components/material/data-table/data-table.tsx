@@ -1,7 +1,7 @@
 import {
     SimpleDataTable as RMWCSimpleDataTable,
-    SimpleDataTableProps,
-    DataTableProps,
+    SimpleDataTableProps as RMWCSimpleDataTableProps,
+    DataTableProps as RMWCDataTableProps,
 } from "@rmwc/data-table";
 import { ComponentProps } from "@rmwc/types";
 import cn from "classnames";
@@ -17,15 +17,15 @@ import styles from "./data-table.module.scss";
 // rmwc reexports
 export * from "@rmwc/data-table";
 
-type TSimpleDataTableProps = ComponentProps<
-    DataTableProps,
+export type SimpleDataTableProps = ComponentProps<
+    RMWCDataTableProps,
     React.HTMLProps<HTMLElement>,
     "div"
 > &
-    SimpleDataTableProps & {
+    RMWCSimpleDataTableProps & {
         fillPage?: boolean;
     };
-export const SimpleDataTable: React.FC<TSimpleDataTableProps> = ({
+export const SimpleDataTable: React.FC<SimpleDataTableProps> = ({
     fillPage,
     className,
     ...restProps

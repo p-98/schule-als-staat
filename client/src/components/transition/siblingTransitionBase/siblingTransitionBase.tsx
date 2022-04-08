@@ -14,7 +14,7 @@ export { Modes } from "./transitionStyles";
 
 const transitionTime = 300;
 
-export interface ISiblingTransitionBaseProps
+interface ISiblingTransitionBaseProps
     extends React.HTMLAttributes<HTMLDivElement> {
     children: TChildren;
     activeElement: number;

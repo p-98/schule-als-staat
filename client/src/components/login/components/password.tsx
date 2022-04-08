@@ -14,7 +14,7 @@ import type { TUser } from "Utility/types";
 import { UserBanner } from "./userBanner";
 import type { TOnAuthUser } from "../types";
 
-export interface IPasswordProps extends React.HTMLAttributes<HTMLDivElement> {
+interface IPasswordProps extends React.HTMLAttributes<HTMLDivElement> {
     cancelButton?: {
         onClick: () => void;
         label: string;

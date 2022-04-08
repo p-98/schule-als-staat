@@ -13,7 +13,7 @@ const explanationMap = {
     ),
 };
 
-export interface IHelpDialogProps {
+interface IHelpDialogProps {
     voteType: IVote["type"];
     open: boolean;
     onClose: () => void;

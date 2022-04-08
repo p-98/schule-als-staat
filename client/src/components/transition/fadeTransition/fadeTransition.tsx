@@ -2,8 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import styles from "./fadeTransition.module.css";
 
-export interface IFadeTransitionProps
-    extends React.HTMLAttributes<HTMLDivElement> {
+interface IFadeTransitionProps extends React.HTMLAttributes<HTMLDivElement> {
     open: boolean;
     anchor:
         | "top"

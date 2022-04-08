@@ -35,7 +35,7 @@ function getActiveContainerTransformElement(
         : (activeElement as "qr-password" | "qr-scanner");
 }
 
-export interface ILoginProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ILoginProps extends React.HTMLAttributes<HTMLDivElement> {
     header: string;
     qrInfoText: string;
     confirmButton: { label: string; danger?: boolean };

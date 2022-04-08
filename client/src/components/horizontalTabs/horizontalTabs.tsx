@@ -4,8 +4,7 @@ import cn from "classnames";
 
 import styles from "./horizontalTabs.module.css";
 
-export interface IHorizontalTabsProps
-    extends React.HTMLAttributes<HTMLDivElement> {
+interface IHorizontalTabsProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactElement<IHorizontalTabsElementProps>[];
 }
 export const HorizontalTabs: React.FC<IHorizontalTabsProps> = ({
@@ -109,7 +108,7 @@ export const HorizontalTabs: React.FC<IHorizontalTabsProps> = ({
     );
 };
 
-export interface IHorizontalTabsElementProps {
+interface IHorizontalTabsElementProps {
     title: string;
     children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
 }

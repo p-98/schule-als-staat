@@ -4,7 +4,7 @@ import { Typography } from "Components/material/typography";
 // local
 import styles from "./userBanner.module.css";
 
-export interface UserBannerProps {
+interface UserBannerProps {
     label: string;
 }
 export const UserBanner: React.FC<UserBannerProps> = ({ label }) => (

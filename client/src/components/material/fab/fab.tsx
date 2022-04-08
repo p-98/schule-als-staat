@@ -1,4 +1,4 @@
-import { Fab as RMWCFab, FabProps } from "@rmwc/fab";
+import { Fab as RMWCFab, FabProps as RMWCFabProps } from "@rmwc/fab";
 import RMWC from "@rmwc/types";
 import cn from "classnames";
 
@@ -12,8 +12,9 @@ import styles from "./fab.module.css";
 
 export const fabClassName = cn("mdc-fab", styles["fab"]);
 
+export type FabProps = React.ComponentProps<typeof Fab>;
 export const Fab: React.FC<
-    RMWC.ComponentProps<FabProps, React.HTMLProps<HTMLElement>, "div">
+    RMWC.ComponentProps<RMWCFabProps, React.HTMLProps<HTMLElement>, "div">
 > = ({ className, ...restProps }) => (
     // eslint-disable-next-line react/jsx-props-no-spreading
     <RMWCFab {...restProps} className={cn(className, styles["fab"])} />

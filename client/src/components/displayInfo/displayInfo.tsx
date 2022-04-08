@@ -9,8 +9,7 @@ import { HightlightStates } from "Components/highlightStates/highlightStates";
 
 import styles from "./displayInfo.module.css";
 
-export interface IDisplayInfoProps
-    extends React.HTMLAttributes<HTMLDivElement> {
+interface IDisplayInfoProps extends React.HTMLAttributes<HTMLDivElement> {
     label: string;
     icon?: IconPropT;
     trailingIcon?: IconPropT;

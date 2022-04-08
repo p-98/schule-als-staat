@@ -12,7 +12,7 @@ import { Manual } from "./components/manual";
 
 import styles from "./login.module.css";
 
-export interface IGetUserProps extends React.HTMLAttributes<HTMLDivElement> {
+interface IGetUserProps extends React.HTMLAttributes<HTMLDivElement> {
     confirmButtonLabel?: string;
     onGetUser: (user: TUser) => void;
     header: string;

@@ -11,6 +11,11 @@ _This is because otherwise css import order might be messed up._
     2. local imports
     3. local style imports
 
+# Props exports
+
+Component props are only explicitly exported from "Components/material/\*" to imitate rmwc style.
+Otherwise props are not export as they can be obtained using React.ComponentProps.
+
 # Design
 
 -   FullscreenContainerTransform is not nested

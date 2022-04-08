@@ -12,7 +12,7 @@ import { Select } from "Components/material/select";
 // local
 import type { TUser } from "Utility/types";
 
-export interface IManualProps extends React.HTMLAttributes<HTMLDivElement> {
+interface IManualProps extends React.HTMLAttributes<HTMLDivElement> {
     toQR: () => void;
     onGetUser: (user: TUser) => void;
     confirmButtonLabel: string;

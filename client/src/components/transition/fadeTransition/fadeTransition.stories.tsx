@@ -1,8 +1,5 @@
 import { Meta, Story } from "@storybook/react";
-import {
-    FadeTransition as FadeTransitionComponent,
-    IFadeTransitionProps,
-} from "./fadeTransition";
+import { FadeTransition as FadeTransitionComponent } from "./fadeTransition";
 
 export default {
     title: "components/transition/Fade Transition",
@@ -26,7 +23,7 @@ export default {
     },
 } as Meta;
 
-const Template: Story<IFadeTransitionProps> = ({
+const Template: Story<React.ComponentProps<typeof FadeTransitionComponent>> = ({
     anchor,
     className,
     ...args

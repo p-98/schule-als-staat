@@ -3,7 +3,7 @@ import cn from "classnames";
 // local
 import styles from "./GridScrollColumn.module.scss";
 
-export interface IGridScrollColumnProps {
+interface IGridScrollColumnProps {
     desktop?: boolean;
     tablet?: boolean;
     phone?: boolean;

@@ -47,7 +47,7 @@ export interface ITransactionListItemInfo {
     icon: string;
     balance: number;
 }
-export interface ITransactionListItemProps {
+interface ITransactionListItemProps {
     transaction: ITransaction;
 }
 export const TransactionListItem: React.FC<ITransactionListItemProps> = ({

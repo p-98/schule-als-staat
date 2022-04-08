@@ -38,7 +38,7 @@ const QRFocusCatch: React.FC = () => (
     </div>
 );
 
-export interface IQRProps extends React.HTMLAttributes<HTMLDivElement> {
+interface IQRProps extends React.HTMLAttributes<HTMLDivElement> {
     // onScan: (result: string) => void;
     // onError: (error: unknown) => void;
     cancel?: {

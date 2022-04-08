@@ -2,13 +2,13 @@
 import { Typography } from "@rmwc/typography";
 import {
     Card as RMWCCard,
-    CardProps,
+    CardProps as RMWCCardProps,
     CardActions as RMWCCardActions,
-    CardActionsProps,
+    CardActionsProps as RMWCCardActionsProps,
     CardMedia as RMWCCardMedia,
-    CardMediaProps,
+    CardMediaProps as RMWCCardMediaProps,
     CardPrimaryAction as RMWCCardPrimaryAction,
-    CardMediaContentProps,
+    CardMediaContentProps as RMWCCardMediaContentProps,
 } from "@rmwc/card";
 import { ListDivider, List } from "@rmwc/list";
 import RMWC from "@rmwc/types";
@@ -38,9 +38,10 @@ export * from "@rmwc/card";
 
 export const cardClassNames = cn("mdc-card", styles["card"]);
 
+export type CardProps = React.ComponentProps<typeof Card>;
 export const Card = forwardRef<
     HTMLDivElement,
-    RMWC.ComponentProps<CardProps, React.HTMLProps<HTMLElement>, "div">
+    RMWC.ComponentProps<RMWCCardProps, React.HTMLProps<HTMLElement>, "div">
 >(({ className, children, ...restProps }, ref) => (
     <RMWCCard
         {...restProps}
@@ -51,6 +52,7 @@ export const Card = forwardRef<
     </RMWCCard>
 ));
 
+export type CardInnerProps = React.ComponentProps<typeof CardInner>;
 export const CardInner = forwardRef<
     HTMLDivElement,
     React.ComponentProps<typeof Card>
@@ -62,9 +64,10 @@ export const CardInner = forwardRef<
     />
 ));
 
+export type CardMediaProps = React.ComponentProps<typeof CardMedia>;
 export const CardMedia = forwardRef<
     HTMLDivElement,
-    RMWC.ComponentProps<CardMediaProps, React.HTMLProps<HTMLElement>, "div">
+    RMWC.ComponentProps<RMWCCardMediaProps, React.HTMLProps<HTMLElement>, "div">
 >(({ className, ...restProps }, ref) => (
     <RMWCCardMedia
         {...restProps}
@@ -73,6 +76,7 @@ export const CardMedia = forwardRef<
     />
 ));
 
+export type CardHeaderProps = React.ComponentProps<typeof CardHeader>;
 export const CardHeader: React.FC<
     TWithThemeProp<React.HTMLAttributes<HTMLDivElement>>
 > = ({ children, className, theme, ...restProps }) => (
@@ -85,6 +89,7 @@ export const CardHeader: React.FC<
         {children}
     </Typography>
 );
+export type CardSubtitleProps = React.ComponentProps<typeof CardSubtitle>;
 export const CardSubtitle: React.FC<
     TWithThemeProp<React.HTMLAttributes<HTMLDivElement>>
 > = ({ children, className, theme, ...restProps }) => (
@@ -98,11 +103,10 @@ export const CardSubtitle: React.FC<
     </Typography>
 );
 
-export interface ICardContentProps
-    extends React.HTMLAttributes<HTMLDivElement> {
+export interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {
     text?: string | React.ReactNode;
 }
-export const CardContent = forwardRef<HTMLDivElement, ICardContentProps>(
+export const CardContent = forwardRef<HTMLDivElement, CardContentProps>(
     ({ text, children, ...restProps }, ref) => (
         <div
             {...restProps}
@@ -121,6 +125,9 @@ export const CardContent = forwardRef<HTMLDivElement, ICardContentProps>(
     )
 );
 
+export type CardChartContentProps = React.ComponentProps<
+    typeof CardChartContent
+>;
 export const CardChartContent = forwardRef<
     HTMLDivElement,
     React.HTMLAttributes<HTMLDivElement>
@@ -134,41 +141,40 @@ export const CardChartContent = forwardRef<
     </CardContent>
 ));
 
-export interface ICardListContentProps
+export interface CardListContentProps
     extends React.HTMLAttributes<HTMLDivElement> {
     caption?: string;
     twoLine?: boolean;
 }
-export const CardListContent = forwardRef<
-    HTMLDivElement,
-    ICardListContentProps
->(({ children, className, caption, twoLine, ...restProps }, ref) => (
-    <CardContent {...restProps} className={className} ref={ref}>
-        {caption && (
-            <Typography
-                use="caption"
-                theme="textPrimaryOnBackground"
-                className={cn(
-                    styles["card__list-caption"],
-                    twoLine && styles["card__list-caption--twoline"]
-                )}
-            >
-                {caption}
-            </Typography>
-        )}
-        <List className={styles["card__list"]} twoLine={twoLine}>
-            {children}
-        </List>
-    </CardContent>
-));
+export const CardListContent = forwardRef<HTMLDivElement, CardListContentProps>(
+    ({ children, className, caption, twoLine, ...restProps }, ref) => (
+        <CardContent {...restProps} className={className} ref={ref}>
+            {caption && (
+                <Typography
+                    use="caption"
+                    theme="textPrimaryOnBackground"
+                    className={cn(
+                        styles["card__list-caption"],
+                        twoLine && styles["card__list-caption--twoline"]
+                    )}
+                >
+                    {caption}
+                </Typography>
+            )}
+            <List className={styles["card__list"]} twoLine={twoLine}>
+                {children}
+            </List>
+        </CardContent>
+    )
+);
 
-export type ICardActionsProps = RMWC.ComponentProps<
-    CardActionsProps,
+export type CardActionsProps = RMWC.ComponentProps<
+    RMWCCardActionsProps,
     React.HTMLProps<HTMLElement>,
     "div"
 > & { dialogLayout?: boolean };
 /** When dialogLayout is used, the CardActionButtons component must be emitted */
-export const CardActions: React.FC<ICardActionsProps> = ({
+export const CardActions: React.FC<CardActionsProps> = ({
     fullBleed,
     children,
     className,
@@ -189,9 +195,12 @@ export const CardActions: React.FC<ICardActionsProps> = ({
     </RMWCCardActions>
 );
 
+export type CardPrimaryActionProps = React.ComponentProps<
+    typeof CardPrimaryAction
+>;
 export const CardPrimaryAction: React.FC<
     RMWC.ComponentProps<
-        CardMediaContentProps,
+        RMWCCardMediaContentProps,
         React.HTMLProps<HTMLElement>,
         "div"
     > & { innerProps?: React.ComponentProps<typeof CardInner> }
@@ -201,6 +210,7 @@ export const CardPrimaryAction: React.FC<
     </RMWCCardPrimaryAction>
 );
 
+export type CardDividerProps = React.ComponentProps<typeof CardDivider>;
 export const CardDivider: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
     className,
     ...restProps

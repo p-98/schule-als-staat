@@ -39,8 +39,7 @@ const DotIndicator: React.FC<IDotIndicatorProps> = ({
 );
 
 // material sequence
-export interface IMaterialSequenceProps
-    extends React.HTMLAttributes<HTMLDivElement> {
+interface IMaterialSequenceProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactElement<ISiblingTransitionBaseElementProps>[];
     border?: boolean;
 }

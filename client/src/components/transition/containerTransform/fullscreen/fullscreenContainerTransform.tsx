@@ -74,7 +74,7 @@ export type TOnAfterCloneHandle = (
     msToTransformEnd: number
 ) => void;
 
-export interface IFullscreenContainerTransformProps
+interface IFullscreenContainerTransformProps
     extends React.HTMLAttributes<HTMLDivElement> {
     children: TChildren;
     renderTo?: PortalPropT;

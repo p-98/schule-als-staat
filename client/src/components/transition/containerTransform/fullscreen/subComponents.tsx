@@ -45,7 +45,7 @@ export const FullscreenContainerTransformWrapper = forwardRef<
     )
 );
 
-export interface IFullscreenContainerTransformElementProps {
+interface IFullscreenContainerTransformElementProps {
     children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
     /** Automatically injected by FullscreenContainerTransform */
     optimize?: boolean;
@@ -63,7 +63,7 @@ export const FullscreenContainerTransformElement: React.FC<IFullscreenContainerT
         ),
     });
 
-export interface IFullscreenContainerTransformHandleProps {
+interface IFullscreenContainerTransformHandleProps {
     children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
     /** Automatically injected by FullscreenContainerTransform */
     optimize?: boolean;

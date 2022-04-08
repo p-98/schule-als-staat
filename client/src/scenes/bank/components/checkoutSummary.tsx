@@ -7,7 +7,7 @@ import { IChangeCurrenciesInfo } from "../types";
 
 import styles from "../bank.module.css";
 
-export interface ICheckoutSummaryProps {
+interface ICheckoutSummaryProps {
     info: IChangeCurrenciesInfo;
 }
 export const CheckoutSummary: React.FC<ICheckoutSummaryProps> = ({ info }) => (

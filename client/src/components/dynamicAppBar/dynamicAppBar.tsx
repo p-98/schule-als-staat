@@ -56,8 +56,7 @@ export const DynamicAppBarDisplay: React.FC = () => {
     );
 };
 
-export interface IDynamicAppBarHandleProp
-    extends HTMLAttributes<HTMLHeadElement> {
+interface IDynamicAppBarHandleProps extends HTMLAttributes<HTMLHeadElement> {
     /** default true */
     render?: boolean;
     /** for changes to take effect, component must be remounted */
@@ -69,7 +68,7 @@ export interface IDynamicAppBarHandleProp
     /** for changes to take effect, component must be remounted */
     color?: string;
 }
-export const DynamicAppBarHandle: React.FC<IDynamicAppBarHandleProp> = ({
+export const DynamicAppBarHandle: React.FC<IDynamicAppBarHandleProps> = ({
     render: renderTarget = true,
     navIcon,
     actionItems,
