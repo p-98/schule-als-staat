@@ -35,12 +35,17 @@ const generatorMap = {
         };
     },
     change: (transaction: IChangeTransaction) => {
-        const { baseCurrency, baseValue, targetValue } = transaction;
+        const {
+            baseCurrency,
+            baseValue,
+            targetValue,
+            targetCurrency,
+        } = transaction;
 
         const toVirtual = baseCurrency === "real";
 
         return {
-            infoText: `${baseValue}${config.currencies[baseCurrency].symbol} in ${config.currencies[baseCurrency].short}`,
+            infoText: `${baseValue}${config.currencies[baseCurrency].symbol} in ${config.currencies[targetCurrency].short}`,
             type: "Wechsel",
             icon: "swap_horiz",
             balance: toVirtual ? targetValue : -baseValue,

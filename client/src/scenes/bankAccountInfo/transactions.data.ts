@@ -9,7 +9,7 @@ const transactions: ITransaction[] = [
         purpose: "Essensvorschuss",
         receiver: "Andere Person",
         sender: "Max Mustermann",
-        value: -10.0,
+        value: 10.0,
     },
     {
         id: "2",
