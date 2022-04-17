@@ -24,7 +24,7 @@ import {
 } from "Components/transition/siblingTransitionBase/siblingTransitionBase";
 import { Dot } from "Components/dot/dot";
 import { parseCurrency } from "Utility/parseCurrency";
-import { AddFab } from "./components/addFAB";
+import { AddFab } from "./components/addFab";
 import products from "./products.data";
 import { Stats } from "./components/stats";
 import { EditProduct } from "./components/editProduct";

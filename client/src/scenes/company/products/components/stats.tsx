@@ -46,8 +46,8 @@ export const Stats: React.FC<IStatsProps> = ({ onGoBack, ...restProps }) => {
     const total = date === 0;
     const scale = total ? dateScale : timeScale;
     const sales = genData(scale, total ? 50 : 10);
-    const revenue = sales.map((obj) => ({ ...obj, y: obj.y * 50 }));
-    const profit = revenue.map((obj) => ({ ...obj, y: obj.y * 0.7 }));
+    const grossRevenue = sales.map((obj) => ({ ...obj, y: obj.y * 50 }));
+    const netRevenue = grossRevenue.map((obj) => ({ ...obj, y: obj.y * 0.7 }));
 
     return (
         <CardInner
@@ -86,14 +86,14 @@ export const Stats: React.FC<IStatsProps> = ({ onGoBack, ...restProps }) => {
                                 hidden: true,
                             },
                             {
-                                label: "Umsatz",
-                                data: (revenue as unknown) as ScatterDataPoint[],
+                                label: "Bruttoumsatz",
+                                data: (grossRevenue as unknown) as ScatterDataPoint[],
                                 yAxisID: "yMoney",
                                 ...themeLine(theme.primary as string),
                             },
                             {
-                                label: "Gewinn",
-                                data: (profit as unknown) as ScatterDataPoint[],
+                                label: "Nettoumsatz",
+                                data: (netRevenue as unknown) as ScatterDataPoint[],
                                 yAxisID: "yMoney",
                                 ...themeLine(theme.secondary as string),
                             },
