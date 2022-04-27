@@ -2,11 +2,12 @@ overwrite: true
 schema: "./server/src/schema.graphql"
 # documents: "*.gql"
 generates:
-    ./server/src/types/graphql.ts:
+    ./server/src/types/schema.ts:
         config:
             contextType: ./models#IContext
-            typesPrefix: I
+            typesPrefix: T
             useIndexSignature: true
+            enumsAsTypes: true
             mappers:
                 Author: ./models#IAuthorModel
                 Book: ./models#IBookModel

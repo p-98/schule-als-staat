@@ -5,9 +5,10 @@
         "noEmit": true,
         "baseUrl": ".",
         "paths": {
-            "@type/*": ["src/types/*"],
-            "@api/*": ["src/api/*"]
-            // "@server": ["src/server.ts"]
+            "Types/*": ["src/types/*"],
+            "Types": ["../types.ts"],
+            "Modules/*": ["src/modules/*"],
+            "Database": ["src/database.ts"]
         }
     }
 }

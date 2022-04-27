@@ -7,9 +7,10 @@ const webpack = require("webpack");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
 module.exports = (env, argv) => {
-    const production = argv.nodeEnv === "production";
+    const production = argv.mode === "production";
 
     return {
+        mode: argv.mode,
         entry: [
             ...(production ? [] : ["webpack/hot/poll?1000"]),
             "./src/server.ts",
@@ -51,17 +52,20 @@ module.exports = (env, argv) => {
             path: path.resolve(__dirname, "dist"),
         },
         plugins: [
-            new ForkTsCheckerWebpackPlugin({
-                eslint: {
-                    files: ".",
-                    // options: {
-                    //     baseConfig: {},
-                    // },
-                },
-                formatter: "basic",
-            }),
             new CleanWebpackPlugin(),
-            ...(production ? [] : [new webpack.HotModuleReplacementPlugin()]),
+            ...(production
+                ? [
+                      new ForkTsCheckerWebpackPlugin({
+                          eslint: {
+                              files: ".",
+                              // options: {
+                              //     baseConfig: {},
+                              // },
+                          },
+                          formatter: "basic",
+                      }),
+                  ]
+                : [new webpack.HotModuleReplacementPlugin()]),
         ],
         stats: production ? "normal" : "errors-warnings",
         target: "node",

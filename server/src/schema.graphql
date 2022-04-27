@@ -1,40 +1,84 @@
-" Ein Buch "
+"""
+Ein Buch
+""" # eslint-disable-next-line @graphql-eslint/strict-id-in-types
 type Book {
     title: String!
     author: Author!
 }
 
-" Ein Author "
+"""
+Ein Author
+""" # eslint-disable-next-line @graphql-eslint/strict-id-in-types
 type Author {
     name: String!
     books: [Book!]!
 }
 
-" Input for addBook mutation "
+"""
+type of user
+"""
+enum UserType {
+    citizen
+    company
+    guest
+}
+"""
+Information needed to identify a user
+""" # eslint-disable-next-line @graphql-eslint/strict-id-in-types
+type UserSignature {
+    type: UserType!
+    id: String!
+}
+"""
+The current session
+"""
+type Session {
+    id: ID!
+    user: UserSignature
+}
+
+"""
+Input for addBook mutation
+"""
 input AddBookInput {
     title: String!
     author: String!
 }
 
-input AddedBookInput {
-    author: String
+"""
+Information needed to identify a user
+"""
+input UserSignatureInput {
+    type: UserType!
+    id: String!
 }
 
-" Queries "
+"""
+Queries
+"""
 type Query {
     books: [Book!]!
     book(title: String!): Book
 
     authors: [Author!]!
     author(name: String!): Author
+
+    session: Session!
 }
 
-" Mutations "
+"""
+Mutations
+"""
 type Mutation {
     addBook(input: AddBookInput!): Book!
+
+    login(user: UserSignatureInput!, password: String!): Session!
+    logout: Session!
 }
 
-" Subscriptions "
+"""
+Subscriptions
+"""
 type Subscription {
-    addedBook(input: AddedBookInput!): Book!
+    addedBook(author: String): Book!
 }
