@@ -19,3 +19,11 @@ Otherwise props are not export as they can be obtained using React.ComponentProp
 # Design
 
 -   FullscreenContainerTransform is not nested
+
+# Git
+
+-   non-working work-in-progress commits start "wip"
+
+# GraphQL
+
+-   A Connection/Edge like implementation is utilized for lists

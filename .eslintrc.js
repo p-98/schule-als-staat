@@ -86,28 +86,13 @@ module.exports = {
                 // "plugin:@graphql-eslint/operations-recommended",
             ],
             rules: {
-                "@graphql-eslint/naming-convention": [
+                "@graphql-eslint/description-style": [
                     "error",
-                    {
-                        types: "PascalCase",
-                        FieldDefinition: "camelCase",
-                        InputValueDefinition: "camelCase",
-                        Argument: "camelCase",
-                        DirectiveDefinition: "camelCase",
-                        EnumValueDefinition: "camelCase",
-                        "FieldDefinition[parent.name.value=Query]": {
-                            forbiddenPrefixes: ["query", "get"],
-                            forbiddenSuffixes: ["Query"],
-                        },
-                        "FieldDefinition[parent.name.value=Mutation]": {
-                            forbiddenPrefixes: ["mutation"],
-                            forbiddenSuffixes: ["Mutation"],
-                        },
-                        "FieldDefinition[parent.name.value=Subscription]": {
-                            forbiddenPrefixes: ["subscription"],
-                            forbiddenSuffixes: ["Subscription"],
-                        },
-                    },
+                    { style: "inline" },
+                ],
+                "@graphql-eslint/strict-id-in-types": [
+                    "error",
+                    { exceptions: { suffixes: ["Fragment", "Edge"] } },
                 ],
             },
         },

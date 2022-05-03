@@ -1,61 +1,367 @@
-"""
-Ein Buch
-""" # eslint-disable-next-line @graphql-eslint/strict-id-in-types
+" For file uploads; automatically handled by graphql-yoga "
+scalar File
+" Javascript Date object "
+scalar Date
+
+" requires ONE of the roles provided to be present on the current loged in user "
+directive @auth(role: [AuthRole!] = [ADMIN]) on FIELD_DEFINITION | OBJECT
+
+#            #
+# Enum types #
+#            #
+
+" Roles used for authorization "
+enum AuthRole {
+    ADMIN
+    USER
+    CITIZEN
+    COMPANY
+    POLICE
+    BANK
+    BORDER_CONTROL
+    POLITICS
+}
+
+" type of user "
+enum UserType {
+    CITIZEN
+    COMPANY
+    GUEST
+}
+
+" state of employment contract offer "
+enum EmploymentContractOfferState {
+    PEDING
+    REJECTED
+    # cannot be ACCEPTED, because offers are deleted converted to employment contracts on accept
+}
+
+" Currency types "
+enum Currency {
+    VIRTUAL
+    REAL
+}
+
+" action of BorderCrossing "
+enum BorderCrossingAction {
+    ENTER
+    LEAVE
+}
+
+" type of vote "
+enum VoteType {
+    CONSENSUS
+    RADIO
+}
+
+#                        #
+# Object and Union types #
+#                        #
+
+" Ein Buch " # eslint-disable-next-line @graphql-eslint/strict-id-in-types
 type Book {
     title: String!
     author: Author!
 }
 
-"""
-Ein Author
-""" # eslint-disable-next-line @graphql-eslint/strict-id-in-types
+" Ein Author " # eslint-disable-next-line @graphql-eslint/strict-id-in-types
 type Author {
     name: String!
     books: [Book!]!
 }
 
-"""
-type of user
-"""
-enum UserType {
-    citizen
-    company
-    guest
-}
-"""
-Information needed to identify a user
-""" # eslint-disable-next-line @graphql-eslint/strict-id-in-types
-type UserSignature {
-    type: UserType!
-    id: String!
-}
-"""
-The current session
-"""
+" The current session "
 type Session {
     id: ID!
-    user: UserSignature
+    user: User
 }
 
-"""
-Input for addBook mutation
-"""
+" Base type for users "
+interface User {
+    id: ID!
+
+    balance: Float!
+    " amount of virtual money that can be changed back to real money "
+    redemptionBalance: Float!
+    transactions: [Transaction!]!
+}
+" A guest user "
+type GuestUser implements User {
+    id: ID!
+    balance: Float!
+    " amount of virtual money that can be changed back to real money "
+    redemptionBalance: Float!
+    transactions: [Transaction!]!
+    name: String
+    enter: Date!
+    leave: Date
+}
+" A citizen user "
+type CitizenUser implements User {
+    id: ID!
+    balance: Float!
+    " amount of virtual money that can be changed back to real money "
+    redemptionBalance: Float!
+    transactions: [Transaction!]!
+    firstName: String!
+    lastName: String!
+    name: String!
+    image: String!
+    employment: CompanyEmployeeEdge
+}
+" Representing a 1h timeframe of the company's finances "
+type FinancesFragment {
+    staff: Float!
+    netRevenue: Float!
+    profit: Float!
+    startTime: Date!
+}
+" A company user "
+type CompanyUser implements User {
+    id: ID!
+    balance: Float!
+    " amount of virtual money that can be changed back to real money "
+    redemptionBalance: Float!
+    transactions: [Transaction!]!
+    name: String!
+    image: String!
+    products: [Product!]!
+    employer: CompanyEmployeeEdge!
+    employees: [CompanyEmployeeEdge!]!
+    finances: [FinancesFragment!]!
+}
+
+" Contains information about an employment "
+type CompanyEmployeeEdge {
+    company: CompanyUser!
+    employee: CitizenUser!
+
+    # dynamic values
+    " null if citizen is not currently working "
+    activeSince: Date
+    worktimeToday: Float!
+    worktimeYesterday: Float!
+
+    # contract
+    " virtual currency per hour (employment contract) "
+    salary: Float!
+    " working hours per day "
+    hours: Float!
+}
+" A employment contract offer "
+type EmploymentContractOffer {
+    id: ID!
+    company: CompanyUser!
+    employee: CitizenUser!
+    state: EmploymentContractOfferState!
+    " virtual currency per hour "
+    salary: Float!
+    " working hours per day "
+    hours: Float!
+}
+
+" Base type for transactions"
+interface Transaction {
+    id: ID!
+    date: Date!
+}
+" A transfer transaction "
+type TransferTransaction implements Transaction {
+    id: ID!
+    date: Date!
+    sender: User!
+    receiver: User!
+    value: Float!
+    purpose: String
+}
+" A change transaction "
+type ChangeTransaction implements Transaction {
+    id: ID!
+    date: Date!
+    user: User!
+    baseCurrency: Currency!
+    baseValue: Float!
+    targetCurrency: Currency!
+    targetValue: Float!
+}
+" Tuple with product and amount for use in purchases " # eslint-disable-next-line @graphql-eslint/strict-id-in-types
+type PurchaseItem {
+    product: Product!
+    amount: Int!
+}
+" A purchase transaction "
+type PurchaseTransaction implements Transaction {
+    id: ID!
+    date: Date!
+    customer: User!
+    vendor: CompanyUser!
+    grossPrice: Float!
+    netPrice: Float!
+    tax: Float!
+    items: [PurchaseItem!]!
+    discount: Float
+}
+" A customs transaction "
+type CustomsTransaction implements Transaction {
+    id: ID!
+    date: Date!
+    user: User!
+    customs: Float!
+}
+" A salary transaction "
+type SalaryTransaction implements Transaction {
+    id: ID!
+    date: Date!
+    grossValue: Float!
+    netValue: Float!
+    tax: Float!
+    " workStart and workEnd are either both timestamps or null. If they are null, it is a bonus payment "
+    worStart: Date
+    " workStart and workEnd are either both timestamps or null. If they are null, it is a bonus payment "
+    workEnd: Date
+}
+
+" return type for registerBorderCrossing mutation " # eslint-disable-next-line @graphql-eslint/strict-id-in-types
+type BorderCrossing {
+    citizen: CitizenUser!
+    action: BorderCrossingAction!
+    date: Date!
+}
+
+" Representing a 1h timeframe of the product's stats"
+type StatsFragment {
+    sales: Int!
+    grossRevenue: Float!
+    netRevenue: Float!
+    startTime: Date!
+}
+" A product of an company "
+type Product {
+    id: ID!
+    name: String!
+    price: Float!
+    todaySales: Int!
+    totalGrossRevenue: Float!
+    totalSales: Int!
+    totalSalesPerDay: Float!
+    stats: [StatsFragment!]!
+}
+
+" Contains information about a user vote "
+type VoteCitizenEdge {
+    user: CitizenUser!
+    vote: [Float!]!
+}
+" A vote "
+type Vote {
+    id: ID!
+    type: VoteType!
+    title: String!
+    description: String!
+    image: String!
+    end: Date!
+    items: [String!]!
+    result: [Float!]
+    chartInfo: String
+    # eslint-disable-next-line @graphql-eslint/no-typename-prefix
+    votes: [VoteCitizenEdge!]!
+}
+
+#             #
+# Input types #
+#             #
+
+" Input for addBook mutation "
 input AddBookInput {
     title: String!
     author: String!
 }
 
-"""
-Information needed to identify a user
-"""
+" Information needed to identify a user "
 input UserSignatureInput {
     type: UserType!
     id: String!
 }
 
-"""
-Queries
-"""
+" Input for addProduct mutation "
+input AddProductInput {
+    name: String!
+    price: Float!
+}
+" Input for editProduct mutation "
+input EditProductInput {
+    id: ID!
+    name: String
+    price: Float
+}
+
+" Input for createEmploymentContractOffer mutation "
+input CreateEmploymentContractOfferInput {
+    citizenID: ID!
+    " virtual currency per hour "
+    salary: Float!
+    " working hours per day "
+    hours: Float!
+}
+
+" Input for changeCurrencies mutation "
+input ChangeTransactionInput {
+    user: UserSignatureInput!
+    " value in the virtual currency "
+    value: Float!
+}
+" Input for transferMoney mutation "
+input TransferTransactionInput {
+    " receiver must be a citizen "
+    receiver: UserSignatureInput!
+    value: Float!
+    purpose: String
+}
+" Tuple with product and amount for use in purchases "
+input PurchaseItemInput {
+    productID: ID!
+    amount: Int!
+}
+" Input for sell mutation "
+input PurchaseTransactionInput {
+    customer: UserSignatureInput!
+    items: [PurchaseItemInput!]!
+    discount: Float
+}
+" Input for warehousePurchase mutation "
+input WarehousePurchaseTransactionInput {
+    items: [PurchaseItemInput!]!
+}
+" Input for chargeCustoms mutation "
+input CustomsTransactionInput {
+    user: UserSignatureInput!
+    value: Float!
+}
+
+" Input for createGuest mutation "
+input CreateGuestInput {
+    name: String
+}
+
+" Input for createVote mutation "
+input CreateVoteInput {
+    title: String!
+    description: String!
+    image: File
+    end: Date
+    items: [String!]!
+}
+" Input for vote mutation "
+input VoteInput {
+    id: ID!
+    vote: [Float!]
+}
+
+#                #
+# API Root types #
+#                #
+
+" Queries "
 type Query {
     books: [Book!]!
     book(title: String!): Book
@@ -63,22 +369,71 @@ type Query {
     authors: [Author!]!
     author(name: String!): Author
 
-    session: Session!
+    " for debugging only "
+    session: Session! @auth(role: [ADMIN])
+    me: User! @auth(role: [USER])
+
+    votes: [Vote!]!
+
+    userFromCard(cardID: ID!): User!
 }
 
-"""
-Mutations
-"""
+" Mutations "
 type Mutation {
     addBook(input: AddBookInput!): Book!
 
-    login(user: UserSignatureInput!, password: String!): Session!
-    logout: Session!
+    " login as user; guests don't need a password "
+    login(user: UserSignatureInput!, password: String): User!
+    logout: Boolean!
+
+    createEmploymentContractOffer(
+        contract: CreateEmploymentContractOfferInput!
+    ): EmploymentContractOffer! @auth(role: [COMPANY])
+    acceptEmploymentContractOffer(id: ID!): EmploymentContractOffer!
+        @auth(role: [CITIZEN])
+    rejectEmploymentContractOffer(
+        id: ID!
+        reason: String
+    ): EmploymentContractOffer! @auth(role: [CITIZEN])
+    " contract offer must be rejected to be deleted "
+    deleteEmploymentContractOffer(id: ID!): Boolean! @auth(role: [COMPANY])
+    fireEmployee(citizenID: ID!): Boolean! @auth(role: [COMPANY])
+
+    payBonus(value: Float!, employees: [ID!]!): [SalaryTransaction!]!
+        @auth(role: [COMPANY])
+    changeCurrencies(
+        change: ChangeTransactionInput!
+        password: String!
+    ): ChangeTransaction! @auth(role: [BANK])
+    transferMoney(transfer: TransferTransactionInput): TransferTransaction!
+        @auth(role: [CITIZEN])
+    sell(
+        purchase: PurchaseTransactionInput
+        password: String!
+    ): PurchaseTransaction! @auth(role: [COMPANY])
+    warehousePurchase(
+        purchase: WarehousePurchaseTransactionInput!
+    ): PurchaseTransaction! @auth(role: [COMPANY])
+    chargeCustoms(customs: CustomsTransactionInput!): CustomsTransaction!
+        @auth(role: [BORDER_CONTROL])
+
+    registerBorderCrossing(citizenID: ID!): BorderCrossing!
+        @auth(role: [BORDER_CONTROL])
+
+    createGuest(guest: CreateGuestInput, cardID: ID!): GuestUser!
+        @auth(role: [BORDER_CONTROL])
+    removeGuest(cardID: ID!): Boolean! @auth(role: [BORDER_CONTROL])
+
+    addProduct(product: AddProductInput!): Product! @auth(role: [COMPANY])
+    editProduct(product: EditProductInput!): Product! @auth(role: [COMPANY])
+    " remove product from the company's inventory "
+    removeProduct(productID: ID!): Boolean! @auth(role: [COMPANY])
+
+    createVote(vote: CreateVoteInput!): Vote! @auth(role: [POLITICS])
+    vote(vote: VoteInput!): VoteCitizenEdge! @auth(role: [CITIZEN])
 }
 
-"""
-Subscriptions
-"""
+" Subscriptions "
 type Subscription {
     addedBook(author: String): Book!
 }

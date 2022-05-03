@@ -10,7 +10,7 @@ export interface IVoteBase {
     id: string;
     title: string;
     description: string;
-    icon: string;
+    image: string;
     end: Date;
     items: string[];
     result?: number[];
@@ -157,15 +157,16 @@ export interface IPurchaseTransaction extends IBaseTransaction {
     type: "purchase";
     customer: TUser;
     vendor: ICompanyUser;
-    price: number;
-    includedTax: number;
-    goods: [number, IProduct][];
+    grossPrice: number;
+    netPrice: number;
+    tax: number;
+    items: [number, IProduct][];
+    discount: number;
     additionalInfo?: string;
 }
 export interface ICustomsTransaction extends IBaseTransaction {
     type: "customs";
     user: ICompanyUser | ICitizenUser;
-    goods: string;
     customs: number;
 }
 export interface ISalaryTransaction extends IBaseTransaction {
