@@ -29,11 +29,11 @@ enum UserType {
     GUEST
 }
 
-" state of employment contract offer "
-enum EmploymentContractOfferState {
-    PEDING
+" state of employment offer "
+enum EmploymentOfferState {
+    PENDING
     REJECTED
-    # cannot be ACCEPTED, because offers are deleted converted to employment contracts on accept
+    # cannot be ACCEPTED, because offers are deleted converted to employments on accept
 }
 
 " Currency types "
@@ -142,18 +142,18 @@ type CompanyEmployeeEdge {
     worktimeToday: Float!
     worktimeYesterday: Float!
 
-    # contract
+    # contract (static values)
     " virtual currency per hour (employment contract) "
     salary: Float!
-    " working hours per day "
+    " working hours per day (employment contract) "
     hours: Float!
 }
-" A employment contract offer "
-type EmploymentContractOffer {
+" A employment offer "
+type EmploymentOffer {
     id: ID!
     company: CompanyUser!
     employee: CitizenUser!
-    state: EmploymentContractOfferState!
+    state: EmploymentOfferState!
     " virtual currency per hour "
     salary: Float!
     " working hours per day "
@@ -212,6 +212,7 @@ type CustomsTransaction implements Transaction {
 type SalaryTransaction implements Transaction {
     id: ID!
     date: Date!
+    employment: CompanyEmployeeEdge!
     grossValue: Float!
     netValue: Float!
     tax: Float!
@@ -259,8 +260,8 @@ type Vote {
     title: String!
     description: String!
     image: String!
-    end: Date!
-    items: [String!]!
+    endAt: Date!
+    choices: [String!]!
     result: [Float!]
     chartInfo: String
     # eslint-disable-next-line @graphql-eslint/no-typename-prefix
@@ -295,8 +296,8 @@ input EditProductInput {
     price: Float
 }
 
-" Input for createEmploymentContractOffer mutation "
-input CreateEmploymentContractOfferInput {
+" Input for createEmploymentOffer mutation "
+input CreateEmploymentOfferInput {
     citizenID: ID!
     " virtual currency per hour "
     salary: Float!
@@ -348,7 +349,7 @@ input CreateVoteInput {
     title: String!
     description: String!
     image: File
-    end: Date
+    endAt: Date
     items: [String!]!
 }
 " Input for vote mutation "
@@ -386,17 +387,13 @@ type Mutation {
     login(user: UserSignatureInput!, password: String): User!
     logout: Boolean!
 
-    createEmploymentContractOffer(
-        contract: CreateEmploymentContractOfferInput!
-    ): EmploymentContractOffer! @auth(role: [COMPANY])
-    acceptEmploymentContractOffer(id: ID!): EmploymentContractOffer!
+    createEmploymentOffer(offer: CreateEmploymentOfferInput!): EmploymentOffer!
+        @auth(role: [COMPANY])
+    acceptEmploymentOffer(id: ID!): EmploymentOffer! @auth(role: [CITIZEN])
+    rejectEmploymentOffer(id: ID!, reason: String): EmploymentOffer!
         @auth(role: [CITIZEN])
-    rejectEmploymentContractOffer(
-        id: ID!
-        reason: String
-    ): EmploymentContractOffer! @auth(role: [CITIZEN])
-    " contract offer must be rejected to be deleted "
-    deleteEmploymentContractOffer(id: ID!): Boolean! @auth(role: [COMPANY])
+    " offer must be rejected to be deleted "
+    deleteEmploymentOffer(id: ID!): Boolean! @auth(role: [COMPANY])
     fireEmployee(citizenID: ID!): Boolean! @auth(role: [COMPANY])
 
     payBonus(value: Float!, employees: [ID!]!): [SalaryTransaction!]!

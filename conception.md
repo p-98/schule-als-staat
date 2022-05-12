@@ -9,8 +9,8 @@
         -   a card can have several identities one after another
         -   identities are kept in the system even when removed from the id card
 -   Unternehen und Unternehmer sind verschiedene Accounts
--   Eine Person, die ein Unternehmen gründet, muss bei diesem einen Arbeitsvertrag haben
--   Eine Person kann nur einen Arbeitsvertrag haben
+-   Eine Person, die ein Unternehmen gründet, muss bei dieser angestellt sein
+-   Eine Person kann nur eine Anstellung haben
 -   Gehaltsauszahlungen
     -   Im Arbeitsvertrag steht eine Stundenzahl und ein Stundenlohn
     -   Arbeitszeiten werden digital getrackt und nach Stunden direkt beim logout bezahlt
