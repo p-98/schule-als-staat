@@ -194,6 +194,7 @@ type TValidToNever<T> = T extends string
         : never
     : never;
 export type TIsAny<T> = [TValidToNever<T>] extends [never] ? false : true;
+export type TNullable<T> = T | null;
 
 // types for rmwc wrappers
 export type TWithThemeProp<T = unknown> = T & { theme?: ThemePropT };

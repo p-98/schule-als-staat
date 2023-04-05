@@ -1,6 +1,5 @@
 import { Knex } from "knex";
-
-type TNullable<T> = T | null;
+import type { TNullable } from "Types";
 
 type TNullableToOptional<T extends Record<PropertyKey, unknown>> = {
     [K in keyof T]: null extends T[K] ? T[K] | undefined : T[K];
@@ -11,61 +10,73 @@ type TOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 export interface ISession {
     id: string;
-    user: TNullable<string>;
+    userSignature: TNullable<string>;
 }
 
 export interface IBankAccount {
     id: string;
     balance: number;
-    redemption_balance: number;
+    redemptionBalance: number;
 }
 
 export interface IGuest {
     id: string;
-    bank_account: string;
+    cardId: string;
+    bankAccountId: string;
     name: TNullable<string>;
-    entered_at: string;
-    left_at: TNullable<string>;
+    enteredAt: string;
+    leftAt: TNullable<string>;
 }
 
 export interface ICitizen {
     id: string;
-    bank_account: string;
-    first_name: string;
-    last_name: string;
+    bankAccountId: string;
+    firstName: string;
+    lastName: string;
+    password: string;
     image: string;
 }
 
 export interface ICompany {
     id: string;
-    bank_account: string;
+    bankAccountId: string;
     name: string;
+    password: string;
     image: string;
 }
 
 export interface IEmployment {
-    company_id: string;
-    employee_id: string;
-    active_since: TNullable<string>;
-    worktime: string;
+    id: number;
+    companyId: string;
+    citizenId: string;
     salary: number;
-    hours: string;
-    cancelled: TNullable<boolean>;
+    minWorktime: number;
+    employer: boolean;
+    cancelled: boolean;
+}
+
+export interface IWorktime {
+    id: number;
+    employmentId: number;
+    start: string;
+    end: TNullable<string>; // null during the working session is ongoing
 }
 
 export interface IEmploymentOffer {
-    company_id: string;
-    employee_id: string;
-    state: "PENDING" | "REJECTED";
+    id: number;
+    companyId: string;
+    citizenId: string;
+    state: "PENDING" | "REJECTED" | "ACCEPTED" | "DELETED";
+    rejectionReason: TNullable<string>;
     salary: number;
-    hours: string;
+    minWorktime: number;
 }
 
 export interface ITransferTransaction {
     id: number;
     date: string;
-    sender_signature: string;
-    receiver_signature: string;
+    senderUserSignature: string;
+    receiverUserSignature: string;
     value: number;
     purpose: TNullable<string>;
 }
@@ -73,50 +84,51 @@ export interface ITransferTransaction {
 export interface IChangeTransaction {
     id: number;
     date: string;
-    user_signature: string;
+    userSignature: string;
     action: "VIRTUAL_TO_REAL" | "REAL_TO_VIRTUAL";
-    value_virtual: number;
-    value_real: number;
+    valueVirtual: number;
+    valueReal: number;
 }
 
 export interface IPurchaseTransaction {
     id: number;
     date: string;
-    customer_signature: string;
-    vendor_signature: string;
-    gross_price: number;
-    net_price: number;
+    customerUserSignature: string;
+    companyId: string;
+    grossPrice: number;
+    netPrice: number;
     discount: TNullable<number>;
 }
 
 export interface ICustomsTransaction {
     id: number;
     date: string;
-    user_signature: string;
+    userSignature: string;
     customs: number;
 }
 
 export interface ISalaryTransaction {
     id: number;
     date: string;
-    employment_id: string;
-    gross_value: number;
-    net_value: number;
-    work_start: TNullable<string>;
-    work_end: TNullable<string>;
+    employmentId: number;
+    grossValue: number;
+    netValue: number;
+    worktimeId: TNullable<number>;
 }
 
 export interface IProduct {
     id: string;
+    companyId: string;
     name: string;
     price: number;
+    deleted: boolean;
 }
 
 export interface IProductSale {
-    purchase_id: number;
-    product_id: string;
+    purchaseId: number;
+    productId: string;
     amount: number;
-    gross_revenue: number;
+    grossRevenue: number;
 }
 
 export interface IVote {
@@ -125,80 +137,90 @@ export interface IVote {
     title: string;
     description: string;
     image: string;
-    end_at: string;
+    endAt: string;
     choices: string;
     result: TNullable<string>;
-    chart_info: TNullable<string>;
+    chartInfo: TNullable<string>;
 }
 
 export interface IVotingPaper {
-    vote_id: number;
-    citizen_id: string;
+    voteId: number;
+    citizenId: string;
     vote: string;
+}
+
+export interface IStay {
+    id: number;
+    citizenId: string;
+    enteredAt: string;
+    leftAt: TNullable<string>;
 }
 
 declare module "knex/types/tables" {
     interface Tables {
         sessions: Knex.CompositeTableType<
             ISession,
-            TNullableToOptional<ISession>,
-            Partial<TOmit<ISession, "id">>
+            TNullableToOptional<TOmit<ISession, "id">>,
+            TNullableToOptional<TOmit<ISession, "id">>
         >;
-        bank_accounts: Knex.CompositeTableType<
+        bankAccounts: Knex.CompositeTableType<
             IBankAccount,
             IBankAccount,
             Partial<TOmit<IBankAccount, "id">>
         >;
         guests: Knex.CompositeTableType<
             IGuest,
-            TNullableToOptional<TOmit<IGuest, "left_at">>,
-            Partial<Pick<IGuest, "left_at">>
+            TNullableToOptional<TOmit<IGuest, "leftAt">>,
+            Partial<Pick<IGuest, "leftAt">>
         >;
         citizens: Knex.CompositeTableType<
             ICitizen,
-            ICitizen,
-            Partial<Pick<ICitizen, "image">>
+            TOmit<ICitizen, "id">,
+            Partial<Pick<ICitizen, "image" | "password">>
         >;
         companies: Knex.CompositeTableType<
             ICompany,
-            ICompany,
-            Partial<Pick<ICompany, "image">>
+            TOmit<ICompany, "id">,
+            Partial<Pick<ICompany, "image" | "password">>
+        >;
+        worktimes: Knex.CompositeTableType<
+            IWorktime,
+            TOmit<IWorktime, "id" | "end">,
+            Partial<Pick<IWorktime, "end">>
         >;
         employments: Knex.CompositeTableType<
             IEmployment,
-            TOmit<IEmployment, "active_since" | "cancelled">,
-            Partial<
-                Pick<IEmployment, "active_since" | "worktime" | "cancelled">
-            >
+            TOmit<IEmployment, "id">,
+            Partial<Pick<IEmployment, "cancelled">>
         >;
-        employment_offers: Knex.CompositeTableType<
+        employmentOffers: Knex.CompositeTableType<
             IEmploymentOffer,
-            IEmploymentOffer,
-            never
+            TOmit<IEmploymentOffer, "id" | "rejectionReason">,
+            Partial<Pick<IEmploymentOffer, "state" | "rejectionReason">>
         >;
-        transfer_transactions: Knex.CompositeTableType<
+        transferTransactions: Knex.CompositeTableType<
             ITransferTransaction,
-            TNullableToOptional<ITransferTransaction>,
+            TNullableToOptional<Omit<ITransferTransaction, "id">>,
             never
         >;
-        change_transactions: Knex.CompositeTableType<
+        changeTransactions: Knex.CompositeTableType<
             IChangeTransaction,
-            IChangeTransaction,
+            Omit<IChangeTransaction, "id">,
             never
         >;
-        purchase_transactions: Knex.CompositeTableType<
+        purchaseTransactions: Knex.CompositeTableType<
             IPurchaseTransaction,
-            IPurchaseTransaction,
+            Omit<IPurchaseTransaction, "id">,
             never
         >;
-        customs_transactions: Knex.CompositeTableType<
+        customsTransactions: Knex.CompositeTableType<
             ICustomsTransaction,
-            ICustomsTransaction,
+            Omit<ICustomsTransaction, "id">,
             never
         >;
-        salary_transactions: Knex.CompositeTableType<
+        salaryTransactions: Knex.CompositeTableType<
             ISalaryTransaction,
-            TNullableToOptional<ISalaryTransaction>,
+            TNullableToOptional<Omit<ISalaryTransaction, "id">>,
             never
         >;
         products: Knex.CompositeTableType<
@@ -206,20 +228,31 @@ declare module "knex/types/tables" {
             IProduct,
             Partial<TOmit<IProduct, "id">>
         >;
-        product_sales: Knex.CompositeTableType<
+        productSales: Knex.CompositeTableType<
             IProductSale,
             IProductSale,
             never
         >;
         votes: Knex.CompositeTableType<
             IVote,
-            TOmit<IVote, "result" | "chart_info">,
-            Partial<Pick<IVote, "result" | "chart_info">>
+            TOmit<IVote, "id" | "result" | "chartInfo">,
+            Partial<Pick<IVote, "result" | "chartInfo">>
         >;
-        voting_papers: Knex.CompositeTableType<
+        votingPapers: Knex.CompositeTableType<
             IVotingPaper,
             IVotingPaper,
             never
         >;
+        stays: Knex.CompositeTableType<
+            IStay,
+            Omit<IStay, "id" | "leftAt">,
+            Partial<Pick<IStay, "leftAt">>
+        >;
+    }
+}
+
+declare module "knex/types/result" {
+    interface Registry {
+        Count: number;
     }
 }

@@ -11,6 +11,30 @@ generates:
             mappers:
                 Author: ./models#IAuthorModel
                 Book: ./models#IBookModel
+                Session: ./models#ISessionModel
+                GuestUser: ./models#IGuestUserModel
+                CitizenUser: ./models#ICitizenUserModel
+                CompanyUser: ./models#ICompanyUserModel
+                CompanyStatsFragment: ./models#ICompanyStatsFragmentModel
+                Worktime: ./models#IWorktimeModel
+                Employment: ./models#IEmploymentModel
+                EmploymentOffer: ./models#IEmploymentOfferModel
+                TransferTransaction: ./models#ITransferTransactionModel
+                ChangeTransaction: ./models#IChangeTransactionModel
+                PurchaseTransaction: ./models#IPurchaseTransactionModel
+                PurchaseItem: ./models#IPurchaseItemModel
+                CustomsTransaction: ./models#ICustomsTransactionModel
+                SalaryTransaction: ./models#ISalaryTransactionModel
+                BorderCrossing: ./models#IBorderCrossingModel
+                Product: ./models#IProductModel
+                ProductStatsFragment: ./models#IProductStatsFragmentModel
+                VoteCitizenEdge: ./models#IVoteCitizenEdgeModel
+                Vote: ./models#IVoteModel
+            strictScalars: true
+            scalars:
+                DateTime: string
+                Void: void
+                File: "@whatwg-node/fetch#File"
         plugins:
             - "typescript"
             - "typescript-resolvers"

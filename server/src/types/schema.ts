@@ -1,5 +1,6 @@
+import { File } from '@whatwg-node/fetch';
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { IAuthorModel, IBookModel, IContext } from './models';
+import { IAuthorModel, IBookModel, ISessionModel, IGuestUserModel, ICitizenUserModel, ICompanyUserModel, ICompanyStatsFragmentModel, IWorktimeModel, IEmploymentModel, IEmploymentOfferModel, ITransferTransactionModel, IChangeTransactionModel, IPurchaseTransactionModel, IPurchaseItemModel, ICustomsTransactionModel, ISalaryTransactionModel, IBorderCrossingModel, IProductModel, IProductStatsFragmentModel, IVoteCitizenEdgeModel, IVoteModel, IContext } from './models';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -13,10 +14,12 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  /**  Javascript Date object  */
-  Date: any;
+  /**  For RFC 3339 datetime strings, handled by graphql-scalars  */
+  DateTime: string;
   /**  For file uploads; automatically handled by graphql-yoga  */
-  File: any;
+  File: File;
+  /**  For void returns, handled by graphql-scalars  */
+  Void: void;
 };
 
 /**  Input for addBook mutation  */
@@ -61,7 +64,7 @@ export type TBorderCrossing = {
   __typename?: 'BorderCrossing';
   action: TBorderCrossingAction;
   citizen: TCitizenUser;
-  date: Scalars['Date'];
+  date: Scalars['DateTime'];
 };
 
 /**  action of BorderCrossing  */
@@ -72,101 +75,97 @@ export type TBorderCrossingAction =
 /**  A change transaction  */
 export type TChangeTransaction = TTransaction & {
   __typename?: 'ChangeTransaction';
-  baseCurrency: TCurrency;
-  baseValue: Scalars['Float'];
-  date: Scalars['Date'];
+  action: TChangeTransactionAction;
+  date: Scalars['DateTime'];
   id: Scalars['ID'];
-  targetCurrency: TCurrency;
-  targetValue: Scalars['Float'];
   user: TUser;
+  valueReal: Scalars['Float'];
+  valueVirtual: Scalars['Float'];
 };
+
+/**  change action types  */
+export type TChangeTransactionAction =
+  | 'REAL_TO_VIRTUAL'
+  | 'VIRTUAL_TO_REAL';
 
 /**  Input for changeCurrencies mutation  */
 export type TChangeTransactionInput = {
+  action: TChangeTransactionAction;
   user: TUserSignatureInput;
-  /**  value in the virtual currency  */
-  value: Scalars['Float'];
+  valueReal: Scalars['Float'];
+  valueVirtual: Scalars['Float'];
 };
 
 /**  A citizen user  */
 export type TCitizenUser = TUser & {
   __typename?: 'CitizenUser';
   balance: Scalars['Float'];
-  employment?: Maybe<TCompanyEmployeeEdge>;
+  employment?: Maybe<TEmployment>;
   firstName: Scalars['String'];
   id: Scalars['ID'];
   image: Scalars['String'];
   lastName: Scalars['String'];
-  name: Scalars['String'];
   /**  amount of virtual money that can be changed back to real money  */
   redemptionBalance: Scalars['Float'];
   transactions: Array<TTransaction>;
 };
 
-/**  Contains information about an employment  */
-export type TCompanyEmployeeEdge = {
-  __typename?: 'CompanyEmployeeEdge';
-  /**  null if citizen is not currently working  */
-  activeSince?: Maybe<Scalars['Date']>;
-  company: TCompanyUser;
-  employee: TCitizenUser;
-  /**  working hours per day  */
-  hours: Scalars['Float'];
-  /**  virtual currency per hour (employment contract)  */
-  salary: Scalars['Float'];
-  worktimeToday: Scalars['Float'];
-  worktimeYesterday: Scalars['Float'];
+/**  Representing a 1h timeframe of the company's stats  */
+export type TCompanyStatsFragment = {
+  __typename?: 'CompanyStatsFragment';
+  grossRevenue: Scalars['Float'];
+  netRevenue: Scalars['Float'];
+  profit: Scalars['Float'];
+  staff: Scalars['Float'];
+  startOfHour: Scalars['DateTime'];
 };
 
 /**  A company user  */
 export type TCompanyUser = TUser & {
   __typename?: 'CompanyUser';
   balance: Scalars['Float'];
-  employees: Array<TCompanyEmployeeEdge>;
-  employer: TCompanyEmployeeEdge;
-  finances: Array<TFinancesFragment>;
+  employees: Array<TEmployment>;
+  employer: TEmployment;
   id: Scalars['ID'];
   image: Scalars['String'];
   name: Scalars['String'];
   products: Array<TProduct>;
   /**  amount of virtual money that can be changed back to real money  */
   redemptionBalance: Scalars['Float'];
+  stats: Array<TCompanyStatsFragment>;
   transactions: Array<TTransaction>;
 };
 
-/**  Input for createEmploymentContractOffer mutation  */
-export type TCreateEmploymentContractOfferInput = {
-  citizenID: Scalars['ID'];
-  /**  working hours per day  */
-  hours: Scalars['Float'];
+/**  Input for createEmploymentOffer mutation  */
+export type TCreateEmploymentOfferInput = {
+  citizenId: Scalars['ID'];
+  /**  worktime per day in seconds  */
+  minWorktime: Scalars['Int'];
   /**  virtual currency per hour  */
   salary: Scalars['Float'];
 };
 
 /**  Input for createGuest mutation  */
 export type TCreateGuestInput = {
+  cardId: Scalars['ID'];
   name?: InputMaybe<Scalars['String']>;
 };
 
 /**  Input for createVote mutation  */
 export type TCreateVoteInput = {
+  choices: Array<Scalars['String']>;
   description: Scalars['String'];
-  end?: InputMaybe<Scalars['Date']>;
-  image?: InputMaybe<Scalars['File']>;
-  items: Array<Scalars['String']>;
+  endAt: Scalars['DateTime'];
+  image: Scalars['File'];
   title: Scalars['String'];
+  type: TVoteType;
 };
-
-/**  Currency types  */
-export type TCurrency =
-  | 'REAL'
-  | 'VIRTUAL';
 
 /**  A customs transaction  */
 export type TCustomsTransaction = TTransaction & {
   __typename?: 'CustomsTransaction';
   customs: Scalars['Float'];
-  date: Scalars['Date'];
+  date: Scalars['DateTime'];
   id: Scalars['ID'];
   user: TUser;
 };
@@ -184,40 +183,47 @@ export type TEditProductInput = {
   price?: InputMaybe<Scalars['Float']>;
 };
 
-/**  A employment contract offer  */
-export type TEmploymentContractOffer = {
-  __typename?: 'EmploymentContractOffer';
+/**  Contains information about an employment  */
+export type TEmployment = {
+  __typename?: 'Employment';
   company: TCompanyUser;
   employee: TCitizenUser;
-  /**  working hours per day  */
-  hours: Scalars['Float'];
   id: Scalars['ID'];
+  /**  worktime per day in seconds (employment contract)  */
+  minWorktime: Scalars['Int'];
+  /**  virtual currency per hour (employment contract)  */
+  salary: Scalars['Float'];
+  /**  in seconds  */
+  worktimeToday: Scalars['Int'];
+  /**  in seconds  */
+  worktimeYesterday: Scalars['Int'];
+};
+
+/**  A employment offer  */
+export type TEmploymentOffer = {
+  __typename?: 'EmploymentOffer';
+  company: TCompanyUser;
+  employee: TCitizenUser;
+  id: Scalars['ID'];
+  /**  worktime per day in seconds  */
+  minWorktime: Scalars['Int'];
   /**  virtual currency per hour  */
   salary: Scalars['Float'];
-  state: TEmploymentContractOfferState;
+  state: TEmploymentOfferState;
 };
 
-/**  state of employment contract offer  */
-export type TEmploymentContractOfferState =
-  | 'PEDING'
+/**  state of employment offer  */
+export type TEmploymentOfferState =
+  | 'PENDING'
   | 'REJECTED';
-
-/**  Representing a 1h timeframe of the company's finances  */
-export type TFinancesFragment = {
-  __typename?: 'FinancesFragment';
-  netRevenue: Scalars['Float'];
-  profit: Scalars['Float'];
-  staff: Scalars['Float'];
-  startTime: Scalars['Date'];
-};
 
 /**  A guest user  */
 export type TGuestUser = TUser & {
   __typename?: 'GuestUser';
   balance: Scalars['Float'];
-  enter: Scalars['Date'];
+  enteredAt: Scalars['DateTime'];
   id: Scalars['ID'];
-  leave?: Maybe<Scalars['Date']>;
+  leftAt?: Maybe<Scalars['DateTime']>;
   name?: Maybe<Scalars['String']>;
   /**  amount of virtual money that can be changed back to real money  */
   redemptionBalance: Scalars['Float'];
@@ -227,27 +233,27 @@ export type TGuestUser = TUser & {
 /**  Mutations  */
 export type TMutation = {
   __typename?: 'Mutation';
-  acceptEmploymentContractOffer: TEmploymentContractOffer;
+  acceptEmploymentOffer: TEmploymentOffer;
   addBook: TBook;
   addProduct: TProduct;
+  cancelEmployment: Scalars['Void'];
   changeCurrencies: TChangeTransaction;
   chargeCustoms: TCustomsTransaction;
-  createEmploymentContractOffer: TEmploymentContractOffer;
+  createEmploymentOffer: TEmploymentOffer;
   createGuest: TGuestUser;
   createVote: TVote;
-  /**  contract offer must be rejected to be deleted  */
-  deleteEmploymentContractOffer: Scalars['Boolean'];
+  /**  offer must be rejected to be deleted  */
+  deleteEmploymentOffer: Scalars['Void'];
   editProduct: TProduct;
-  fireEmployee: Scalars['Boolean'];
   /**  login as user; guests don't need a password  */
   login: TUser;
-  logout: Scalars['Boolean'];
+  logout: Scalars['Void'];
   payBonus: Array<TSalaryTransaction>;
   registerBorderCrossing: TBorderCrossing;
-  rejectEmploymentContractOffer: TEmploymentContractOffer;
-  removeGuest: Scalars['Boolean'];
+  rejectEmploymentOffer: TEmploymentOffer;
+  removeGuest: Scalars['Void'];
   /**  remove product from the company's inventory  */
-  removeProduct: Scalars['Boolean'];
+  removeProduct: Scalars['Void'];
   sell: TPurchaseTransaction;
   transferMoney: TTransferTransaction;
   vote: TVoteCitizenEdge;
@@ -256,7 +262,7 @@ export type TMutation = {
 
 
 /**  Mutations  */
-export type TMutationAcceptEmploymentContractOfferArgs = {
+export type TMutationAcceptEmploymentOfferArgs = {
   id: Scalars['ID'];
 };
 
@@ -274,6 +280,12 @@ export type TMutationAddProductArgs = {
 
 
 /**  Mutations  */
+export type TMutationCancelEmploymentArgs = {
+  id: Scalars['ID'];
+};
+
+
+/**  Mutations  */
 export type TMutationChangeCurrenciesArgs = {
   change: TChangeTransactionInput;
   password: Scalars['String'];
@@ -287,15 +299,14 @@ export type TMutationChargeCustomsArgs = {
 
 
 /**  Mutations  */
-export type TMutationCreateEmploymentContractOfferArgs = {
-  contract: TCreateEmploymentContractOfferInput;
+export type TMutationCreateEmploymentOfferArgs = {
+  offer: TCreateEmploymentOfferInput;
 };
 
 
 /**  Mutations  */
 export type TMutationCreateGuestArgs = {
-  cardID: Scalars['ID'];
-  guest?: InputMaybe<TCreateGuestInput>;
+  guest: TCreateGuestInput;
 };
 
 
@@ -306,7 +317,7 @@ export type TMutationCreateVoteArgs = {
 
 
 /**  Mutations  */
-export type TMutationDeleteEmploymentContractOfferArgs = {
+export type TMutationDeleteEmploymentOfferArgs = {
   id: Scalars['ID'];
 };
 
@@ -314,12 +325,6 @@ export type TMutationDeleteEmploymentContractOfferArgs = {
 /**  Mutations  */
 export type TMutationEditProductArgs = {
   product: TEditProductInput;
-};
-
-
-/**  Mutations  */
-export type TMutationFireEmployeeArgs = {
-  citizenID: Scalars['ID'];
 };
 
 
@@ -332,19 +337,19 @@ export type TMutationLoginArgs = {
 
 /**  Mutations  */
 export type TMutationPayBonusArgs = {
-  employees: Array<Scalars['ID']>;
+  employmentIds: Array<Scalars['ID']>;
   value: Scalars['Float'];
 };
 
 
 /**  Mutations  */
 export type TMutationRegisterBorderCrossingArgs = {
-  citizenID: Scalars['ID'];
+  citizenId: Scalars['ID'];
 };
 
 
 /**  Mutations  */
-export type TMutationRejectEmploymentContractOfferArgs = {
+export type TMutationRejectEmploymentOfferArgs = {
   id: Scalars['ID'];
   reason?: InputMaybe<Scalars['String']>;
 };
@@ -352,26 +357,26 @@ export type TMutationRejectEmploymentContractOfferArgs = {
 
 /**  Mutations  */
 export type TMutationRemoveGuestArgs = {
-  cardID: Scalars['ID'];
+  cardId: Scalars['ID'];
 };
 
 
 /**  Mutations  */
 export type TMutationRemoveProductArgs = {
-  productID: Scalars['ID'];
+  productId: Scalars['ID'];
 };
 
 
 /**  Mutations  */
 export type TMutationSellArgs = {
   password: Scalars['String'];
-  purchase?: InputMaybe<TPurchaseTransactionInput>;
+  purchase: TPurchaseTransactionInput;
 };
 
 
 /**  Mutations  */
 export type TMutationTransferMoneyArgs = {
-  transfer?: InputMaybe<TTransferTransactionInput>;
+  transfer: TTransferTransactionInput;
 };
 
 
@@ -389,14 +394,23 @@ export type TMutationWarehousePurchaseArgs = {
 /**  A product of an company  */
 export type TProduct = {
   __typename?: 'Product';
+  company: TCompanyUser;
+  grossRevenueTotal: Scalars['Float'];
   id: Scalars['ID'];
   name: Scalars['String'];
   price: Scalars['Float'];
-  stats: Array<TStatsFragment>;
-  todaySales: Scalars['Int'];
-  totalGrossRevenue: Scalars['Float'];
-  totalSales: Scalars['Int'];
-  totalSalesPerDay: Scalars['Float'];
+  salesPerDay: Scalars['Float'];
+  salesToday: Scalars['Int'];
+  salesTotal: Scalars['Int'];
+  stats: Array<TProductStatsFragment>;
+};
+
+/**  Representing a 1h timeframe of the product's stats */
+export type TProductStatsFragment = {
+  __typename?: 'ProductStatsFragment';
+  grossRevenue: Scalars['Float'];
+  sales: Scalars['Int'];
+  startOfHour: Scalars['DateTime'];
 };
 
 /**  Tuple with product and amount for use in purchases  */
@@ -409,21 +423,21 @@ export type TPurchaseItem = {
 /**  Tuple with product and amount for use in purchases  */
 export type TPurchaseItemInput = {
   amount: Scalars['Int'];
-  productID: Scalars['ID'];
+  productId: Scalars['ID'];
 };
 
 /**  A purchase transaction  */
 export type TPurchaseTransaction = TTransaction & {
   __typename?: 'PurchaseTransaction';
+  company: TCompanyUser;
   customer: TUser;
-  date: Scalars['Date'];
+  date: Scalars['DateTime'];
   discount?: Maybe<Scalars['Float']>;
   grossPrice: Scalars['Float'];
   id: Scalars['ID'];
   items: Array<TPurchaseItem>;
   netPrice: Scalars['Float'];
   tax: Scalars['Float'];
-  vendor: TCompanyUser;
 };
 
 /**  Input for sell mutation  */
@@ -462,21 +476,21 @@ export type TQueryBookArgs = {
 
 /**  Queries  */
 export type TQueryUserFromCardArgs = {
-  cardID: Scalars['ID'];
+  cardId: Scalars['ID'];
 };
 
 /**  A salary transaction  */
 export type TSalaryTransaction = TTransaction & {
   __typename?: 'SalaryTransaction';
-  date: Scalars['Date'];
+  date: Scalars['DateTime'];
+  employment: TEmployment;
   grossValue: Scalars['Float'];
   id: Scalars['ID'];
+  isBonus: Scalars['Boolean'];
   netValue: Scalars['Float'];
   tax: Scalars['Float'];
-  /**  workStart and workEnd are either both timestamps or null. If they are null, it is a bonus payment  */
-  worStart?: Maybe<Scalars['Date']>;
-  /**  workStart and workEnd are either both timestamps or null. If they are null, it is a bonus payment  */
-  workEnd?: Maybe<Scalars['Date']>;
+  /**  If null, it is a bonus payment  */
+  worktime?: Maybe<TWorktime>;
 };
 
 /**  The current session  */
@@ -484,15 +498,6 @@ export type TSession = {
   __typename?: 'Session';
   id: Scalars['ID'];
   user?: Maybe<TUser>;
-};
-
-/**  Representing a 1h timeframe of the product's stats */
-export type TStatsFragment = {
-  __typename?: 'StatsFragment';
-  grossRevenue: Scalars['Float'];
-  netRevenue: Scalars['Float'];
-  sales: Scalars['Int'];
-  startTime: Scalars['Date'];
 };
 
 /**  Subscriptions  */
@@ -509,14 +514,14 @@ export type TSubscriptionAddedBookArgs = {
 
 /**  Base type for transactions */
 export type TTransaction = {
-  date: Scalars['Date'];
+  date: Scalars['DateTime'];
   id: Scalars['ID'];
 };
 
 /**  A transfer transaction  */
 export type TTransferTransaction = TTransaction & {
   __typename?: 'TransferTransaction';
-  date: Scalars['Date'];
+  date: Scalars['DateTime'];
   id: Scalars['ID'];
   purpose?: Maybe<Scalars['String']>;
   receiver: TUser;
@@ -557,11 +562,11 @@ export type TUserType =
 export type TVote = {
   __typename?: 'Vote';
   chartInfo?: Maybe<Scalars['String']>;
+  choices: Array<Scalars['String']>;
   description: Scalars['String'];
-  end: Scalars['Date'];
+  endAt: Scalars['DateTime'];
   id: Scalars['ID'];
   image: Scalars['String'];
-  items: Array<Scalars['String']>;
   result?: Maybe<Array<Scalars['Float']>>;
   title: Scalars['String'];
   type: TVoteType;
@@ -577,8 +582,8 @@ export type TVoteCitizenEdge = {
 
 /**  Input for vote mutation  */
 export type TVoteInput = {
-  id: Scalars['ID'];
-  vote?: InputMaybe<Array<Scalars['Float']>>;
+  vote: Array<Scalars['Float']>;
+  voteId: Scalars['ID'];
 };
 
 /**  type of vote  */
@@ -589,6 +594,16 @@ export type TVoteType =
 /**  Input for warehousePurchase mutation  */
 export type TWarehousePurchaseTransactionInput = {
   items: Array<TPurchaseItemInput>;
+};
+
+/**  Information about a shift on an employee  */
+export type TWorktime = {
+  __typename?: 'Worktime';
+  employment: TEmployment;
+  /**  If null, the shift has not yet ended  */
+  end?: Maybe<Scalars['DateTime']>;
+  id: Scalars['ID'];
+  start: Scalars['DateTime'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -667,52 +682,54 @@ export type TResolversTypes = ResolversObject<{
   Author: ResolverTypeWrapper<IAuthorModel>;
   Book: ResolverTypeWrapper<IBookModel>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  BorderCrossing: ResolverTypeWrapper<TBorderCrossing>;
+  BorderCrossing: ResolverTypeWrapper<IBorderCrossingModel>;
   BorderCrossingAction: TBorderCrossingAction;
-  ChangeTransaction: ResolverTypeWrapper<TChangeTransaction>;
+  ChangeTransaction: ResolverTypeWrapper<IChangeTransactionModel>;
+  ChangeTransactionAction: TChangeTransactionAction;
   ChangeTransactionInput: TChangeTransactionInput;
-  CitizenUser: ResolverTypeWrapper<TCitizenUser>;
-  CompanyEmployeeEdge: ResolverTypeWrapper<TCompanyEmployeeEdge>;
-  CompanyUser: ResolverTypeWrapper<TCompanyUser>;
-  CreateEmploymentContractOfferInput: TCreateEmploymentContractOfferInput;
+  CitizenUser: ResolverTypeWrapper<ICitizenUserModel>;
+  CompanyStatsFragment: ResolverTypeWrapper<ICompanyStatsFragmentModel>;
+  CompanyUser: ResolverTypeWrapper<ICompanyUserModel>;
+  CreateEmploymentOfferInput: TCreateEmploymentOfferInput;
   CreateGuestInput: TCreateGuestInput;
   CreateVoteInput: TCreateVoteInput;
-  Currency: TCurrency;
-  CustomsTransaction: ResolverTypeWrapper<TCustomsTransaction>;
+  CustomsTransaction: ResolverTypeWrapper<ICustomsTransactionModel>;
   CustomsTransactionInput: TCustomsTransactionInput;
-  Date: ResolverTypeWrapper<Scalars['Date']>;
+  DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   EditProductInput: TEditProductInput;
-  EmploymentContractOffer: ResolverTypeWrapper<TEmploymentContractOffer>;
-  EmploymentContractOfferState: TEmploymentContractOfferState;
+  Employment: ResolverTypeWrapper<IEmploymentModel>;
+  EmploymentOffer: ResolverTypeWrapper<IEmploymentOfferModel>;
+  EmploymentOfferState: TEmploymentOfferState;
   File: ResolverTypeWrapper<Scalars['File']>;
-  FinancesFragment: ResolverTypeWrapper<TFinancesFragment>;
   Float: ResolverTypeWrapper<Scalars['Float']>;
-  GuestUser: ResolverTypeWrapper<TGuestUser>;
+  GuestUser: ResolverTypeWrapper<IGuestUserModel>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Mutation: ResolverTypeWrapper<{}>;
-  Product: ResolverTypeWrapper<TProduct>;
-  PurchaseItem: ResolverTypeWrapper<TPurchaseItem>;
+  Product: ResolverTypeWrapper<IProductModel>;
+  ProductStatsFragment: ResolverTypeWrapper<IProductStatsFragmentModel>;
+  PurchaseItem: ResolverTypeWrapper<IPurchaseItemModel>;
   PurchaseItemInput: TPurchaseItemInput;
-  PurchaseTransaction: ResolverTypeWrapper<TPurchaseTransaction>;
+  PurchaseTransaction: ResolverTypeWrapper<IPurchaseTransactionModel>;
   PurchaseTransactionInput: TPurchaseTransactionInput;
   Query: ResolverTypeWrapper<{}>;
-  SalaryTransaction: ResolverTypeWrapper<TSalaryTransaction>;
-  Session: ResolverTypeWrapper<TSession>;
-  StatsFragment: ResolverTypeWrapper<TStatsFragment>;
+  SalaryTransaction: ResolverTypeWrapper<ISalaryTransactionModel>;
+  Session: ResolverTypeWrapper<ISessionModel>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Subscription: ResolverTypeWrapper<{}>;
   Transaction: TResolversTypes['ChangeTransaction'] | TResolversTypes['CustomsTransaction'] | TResolversTypes['PurchaseTransaction'] | TResolversTypes['SalaryTransaction'] | TResolversTypes['TransferTransaction'];
-  TransferTransaction: ResolverTypeWrapper<TTransferTransaction>;
+  TransferTransaction: ResolverTypeWrapper<ITransferTransactionModel>;
   TransferTransactionInput: TTransferTransactionInput;
   User: TResolversTypes['CitizenUser'] | TResolversTypes['CompanyUser'] | TResolversTypes['GuestUser'];
   UserSignatureInput: TUserSignatureInput;
   UserType: TUserType;
-  Vote: ResolverTypeWrapper<TVote>;
-  VoteCitizenEdge: ResolverTypeWrapper<TVoteCitizenEdge>;
+  Void: ResolverTypeWrapper<Scalars['Void']>;
+  Vote: ResolverTypeWrapper<IVoteModel>;
+  VoteCitizenEdge: ResolverTypeWrapper<IVoteCitizenEdgeModel>;
   VoteInput: TVoteInput;
   VoteType: TVoteType;
   WarehousePurchaseTransactionInput: TWarehousePurchaseTransactionInput;
+  Worktime: ResolverTypeWrapper<IWorktimeModel>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -722,47 +739,49 @@ export type TResolversParentTypes = ResolversObject<{
   Author: IAuthorModel;
   Book: IBookModel;
   Boolean: Scalars['Boolean'];
-  BorderCrossing: TBorderCrossing;
-  ChangeTransaction: TChangeTransaction;
+  BorderCrossing: IBorderCrossingModel;
+  ChangeTransaction: IChangeTransactionModel;
   ChangeTransactionInput: TChangeTransactionInput;
-  CitizenUser: TCitizenUser;
-  CompanyEmployeeEdge: TCompanyEmployeeEdge;
-  CompanyUser: TCompanyUser;
-  CreateEmploymentContractOfferInput: TCreateEmploymentContractOfferInput;
+  CitizenUser: ICitizenUserModel;
+  CompanyStatsFragment: ICompanyStatsFragmentModel;
+  CompanyUser: ICompanyUserModel;
+  CreateEmploymentOfferInput: TCreateEmploymentOfferInput;
   CreateGuestInput: TCreateGuestInput;
   CreateVoteInput: TCreateVoteInput;
-  CustomsTransaction: TCustomsTransaction;
+  CustomsTransaction: ICustomsTransactionModel;
   CustomsTransactionInput: TCustomsTransactionInput;
-  Date: Scalars['Date'];
+  DateTime: Scalars['DateTime'];
   EditProductInput: TEditProductInput;
-  EmploymentContractOffer: TEmploymentContractOffer;
+  Employment: IEmploymentModel;
+  EmploymentOffer: IEmploymentOfferModel;
   File: Scalars['File'];
-  FinancesFragment: TFinancesFragment;
   Float: Scalars['Float'];
-  GuestUser: TGuestUser;
+  GuestUser: IGuestUserModel;
   ID: Scalars['ID'];
   Int: Scalars['Int'];
   Mutation: {};
-  Product: TProduct;
-  PurchaseItem: TPurchaseItem;
+  Product: IProductModel;
+  ProductStatsFragment: IProductStatsFragmentModel;
+  PurchaseItem: IPurchaseItemModel;
   PurchaseItemInput: TPurchaseItemInput;
-  PurchaseTransaction: TPurchaseTransaction;
+  PurchaseTransaction: IPurchaseTransactionModel;
   PurchaseTransactionInput: TPurchaseTransactionInput;
   Query: {};
-  SalaryTransaction: TSalaryTransaction;
-  Session: TSession;
-  StatsFragment: TStatsFragment;
+  SalaryTransaction: ISalaryTransactionModel;
+  Session: ISessionModel;
   String: Scalars['String'];
   Subscription: {};
   Transaction: TResolversParentTypes['ChangeTransaction'] | TResolversParentTypes['CustomsTransaction'] | TResolversParentTypes['PurchaseTransaction'] | TResolversParentTypes['SalaryTransaction'] | TResolversParentTypes['TransferTransaction'];
-  TransferTransaction: TTransferTransaction;
+  TransferTransaction: ITransferTransactionModel;
   TransferTransactionInput: TTransferTransactionInput;
   User: TResolversParentTypes['CitizenUser'] | TResolversParentTypes['CompanyUser'] | TResolversParentTypes['GuestUser'];
   UserSignatureInput: TUserSignatureInput;
-  Vote: TVote;
-  VoteCitizenEdge: TVoteCitizenEdge;
+  Void: Scalars['Void'];
+  Vote: IVoteModel;
+  VoteCitizenEdge: IVoteCitizenEdgeModel;
   VoteInput: TVoteInput;
   WarehousePurchaseTransactionInput: TWarehousePurchaseTransactionInput;
+  Worktime: IWorktimeModel;
 }>;
 
 export type TAuthDirectiveArgs = {
@@ -786,78 +805,85 @@ export type TBookResolvers<ContextType = IContext, ParentType extends TResolvers
 export type TBorderCrossingResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['BorderCrossing'] = TResolversParentTypes['BorderCrossing']> = ResolversObject<{
   action?: Resolver<TResolversTypes['BorderCrossingAction'], ParentType, ContextType>;
   citizen?: Resolver<TResolversTypes['CitizenUser'], ParentType, ContextType>;
-  date?: Resolver<TResolversTypes['Date'], ParentType, ContextType>;
+  date?: Resolver<TResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type TChangeTransactionResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['ChangeTransaction'] = TResolversParentTypes['ChangeTransaction']> = ResolversObject<{
-  baseCurrency?: Resolver<TResolversTypes['Currency'], ParentType, ContextType>;
-  baseValue?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  date?: Resolver<TResolversTypes['Date'], ParentType, ContextType>;
+  action?: Resolver<TResolversTypes['ChangeTransactionAction'], ParentType, ContextType>;
+  date?: Resolver<TResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
-  targetCurrency?: Resolver<TResolversTypes['Currency'], ParentType, ContextType>;
-  targetValue?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
   user?: Resolver<TResolversTypes['User'], ParentType, ContextType>;
+  valueReal?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
+  valueVirtual?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type TCitizenUserResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['CitizenUser'] = TResolversParentTypes['CitizenUser']> = ResolversObject<{
   balance?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  employment?: Resolver<Maybe<TResolversTypes['CompanyEmployeeEdge']>, ParentType, ContextType>;
+  employment?: Resolver<Maybe<TResolversTypes['Employment']>, ParentType, ContextType>;
   firstName?: Resolver<TResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<TResolversTypes['String'], ParentType, ContextType>;
   lastName?: Resolver<TResolversTypes['String'], ParentType, ContextType>;
-  name?: Resolver<TResolversTypes['String'], ParentType, ContextType>;
   redemptionBalance?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
   transactions?: Resolver<Array<TResolversTypes['Transaction']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TCompanyEmployeeEdgeResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['CompanyEmployeeEdge'] = TResolversParentTypes['CompanyEmployeeEdge']> = ResolversObject<{
-  activeSince?: Resolver<Maybe<TResolversTypes['Date']>, ParentType, ContextType>;
-  company?: Resolver<TResolversTypes['CompanyUser'], ParentType, ContextType>;
-  employee?: Resolver<TResolversTypes['CitizenUser'], ParentType, ContextType>;
-  hours?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  salary?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  worktimeToday?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  worktimeYesterday?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
+export type TCompanyStatsFragmentResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['CompanyStatsFragment'] = TResolversParentTypes['CompanyStatsFragment']> = ResolversObject<{
+  grossRevenue?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
+  netRevenue?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
+  profit?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
+  staff?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
+  startOfHour?: Resolver<TResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type TCompanyUserResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['CompanyUser'] = TResolversParentTypes['CompanyUser']> = ResolversObject<{
   balance?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  employees?: Resolver<Array<TResolversTypes['CompanyEmployeeEdge']>, ParentType, ContextType>;
-  employer?: Resolver<TResolversTypes['CompanyEmployeeEdge'], ParentType, ContextType>;
-  finances?: Resolver<Array<TResolversTypes['FinancesFragment']>, ParentType, ContextType>;
+  employees?: Resolver<Array<TResolversTypes['Employment']>, ParentType, ContextType>;
+  employer?: Resolver<TResolversTypes['Employment'], ParentType, ContextType>;
   id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<TResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<TResolversTypes['String'], ParentType, ContextType>;
   products?: Resolver<Array<TResolversTypes['Product']>, ParentType, ContextType>;
   redemptionBalance?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
+  stats?: Resolver<Array<TResolversTypes['CompanyStatsFragment']>, ParentType, ContextType>;
   transactions?: Resolver<Array<TResolversTypes['Transaction']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type TCustomsTransactionResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['CustomsTransaction'] = TResolversParentTypes['CustomsTransaction']> = ResolversObject<{
   customs?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  date?: Resolver<TResolversTypes['Date'], ParentType, ContextType>;
+  date?: Resolver<TResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
   user?: Resolver<TResolversTypes['User'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export interface TDateScalarConfig extends GraphQLScalarTypeConfig<TResolversTypes['Date'], any> {
-  name: 'Date';
+export interface TDateTimeScalarConfig extends GraphQLScalarTypeConfig<TResolversTypes['DateTime'], any> {
+  name: 'DateTime';
 }
 
-export type TEmploymentContractOfferResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['EmploymentContractOffer'] = TResolversParentTypes['EmploymentContractOffer']> = ResolversObject<{
+export type TEmploymentResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['Employment'] = TResolversParentTypes['Employment']> = ResolversObject<{
   company?: Resolver<TResolversTypes['CompanyUser'], ParentType, ContextType>;
   employee?: Resolver<TResolversTypes['CitizenUser'], ParentType, ContextType>;
-  hours?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
   id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
+  minWorktime?: Resolver<TResolversTypes['Int'], ParentType, ContextType>;
   salary?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  state?: Resolver<TResolversTypes['EmploymentContractOfferState'], ParentType, ContextType>;
+  worktimeToday?: Resolver<TResolversTypes['Int'], ParentType, ContextType>;
+  worktimeYesterday?: Resolver<TResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TEmploymentOfferResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['EmploymentOffer'] = TResolversParentTypes['EmploymentOffer']> = ResolversObject<{
+  company?: Resolver<TResolversTypes['CompanyUser'], ParentType, ContextType>;
+  employee?: Resolver<TResolversTypes['CitizenUser'], ParentType, ContextType>;
+  id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
+  minWorktime?: Resolver<TResolversTypes['Int'], ParentType, ContextType>;
+  salary?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
+  state?: Resolver<TResolversTypes['EmploymentOfferState'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -865,19 +891,11 @@ export interface TFileScalarConfig extends GraphQLScalarTypeConfig<TResolversTyp
   name: 'File';
 }
 
-export type TFinancesFragmentResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['FinancesFragment'] = TResolversParentTypes['FinancesFragment']> = ResolversObject<{
-  netRevenue?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  profit?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  staff?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  startTime?: Resolver<TResolversTypes['Date'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
 export type TGuestUserResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['GuestUser'] = TResolversParentTypes['GuestUser']> = ResolversObject<{
   balance?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  enter?: Resolver<TResolversTypes['Date'], ParentType, ContextType>;
+  enteredAt?: Resolver<TResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
-  leave?: Resolver<Maybe<TResolversTypes['Date']>, ParentType, ContextType>;
+  leftAt?: Resolver<Maybe<TResolversTypes['DateTime']>, ParentType, ContextType>;
   name?: Resolver<Maybe<TResolversTypes['String']>, ParentType, ContextType>;
   redemptionBalance?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
   transactions?: Resolver<Array<TResolversTypes['Transaction']>, ParentType, ContextType>;
@@ -885,39 +903,47 @@ export type TGuestUserResolvers<ContextType = IContext, ParentType extends TReso
 }>;
 
 export type TMutationResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['Mutation'] = TResolversParentTypes['Mutation']> = ResolversObject<{
-  acceptEmploymentContractOffer?: Resolver<TResolversTypes['EmploymentContractOffer'], ParentType, ContextType, RequireFields<TMutationAcceptEmploymentContractOfferArgs, 'id'>>;
+  acceptEmploymentOffer?: Resolver<TResolversTypes['EmploymentOffer'], ParentType, ContextType, RequireFields<TMutationAcceptEmploymentOfferArgs, 'id'>>;
   addBook?: Resolver<TResolversTypes['Book'], ParentType, ContextType, RequireFields<TMutationAddBookArgs, 'input'>>;
   addProduct?: Resolver<TResolversTypes['Product'], ParentType, ContextType, RequireFields<TMutationAddProductArgs, 'product'>>;
+  cancelEmployment?: Resolver<TResolversTypes['Void'], ParentType, ContextType, RequireFields<TMutationCancelEmploymentArgs, 'id'>>;
   changeCurrencies?: Resolver<TResolversTypes['ChangeTransaction'], ParentType, ContextType, RequireFields<TMutationChangeCurrenciesArgs, 'change' | 'password'>>;
   chargeCustoms?: Resolver<TResolversTypes['CustomsTransaction'], ParentType, ContextType, RequireFields<TMutationChargeCustomsArgs, 'customs'>>;
-  createEmploymentContractOffer?: Resolver<TResolversTypes['EmploymentContractOffer'], ParentType, ContextType, RequireFields<TMutationCreateEmploymentContractOfferArgs, 'contract'>>;
-  createGuest?: Resolver<TResolversTypes['GuestUser'], ParentType, ContextType, RequireFields<TMutationCreateGuestArgs, 'cardID'>>;
+  createEmploymentOffer?: Resolver<TResolversTypes['EmploymentOffer'], ParentType, ContextType, RequireFields<TMutationCreateEmploymentOfferArgs, 'offer'>>;
+  createGuest?: Resolver<TResolversTypes['GuestUser'], ParentType, ContextType, RequireFields<TMutationCreateGuestArgs, 'guest'>>;
   createVote?: Resolver<TResolversTypes['Vote'], ParentType, ContextType, RequireFields<TMutationCreateVoteArgs, 'vote'>>;
-  deleteEmploymentContractOffer?: Resolver<TResolversTypes['Boolean'], ParentType, ContextType, RequireFields<TMutationDeleteEmploymentContractOfferArgs, 'id'>>;
+  deleteEmploymentOffer?: Resolver<TResolversTypes['Void'], ParentType, ContextType, RequireFields<TMutationDeleteEmploymentOfferArgs, 'id'>>;
   editProduct?: Resolver<TResolversTypes['Product'], ParentType, ContextType, RequireFields<TMutationEditProductArgs, 'product'>>;
-  fireEmployee?: Resolver<TResolversTypes['Boolean'], ParentType, ContextType, RequireFields<TMutationFireEmployeeArgs, 'citizenID'>>;
   login?: Resolver<TResolversTypes['User'], ParentType, ContextType, RequireFields<TMutationLoginArgs, 'user'>>;
-  logout?: Resolver<TResolversTypes['Boolean'], ParentType, ContextType>;
-  payBonus?: Resolver<Array<TResolversTypes['SalaryTransaction']>, ParentType, ContextType, RequireFields<TMutationPayBonusArgs, 'employees' | 'value'>>;
-  registerBorderCrossing?: Resolver<TResolversTypes['BorderCrossing'], ParentType, ContextType, RequireFields<TMutationRegisterBorderCrossingArgs, 'citizenID'>>;
-  rejectEmploymentContractOffer?: Resolver<TResolversTypes['EmploymentContractOffer'], ParentType, ContextType, RequireFields<TMutationRejectEmploymentContractOfferArgs, 'id'>>;
-  removeGuest?: Resolver<TResolversTypes['Boolean'], ParentType, ContextType, RequireFields<TMutationRemoveGuestArgs, 'cardID'>>;
-  removeProduct?: Resolver<TResolversTypes['Boolean'], ParentType, ContextType, RequireFields<TMutationRemoveProductArgs, 'productID'>>;
-  sell?: Resolver<TResolversTypes['PurchaseTransaction'], ParentType, ContextType, RequireFields<TMutationSellArgs, 'password'>>;
-  transferMoney?: Resolver<TResolversTypes['TransferTransaction'], ParentType, ContextType, Partial<TMutationTransferMoneyArgs>>;
+  logout?: Resolver<TResolversTypes['Void'], ParentType, ContextType>;
+  payBonus?: Resolver<Array<TResolversTypes['SalaryTransaction']>, ParentType, ContextType, RequireFields<TMutationPayBonusArgs, 'employmentIds' | 'value'>>;
+  registerBorderCrossing?: Resolver<TResolversTypes['BorderCrossing'], ParentType, ContextType, RequireFields<TMutationRegisterBorderCrossingArgs, 'citizenId'>>;
+  rejectEmploymentOffer?: Resolver<TResolversTypes['EmploymentOffer'], ParentType, ContextType, RequireFields<TMutationRejectEmploymentOfferArgs, 'id'>>;
+  removeGuest?: Resolver<TResolversTypes['Void'], ParentType, ContextType, RequireFields<TMutationRemoveGuestArgs, 'cardId'>>;
+  removeProduct?: Resolver<TResolversTypes['Void'], ParentType, ContextType, RequireFields<TMutationRemoveProductArgs, 'productId'>>;
+  sell?: Resolver<TResolversTypes['PurchaseTransaction'], ParentType, ContextType, RequireFields<TMutationSellArgs, 'password' | 'purchase'>>;
+  transferMoney?: Resolver<TResolversTypes['TransferTransaction'], ParentType, ContextType, RequireFields<TMutationTransferMoneyArgs, 'transfer'>>;
   vote?: Resolver<TResolversTypes['VoteCitizenEdge'], ParentType, ContextType, RequireFields<TMutationVoteArgs, 'vote'>>;
   warehousePurchase?: Resolver<TResolversTypes['PurchaseTransaction'], ParentType, ContextType, RequireFields<TMutationWarehousePurchaseArgs, 'purchase'>>;
 }>;
 
 export type TProductResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['Product'] = TResolversParentTypes['Product']> = ResolversObject<{
+  company?: Resolver<TResolversTypes['CompanyUser'], ParentType, ContextType>;
+  grossRevenueTotal?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
   id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<TResolversTypes['String'], ParentType, ContextType>;
   price?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  stats?: Resolver<Array<TResolversTypes['StatsFragment']>, ParentType, ContextType>;
-  todaySales?: Resolver<TResolversTypes['Int'], ParentType, ContextType>;
-  totalGrossRevenue?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  totalSales?: Resolver<TResolversTypes['Int'], ParentType, ContextType>;
-  totalSalesPerDay?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
+  salesPerDay?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
+  salesToday?: Resolver<TResolversTypes['Int'], ParentType, ContextType>;
+  salesTotal?: Resolver<TResolversTypes['Int'], ParentType, ContextType>;
+  stats?: Resolver<Array<TResolversTypes['ProductStatsFragment']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TProductStatsFragmentResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['ProductStatsFragment'] = TResolversParentTypes['ProductStatsFragment']> = ResolversObject<{
+  grossRevenue?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
+  sales?: Resolver<TResolversTypes['Int'], ParentType, ContextType>;
+  startOfHour?: Resolver<TResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -928,15 +954,15 @@ export type TPurchaseItemResolvers<ContextType = IContext, ParentType extends TR
 }>;
 
 export type TPurchaseTransactionResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['PurchaseTransaction'] = TResolversParentTypes['PurchaseTransaction']> = ResolversObject<{
+  company?: Resolver<TResolversTypes['CompanyUser'], ParentType, ContextType>;
   customer?: Resolver<TResolversTypes['User'], ParentType, ContextType>;
-  date?: Resolver<TResolversTypes['Date'], ParentType, ContextType>;
+  date?: Resolver<TResolversTypes['DateTime'], ParentType, ContextType>;
   discount?: Resolver<Maybe<TResolversTypes['Float']>, ParentType, ContextType>;
   grossPrice?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
   id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
   items?: Resolver<Array<TResolversTypes['PurchaseItem']>, ParentType, ContextType>;
   netPrice?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
   tax?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  vendor?: Resolver<TResolversTypes['CompanyUser'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -947,18 +973,19 @@ export type TQueryResolvers<ContextType = IContext, ParentType extends TResolver
   books?: Resolver<Array<TResolversTypes['Book']>, ParentType, ContextType>;
   me?: Resolver<TResolversTypes['User'], ParentType, ContextType>;
   session?: Resolver<TResolversTypes['Session'], ParentType, ContextType>;
-  userFromCard?: Resolver<TResolversTypes['User'], ParentType, ContextType, RequireFields<TQueryUserFromCardArgs, 'cardID'>>;
+  userFromCard?: Resolver<TResolversTypes['User'], ParentType, ContextType, RequireFields<TQueryUserFromCardArgs, 'cardId'>>;
   votes?: Resolver<Array<TResolversTypes['Vote']>, ParentType, ContextType>;
 }>;
 
 export type TSalaryTransactionResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['SalaryTransaction'] = TResolversParentTypes['SalaryTransaction']> = ResolversObject<{
-  date?: Resolver<TResolversTypes['Date'], ParentType, ContextType>;
+  date?: Resolver<TResolversTypes['DateTime'], ParentType, ContextType>;
+  employment?: Resolver<TResolversTypes['Employment'], ParentType, ContextType>;
   grossValue?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
   id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
+  isBonus?: Resolver<TResolversTypes['Boolean'], ParentType, ContextType>;
   netValue?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
   tax?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  worStart?: Resolver<Maybe<TResolversTypes['Date']>, ParentType, ContextType>;
-  workEnd?: Resolver<Maybe<TResolversTypes['Date']>, ParentType, ContextType>;
+  worktime?: Resolver<Maybe<TResolversTypes['Worktime']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -968,26 +995,18 @@ export type TSessionResolvers<ContextType = IContext, ParentType extends TResolv
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TStatsFragmentResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['StatsFragment'] = TResolversParentTypes['StatsFragment']> = ResolversObject<{
-  grossRevenue?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  netRevenue?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
-  sales?: Resolver<TResolversTypes['Int'], ParentType, ContextType>;
-  startTime?: Resolver<TResolversTypes['Date'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
 export type TSubscriptionResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['Subscription'] = TResolversParentTypes['Subscription']> = ResolversObject<{
   addedBook?: SubscriptionResolver<TResolversTypes['Book'], "addedBook", ParentType, ContextType, Partial<TSubscriptionAddedBookArgs>>;
 }>;
 
 export type TTransactionResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['Transaction'] = TResolversParentTypes['Transaction']> = ResolversObject<{
   __resolveType: TypeResolveFn<'ChangeTransaction' | 'CustomsTransaction' | 'PurchaseTransaction' | 'SalaryTransaction' | 'TransferTransaction', ParentType, ContextType>;
-  date?: Resolver<TResolversTypes['Date'], ParentType, ContextType>;
+  date?: Resolver<TResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
 }>;
 
 export type TTransferTransactionResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['TransferTransaction'] = TResolversParentTypes['TransferTransaction']> = ResolversObject<{
-  date?: Resolver<TResolversTypes['Date'], ParentType, ContextType>;
+  date?: Resolver<TResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
   purpose?: Resolver<Maybe<TResolversTypes['String']>, ParentType, ContextType>;
   receiver?: Resolver<TResolversTypes['User'], ParentType, ContextType>;
@@ -1004,13 +1023,17 @@ export type TUserResolvers<ContextType = IContext, ParentType extends TResolvers
   transactions?: Resolver<Array<TResolversTypes['Transaction']>, ParentType, ContextType>;
 }>;
 
+export interface TVoidScalarConfig extends GraphQLScalarTypeConfig<TResolversTypes['Void'], any> {
+  name: 'Void';
+}
+
 export type TVoteResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['Vote'] = TResolversParentTypes['Vote']> = ResolversObject<{
   chartInfo?: Resolver<Maybe<TResolversTypes['String']>, ParentType, ContextType>;
+  choices?: Resolver<Array<TResolversTypes['String']>, ParentType, ContextType>;
   description?: Resolver<TResolversTypes['String'], ParentType, ContextType>;
-  end?: Resolver<TResolversTypes['Date'], ParentType, ContextType>;
+  endAt?: Resolver<TResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
   image?: Resolver<TResolversTypes['String'], ParentType, ContextType>;
-  items?: Resolver<Array<TResolversTypes['String']>, ParentType, ContextType>;
   result?: Resolver<Maybe<Array<TResolversTypes['Float']>>, ParentType, ContextType>;
   title?: Resolver<TResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<TResolversTypes['VoteType'], ParentType, ContextType>;
@@ -1024,34 +1047,44 @@ export type TVoteCitizenEdgeResolvers<ContextType = IContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TWorktimeResolvers<ContextType = IContext, ParentType extends TResolversParentTypes['Worktime'] = TResolversParentTypes['Worktime']> = ResolversObject<{
+  employment?: Resolver<TResolversTypes['Employment'], ParentType, ContextType>;
+  end?: Resolver<Maybe<TResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<TResolversTypes['ID'], ParentType, ContextType>;
+  start?: Resolver<TResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type TResolvers<ContextType = IContext> = ResolversObject<{
   Author?: TAuthorResolvers<ContextType>;
   Book?: TBookResolvers<ContextType>;
   BorderCrossing?: TBorderCrossingResolvers<ContextType>;
   ChangeTransaction?: TChangeTransactionResolvers<ContextType>;
   CitizenUser?: TCitizenUserResolvers<ContextType>;
-  CompanyEmployeeEdge?: TCompanyEmployeeEdgeResolvers<ContextType>;
+  CompanyStatsFragment?: TCompanyStatsFragmentResolvers<ContextType>;
   CompanyUser?: TCompanyUserResolvers<ContextType>;
   CustomsTransaction?: TCustomsTransactionResolvers<ContextType>;
-  Date?: GraphQLScalarType;
-  EmploymentContractOffer?: TEmploymentContractOfferResolvers<ContextType>;
+  DateTime?: GraphQLScalarType;
+  Employment?: TEmploymentResolvers<ContextType>;
+  EmploymentOffer?: TEmploymentOfferResolvers<ContextType>;
   File?: GraphQLScalarType;
-  FinancesFragment?: TFinancesFragmentResolvers<ContextType>;
   GuestUser?: TGuestUserResolvers<ContextType>;
   Mutation?: TMutationResolvers<ContextType>;
   Product?: TProductResolvers<ContextType>;
+  ProductStatsFragment?: TProductStatsFragmentResolvers<ContextType>;
   PurchaseItem?: TPurchaseItemResolvers<ContextType>;
   PurchaseTransaction?: TPurchaseTransactionResolvers<ContextType>;
   Query?: TQueryResolvers<ContextType>;
   SalaryTransaction?: TSalaryTransactionResolvers<ContextType>;
   Session?: TSessionResolvers<ContextType>;
-  StatsFragment?: TStatsFragmentResolvers<ContextType>;
   Subscription?: TSubscriptionResolvers<ContextType>;
   Transaction?: TTransactionResolvers<ContextType>;
   TransferTransaction?: TTransferTransactionResolvers<ContextType>;
   User?: TUserResolvers<ContextType>;
+  Void?: GraphQLScalarType;
   Vote?: TVoteResolvers<ContextType>;
   VoteCitizenEdge?: TVoteCitizenEdgeResolvers<ContextType>;
+  Worktime?: TWorktimeResolvers<ContextType>;
 }>;
 
 export type TDirectiveResolvers<ContextType = IContext> = ResolversObject<{

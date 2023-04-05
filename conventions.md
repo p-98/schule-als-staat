@@ -19,6 +19,7 @@ Otherwise props are not export as they can be obtained using React.ComponentProp
 # Design
 
 -   FullscreenContainerTransform is not nested
+-   Neither all users nor all transactions have globally unique ids. A company's id is only unique across all companies, but a citizen could have the same id.
 
 # Git
 
@@ -27,3 +28,12 @@ Otherwise props are not export as they can be obtained using React.ComponentProp
 # GraphQL
 
 -   A Connection/Edge like implementation is utilized for lists
+
+# Naming
+
+"signature" refers to an object containing the info to uniquely identify a specific entry in a list of similar types, which have different id spaces.  
+Example of a user signature: `{type: "COMPANY", id: "..."}`
+
+# Other
+
+-   worktime is stored as number in seconds

@@ -1,7 +1,9 @@
 " For file uploads; automatically handled by graphql-yoga "
 scalar File
-" Javascript Date object "
-scalar Date
+" For void returns, handled by graphql-scalars "
+scalar Void
+" For RFC 3339 datetime strings, handled by graphql-scalars "
+scalar DateTime
 
 " requires ONE of the roles provided to be present on the current loged in user "
 directive @auth(role: [AuthRole!] = [ADMIN]) on FIELD_DEFINITION | OBJECT
@@ -36,10 +38,10 @@ enum EmploymentOfferState {
     # cannot be ACCEPTED, because offers are deleted converted to employments on accept
 }
 
-" Currency types "
-enum Currency {
-    VIRTUAL
-    REAL
+" change action types "
+enum ChangeTransactionAction {
+    VIRTUAL_TO_REAL
+    REAL_TO_VIRTUAL
 }
 
 " action of BorderCrossing "
@@ -93,8 +95,8 @@ type GuestUser implements User {
     redemptionBalance: Float!
     transactions: [Transaction!]!
     name: String
-    enter: Date!
-    leave: Date
+    enteredAt: DateTime!
+    leftAt: DateTime
 }
 " A citizen user "
 type CitizenUser implements User {
@@ -105,16 +107,8 @@ type CitizenUser implements User {
     transactions: [Transaction!]!
     firstName: String!
     lastName: String!
-    name: String!
     image: String!
-    employment: CompanyEmployeeEdge
-}
-" Representing a 1h timeframe of the company's finances "
-type FinancesFragment {
-    staff: Float!
-    netRevenue: Float!
-    profit: Float!
-    startTime: Date!
+    employment: Employment
 }
 " A company user "
 type CompanyUser implements User {
@@ -126,27 +120,45 @@ type CompanyUser implements User {
     name: String!
     image: String!
     products: [Product!]!
-    employer: CompanyEmployeeEdge!
-    employees: [CompanyEmployeeEdge!]!
-    finances: [FinancesFragment!]!
+    employer: Employment!
+    employees: [Employment!]!
+    stats: [CompanyStatsFragment!]!
+}
+" Representing a 1h timeframe of the company's stats "
+type CompanyStatsFragment {
+    startOfHour: DateTime!
+    staff: Float!
+    grossRevenue: Float!
+    netRevenue: Float!
+    profit: Float!
+}
+
+" Information about a shift on an employee "
+type Worktime {
+    id: ID!
+    employment: Employment!
+    start: DateTime!
+    " If null, the shift has not yet ended "
+    end: DateTime
 }
 
 " Contains information about an employment "
-type CompanyEmployeeEdge {
+type Employment {
+    id: ID!
     company: CompanyUser!
     employee: CitizenUser!
 
     # dynamic values
-    " null if citizen is not currently working "
-    activeSince: Date
-    worktimeToday: Float!
-    worktimeYesterday: Float!
+    " in seconds "
+    worktimeToday: Int!
+    " in seconds "
+    worktimeYesterday: Int!
 
     # contract (static values)
     " virtual currency per hour (employment contract) "
     salary: Float!
-    " working hours per day (employment contract) "
-    hours: Float!
+    " worktime per day in seconds (employment contract) "
+    minWorktime: Int!
 }
 " A employment offer "
 type EmploymentOffer {
@@ -156,19 +168,19 @@ type EmploymentOffer {
     state: EmploymentOfferState!
     " virtual currency per hour "
     salary: Float!
-    " working hours per day "
-    hours: Float!
+    " worktime per day in seconds "
+    minWorktime: Int!
 }
 
 " Base type for transactions"
 interface Transaction {
     id: ID!
-    date: Date!
+    date: DateTime!
 }
 " A transfer transaction "
 type TransferTransaction implements Transaction {
     id: ID!
-    date: Date!
+    date: DateTime!
     sender: User!
     receiver: User!
     value: Float!
@@ -177,75 +189,73 @@ type TransferTransaction implements Transaction {
 " A change transaction "
 type ChangeTransaction implements Transaction {
     id: ID!
-    date: Date!
+    date: DateTime!
     user: User!
-    baseCurrency: Currency!
-    baseValue: Float!
-    targetCurrency: Currency!
-    targetValue: Float!
-}
-" Tuple with product and amount for use in purchases " # eslint-disable-next-line @graphql-eslint/strict-id-in-types
-type PurchaseItem {
-    product: Product!
-    amount: Int!
+    action: ChangeTransactionAction!
+    valueVirtual: Float!
+    valueReal: Float!
 }
 " A purchase transaction "
 type PurchaseTransaction implements Transaction {
     id: ID!
-    date: Date!
+    date: DateTime!
     customer: User!
-    vendor: CompanyUser!
+    company: CompanyUser!
     grossPrice: Float!
     netPrice: Float!
     tax: Float!
     items: [PurchaseItem!]!
     discount: Float
 }
+" Tuple with product and amount for use in purchases " # eslint-disable-next-line @graphql-eslint/strict-id-in-types
+type PurchaseItem {
+    product: Product!
+    amount: Int!
+}
 " A customs transaction "
 type CustomsTransaction implements Transaction {
     id: ID!
-    date: Date!
+    date: DateTime!
     user: User!
     customs: Float!
 }
 " A salary transaction "
 type SalaryTransaction implements Transaction {
     id: ID!
-    date: Date!
-    employment: CompanyEmployeeEdge!
+    date: DateTime!
+    employment: Employment!
     grossValue: Float!
     netValue: Float!
     tax: Float!
-    " workStart and workEnd are either both timestamps or null. If they are null, it is a bonus payment "
-    worStart: Date
-    " workStart and workEnd are either both timestamps or null. If they are null, it is a bonus payment "
-    workEnd: Date
+    " If null, it is a bonus payment "
+    worktime: Worktime
+    isBonus: Boolean!
 }
 
 " return type for registerBorderCrossing mutation " # eslint-disable-next-line @graphql-eslint/strict-id-in-types
 type BorderCrossing {
     citizen: CitizenUser!
     action: BorderCrossingAction!
-    date: Date!
+    date: DateTime!
 }
 
-" Representing a 1h timeframe of the product's stats"
-type StatsFragment {
-    sales: Int!
-    grossRevenue: Float!
-    netRevenue: Float!
-    startTime: Date!
-}
 " A product of an company "
 type Product {
     id: ID!
+    company: CompanyUser!
     name: String!
     price: Float!
-    todaySales: Int!
-    totalGrossRevenue: Float!
-    totalSales: Int!
-    totalSalesPerDay: Float!
-    stats: [StatsFragment!]!
+    salesToday: Int!
+    salesTotal: Int!
+    salesPerDay: Float!
+    grossRevenueTotal: Float!
+    stats: [ProductStatsFragment!]!
+}
+" Representing a 1h timeframe of the product's stats"
+type ProductStatsFragment {
+    startOfHour: DateTime!
+    sales: Int!
+    grossRevenue: Float!
 }
 
 " Contains information about a user vote "
@@ -260,7 +270,7 @@ type Vote {
     title: String!
     description: String!
     image: String!
-    endAt: Date!
+    endAt: DateTime!
     choices: [String!]!
     result: [Float!]
     chartInfo: String
@@ -298,18 +308,20 @@ input EditProductInput {
 
 " Input for createEmploymentOffer mutation "
 input CreateEmploymentOfferInput {
-    citizenID: ID!
+    citizenId: ID!
     " virtual currency per hour "
     salary: Float!
-    " working hours per day "
-    hours: Float!
+    " worktime per day in seconds "
+    minWorktime: Int!
 }
 
 " Input for changeCurrencies mutation "
 input ChangeTransactionInput {
     user: UserSignatureInput!
-    " value in the virtual currency "
-    value: Float!
+
+    action: ChangeTransactionAction!
+    valueVirtual: Float!
+    valueReal: Float!
 }
 " Input for transferMoney mutation "
 input TransferTransactionInput {
@@ -320,7 +332,7 @@ input TransferTransactionInput {
 }
 " Tuple with product and amount for use in purchases "
 input PurchaseItemInput {
-    productID: ID!
+    productId: ID!
     amount: Int!
 }
 " Input for sell mutation "
@@ -341,21 +353,23 @@ input CustomsTransactionInput {
 
 " Input for createGuest mutation "
 input CreateGuestInput {
+    cardId: ID!
     name: String
 }
 
 " Input for createVote mutation "
 input CreateVoteInput {
+    type: VoteType!
     title: String!
     description: String!
-    image: File
-    endAt: Date
-    items: [String!]!
+    image: File!
+    endAt: DateTime!
+    choices: [String!]!
 }
 " Input for vote mutation "
 input VoteInput {
-    id: ID!
-    vote: [Float!]
+    voteId: ID!
+    vote: [Float!]!
 }
 
 #                #
@@ -376,7 +390,7 @@ type Query {
 
     votes: [Vote!]!
 
-    userFromCard(cardID: ID!): User!
+    userFromCard(cardId: ID!): User!
 }
 
 " Mutations "
@@ -385,7 +399,7 @@ type Mutation {
 
     " login as user; guests don't need a password "
     login(user: UserSignatureInput!, password: String): User!
-    logout: Boolean!
+    logout: Void!
 
     createEmploymentOffer(offer: CreateEmploymentOfferInput!): EmploymentOffer!
         @auth(role: [COMPANY])
@@ -393,19 +407,19 @@ type Mutation {
     rejectEmploymentOffer(id: ID!, reason: String): EmploymentOffer!
         @auth(role: [CITIZEN])
     " offer must be rejected to be deleted "
-    deleteEmploymentOffer(id: ID!): Boolean! @auth(role: [COMPANY])
-    fireEmployee(citizenID: ID!): Boolean! @auth(role: [COMPANY])
+    deleteEmploymentOffer(id: ID!): Void! @auth(role: [COMPANY])
+    cancelEmployment(id: ID!): Void! @auth(role: [CITIZEN, COMPANY])
 
-    payBonus(value: Float!, employees: [ID!]!): [SalaryTransaction!]!
+    payBonus(value: Float!, employmentIds: [ID!]!): [SalaryTransaction!]!
         @auth(role: [COMPANY])
     changeCurrencies(
         change: ChangeTransactionInput!
         password: String!
     ): ChangeTransaction! @auth(role: [BANK])
-    transferMoney(transfer: TransferTransactionInput): TransferTransaction!
+    transferMoney(transfer: TransferTransactionInput!): TransferTransaction!
         @auth(role: [CITIZEN])
     sell(
-        purchase: PurchaseTransactionInput
+        purchase: PurchaseTransactionInput!
         password: String!
     ): PurchaseTransaction! @auth(role: [COMPANY])
     warehousePurchase(
@@ -414,17 +428,17 @@ type Mutation {
     chargeCustoms(customs: CustomsTransactionInput!): CustomsTransaction!
         @auth(role: [BORDER_CONTROL])
 
-    registerBorderCrossing(citizenID: ID!): BorderCrossing!
+    registerBorderCrossing(citizenId: ID!): BorderCrossing!
         @auth(role: [BORDER_CONTROL])
 
-    createGuest(guest: CreateGuestInput, cardID: ID!): GuestUser!
+    createGuest(guest: CreateGuestInput!): GuestUser!
         @auth(role: [BORDER_CONTROL])
-    removeGuest(cardID: ID!): Boolean! @auth(role: [BORDER_CONTROL])
+    removeGuest(cardId: ID!): Void! @auth(role: [BORDER_CONTROL])
 
     addProduct(product: AddProductInput!): Product! @auth(role: [COMPANY])
     editProduct(product: EditProductInput!): Product! @auth(role: [COMPANY])
     " remove product from the company's inventory "
-    removeProduct(productID: ID!): Boolean! @auth(role: [COMPANY])
+    removeProduct(productId: ID!): Void! @auth(role: [COMPANY])
 
     createVote(vote: CreateVoteInput!): Vote! @auth(role: [POLITICS])
     vote(vote: VoteInput!): VoteCitizenEdge! @auth(role: [CITIZEN])

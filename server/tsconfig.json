@@ -8,7 +8,9 @@
             "Types/*": ["src/types/*"],
             "Types": ["../types.ts"],
             "Modules/*": ["src/modules/*"],
-            "Database": ["src/database.ts"]
+            "Database": ["src/database.ts"],
+            "Util/*": ["src/util/*"],
+            "Config": ["../config.ts"]
         }
     }
 }

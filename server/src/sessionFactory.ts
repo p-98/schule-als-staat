@@ -1,20 +1,15 @@
 import type { IncomingMessage, ServerResponse } from "http";
-import type { TUserSignature } from "Types";
-import cookie from "cookie";
+import type { ISessionModel, IUserSignature } from "Types/models";
 import { v4 as uuid } from "uuid";
+import cookie from "cookie";
 import { addMonths } from "date-fns";
 import { knex } from "Database";
 
-export interface ISession {
-    id: string;
-    user: null | TUserSignature;
-}
-
-async function create(tries = 0): Promise<ISession> {
-    const id = uuid();
+async function create(tries = 0): Promise<ISessionModel> {
+    const session = { id: uuid(), userSignature: null };
 
     try {
-        await knex("sessions").insert({ id });
+        await knex("sessions").insert(session);
     } catch (err) {
         if (
             (err as Error & { code: string }).code !==
@@ -26,26 +21,28 @@ async function create(tries = 0): Promise<ISession> {
         throw new Error("Failed to generate unique sessionID");
     }
 
-    return { id, user: null };
+    return session;
 }
 
-async function load(id: string): Promise<ISession> {
-    const session = await knex("sessions").first("user").where({ id });
+async function load(id: string): Promise<ISessionModel> {
+    const session = await knex("sessions").first().where({ id });
 
     // if session was not found, create a new one
     if (!session) return create();
 
-    const user = session.user
-        ? (JSON.parse(session.user) as TUserSignature)
-        : null;
-    return { id, user };
+    return {
+        id,
+        userSignature: session.userSignature
+            ? (JSON.parse(session.userSignature) as IUserSignature)
+            : null,
+    };
 }
 
 /** authenticates client and provides session object */
 export default async function init(
     req: IncomingMessage,
     res: ServerResponse
-): Promise<ISession> {
+): Promise<ISessionModel> {
     const id = cookie.parse(req.headers.cookie ?? "").sessionID;
 
     const session = id ? await load(id) : await create();
