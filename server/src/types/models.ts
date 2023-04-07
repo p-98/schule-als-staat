@@ -65,6 +65,7 @@ export type TUserModel =
 export interface ICompanyStatsFragmentModel {
     startOfHour: string;
     staff: number;
+    staffCost: number;
     grossRevenue: number;
     netRevenue: number;
     profit: number;

@@ -31,6 +31,7 @@ module.exports = {
                 "airbnb-typescript",
                 "airbnb/hooks",
                 "prettier",
+                "plugin:lodash-fp/recommended",
             ],
             rules: {
                 "react/react-in-jsx-scope": "off",

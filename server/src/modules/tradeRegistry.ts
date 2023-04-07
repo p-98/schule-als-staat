@@ -4,10 +4,11 @@ import {
     startOfToday,
     endOfToday,
     startOfDay,
-    startOfHour,
-    addHours,
     formatRFC3339,
+    formatISO,
 } from "date-fns";
+import { eachHourOfInterval, addHours } from "date-fns/fp";
+import { eq, filter, keyBy, map, negate, pipe, zip } from "lodash/fp";
 import { knex } from "Database";
 import {
     ICompanyStatsFragmentModel,
@@ -24,6 +25,13 @@ import { TCreateEmploymentOfferInput } from "Types/schema";
 import { IProduct, IProductSale } from "Types/knex";
 import config from "Config";
 import { TNullable } from "Types";
+import {
+    startOfHour as sqlStartOfHour,
+    clamp,
+    unixepochDiff,
+    values,
+} from "Util/sql";
+import { toISOString, parseDateAndTime } from "Util/date";
 
 export async function getCompany(id: string): Promise<ICompanyUserModel> {
     const raw = await knex("companies")
@@ -120,111 +128,73 @@ export async function getEmployments(
 export async function getCompanyStats(
     companyId: string
 ): Promise<ICompanyStatsFragmentModel[]> {
-    /** create variable to use same time in every comparison */
-    const now = new Date();
-    const unionEntries = config.openingHours.dates
-        .map((dateStr) => {
-            const datetimes = [];
-            const startDatetime = startOfHour(
-                new Date(`${dateStr}T${config.openingHours.open}`)
-            );
-            const endDatetime = startOfHour(
-                new Date(`${dateStr}T${config.openingHours.close}`)
-            );
-            for (
-                let currDatetime = startDatetime;
-                currDatetime <= endDatetime && currDatetime < now;
-                currDatetime = addHours(currDatetime, 1)
-            ) {
-                datetimes.push(formatRFC3339(currDatetime));
-            }
-            return datetimes;
-        })
-        .flat()
-        .map((datetime) =>
-            knex.select(
-                knex.raw(
-                    "? as grossPrice, ? as netPrice, strftime('%Y-%m-%d %H:00:00', ?, 'localtime') as startOfHour, strftime('%Y-%m-%d %H:59:59', ?, 'localtime') AS endOfHour",
-                    [0, 0, datetime, datetime]
-                )
-            )
-        );
+    const today = formatISO(new Date(), { representation: "date" });
+    const openInterval = {
+        start: parseDateAndTime(today, config.openingHours.open),
+        end: parseDateAndTime(today, config.openingHours.close),
+    };
+    const startOfHours = pipe(
+        eachHourOfInterval,
+        filter<Date>(negate(eq(openInterval.end)))
+    )(openInterval);
+    const hoursStartEnd = zip(
+        map(toISOString, startOfHours),
+        map(pipe(addHours(1), toISOString), startOfHours)
+    ) as [string, string][];
 
-    const result = (await knex
-        .from(
-            knex
-                .from(
-                    knex
-                        .from(
-                            knex("purchaseTransactions")
-                                .select(
-                                    "grossPrice",
-                                    "netPrice",
-                                    knex.raw(
-                                        "strftime('%Y-%m-%d %H:00:00', date, 'localtime') AS startOfHour"
-                                    ),
-                                    knex.raw(
-                                        "strftime('%Y-%m-%d %H:59:59', date, 'localtime') AS endOfHour"
-                                    )
-                                )
-                                .where({ companyId })
-                                .unionAll(unionEntries)
-                        )
-                        .select("startOfHour", "endOfHour")
-                        .groupBy("startOfHour")
-                        .sum({
-                            grossRevenue: "grossPrice",
-                            netRevenue: "netPrice",
-                        })
-                        .as("stats")
-                )
-                .select(
-                    "grossRevenue",
-                    "netRevenue",
-                    "startOfHour",
-                    "salary",
-                    knex.raw(
-                        `CASE
-                            WHEN worktimes.start > stats.endOfHour OR worktimes.end < stats.startOfHour THEN 0.0
-                            WHEN worktimes.start >= stats.startOfHour AND worktimes.end <= stats.endOfHour THEN julianday(worktimes.end) - julianday(worktimes.start)
-                            WHEN worktimes.start <  stats.startOfHour AND worktimes.end <= stats.endOfHour THEN julianday(worktimes.end) - julianday(stats.startOfHour)
-                            WHEN worktimes.start >= stats.startOfHour AND worktimes.end >  stats.endOfHour THEN julianday(stats.endOfHour) - julianday(worktimes.start)
-                            WHEN worktimes.start <  stats.startOfHour AND worktimes.end >  stats.endOfHour THEN 1.0/24
-                        END worktimeInHour`.replaceAll(/\n\s*/g, " ")
-                    )
-                )
-                .innerJoin(
-                    // @ts-expect-error knex typing falsely don't allow customs tables in inner joyns
-                    knex("worktimes")
-                        .select(
-                            knex.raw("datetime(start, 'localtime') start"),
-                            knex.raw("datetime(end, 'localtime') end"),
-                            "employments.salary"
-                        )
-                        .innerJoin(
-                            "employments",
-                            "worktimes.employmentId",
-                            "employments.id"
-                        )
-                        .where({ companyId })
-                        .as("worktimes")
-                )
-        )
-        .select(
-            "grossRevenue",
-            "netRevenue",
-            "startOfHour",
-            knex.raw("netRevenue - SUM(worktimeInHour * 24 * salary) profit")
-        )
-        .groupBy("startOfHour")
-        .sum({ staff: knex.raw("worktimeInHour * 24") })) as {
-        startOfHour: string;
-        grossRevenue: number;
-        netRevenue: number;
-        staff: number;
-        profit: number;
-    }[];
-    return result;
+    return knex.transaction(async (trx) => {
+        const clampToHour = (x: string) => clamp(x, "hours.start", "hours.end");
+        const staffSql = `
+        with
+        hours(start, end) as (:values),
+        withRatio as (
+            select
+                hours.start as startOfHour,
+                st.grossValue as shiftSalary,
+                ${unixepochDiff(
+                    clampToHour("worktimes.end"),
+                    clampToHour("worktimes.start")
+                )} / 3600.0 as ratio
+            from hours
+            inner join employments on employments.companyId = :companyId
+            inner join salaryTransactions as st on st.employmentId = employments.id
+            inner join worktimes on worktimes.id = st.worktimeId),
+        withSalary as
+            (select startOfHour, ratio, shiftSalary * ratio as hourSalary from withRatio)
+        select startOfHour, sum(ratio) as staff, sum(hourSalary) as cost
+        from withSalary
+        group by startOfHour
+    `.replaceAll(/\n\s*/g, " ");
+        const staffResult = (await trx.raw(staffSql, {
+            values: values(hoursStartEnd),
+            companyId,
+        })) as { startOfHour: string; staff: number; cost: number }[];
+
+        const revenueResult = (await trx("purchaseTransactions")
+            .select(knex.raw(`${sqlStartOfHour("date")} as startOfHour`))
+            .where({ companyId })
+            .andWhereBetween("date", [
+                startOfToday().toISOString(),
+                endOfToday().toISOString(),
+            ])
+            .groupBy("startOfHour")
+            .sum({ grossRevenue: "grossPrice" })
+            .sum({ netRevenue: "netPrice" })) as unknown as {
+            startOfHour: string;
+            grossRevenue: number;
+            netRevenue: number;
+        }[];
+        const revenueDic = keyBy("startOfHour", revenueResult);
+
+        return staffResult.map(({ startOfHour, staff, cost: staffCost }) => ({
+            startOfHour,
+            staff,
+            staffCost,
+            grossRevenue: revenueDic[startOfHour]?.grossRevenue ?? 0,
+            netRevenue: revenueDic[startOfHour]?.netRevenue ?? 0,
+            profit: (revenueDic[startOfHour]?.netRevenue ?? 0) - staffCost,
+        }));
+    });
 }
 
 export async function getWorktimeForDay(

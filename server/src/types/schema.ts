@@ -117,6 +117,7 @@ export type TCompanyStatsFragment = {
   netRevenue: Scalars['Float'];
   profit: Scalars['Float'];
   staff: Scalars['Float'];
+  staffCost: Scalars['Float'];
   startOfHour: Scalars['DateTime'];
 };
 
@@ -836,6 +837,7 @@ export type TCompanyStatsFragmentResolvers<ContextType = IContext, ParentType ex
   netRevenue?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
   profit?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
   staff?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
+  staffCost?: Resolver<TResolversTypes['Float'], ParentType, ContextType>;
   startOfHour?: Resolver<TResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
