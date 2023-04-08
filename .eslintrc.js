@@ -57,6 +57,10 @@ module.exports = {
                 React: "writable",
             },
         },
+        {
+            files: ["server/**/*.js"],
+            parserOptions: { ecmaVersion: 2021 },
+        },
 
         // special configs for storybook files
         {

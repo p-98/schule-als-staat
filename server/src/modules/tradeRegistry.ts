@@ -156,12 +156,12 @@ export async function getCompanyStats(
                     clampToHour("worktimes.start")
                 )} / 3600.0 as ratio
             from hours
-            inner join employments on employments.companyId = :companyId
-            inner join salaryTransactions as st on st.employmentId = employments.id
-            inner join worktimes on worktimes.id = st.worktimeId),
+            left join employments on employments.companyId = :companyId
+            left join salaryTransactions as st on st.employmentId = employments.id
+            left join worktimes on worktimes.id = st.worktimeId),
         withSalary as
             (select startOfHour, ratio, shiftSalary * ratio as hourSalary from withRatio)
-        select startOfHour, sum(ratio) as staff, sum(hourSalary) as cost
+        select startOfHour, total(ratio) as staff, total(hourSalary) as cost
         from withSalary
         group by startOfHour
     `.replaceAll(/\n\s*/g, " ");
