@@ -7,7 +7,7 @@ import {
     formatRFC3339,
     formatISO,
 } from "date-fns";
-import { eachHourOfInterval, addHours } from "date-fns/fp";
+import { eachHourOfInterval, addHours, addDays } from "date-fns/fp";
 import { eq, filter, keyBy, map, negate, pipe, zip } from "lodash/fp";
 import { knex } from "Database";
 import {
@@ -202,39 +202,23 @@ export async function getWorktimeForDay(
     /** only the day is relevant */
     date: string
 ): Promise<number> {
-    const query = knex
-        .from(
-            knex("worktimes")
-                .select(
-                    "start",
-                    "end",
-                    knex.raw(
-                        "strftime('%Y-%m-%d', start, 'localtime') startDate"
-                    ),
-                    knex.raw("strftime('%Y-%m-%d', end, 'localtime') endDate")
-                )
-                .whereNotNull("end")
-                .andWhere({ employmentId })
-        )
+    const startOfDate = startOfDay(new Date(date));
+    const worktimeSql = unixepochDiff(
+        clamp("worktimes.end", ":startOfDate", ":endOfDate"),
+        clamp("coalesce(worktimes.start, :now)", ":startOfDate", ":endOfDate")
+    );
+    const { worktime } = (await knex("worktimes")
         .select(
-            knex.raw(
-                `SUM(
-                    CASE
-                        WHEN startDate > :date OR  endDate < :date THEN 0.0
-                        WHEN startDate < :date AND endDate > :date THEN 1.0
-                        WHEN startDate < :date AND endDate = :date THEN julianday(end, 'localtime') - julianday(:date)
-                        WHEN startDate = :date AND endDate > :date THEN julianday(:date, '+1 day') - julianday(start, 'localtime')
-                        WHEN startDate = :date AND endDate = :date THEN julianday(end, 'localtime') - julianday(start, 'localtime')
-                    END
-                ) * 86400 worktime`.replaceAll(/\n\s*/g, " "),
-                {
-                    date: formatRFC3339(startOfDay(new Date(date))),
-                }
-            )
+            knex.raw(`total(${worktimeSql}) as worktime`, {
+                startOfDate: toISOString(startOfDate),
+                endOfDate: pipe(addDays(1), toISOString)(startOfDate),
+                now: toISOString(new Date()),
+            })
         )
-        .first() as unknown as Promise<{ worktime: number }>;
+        .where({ employmentId })
+        .first()) as unknown as { worktime: number };
 
-    return Math.round((await query).worktime);
+    return Math.round(worktime);
 }
 
 export async function getPurchaseItems(
