@@ -37,3 +37,4 @@ Example of a user signature: `{type: "COMPANY", id: "..."}`
 # Other
 
 -   worktime is stored as number in seconds
+-   Dates are proccessed and stored as datetime strings with format `YYYY-MM-DDThh:mm:ss.sssZ` (RFC 3339) and always in UTC. They are only converted to local time for displaying.
