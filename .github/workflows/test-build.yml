@@ -1,0 +1,21 @@
+name: CI
+
+on:
+    push:
+        branches: ["main", "alpha"]
+    pull_request:
+        branches: ["main", "alpha"]
+
+jobs:
+    CI:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: lts/hydrogen
+            - run: npm ci
+            - name: ESLint
+              run: npm run eslint
+            - name: Build server
+              run: npm run build-server
