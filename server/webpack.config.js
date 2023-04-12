@@ -50,6 +50,7 @@ module.exports = (env, argv) => {
         output: {
             filename: "server.js",
             path: path.resolve(__dirname, "dist"),
+            hashFunction: "xxhash64",
         },
         plugins: [
             new CleanWebpackPlugin(),
