@@ -6,7 +6,7 @@ import { v4 as uuid } from "uuid";
 import cookie from "cookie";
 import { addMonths } from "date-fns";
 
-async function create(knex: Knex, tries = 0): Promise<ISessionModel> {
+async function create(knex: Knex, tries = 100): Promise<ISessionModel> {
     const session = { id: uuid(), userSignature: null };
 
     try {
@@ -18,7 +18,7 @@ async function create(knex: Knex, tries = 0): Promise<ISessionModel> {
         )
             throw err;
 
-        if (tries < 100) return create(knex, tries + 1);
+        if (tries > 0) return create(knex, tries - 1);
         throw new Error("Failed to generate unique sessionID");
     }
 
