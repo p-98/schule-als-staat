@@ -1,11 +1,12 @@
 import type { IncomingMessage, ServerResponse } from "http";
 import type { ISessionModel, IUserSignature } from "Types/models";
+import type { Knex } from "Database";
+
 import { v4 as uuid } from "uuid";
 import cookie from "cookie";
 import { addMonths } from "date-fns";
-import { knex } from "Database";
 
-async function create(tries = 0): Promise<ISessionModel> {
+async function create(knex: Knex, tries = 0): Promise<ISessionModel> {
     const session = { id: uuid(), userSignature: null };
 
     try {
@@ -17,18 +18,18 @@ async function create(tries = 0): Promise<ISessionModel> {
         )
             throw err;
 
-        if (tries < 100) return create(tries + 1);
+        if (tries < 100) return create(knex, tries + 1);
         throw new Error("Failed to generate unique sessionID");
     }
 
     return session;
 }
 
-async function load(id: string): Promise<ISessionModel> {
+async function load(knex: Knex, id: string): Promise<ISessionModel> {
     const session = await knex("sessions").first().where({ id });
 
     // if session was not found, create a new one
-    if (!session) return create();
+    if (!session) return create(knex);
 
     return {
         id,
@@ -40,12 +41,13 @@ async function load(id: string): Promise<ISessionModel> {
 
 /** authenticates client and provides session object */
 export default async function init(
+    knex: Knex,
     req: IncomingMessage,
     res: ServerResponse
 ): Promise<ISessionModel> {
     const id = cookie.parse(req.headers.cookie ?? "").sessionID;
 
-    const session = id ? await load(id) : await create();
+    const session = id ? await load(knex, id) : await create(knex);
 
     res.setHeader(
         "Set-Cookie",

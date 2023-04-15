@@ -1,6 +1,7 @@
+import type { IAppContext } from "Server";
+
 import { GraphQLYogaError } from "@graphql-yoga/node";
 import type { IUserSignature, TUserModel } from "Types/models";
-import { knex } from "Database";
 import bcrypt from "bcrypt";
 import { getUser } from "Modules/users";
 import { TNullable } from "Types";
@@ -17,11 +18,13 @@ export async function checkPassword(
 }
 
 export async function login(
+    ctx: IAppContext,
     id: string,
     userSignature: IUserSignature,
     password: TNullable<string>
 ): Promise<TUserModel> {
-    const userModel = await getUser(userSignature);
+    const { knex } = ctx;
+    const userModel = await getUser(ctx, userSignature);
 
     if (!(await checkPassword(userModel, password)))
         throw new GraphQLYogaError("Invalid password", {
@@ -41,7 +44,7 @@ export async function login(
     return userModel;
 }
 
-export async function logout(id: string): Promise<void> {
+export async function logout({ knex }: IAppContext, id: string): Promise<void> {
     const success = await knex("sessions")
         .update({ userSignature: null })
         .where({ id });

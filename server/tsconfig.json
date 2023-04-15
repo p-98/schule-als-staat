@@ -7,8 +7,9 @@
         "paths": {
             "Types/*": ["src/types/*"],
             "Types": ["../types.ts"],
+            "Server": ["src/server.ts"],
             "Modules/*": ["src/modules/*"],
-            "Database": ["src/database.ts"],
+            "Database": ["src/database/database.ts"],
             "Util/*": ["src/util/*"],
             "Config": ["../config.ts"]
         }

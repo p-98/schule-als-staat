@@ -1,6 +1,7 @@
 import { File } from '@whatwg-node/fetch';
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { IAuthorModel, IBookModel, ISessionModel, IGuestUserModel, ICitizenUserModel, ICompanyUserModel, ICompanyStatsFragmentModel, IWorktimeModel, IEmploymentModel, IEmploymentOfferModel, ITransferTransactionModel, IChangeTransactionModel, IPurchaseTransactionModel, IPurchaseItemModel, ICustomsTransactionModel, ISalaryTransactionModel, IBorderCrossingModel, IProductModel, IProductStatsFragmentModel, IVoteCitizenEdgeModel, IVoteModel, IContext } from './models';
+import { IAuthorModel, IBookModel, ISessionModel, IGuestUserModel, ICitizenUserModel, ICompanyUserModel, ICompanyStatsFragmentModel, IWorktimeModel, IEmploymentModel, IEmploymentOfferModel, ITransferTransactionModel, IChangeTransactionModel, IPurchaseTransactionModel, IPurchaseItemModel, ICustomsTransactionModel, ISalaryTransactionModel, IBorderCrossingModel, IProductModel, IProductStatsFragmentModel, IVoteCitizenEdgeModel, IVoteModel } from './models';
+import { IContext } from '../server';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };

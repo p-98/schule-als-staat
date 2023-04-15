@@ -5,6 +5,8 @@ import type {
     IUserSignature,
     TUserModel,
 } from "Types/models";
+import type { IAppContext } from "Server";
+
 import { getGuest } from "Modules/foreignOffice";
 import { getCitizen } from "Modules/registryOffice";
 import { getCompany } from "Modules/tradeRegistry";
@@ -17,23 +19,32 @@ export enum EUserTypes {
 }
 
 export async function getUser(
+    ctx: IAppContext,
     user: IUserSignature & { type: "GUEST" }
 ): Promise<IGuestUserModel>;
 export async function getUser(
+    ctx: IAppContext,
     user: IUserSignature & { type: "CITIZEN" }
 ): Promise<ICitizenUserModel>;
 export async function getUser(
+    ctx: IAppContext,
     user: IUserSignature & { type: "COMPANY" }
 ): Promise<ICompanyUserModel>;
-export async function getUser(user: IUserSignature): Promise<TUserModel>;
-export async function getUser(user: IUserSignature): Promise<TUserModel> {
+export async function getUser(
+    ctx: IAppContext,
+    user: IUserSignature
+): Promise<TUserModel>;
+export async function getUser(
+    ctx: IAppContext,
+    user: IUserSignature
+): Promise<TUserModel> {
     // eslint-disable-next-line default-case
     switch (user.type) {
         case "GUEST":
-            return getGuest(user.id);
+            return getGuest(ctx, user.id);
         case "CITIZEN":
-            return getCitizen(user.id);
+            return getCitizen(ctx, user.id);
         case "COMPANY":
-            return getCompany(user.id);
+            return getCompany(ctx, user.id);
     }
 }

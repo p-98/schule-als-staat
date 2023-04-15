@@ -1,5 +1,6 @@
+import type { IAppContext } from "Server";
+
 import { formatRFC3339 } from "date-fns";
-import { knex } from "Database";
 import {
     parseVoteChoices,
     parseVoteResult,
@@ -13,6 +14,7 @@ import type { TVoteType } from "Types/schema";
 import { IVote, IVotingPaper } from "Types/knex";
 
 export async function getVotes(
+    { knex }: IAppContext,
     voteId: number
 ): Promise<IVoteCitizenEdgeModel[]> {
     const query = knex("votingPapers")
@@ -26,7 +28,9 @@ export async function getVotes(
     }));
 }
 
-export async function getAllVotes(): Promise<IVoteModel[]> {
+export async function getAllVotes({
+    knex,
+}: IAppContext): Promise<IVoteModel[]> {
     const query = knex("votes")
         .select("*")
         .where("endAt", ">", formatRFC3339(new Date()));
@@ -39,6 +43,7 @@ export async function getAllVotes(): Promise<IVoteModel[]> {
 }
 
 export async function createVote(
+    { knex }: IAppContext,
     type: TVoteType,
     title: string,
     description: string,
@@ -68,6 +73,7 @@ export async function createVote(
 }
 
 export async function vote(
+    { knex }: IAppContext,
     citizenId: string,
     voteId: string,
     _vote: number[] // name conflict with function `vote`

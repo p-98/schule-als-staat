@@ -4,7 +4,7 @@ schema: "./server/src/schema.graphql"
 generates:
     ./server/src/types/schema.ts:
         config:
-            contextType: ./models#IContext
+            contextType: ../server#IContext
             typesPrefix: T
             useIndexSignature: true
             enumsAsTypes: true

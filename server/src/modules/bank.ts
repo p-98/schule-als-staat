@@ -1,4 +1,3 @@
-import { knex } from "Database";
 import type {
     IChangeTransactionModel,
     ICustomsTransactionModel,
@@ -15,6 +14,8 @@ import type {
     ISalaryTransaction,
     ITransferTransaction,
 } from "Types/knex";
+import type { IAppContext } from "Server";
+
 import {
     EUserTypeTableMap,
     parseUserSignature,
@@ -31,6 +32,7 @@ import { getUser } from "./users";
 import { checkPassword } from "./sessions";
 
 async function getTransferTransactions(
+    { knex }: IAppContext,
     user: IUserSignature
 ): Promise<ITransferTransactionModel[]> {
     const signatureString = stringifyUserSignature(user);
@@ -49,6 +51,7 @@ async function getTransferTransactions(
 }
 
 async function getChangeTransactions(
+    { knex }: IAppContext,
     user: IUserSignature
 ): Promise<IChangeTransactionModel[]> {
     const signatureString = stringifyUserSignature(user);
@@ -65,6 +68,7 @@ async function getChangeTransactions(
 }
 
 async function getPurchaseTransactions(
+    { knex }: IAppContext,
     user: IUserSignature
 ): Promise<IPurchaseTransactionModel[]> {
     const signatureString = stringifyUserSignature(user);
@@ -87,6 +91,7 @@ async function getPurchaseTransactions(
 }
 
 async function getCustomsTransactions(
+    { knex }: IAppContext,
     user: IUserSignature
 ): Promise<ICustomsTransactionModel[]> {
     const signatureString = stringifyUserSignature(user);
@@ -103,6 +108,7 @@ async function getCustomsTransactions(
 }
 
 async function getSalaryTransactions(
+    { knex }: IAppContext,
     user: IUserSignature
 ): Promise<ISalaryTransactionModel[]> {
     if (user.type === "GUEST") return [];
@@ -125,14 +131,15 @@ async function getSalaryTransactions(
 }
 
 export async function getTransactionsByUser(
+    ctx: IAppContext,
     user: IUserSignature
 ): Promise<TTransactionModel[]> {
     const query = Promise.all([
-        getTransferTransactions(user),
-        getChangeTransactions(user),
-        getPurchaseTransactions(user),
-        getCustomsTransactions(user),
-        getSalaryTransactions(user),
+        getTransferTransactions(ctx, user),
+        getChangeTransactions(ctx, user),
+        getPurchaseTransactions(ctx, user),
+        getCustomsTransactions(ctx, user),
+        getSalaryTransactions(ctx, user),
     ]);
 
     // sort by ascending date
@@ -144,6 +151,7 @@ export async function getTransactionsByUser(
 }
 
 export async function payBonus(
+    { knex }: IAppContext,
     companyId: string,
     value: number,
     employmentIds: number[]
@@ -213,11 +221,13 @@ export async function payBonus(
 }
 
 export async function changeCurrencies(
+    ctx: IAppContext,
     change: TChangeTransactionInput,
     password: string
 ): Promise<IChangeTransactionModel> {
+    const { knex } = ctx;
     const date = formatRFC3339(new Date());
-    const user = await getUser(change.user);
+    const user = await getUser(ctx, change.user);
     const signedVirtualValue =
         change.action === "REAL_TO_VIRTUAL"
             ? change.valueVirtual
@@ -261,6 +271,7 @@ export async function changeCurrencies(
 }
 
 export async function transferMoney(
+    { knex }: IAppContext,
     user: IUserSignature,
     receiver: IUserSignature,
     value: number,
@@ -326,6 +337,7 @@ export async function transferMoney(
 }
 
 export async function sell(
+    { knex }: IAppContext,
     companyId: string,
     customer: TUserModel,
     items: { productId: string; amount: number }[],
@@ -419,6 +431,7 @@ export async function sell(
 }
 
 export async function createBankAccount(
+    { knex }: IAppContext,
     initBalance: number
 ): Promise<IBankAccount> {
     const id = uuidv4();

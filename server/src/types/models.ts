@@ -1,10 +1,5 @@
-import type { YogaInitialContext } from "@graphql-yoga/node";
-import type { IncomingMessage, ServerResponse } from "http";
 import type { TNullable } from "Types";
-import type { TCreateContext } from "../server";
 import type { TBorderCrossingAction } from "./schema";
-
-type UnPromise<P> = P extends Promise<infer T> ? T : never;
 
 export interface IBookModel {
     title: string;
@@ -197,16 +192,6 @@ export interface IVoteModel {
     result: TNullable<number[]>;
     chartInfo: TNullable<string>;
 }
-
-// context types
-export interface YogaServerContext {
-    req: IncomingMessage;
-    res: ServerResponse;
-}
-
-export type IContext = YogaInitialContext &
-    YogaServerContext &
-    UnPromise<ReturnType<TCreateContext>>;
 
 // event types
 export type TEvents = {

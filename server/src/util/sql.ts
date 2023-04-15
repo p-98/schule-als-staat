@@ -1,5 +1,4 @@
 import { Knex } from "knex";
-import { knex } from "Database";
 
 /*  Collection of UNSAFE helper functions for sql queries.
 
@@ -22,7 +21,7 @@ export const unixepochDiff = (x: string, y: string): string =>
     Must be passed as part of second argument to knex.raw.
  */
 
-export const values = (rows: Knex.RawBinding[][]): Knex.Raw => {
+export const values = (knex: Knex, rows: Knex.RawBinding[][]): Knex.Raw => {
     const sql = rows
         .map((row) => `(${row.map(() => "?").join(",")})`)
         .join(",");

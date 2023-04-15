@@ -1,6 +1,7 @@
+import type { IAppContext } from "Server";
+
 import { GraphQLYogaError } from "@graphql-yoga/node";
 import { formatRFC3339 } from "date-fns";
-import { knex } from "Database";
 import {
     EUserTypeTableMap,
     parseUserSignature,
@@ -15,6 +16,7 @@ import type {
 } from "Types/models";
 
 export async function chargeCustoms(
+    { knex }: IAppContext,
     user: IUserSignature,
     customs: number
 ): Promise<ICustomsTransactionModel> {
@@ -74,6 +76,7 @@ const stay2BorderCrossing = (stay: IStay): IBorderCrossingModel => ({
     date: stay.leftAt ? stay.leftAt : stay.enteredAt,
 });
 export async function registerBorderCrossing(
+    { knex }: IAppContext,
     citizenId: string
 ): Promise<IBorderCrossingModel> {
     return knex.transaction(async (trx) => {

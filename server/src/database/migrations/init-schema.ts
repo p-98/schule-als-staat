@@ -1,16 +1,8 @@
-import initKnex from "knex";
-import { formatRFC3339 } from "date-fns";
+import type { Knex } from "knex";
 
-export const knex = initKnex({
-    client: "sqlite3",
-    connection: {
-        filename: ":memory:",
-    },
-    useNullAsDefault: true,
-});
+export const name = "init-schema";
 
-// init db
-(async () => {
+export async function up(knex: Knex): Promise<void> {
     await knex.schema.createTable("sessions", (table) => {
         table.uuid("id").primary();
         table.json("userSignature");
@@ -144,7 +136,6 @@ export const knex = initKnex({
         table.double("price").notNullable();
         table.boolean("deleted").notNullable();
     });
-    // await createInsertIdTrigger("products", productIdBytes);
 
     await knex.schema.createTable("productSales", (table) => {
         table.uuid("purchaseId").notNullable();
@@ -190,28 +181,26 @@ export const knex = initKnex({
         table.datetime("enteredAt").notNullable();
         table.datetime("leftAt");
     });
+}
 
-    // DEBUG data inserts
-    await knex("customsTransactions").insert([
-        { date: formatRFC3339(new Date()), userSignature: "", customs: 1 },
-        { date: formatRFC3339(new Date()), userSignature: "", customs: 2 },
-    ]);
-    await knex("changeTransactions").insert([
-        {
-            date: formatRFC3339(new Date()),
-            userSignature: "",
-            action: "REAL_TO_VIRTUAL",
-            valueVirtual: 1,
-            valueReal: 1,
-        },
-        {
-            date: formatRFC3339(new Date()),
-            userSignature: "",
-            action: "REAL_TO_VIRTUAL",
-            valueVirtual: 2,
-            valueReal: 2,
-        },
-    ]);
-})().catch((err) => {
-    throw err;
-});
+export async function down(knex: Knex): Promise<void> {
+    // reverse order to not violate foreign key constrains
+    await knex.schema.dropTable("stays");
+    await knex.schema.dropTable("votingPapers");
+    await knex.schema.dropTable("votes");
+    await knex.schema.dropTable("productSales");
+    await knex.schema.dropTable("products");
+    await knex.schema.dropTable("salaryTransactions");
+    await knex.schema.dropTable("customsTransactions");
+    await knex.schema.dropTable("purchaseTransactions");
+    await knex.schema.dropTable("changeTransactions");
+    await knex.schema.dropTable("transferTransactions");
+    await knex.schema.dropTable("employmentOffers");
+    await knex.schema.dropTable("worktimes");
+    await knex.schema.dropTable("employments");
+    await knex.schema.dropTable("companies");
+    await knex.schema.dropTable("citizens");
+    await knex.schema.dropTable("guests");
+    await knex.schema.dropTable("bankAccounts");
+    await knex.schema.dropTable("sessions");
+}

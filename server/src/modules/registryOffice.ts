@@ -1,8 +1,12 @@
+import type { IAppContext } from "Server";
+
 import { GraphQLYogaError } from "@graphql-yoga/node";
-import { knex } from "Database";
 import { ICitizenUserModel } from "Types/models";
 
-export async function getCitizen(id: string): Promise<ICitizenUserModel> {
+export async function getCitizen(
+    { knex }: IAppContext,
+    id: string
+): Promise<ICitizenUserModel> {
     const raw = await knex("citizens")
         .first()
         .where({ id })

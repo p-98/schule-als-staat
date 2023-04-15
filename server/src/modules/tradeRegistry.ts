@@ -1,3 +1,5 @@
+import type { IAppContext } from "Server";
+
 import { GraphQLYogaError } from "@graphql-yoga/node";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -9,7 +11,6 @@ import {
 } from "date-fns";
 import { eachHourOfInterval, addHours, addDays } from "date-fns/fp";
 import { eq, filter, keyBy, map, negate, pipe, zip } from "lodash/fp";
-import { knex } from "Database";
 import {
     ICompanyStatsFragmentModel,
     ICompanyUserModel,
@@ -33,7 +34,10 @@ import {
 } from "Util/sql";
 import { toISOString, parseDateAndTime } from "Util/date";
 
-export async function getCompany(id: string): Promise<ICompanyUserModel> {
+export async function getCompany(
+    { knex }: IAppContext,
+    id: string
+): Promise<ICompanyUserModel> {
     const raw = await knex("companies")
         .first()
         .where({ id })
@@ -54,7 +58,10 @@ export async function getCompany(id: string): Promise<ICompanyUserModel> {
     };
 }
 
-export async function getProduct(id: string): Promise<IProductModel> {
+export async function getProduct(
+    { knex }: IAppContext,
+    id: string
+): Promise<IProductModel> {
     const raw = await knex("products").select("*").where({ id }).first();
 
     if (!raw)
@@ -65,14 +72,20 @@ export async function getProduct(id: string): Promise<IProductModel> {
     return raw;
 }
 
-export async function getProducts(companyId: string): Promise<IProductModel[]> {
+export async function getProducts(
+    { knex }: IAppContext,
+    companyId: string
+): Promise<IProductModel[]> {
     return knex("products")
         .select("*")
         .where({ companyId })
         .andWhere({ deleted: false });
 }
 
-export async function getEmployment(id: number): Promise<IEmploymentModel> {
+export async function getEmployment(
+    { knex }: IAppContext,
+    id: number
+): Promise<IEmploymentModel> {
     const raw = await knex("employments").select("*").where({ id }).first();
 
     if (!raw)
@@ -84,6 +97,7 @@ export async function getEmployment(id: number): Promise<IEmploymentModel> {
 }
 
 export async function getEmployer(
+    { knex }: IAppContext,
     companyId: string
 ): Promise<IEmploymentModel> {
     const raw = await knex("employments")
@@ -101,18 +115,23 @@ export async function getEmployer(
 }
 
 export async function getEmployments(
+    ctx: IAppContext,
     user: IUserSignature & { type: "GUEST" }
 ): Promise<[never]>;
 export async function getEmployments(
+    ctx: IAppContext,
     user: IUserSignature & { type: "CITIZEN" }
 ): Promise<[IEmploymentModel]>;
 export async function getEmployments(
+    ctx: IAppContext,
     user: IUserSignature & { type: "COMPANY" }
 ): Promise<IEmploymentModel[]>;
 export async function getEmployments(
+    ctx: IAppContext,
     user: IUserSignature
 ): Promise<IEmploymentModel[]>;
 export async function getEmployments(
+    { knex }: IAppContext,
     user: IUserSignature
 ): Promise<IEmploymentModel[]> {
     if (user.type === "GUEST") return [];
@@ -126,6 +145,7 @@ export async function getEmployments(
 }
 
 export async function getCompanyStats(
+    { knex }: IAppContext,
     companyId: string
 ): Promise<ICompanyStatsFragmentModel[]> {
     const today = formatISO(new Date(), { representation: "date" });
@@ -166,7 +186,7 @@ export async function getCompanyStats(
         group by startOfHour
     `.replaceAll(/\n\s*/g, " ");
         const staffResult = (await trx.raw(staffSql, {
-            values: values(hoursStartEnd),
+            values: values(knex, hoursStartEnd),
             companyId,
         })) as { startOfHour: string; staff: number; cost: number }[];
 
@@ -198,6 +218,7 @@ export async function getCompanyStats(
 }
 
 export async function getWorktimeForDay(
+    { knex }: IAppContext,
     employmentId: number,
     /** only the day is relevant */
     date: string
@@ -222,6 +243,7 @@ export async function getWorktimeForDay(
 }
 
 export async function getPurchaseItems(
+    { knex }: IAppContext,
     purchaseId: number
 ): Promise<IPurchaseItemModel[]> {
     return knex("productSales")
@@ -229,7 +251,10 @@ export async function getPurchaseItems(
         .where({ purchaseId });
 }
 
-export async function getSalesToday(productId: string): Promise<number> {
+export async function getSalesToday(
+    { knex }: IAppContext,
+    productId: string
+): Promise<number> {
     const query = knex
         .from(
             knex("productSales")
@@ -250,7 +275,10 @@ export async function getSalesToday(productId: string): Promise<number> {
     return (await query)?.salesToday as number;
 }
 
-export async function getSalesTotal(productId: string): Promise<number> {
+export async function getSalesTotal(
+    { knex }: IAppContext,
+    productId: string
+): Promise<number> {
     const query = knex("productSales")
         .sum({ salesTotal: "amount" })
         .where({ productId })
@@ -259,7 +287,10 @@ export async function getSalesTotal(productId: string): Promise<number> {
 }
 
 /** Return total sales on the first day, and the average of the past days otherwise */
-export async function getSalesPerDay(productId: string): Promise<number> {
+export async function getSalesPerDay(
+    { knex }: IAppContext,
+    productId: string
+): Promise<number> {
     const result = (await knex
         .from(
             knex("productSales")
@@ -302,7 +333,10 @@ export async function getSalesPerDay(productId: string): Promise<number> {
     return result.salesExcludingToday / result.dateCountExcludingToday;
 }
 
-export async function getGrossRevenueTotal(productId: string): Promise<number> {
+export async function getGrossRevenueTotal(
+    { knex }: IAppContext,
+    productId: string
+): Promise<number> {
     const query = knex("productSales")
         .where({ productId })
         .sum({ grossRevenueTotal: "grossRevenue" })
@@ -311,6 +345,7 @@ export async function getGrossRevenueTotal(productId: string): Promise<number> {
 }
 
 export async function getProductStats(
+    { knex }: IAppContext,
     productId: string
 ): Promise<IProductStatsFragmentModel[]> {
     const query = knex
@@ -340,7 +375,10 @@ export async function getProductStats(
     }));
 }
 
-export async function getWorktime(id: number): Promise<IWorktimeModel> {
+export async function getWorktime(
+    { knex }: IAppContext,
+    id: number
+): Promise<IWorktimeModel> {
     const raw = await knex("worktimes").select("*").where({ id }).first();
 
     if (!raw)
@@ -352,6 +390,7 @@ export async function getWorktime(id: number): Promise<IWorktimeModel> {
 }
 
 export async function createEmploymentOffer(
+    { knex }: IAppContext,
     companyId: string,
     offer: TCreateEmploymentOfferInput
 ): Promise<IEmploymentOfferModel> {
@@ -363,6 +402,7 @@ export async function createEmploymentOffer(
 }
 
 export async function acceptEmploymentOffer(
+    { knex }: IAppContext,
     citizenId: string,
     id: number
 ): Promise<IEmploymentOfferModel> {
@@ -402,6 +442,7 @@ export async function acceptEmploymentOffer(
 }
 
 export async function rejectEmploymentOffer(
+    { knex }: IAppContext,
     citizenId: string,
     id: number,
     rejectionReason: TNullable<string>
@@ -436,6 +477,7 @@ export async function rejectEmploymentOffer(
 }
 
 export async function deleteEmploymentOffer(
+    { knex }: IAppContext,
     companyId: string,
     id: number
 ): Promise<void> {
@@ -464,6 +506,7 @@ export async function deleteEmploymentOffer(
 }
 
 export async function cancelEmployment(
+    { knex }: IAppContext,
     userSignature: IUserSignature & { type: "CITIZEN" | "COMPANY" },
     id: number
 ): Promise<void> {
@@ -494,6 +537,7 @@ export async function cancelEmployment(
 }
 
 export async function addProduct(
+    { knex }: IAppContext,
     companyId: string,
     name: string,
     price: number
@@ -515,6 +559,7 @@ export async function addProduct(
 }
 
 export async function editProduct(
+    { knex }: IAppContext,
     companyId: string,
     id: string,
     name: TNullable<string>,
@@ -540,6 +585,7 @@ export async function editProduct(
 }
 
 export async function removeProduct(
+    { knex }: IAppContext,
     companyId: string,
     id: string
 ): Promise<void> {

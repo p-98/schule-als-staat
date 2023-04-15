@@ -1,9 +1,11 @@
-import type { TEvents, YogaServerContext, TPayload } from "Types/models";
+import type { IncomingMessage, ServerResponse } from "http";
+import type { YogaInitialContext } from "@graphql-yoga/node";
+import type { TEvents, TPayload } from "Types/models";
 import { TResolvers } from "Types/schema";
+
 import {
     createPubSub,
     createServer,
-    YogaInitialContext,
     GraphQLYogaError,
     pipe,
     filter,
@@ -70,20 +72,32 @@ import { createGuest, removeGuest } from "Modules/foreignOffice";
 import { fileToBase64, safeParseInt } from "Util/parse";
 import { assertRole, checkRole } from "Util/auth";
 import config from "Config";
+import { createKnex } from "Database";
 
 import * as typeDefs from "./schema.graphql";
 import sessionFactory from "./sessionFactory";
 
 const pubsub = createPubSub<TEvents>();
 
-const createContext = async ({
-    req,
-    res,
-}: YogaInitialContext & YogaServerContext) => ({
-    session: await sessionFactory(req, res),
+const knex = (async () => {
+    const instance = createKnex();
+    await instance.migrate.up({ name: "init-schema" });
+    return instance;
+})();
+
+const createAppContext = async ({ req, res }: IYogaContext) => ({
+    session: await sessionFactory(await knex, req, res),
+    knex: await knex,
     pubsub,
 });
-export type TCreateContext = typeof createContext;
+type UnPromise<P> = P extends Promise<infer T> ? T : never;
+interface YogaServerContext {
+    req: IncomingMessage;
+    res: ServerResponse;
+}
+type IYogaContext = YogaInitialContext & YogaServerContext;
+export type IAppContext = UnPromise<ReturnType<typeof createAppContext>>;
+export type IContext = IAppContext & IYogaContext;
 
 const resolvers: TResolvers = {
     Void: VoidResolver,
@@ -108,10 +122,11 @@ const resolvers: TResolvers = {
 
     /* eslint-disable no-param-reassign */
     Session: {
-        user: (parent) => {
+        user: (parent, _, ctx) => {
             if (!parent.userSignature) return null;
 
-            if (!parent.$user) parent.$user = getUser(parent.userSignature);
+            if (!parent.$user)
+                parent.$user = getUser(ctx, parent.userSignature);
             return parent.$user;
         },
     },
@@ -119,82 +134,90 @@ const resolvers: TResolvers = {
 
     User: {
         __resolveType: (parent) => EUserTypes[parent.type],
-        transactions: (parent) => getTransactionsByUser(parent),
+        transactions: (parent, _, ctx) => getTransactionsByUser(ctx, parent),
     },
     CitizenUser: {
-        employment: async (parent) => (await getEmployments(parent))[0],
+        employment: async (parent, _, ctx) =>
+            (await getEmployments(ctx, parent))[0],
     },
     CompanyUser: {
-        products: (parent) => getProducts(parent.id),
-        employer: (parent) => getEmployer(parent.id),
-        employees: (parent) => getEmployments(parent),
-        stats: (parent) => getCompanyStats(parent.id),
+        products: (parent, _, ctx) => getProducts(ctx, parent.id),
+        employer: (parent, _, ctx) => getEmployer(ctx, parent.id),
+        employees: (parent, _, ctx) => getEmployments(ctx, parent),
+        stats: (parent, _, ctx) => getCompanyStats(ctx, parent.id),
     },
 
     Worktime: {
-        employment: (parent) => getEmployment(parent.employmentId),
+        employment: (parent, _, ctx) => getEmployment(ctx, parent.employmentId),
     },
 
     Employment: {
-        company: (parent) => getCompany(parent.companyId),
-        employee: (parent) => getCitizen(parent.citizenId),
-        worktimeToday: (parent) =>
-            getWorktimeForDay(parent.id, formatRFC3339(new Date())),
-        worktimeYesterday: (parent) =>
-            getWorktimeForDay(parent.id, formatRFC3339(subDays(new Date(), 1))),
+        company: (parent, _, ctx) => getCompany(ctx, parent.companyId),
+        employee: (parent, _, ctx) => getCitizen(ctx, parent.citizenId),
+        worktimeToday: (parent, _, ctx) =>
+            getWorktimeForDay(ctx, parent.id, formatRFC3339(new Date())),
+        worktimeYesterday: (parent, _, ctx) =>
+            getWorktimeForDay(
+                ctx,
+                parent.id,
+                formatRFC3339(subDays(new Date(), 1))
+            ),
     },
     EmploymentOffer: {
-        company: (parent) => getCompany(parent.companyId),
-        employee: (parent) => getCitizen(parent.citizenId),
+        company: (parent, _, ctx) => getCompany(ctx, parent.companyId),
+        employee: (parent, _, ctx) => getCitizen(ctx, parent.citizenId),
     },
 
     TransferTransaction: {
-        sender: (parent) => getUser(parent.senderUserSignature),
-        receiver: (parent) => getUser(parent.receiverUserSignature),
+        sender: (parent, _, ctx) => getUser(ctx, parent.senderUserSignature),
+        receiver: (parent, _, ctx) =>
+            getUser(ctx, parent.receiverUserSignature),
     },
     ChangeTransaction: {
-        user: (parent) => getUser(parent.userSignature),
+        user: (parent, _, ctx) => getUser(ctx, parent.userSignature),
     },
     PurchaseItem: {
-        product: (parent) => getProduct(parent.productId),
+        product: (parent, _, ctx) => getProduct(ctx, parent.productId),
     },
     PurchaseTransaction: {
-        customer: (parent) => getUser(parent.customerUserSignature),
-        company: (parent) => getCompany(parent.companyId),
+        customer: (parent, _, ctx) =>
+            getUser(ctx, parent.customerUserSignature),
+        company: (parent, _, ctx) => getCompany(ctx, parent.companyId),
         tax: (parent) => parent.grossPrice - parent.netPrice,
-        items: (parent) => getPurchaseItems(parent.id),
+        items: (parent, _, ctx) => getPurchaseItems(ctx, parent.id),
     },
     CustomsTransaction: {
-        user: (parent) => getUser(parent.userSignature),
+        user: (parent, _, ctx) => getUser(ctx, parent.userSignature),
     },
     SalaryTransaction: {
-        employment: (parent) => getEmployment(parent.employmentId),
-        worktime: (parent) => {
+        employment: (parent, _, ctx) => getEmployment(ctx, parent.employmentId),
+        worktime: (parent, _, ctx) => {
             if (parent.worktimeId === null) return null;
-            return getWorktime(parent.worktimeId);
+            return getWorktime(ctx, parent.worktimeId);
         },
         isBonus: (parent) => parent.worktimeId === null,
     },
 
     BorderCrossing: {
-        citizen: (parent) => getCitizen(parent.citizenId),
+        citizen: (parent, _, ctx) => getCitizen(ctx, parent.citizenId),
     },
 
     Product: {
-        company: (parent) => getCompany(parent.companyId),
-        salesToday: (parent) => getSalesToday(parent.id),
-        salesTotal: (parent) => getSalesTotal(parent.id),
-        salesPerDay: (parent) => getSalesPerDay(parent.id),
-        grossRevenueTotal: (parent) => getGrossRevenueTotal(parent.id),
-        stats: (parent) => getProductStats(parent.id),
+        company: (parent, _, ctx) => getCompany(ctx, parent.companyId),
+        salesToday: (parent, _, ctx) => getSalesToday(ctx, parent.id),
+        salesTotal: (parent, _, ctx) => getSalesTotal(ctx, parent.id),
+        salesPerDay: (parent, _, ctx) => getSalesPerDay(ctx, parent.id),
+        grossRevenueTotal: (parent, _, ctx) =>
+            getGrossRevenueTotal(ctx, parent.id),
+        stats: (parent, _, ctx) => getProductStats(ctx, parent.id),
     },
 
     VoteCitizenEdge: {
-        user: (parent) => getCitizen(parent.citizenId),
+        user: (parent, _, ctx) => getCitizen(ctx, parent.citizenId),
     },
 
     Vote: {
-        votes: (parent) => getVotes(parent.id),
+        votes: (parent, _, ctx) => getVotes(ctx, parent.id),
     },
 
     Query: {
@@ -204,83 +227,88 @@ const resolvers: TResolvers = {
         author: (_, args) => getAuthor(args.name),
 
         /* eslint-disable no-param-reassign */
-        session: (_, __, context) => context.session,
-        me: (_, __, context) => {
-            if (!context.session.userSignature)
+        session: (_, __, ctx) => ctx.session,
+        me: (_, __, ctx) => {
+            if (!ctx.session.userSignature)
                 throw new GraphQLYogaError("Not logged in", {
                     code: "NOT_LOGGED_IN",
                 });
 
-            if (!context.session.$user)
-                context.session.$user = getUser(context.session.userSignature);
+            if (!ctx.session.$user)
+                ctx.session.$user = getUser(ctx, ctx.session.userSignature);
 
-            return context.session.$user;
+            return ctx.session.$user;
         },
         /* eslint-enable no-param-reassign */
 
-        votes: () => getAllVotes(),
+        votes: (_, __, ctx) => getAllVotes(ctx),
     },
     Mutation: {
-        addBook: (_, args, context) => {
+        addBook: (_, args, ctx) => {
             const newBook = addBook(args.input);
-            context.pubsub.publish("ADDED_BOOK", newBook);
+            ctx.pubsub.publish("ADDED_BOOK", newBook);
             return newBook;
         },
 
         /* eslint-disable no-param-reassign */
-        login: async (_, args, context) => {
+        login: async (_, args, ctx) => {
             const userModel = await login(
-                context.session.id,
+                ctx,
+                ctx.session.id,
                 args.user,
                 args.password ?? null
             );
-            context.session.userSignature = args.user;
+            ctx.session.userSignature = args.user;
             return userModel;
         },
-        logout: async (_, __, context) => {
-            await logout(context.session.id);
-            context.session.userSignature = null;
+        logout: async (_, __, ctx) => {
+            await logout(ctx, ctx.session.id);
+            ctx.session.userSignature = null;
         },
         /* eslint-enable no-param-reassign */
 
-        createEmploymentOffer: async (_, args, context) => {
-            assertRole(context.session.userSignature, "COMPANY");
+        createEmploymentOffer: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "COMPANY");
 
             return createEmploymentOffer(
-                context.session.userSignature.id,
+                ctx,
+                ctx.session.userSignature.id,
                 args.offer
             );
         },
-        acceptEmploymentOffer: async (_, args, context) => {
-            assertRole(context.session.userSignature, "CITIZEN");
+        acceptEmploymentOffer: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "CITIZEN");
 
             return acceptEmploymentOffer(
-                context.session.userSignature.id,
+                ctx,
+                ctx.session.userSignature.id,
                 safeParseInt(args.id, 10)
             );
         },
-        rejectEmploymentOffer: async (_, args, context) => {
-            assertRole(context.session.userSignature, "CITIZEN");
+        rejectEmploymentOffer: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "CITIZEN");
 
             return rejectEmploymentOffer(
-                context.session.userSignature.id,
+                ctx,
+                ctx.session.userSignature.id,
                 safeParseInt(args.id, 10),
                 args.reason ?? null
             );
         },
-        deleteEmploymentOffer: async (_, args, context) => {
-            assertRole(context.session.userSignature, "COMPANY");
+        deleteEmploymentOffer: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "COMPANY");
 
             return deleteEmploymentOffer(
-                context.session.userSignature.id,
+                ctx,
+                ctx.session.userSignature.id,
                 safeParseInt(args.id, 10)
             );
         },
-        cancelEmployment: async (_, args, context) => {
+        cancelEmployment: async (_, args, ctx) => {
             if (
                 !(
-                    checkRole(context.session.userSignature, "COMPANY") ||
-                    checkRole(context.session.userSignature, "CITIZEN")
+                    checkRole(ctx.session.userSignature, "COMPANY") ||
+                    checkRole(ctx.session.userSignature, "CITIZEN")
                 )
             )
                 throw new GraphQLYogaError(
@@ -289,29 +317,31 @@ const resolvers: TResolvers = {
                 );
 
             return cancelEmployment(
-                context.session.userSignature,
+                ctx,
+                ctx.session.userSignature,
                 safeParseInt(args.id, 10)
             );
         },
 
-        payBonus: async (_, args, context) => {
-            assertRole(context.session.userSignature, "COMPANY");
+        payBonus: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "COMPANY");
 
             return payBonus(
-                context.session.userSignature.id,
+                ctx,
+                ctx.session.userSignature.id,
                 args.value,
                 args.employmentIds.map((employmentId) =>
                     safeParseInt(employmentId, 10)
                 )
             );
         },
-        changeCurrencies: async (_, args, context) => {
-            assertRole(context.session.userSignature, "BANK");
+        changeCurrencies: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "BANK");
 
-            return changeCurrencies(args.change, args.password);
+            return changeCurrencies(ctx, args.change, args.password);
         },
-        transferMoney: async (_, args, context) => {
-            assertRole(context.session.userSignature, "CITIZEN");
+        transferMoney: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "CITIZEN");
             if (!checkRole(args.transfer.receiver, "CITIZEN"))
                 throw new GraphQLYogaError(
                     "Money can only be tranfered to citizens.",
@@ -319,98 +349,105 @@ const resolvers: TResolvers = {
                 );
 
             return transferMoney(
-                context.session.userSignature,
+                ctx,
+                ctx.session.userSignature,
                 args.transfer.receiver,
                 args.transfer.value,
                 args.transfer.purpose ?? null
             );
         },
-        sell: async (_, args, context) => {
-            assertRole(context.session.userSignature, "COMPANY");
+        sell: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "COMPANY");
             if (!checkRole(args.purchase.customer, "CITIZEN"))
                 throw new GraphQLYogaError(
                     "Only citizens are allowed to make a purchase.",
                     { code: "FORBIDDEN_PURCHASE_CUSTOMER" }
                 );
 
-            const customer = await getUser(args.purchase.customer);
+            const customer = await getUser(ctx, args.purchase.customer);
             if (!(await checkPassword(customer, args.password)))
                 throw new GraphQLYogaError("Invalid password of customer", {
                     code: "INVALID_PASSWORD",
                 });
 
             return sell(
-                context.session.userSignature.id,
+                ctx,
+                ctx.session.userSignature.id,
                 customer,
                 args.purchase.items,
                 args.purchase.discount ?? null
             );
         },
-        warehousePurchase: async (_, args, context) => {
-            assertRole(context.session.userSignature, "COMPANY");
+        warehousePurchase: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "COMPANY");
 
             return sell(
+                ctx,
                 config.server.warehouseCompanyId,
-                await getUser(context.session.userSignature),
+                await getUser(ctx, ctx.session.userSignature),
                 args.purchase.items,
                 null
             );
         },
-        chargeCustoms: async (_, args, context) => {
-            assertRole(context.session.userSignature, "BORDER_CONTROL");
+        chargeCustoms: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "BORDER_CONTROL");
 
-            return chargeCustoms(args.customs.user, args.customs.value);
+            return chargeCustoms(ctx, args.customs.user, args.customs.value);
         },
 
-        registerBorderCrossing: async (_, args, context) => {
-            assertRole(context.session.userSignature, "BORDER_CONTROL");
+        registerBorderCrossing: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "BORDER_CONTROL");
 
-            return registerBorderCrossing(args.citizenId);
+            return registerBorderCrossing(ctx, args.citizenId);
         },
 
-        createGuest: async (_, args, context) => {
-            assertRole(context.session.userSignature, "BORDER_CONTROL");
+        createGuest: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "BORDER_CONTROL");
 
-            return createGuest(args.guest.name ?? null, args.guest.cardId);
+            return createGuest(ctx, args.guest.name ?? null, args.guest.cardId);
         },
-        removeGuest: async (_, args, context) => {
-            assertRole(context.session.userSignature, "BORDER_CONTROL");
+        removeGuest: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "BORDER_CONTROL");
 
-            return removeGuest(args.cardId);
+            return removeGuest(ctx, args.cardId);
         },
 
-        addProduct: async (_, args, context) => {
-            assertRole(context.session.userSignature, "COMPANY");
+        addProduct: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "COMPANY");
 
             return addProduct(
-                context.session.userSignature.id,
+                ctx,
+                ctx.session.userSignature.id,
                 args.product.name,
                 args.product.price
             );
         },
-        editProduct: async (_, args, context) => {
-            assertRole(context.session.userSignature, "COMPANY");
+        editProduct: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "COMPANY");
 
             return editProduct(
-                context.session.userSignature.id,
+                ctx,
+                ctx.session.userSignature.id,
                 args.product.id,
                 args.product.name ?? null,
                 args.product.price ?? null
             );
         },
-        removeProduct: async (_, args, context) => {
-            assertRole(context.session.userSignature, "COMPANY");
+        removeProduct: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "COMPANY");
 
             return removeProduct(
-                context.session.userSignature.id,
+                ctx,
+                ctx.session.userSignature.id,
                 args.productId
             );
         },
 
-        createVote: async (_, args, context) => {
-            assertRole(context.session.userSignature, "POLITICS");
+        createVote: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "POLITICS");
 
             return createVote(
+                ctx,
                 args.vote.type,
                 args.vote.title,
                 args.vote.description,
@@ -419,11 +456,12 @@ const resolvers: TResolvers = {
                 args.vote.choices
             );
         },
-        vote: async (_, args, context) => {
-            assertRole(context.session.userSignature, "CITIZEN");
+        vote: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "CITIZEN");
 
             return vote(
-                context.session.userSignature.id,
+                ctx,
+                ctx.session.userSignature.id,
                 args.vote.voteId,
                 args.vote.vote
             );
@@ -431,9 +469,9 @@ const resolvers: TResolvers = {
     },
     Subscription: {
         addedBook: {
-            subscribe: (_, args, context) =>
+            subscribe: (_, args, ctx) =>
                 pipe(
-                    context.pubsub.subscribe("ADDED_BOOK"),
+                    ctx.pubsub.subscribe("ADDED_BOOK"),
                     filter((book) =>
                         args.author ? args.author === book.author : true
                     )
@@ -448,7 +486,7 @@ const server = createServer({
         typeDefs: [typeDefs, VoidTypeDefinition, DateTimeTypeDefinition],
         resolvers,
     },
-    context: createContext,
+    context: createAppContext,
 });
 server.start().catch((e) => {
     throw e;
