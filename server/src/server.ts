@@ -88,6 +88,7 @@ const knex = (async () => {
 const createAppContext = async ({ req, res }: IYogaContext) => ({
     session: await sessionFactory(await knex, req, res),
     knex: await knex,
+    config,
     pubsub,
 });
 type UnPromise<P> = P extends Promise<infer T> ? T : never;
@@ -383,7 +384,7 @@ const resolvers: TResolvers = {
 
             return sell(
                 ctx,
-                config.server.warehouseCompanyId,
+                ctx.config.server.warehouseCompanyId,
                 await getUser(ctx, ctx.session.userSignature),
                 args.purchase.items,
                 null

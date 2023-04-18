@@ -7,7 +7,6 @@ import {
     parseUserSignature,
     stringifyUserSignature,
 } from "Util/parse";
-import config from "Config";
 import type { IStay, ICustomsTransaction } from "Types/knex";
 import type {
     IBorderCrossingModel,
@@ -16,7 +15,7 @@ import type {
 } from "Types/models";
 
 export async function chargeCustoms(
-    { knex }: IAppContext,
+    { knex, config }: IAppContext,
     user: IUserSignature,
     customs: number
 ): Promise<ICustomsTransactionModel> {

@@ -26,7 +26,6 @@ import { v4 as uuidv4 } from "uuid";
 import { GraphQLYogaError } from "@graphql-yoga/node";
 import { TChangeTransactionInput } from "Types/schema";
 import { IChangeTransaction } from "Types/knex";
-import config from "Config";
 import { TNullable } from "Types";
 import { getUser } from "./users";
 import { checkPassword } from "./sessions";
@@ -225,7 +224,7 @@ export async function changeCurrencies(
     change: TChangeTransactionInput,
     password: string
 ): Promise<IChangeTransactionModel> {
-    const { knex } = ctx;
+    const { knex, config } = ctx;
     const date = formatRFC3339(new Date());
     const user = await getUser(ctx, change.user);
     const signedVirtualValue =

@@ -5,7 +5,6 @@ import { formatRFC3339 } from "date-fns";
 import { TNullable } from "Types";
 import { IGuestUserModel } from "Types/models";
 import { v4 as uuidv4 } from "uuid";
-import config from "Config";
 import { createBankAccount } from "Modules/bank";
 
 export async function getGuest(
@@ -34,7 +33,7 @@ export async function createGuest(
     name: TNullable<string>,
     cardId: string
 ): Promise<IGuestUserModel> {
-    const { knex } = ctx;
+    const { knex, config } = ctx;
     const date = formatRFC3339(new Date());
     return knex.transaction(async (trx) => {
         const lastGuestOnCard = await trx("guests")

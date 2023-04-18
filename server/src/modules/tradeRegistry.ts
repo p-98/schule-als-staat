@@ -24,7 +24,6 @@ import {
 } from "Types/models";
 import { TCreateEmploymentOfferInput } from "Types/schema";
 import { IProduct, IProductSale } from "Types/knex";
-import config from "Config";
 import { TNullable } from "Types";
 import {
     startOfHour as sqlStartOfHour,
@@ -145,7 +144,7 @@ export async function getEmployments(
 }
 
 export async function getCompanyStats(
-    { knex }: IAppContext,
+    { knex, config }: IAppContext,
     companyId: string
 ): Promise<ICompanyStatsFragmentModel[]> {
     const today = formatISO(new Date(), { representation: "date" });
