@@ -1,10 +1,10 @@
+import type { TNullable } from "Types";
+import type { IGuestUserModel } from "Types/models";
 import type { IAppContext } from "Server";
 
 import { GraphQLYogaError } from "@graphql-yoga/node";
-import { formatRFC3339 } from "date-fns";
-import { TNullable } from "Types";
-import { IGuestUserModel } from "Types/models";
 import { v4 as uuidv4 } from "uuid";
+import { formatDateTimeZ } from "Util/date";
 import { createBankAccount } from "Modules/bank";
 
 export async function getGuest(
@@ -34,7 +34,7 @@ export async function createGuest(
     cardId: string
 ): Promise<IGuestUserModel> {
     const { knex, config } = ctx;
-    const date = formatRFC3339(new Date());
+    const date = formatDateTimeZ(new Date());
     return knex.transaction(async (trx) => {
         const lastGuestOnCard = await trx("guests")
             .select("leftAt")
@@ -82,7 +82,7 @@ export async function removeGuest(
     { knex }: IAppContext,
     cardId: string
 ): Promise<void> {
-    const date = formatRFC3339(new Date());
+    const date = formatDateTimeZ(new Date());
     return knex.transaction(async (trx) => {
         const lastGuestOnCard = await trx("guests")
             .select("leftAt")

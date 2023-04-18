@@ -7,4 +7,22 @@
 export const parseDateAndTime = (date: string, time: string): Date =>
     new Date(`${date}T${time}`);
 
-export const toISOString = (date: Date): string => date.toISOString();
+/** Formats `date` as RFC3339 "date-time" string in UTC
+ *
+ * @param date date to format
+ * @returns string of form "YYYY-MM-DDThh:mm.ss.sssZ"
+ */
+export const formatDateTimeZ = (date: Date): string => date.toISOString();
+/** Formats `date` as RFC3339 "full-date" string in UTC
+ *
+ * @param date date to format
+ * @returns string of form "YYYY-MM-DD"
+ */
+export const formatDateZ = (date: Date): string =>
+    date.toISOString().slice(0, 10);
+/** Formats `date` as RFC3339 "full-time" string in UTC
+ *
+ * @param date date to format
+ * @returns string of form "mm.ss.sssZ"
+ */
+export const formatTimeZ = (date: Date): string => date.toISOString().slice(11);

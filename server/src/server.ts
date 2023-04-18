@@ -7,7 +7,7 @@ import {
     createPubSub,
     createServer,
     GraphQLYogaError,
-    pipe,
+    pipe as pipeSub,
     filter,
 } from "@graphql-yoga/node";
 import {
@@ -16,7 +16,8 @@ import {
     DateTimeTypeDefinition,
     DateTimeResolver,
 } from "graphql-scalars";
-import { formatRFC3339, subDays } from "date-fns";
+import { subDays } from "date-fns/fp";
+import { pipe } from "lodash/fp";
 
 import {
     getAllBooks,
@@ -71,6 +72,7 @@ import { chargeCustoms, registerBorderCrossing } from "Modules/borderControl";
 import { createGuest, removeGuest } from "Modules/foreignOffice";
 import { fileToBase64, safeParseInt } from "Util/parse";
 import { assertRole, checkRole } from "Util/auth";
+import { formatDateZ } from "Util/date";
 import config from "Config";
 import { createKnex } from "Database";
 
@@ -156,12 +158,12 @@ const resolvers: TResolvers = {
         company: (parent, _, ctx) => getCompany(ctx, parent.companyId),
         employee: (parent, _, ctx) => getCitizen(ctx, parent.citizenId),
         worktimeToday: (parent, _, ctx) =>
-            getWorktimeForDay(ctx, parent.id, formatRFC3339(new Date())),
+            getWorktimeForDay(ctx, parent.id, formatDateZ(new Date())),
         worktimeYesterday: (parent, _, ctx) =>
             getWorktimeForDay(
                 ctx,
                 parent.id,
-                formatRFC3339(subDays(new Date(), 1))
+                pipe(subDays(1), formatDateZ)(new Date())
             ),
     },
     EmploymentOffer: {
@@ -471,7 +473,7 @@ const resolvers: TResolvers = {
     Subscription: {
         addedBook: {
             subscribe: (_, args, ctx) =>
-                pipe(
+                pipeSub(
                     ctx.pubsub.subscribe("ADDED_BOOK"),
                     filter((book) =>
                         args.author ? args.author === book.author : true

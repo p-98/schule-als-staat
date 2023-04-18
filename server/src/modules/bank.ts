@@ -21,7 +21,7 @@ import {
     parseUserSignature,
     stringifyUserSignature,
 } from "Util/parse";
-import { formatRFC3339 } from "date-fns";
+import { formatDateTimeZ } from "Util/date";
 import { v4 as uuidv4 } from "uuid";
 import { GraphQLYogaError } from "@graphql-yoga/node";
 import { TChangeTransactionInput } from "Types/schema";
@@ -156,7 +156,7 @@ export async function payBonus(
     employmentIds: number[]
 ): Promise<ISalaryTransactionModel[]> {
     // TODO: implement taxes
-    const date = formatRFC3339(new Date());
+    const date = formatDateTimeZ(new Date());
     return knex.transaction(async (trx) => {
         // use knex.raw because knex doesn't support returning on sqlite
         const [companyResult] = (await trx.raw(
@@ -225,7 +225,7 @@ export async function changeCurrencies(
     password: string
 ): Promise<IChangeTransactionModel> {
     const { knex, config } = ctx;
-    const date = formatRFC3339(new Date());
+    const date = formatDateTimeZ(new Date());
     const user = await getUser(ctx, change.user);
     const signedVirtualValue =
         change.action === "REAL_TO_VIRTUAL"
@@ -281,7 +281,7 @@ export async function transferMoney(
             code: "BAD_USER_INPUT",
         });
 
-    const date = formatRFC3339(new Date());
+    const date = formatDateTimeZ(new Date());
     return knex.transaction(async (trx) => {
         const senderResult = await trx("bankAccounts")
             .decrement("balance", value)
@@ -353,7 +353,7 @@ export async function sell(
             code: "BAD_USER_INPUT",
         });
 
-    const date = formatRFC3339(new Date());
+    const date = formatDateTimeZ(new Date());
     return knex.transaction(async (trx) => {
         // use knex.raw bacause knex doesn't support ctes
         const prices = (await trx.raw(

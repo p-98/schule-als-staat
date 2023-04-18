@@ -1,4 +1,4 @@
-import { addDays, subDays, formatISO } from "date-fns";
+import { addDays, subDays } from "date-fns";
 
 export default {
     currencies: {
@@ -25,7 +25,7 @@ export default {
     },
     openingHours: {
         dates: [subDays(new Date(), 1), new Date(), addDays(new Date(), 1)].map(
-            (date) => formatISO(date, { representation: "date" })
+            (date) => date.toISOString().slice(0, 10)
         ),
         open: "09:00:00+02:00",
         close: "16:00:00+02:00",

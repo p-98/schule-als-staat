@@ -2,13 +2,7 @@ import type { IAppContext } from "Server";
 
 import { GraphQLYogaError } from "@graphql-yoga/node";
 import { v4 as uuidv4 } from "uuid";
-import {
-    startOfToday,
-    endOfToday,
-    startOfDay,
-    formatRFC3339,
-    formatISO,
-} from "date-fns";
+import { startOfToday, endOfToday, startOfDay } from "date-fns";
 import { eachHourOfInterval, addHours, addDays } from "date-fns/fp";
 import { eq, filter, keyBy, map, negate, pipe, zip } from "lodash/fp";
 import {
@@ -31,7 +25,7 @@ import {
     unixepochDiff,
     values,
 } from "Util/sql";
-import { toISOString, parseDateAndTime } from "Util/date";
+import { formatDateTimeZ, formatDateZ, parseDateAndTime } from "Util/date";
 
 export async function getCompany(
     { knex }: IAppContext,
@@ -147,7 +141,7 @@ export async function getCompanyStats(
     { knex, config }: IAppContext,
     companyId: string
 ): Promise<ICompanyStatsFragmentModel[]> {
-    const today = formatISO(new Date(), { representation: "date" });
+    const today = formatDateZ(new Date());
     const openInterval = {
         start: parseDateAndTime(today, config.openingHours.open),
         end: parseDateAndTime(today, config.openingHours.close),
@@ -157,8 +151,8 @@ export async function getCompanyStats(
         filter<Date>(negate(eq(openInterval.end)))
     )(openInterval);
     const hoursStartEnd = zip(
-        map(toISOString, startOfHours),
-        map(pipe(addHours(1), toISOString), startOfHours)
+        map(formatDateTimeZ, startOfHours),
+        map(pipe(addHours(1), formatDateTimeZ), startOfHours)
     ) as [string, string][];
 
     return knex.transaction(async (trx) => {
@@ -219,7 +213,7 @@ export async function getCompanyStats(
 export async function getWorktimeForDay(
     { knex }: IAppContext,
     employmentId: number,
-    /** only the day is relevant */
+    /** valid ISO 8601 string, only date is relevant */
     date: string
 ): Promise<number> {
     const startOfDate = startOfDay(new Date(date));
@@ -230,9 +224,9 @@ export async function getWorktimeForDay(
     const { worktime } = (await knex("worktimes")
         .select(
             knex.raw(`total(${worktimeSql}) as worktime`, {
-                startOfDate: toISOString(startOfDate),
-                endOfDate: pipe(addDays(1), toISOString)(startOfDate),
-                now: toISOString(new Date()),
+                startOfDate: formatDateTimeZ(startOfDate),
+                endOfDate: pipe(addDays(1), formatDateTimeZ)(startOfDate),
+                now: formatDateTimeZ(new Date()),
             })
         )
         .where({ employmentId })
@@ -302,11 +296,11 @@ export async function getSalesPerDay(
                 .sum({
                     salesExcludingToday: knex.raw(
                         "CASE WHEN purchaseTransactions.date < ? THEN productSales.amount END",
-                        [formatRFC3339(startOfToday())]
+                        [formatDateTimeZ(startOfToday())]
                     ),
                     salesToday: knex.raw(
                         "CASE WHEN purchaseTransactions.date >= ? THEN productSales.amount END",
-                        [formatRFC3339(startOfToday())]
+                        [formatDateTimeZ(startOfToday())]
                     ),
                 })
         )
@@ -316,7 +310,7 @@ export async function getSalesPerDay(
                 .from(
                     knex("purchaseTransactions")
                         .select("date")
-                        .where("date", "<", formatRFC3339(startOfToday()))
+                        .where("date", "<", formatDateTimeZ(startOfToday()))
                         .groupBy("date")
                 )
                 .count({ dateCountExcludingToday: "date" })

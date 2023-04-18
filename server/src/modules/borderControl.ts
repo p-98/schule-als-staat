@@ -1,12 +1,12 @@
 import type { IAppContext } from "Server";
 
 import { GraphQLYogaError } from "@graphql-yoga/node";
-import { formatRFC3339 } from "date-fns";
 import {
     EUserTypeTableMap,
     parseUserSignature,
     stringifyUserSignature,
 } from "Util/parse";
+import { formatDateTimeZ } from "Util/date";
 import type { IStay, ICustomsTransaction } from "Types/knex";
 import type {
     IBorderCrossingModel,
@@ -24,7 +24,7 @@ export async function chargeCustoms(
             code: "BAD_USER_INPUT",
         });
 
-    const date = formatRFC3339(new Date());
+    const date = formatDateTimeZ(new Date());
     return knex.transaction(async (trx) => {
         // use knex.raw because knex doesn't support returning on sqlite
         const customerTable = EUserTypeTableMap[user.type];
@@ -92,14 +92,14 @@ export async function registerBorderCrossing(
                   VALUES (?, ?)
                   RETURNING *
                   `,
-                  [citizenId, formatRFC3339(new Date())]
+                  [citizenId, formatDateTimeZ(new Date())]
               )
             : trx.raw(
                   `UPDATE stays
                   SET leftAt = ?
                   WHERE citizenId = ?
                   RETURNING *`,
-                  [citizenId, formatRFC3339(new Date())]
+                  [citizenId, formatDateTimeZ(new Date())]
               );
 
         return stay2BorderCrossing(await returnQuery);

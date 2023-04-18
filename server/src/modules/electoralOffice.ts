@@ -1,6 +1,5 @@
 import type { IAppContext } from "Server";
 
-import { formatRFC3339 } from "date-fns";
 import {
     parseVoteChoices,
     parseVoteResult,
@@ -9,6 +8,7 @@ import {
     stringifyVoteChoices,
     stringifyVoteVote,
 } from "Util/parse";
+import { formatDateTimeZ } from "Util/date";
 import type { IVoteCitizenEdgeModel, IVoteModel } from "Types/models";
 import type { TVoteType } from "Types/schema";
 import { IVote, IVotingPaper } from "Types/knex";
@@ -33,7 +33,7 @@ export async function getAllVotes({
 }: IAppContext): Promise<IVoteModel[]> {
     const query = knex("votes")
         .select("*")
-        .where("endAt", ">", formatRFC3339(new Date()));
+        .where("endAt", ">", formatDateTimeZ(new Date()));
 
     return (await query).map((raw) => ({
         ...raw,
