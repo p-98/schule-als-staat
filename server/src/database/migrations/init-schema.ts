@@ -1,4 +1,4 @@
-import type { Knex } from "knex";
+import type { Knex } from "Database";
 
 export const name = "init-schema";
 

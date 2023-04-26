@@ -118,32 +118,36 @@ async function main() {
             grossValue: 10000,
         },
     ]);
-    await knex("worktimes").insert([
-        {
-            id: 0,
-            employmentId,
-            start: subHours(halfPast, 2).toISOString(),
-            end: subHours(halfPast, 1).toISOString(),
-        },
-        {
-            id: 1,
-            employmentId,
-            start: subHours(halfPast, 1).toISOString(),
-            end: halfPast.toISOString(),
-        },
-        {
-            id: 2,
-            employmentId,
-            start: halfPast.toISOString(),
-            end: addHours(halfPast, 1).toISOString(),
-        },
-        {
-            id: 3,
-            employmentId,
-            start: addHours(halfPast, 1).toISOString(),
-            end: addHours(halfPast, 2).toISOString(),
-        },
-    ]);
+    const worktimes = await knex("worktimes").insert(
+        [
+            {
+                id: 0,
+                employmentId,
+                start: subHours(halfPast, 2).toISOString(),
+                end: subHours(halfPast, 1).toISOString(),
+            },
+            {
+                id: 1,
+                employmentId,
+                start: subHours(halfPast, 1).toISOString(),
+                end: halfPast.toISOString(),
+            },
+            {
+                id: 2,
+                employmentId,
+                start: halfPast.toISOString(),
+                end: addHours(halfPast, 1).toISOString(),
+            },
+            {
+                id: 3,
+                employmentId,
+                start: addHours(halfPast, 1).toISOString(),
+                end: addHours(halfPast, 2).toISOString(),
+            },
+        ],
+        undefined
+    );
+    console.log("worktimes: ", worktimes);
     await knex("employments").insert({ id: employmentId, companyId });
 
     const open = "09:00:00+02:00";

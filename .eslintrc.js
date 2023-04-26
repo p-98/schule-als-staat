@@ -38,12 +38,7 @@ module.exports = {
                 "react/require-default-props": "off",
                 "react/prop-types": "off",
                 "consistent-return": "off",
-                "react/jsx-props-no-spreading": [
-                    "error",
-                    {
-                        html: "ignore",
-                    },
-                ],
+                "react/jsx-props-no-spreading": ["error", { html: "ignore" }],
                 "import/no-extraneous-dependencies": "off",
                 "@typescript-eslint/dot-notation": "off",
                 "no-return-assign": ["error", "except-parens"],
@@ -55,6 +50,17 @@ module.exports = {
             },
             globals: {
                 React: "writable",
+            },
+        },
+        {
+            files: ["*.test.ts"],
+            plugins: ["jest"],
+            extends: ["plugin:jest/recommended"],
+            rules: {
+                "jest/expect-expect": [
+                    "warn",
+                    { assertFunctionNames: ["assert.*"] },
+                ],
             },
         },
         {
