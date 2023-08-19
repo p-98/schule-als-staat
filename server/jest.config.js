@@ -6,7 +6,7 @@ const { mapValues } = require("lodash/fp");
 
 /** @type {import('jest').Config} */
 module.exports = {
-    roots: ["<rootDir>/src"],
+    roots: ["<rootDir>"],
     moduleFileExtensions: ["js", "ts", "d.ts"],
     testMatch: ["**/*.test.ts"],
     modulePaths: [compilerOptions.baseUrl],
