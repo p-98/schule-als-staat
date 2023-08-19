@@ -23,7 +23,7 @@ import {
 } from "Util/parse";
 import { formatDateTimeZ } from "Util/date";
 import { v4 as uuidv4 } from "uuid";
-import { GraphQLYogaError } from "@graphql-yoga/node";
+import { GraphQLYogaError } from "Util/error";
 import { TChangeTransactionInput } from "Types/schema";
 import { IChangeTransaction } from "Types/knex";
 import { TNullable } from "Types";

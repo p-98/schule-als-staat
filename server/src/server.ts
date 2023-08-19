@@ -1,15 +1,16 @@
-import type { IncomingMessage, ServerResponse } from "http";
-import type { YogaInitialContext } from "@graphql-yoga/node";
+import type { IncomingMessage, RequestListener, ServerResponse } from "http";
+import type { YogaInitialContext } from "graphql-yoga";
 import type { TEvents, TPayload } from "Types/models";
 import { TResolvers } from "Types/schema";
 
+import { createServer } from "http";
 import {
     createPubSub,
-    createServer,
-    GraphQLYogaError,
+    createSchema,
+    createYoga,
     pipe as pipeSub,
     filter,
-} from "@graphql-yoga/node";
+} from "graphql-yoga";
 import {
     VoidTypeDefinition,
     VoidResolver,
@@ -73,6 +74,7 @@ import { createGuest, removeGuest } from "Modules/foreignOffice";
 import { fileToBase64, safeParseInt } from "Util/parse";
 import { assertRole, checkRole } from "Util/auth";
 import { formatDateZ } from "Util/date";
+import { GraphQLYogaError } from "Util/error";
 import config from "Config";
 import { createKnex } from "Database";
 
@@ -484,22 +486,18 @@ const resolvers: TResolvers = {
     },
 };
 
-const server = createServer({
-    schema: {
+const yoga = createYoga({
+    schema: createSchema({
         typeDefs: [typeDefs, VoidTypeDefinition, DateTimeTypeDefinition],
         resolvers,
-    },
+    }),
     context: createAppContext,
 });
-server.start().catch((e) => {
-    throw e;
-});
+const server = createServer((yoga as unknown) as RequestListener);
 
-// HMR
-if (module.hot) {
-    module.hot.accept();
-    module.hot.dispose(() => {
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        server.stop();
-    });
-}
+const host = "127.0.0.1";
+const port = 4000;
+server.listen(port, host, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Server running at ${host}:${port}`);
+});

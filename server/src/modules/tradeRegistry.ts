@@ -1,6 +1,6 @@
 import type { IAppContext } from "Server";
 
-import { GraphQLYogaError } from "@graphql-yoga/node";
+import { GraphQLYogaError } from "Util/error";
 import { v4 as uuidv4 } from "uuid";
 import { startOfToday, endOfToday, startOfDay } from "date-fns";
 import { eachHourOfInterval, addHours, addDays } from "date-fns/fp";

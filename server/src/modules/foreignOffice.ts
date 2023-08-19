@@ -2,7 +2,7 @@ import type { TNullable } from "Types";
 import type { IGuestUserModel } from "Types/models";
 import type { IAppContext } from "Server";
 
-import { GraphQLYogaError } from "@graphql-yoga/node";
+import { GraphQLYogaError } from "Util/error";
 import { v4 as uuidv4 } from "uuid";
 import { formatDateTimeZ } from "Util/date";
 import { createBankAccount } from "Modules/bank";

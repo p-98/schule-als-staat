@@ -1,6 +1,6 @@
 import type { IAppContext } from "Server";
 
-import { GraphQLYogaError } from "@graphql-yoga/node";
+import { GraphQLYogaError } from "Util/error";
 import type { IUserSignature, TUserModel } from "Types/models";
 import bcrypt from "bcrypt";
 import { getUser } from "Modules/users";

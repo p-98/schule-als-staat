@@ -1,6 +1,6 @@
 import type { IAppContext } from "Server";
 
-import { GraphQLYogaError } from "@graphql-yoga/node";
+import { GraphQLYogaError } from "Util/error";
 import { ICitizenUserModel } from "Types/models";
 
 export async function getCitizen(

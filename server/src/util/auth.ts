@@ -1,4 +1,4 @@
-import { GraphQLYogaError } from "@graphql-yoga/node";
+import { GraphQLYogaError } from "Util/error";
 
 import { TNullable } from "Types";
 import { IUserSignature, TUserModel } from "Types/models";
