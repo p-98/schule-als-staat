@@ -400,7 +400,7 @@ type Mutation {
 
     " login as user; guests don't need a password "
     login(user: UserSignatureInput!, password: String): User!
-    logout: Void!
+    logout: Void
 
     createEmploymentOffer(offer: CreateEmploymentOfferInput!): EmploymentOffer!
         @auth(role: [COMPANY])
@@ -408,8 +408,8 @@ type Mutation {
     rejectEmploymentOffer(id: ID!, reason: String): EmploymentOffer!
         @auth(role: [CITIZEN])
     " offer must be rejected to be deleted "
-    deleteEmploymentOffer(id: ID!): Void! @auth(role: [COMPANY])
-    cancelEmployment(id: ID!): Void! @auth(role: [CITIZEN, COMPANY])
+    deleteEmploymentOffer(id: ID!): Void @auth(role: [COMPANY])
+    cancelEmployment(id: ID!): Void @auth(role: [CITIZEN, COMPANY])
 
     payBonus(value: Float!, employmentIds: [ID!]!): [SalaryTransaction!]!
         @auth(role: [COMPANY])
@@ -434,12 +434,12 @@ type Mutation {
 
     createGuest(guest: CreateGuestInput!): GuestUser!
         @auth(role: [BORDER_CONTROL])
-    removeGuest(cardId: ID!): Void! @auth(role: [BORDER_CONTROL])
+    removeGuest(cardId: ID!): Void @auth(role: [BORDER_CONTROL])
 
     addProduct(product: AddProductInput!): Product! @auth(role: [COMPANY])
     editProduct(product: EditProductInput!): Product! @auth(role: [COMPANY])
     " remove product from the company's inventory "
-    removeProduct(productId: ID!): Void! @auth(role: [COMPANY])
+    removeProduct(productId: ID!): Void @auth(role: [COMPANY])
 
     createVote(vote: CreateVoteInput!): Vote! @auth(role: [POLITICS])
     vote(vote: VoteInput!): VoteCitizenEdge! @auth(role: [CITIZEN])

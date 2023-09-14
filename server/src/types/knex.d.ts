@@ -160,7 +160,7 @@ declare module "knex/types/tables" {
     interface Tables {
         sessions: Knex.CompositeTableType<
             ISession,
-            TNullableToOptional<TOmit<ISession, "id">>,
+            TNullableToOptional<ISession>,
             TNullableToOptional<TOmit<ISession, "id">>
         >;
         bankAccounts: Knex.CompositeTableType<
@@ -175,12 +175,12 @@ declare module "knex/types/tables" {
         >;
         citizens: Knex.CompositeTableType<
             ICitizen,
-            TOmit<ICitizen, "id">,
+            ICitizen,
             Partial<Pick<ICitizen, "image" | "password">>
         >;
         companies: Knex.CompositeTableType<
             ICompany,
-            TOmit<ICompany, "id">,
+            ICompany,
             Partial<Pick<ICompany, "image" | "password">>
         >;
         worktimes: Knex.CompositeTableType<

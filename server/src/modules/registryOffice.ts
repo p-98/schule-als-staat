@@ -9,7 +9,7 @@ export async function getCitizen(
 ): Promise<ICitizenUserModel> {
     const raw = await knex("citizens")
         .first()
-        .where({ id })
+        .where("citizens.id", id)
         .innerJoin("bankAccounts", "citizens.bankAccountId", "bankAccounts.id");
 
     if (!raw)
