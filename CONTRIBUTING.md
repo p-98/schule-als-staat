@@ -38,3 +38,9 @@ Example of a user signature: `{type: "COMPANY", id: "..."}`
 
 -   worktime is stored as number in seconds
 -   Dates are proccessed and stored as datetime strings with format `YYYY-MM-DDThh:mm:ss.sssZ` (RFC 3339) and always in UTC. They are only converted to local time for displaying.
+
+# Dependencies
+
+Usage of patch-package:
+
+-   @graphql-tools/executor-http and @graphql-tools/utils reflecting changes found in fork https://github.com/p-98/graphql-tools

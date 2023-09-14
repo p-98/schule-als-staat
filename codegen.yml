@@ -1,8 +1,23 @@
 overwrite: true
 schema: "./server/src/schema.graphql"
-# documents: "*.gql"
 generates:
+    ./server/__test__/graphql/:
+        documents: ["server/__test__/*.test.ts"]
+        preset: client-preset
+        config:
+            emitLegacyCommonJSImports: true
+            scalars:
+                DateTime: string
+                Void: void
+                File: "@whatwg-node/fetch#File"
+            strictScalars: true
+            useTypeImports: true
+            arrayInputCoercion: false
+            enumsAsTypes: true
     ./server/src/types/schema.ts:
+        plugins:
+            - "typescript"
+            - "typescript-resolvers"
         config:
             contextType: ../server#IContext
             typesPrefix: T
@@ -35,6 +50,3 @@ generates:
                 DateTime: string
                 Void: void
                 File: "@whatwg-node/fetch#File"
-        plugins:
-            - "typescript"
-            - "typescript-resolvers"

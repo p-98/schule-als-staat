@@ -1,0 +1,142 @@
+diff --git a/node_modules/@graphql-tools/executor-http/cjs/index.js b/node_modules/@graphql-tools/executor-http/cjs/index.js
+index 8c3485b..742dcaf 100644
+--- a/node_modules/@graphql-tools/executor-http/cjs/index.js
++++ b/node_modules/@graphql-tools/executor-http/cjs/index.js
+@@ -42,6 +42,7 @@ function buildHTTPExecutor(options) {
+             }, options.timeout);
+         }
+         const responseDetailsForError = {};
++        const responseDetailsForResult = {};
+         return new value_or_promise_1.ValueOrPromise(() => {
+             switch (method) {
+                 case 'GET': {
+@@ -93,6 +94,7 @@ function buildHTTPExecutor(options) {
+             .then((fetchResult) => {
+             responseDetailsForError.status = fetchResult.status;
+             responseDetailsForError.statusText = fetchResult.statusText;
++            responseDetailsForResult.headers = fetchResult.headers;
+             if (timeoutId != null) {
+                 clearTimeout(timeoutId);
+             }
+@@ -222,6 +224,12 @@ function buildHTTPExecutor(options) {
+                     ],
+                 };
+             }
++        })
++            .then(result => {
++            if (options?.outputHeaders) {
++                return Object.assign(result, responseDetailsForResult);
++            }
++            return result;
+         })
+             .resolve();
+     };
+diff --git a/node_modules/@graphql-tools/executor-http/esm/index.js b/node_modules/@graphql-tools/executor-http/esm/index.js
+index 08656a7..f94cefb 100644
+--- a/node_modules/@graphql-tools/executor-http/esm/index.js
++++ b/node_modules/@graphql-tools/executor-http/esm/index.js
+@@ -38,6 +38,7 @@ export function buildHTTPExecutor(options) {
+             }, options.timeout);
+         }
+         const responseDetailsForError = {};
++        const responseDetailsForResult = {};
+         return new ValueOrPromise(() => {
+             switch (method) {
+                 case 'GET': {
+@@ -89,6 +90,7 @@ export function buildHTTPExecutor(options) {
+             .then((fetchResult) => {
+             responseDetailsForError.status = fetchResult.status;
+             responseDetailsForError.statusText = fetchResult.statusText;
++            responseDetailsForResult.headers = fetchResult.headers;
+             if (timeoutId != null) {
+                 clearTimeout(timeoutId);
+             }
+@@ -218,6 +220,12 @@ export function buildHTTPExecutor(options) {
+                     ],
+                 };
+             }
++        })
++            .then(result => {
++            if (options?.outputHeaders) {
++                return Object.assign(result, responseDetailsForResult);
++            }
++            return result;
+         })
+             .resolve();
+     };
+diff --git a/node_modules/@graphql-tools/executor-http/typings/index.d.cts b/node_modules/@graphql-tools/executor-http/typings/index.d.cts
+index 87336b5..6082a36 100644
+--- a/node_modules/@graphql-tools/executor-http/typings/index.d.cts
++++ b/node_modules/@graphql-tools/executor-http/typings/index.d.cts
+@@ -22,6 +22,10 @@ export interface HTTPExecutorOptions {
+      * Additional headers to include when querying the original schema
+      */
+     headers?: HeadersConfig | ((executorRequest?: ExecutionRequest) => HeadersConfig);
++    /**
++     * Whether to include response headers in result
++     */
++    outputHeaders?: boolean;
+     /**
+      * HTTP method to use when querying the original schema.
+      */
+@@ -51,14 +55,18 @@ export interface HTTPExecutorOptions {
+     FormData?: typeof FormData;
+ }
+ export type HeadersConfig = Record<string, string>;
++export type ExecutionResultAdditions = {
++    /** Response headers. Only non-existant if fetch doesn't return response. */
++    headers?: Headers;
++};
+ export declare function buildHTTPExecutor(options?: Omit<HTTPExecutorOptions, 'fetch'> & {
+     fetch: SyncFetchFn;
+-}): SyncExecutor<any, HTTPExecutorOptions>;
++}): SyncExecutor<any, HTTPExecutorOptions, ExecutionResultAdditions>;
+ export declare function buildHTTPExecutor(options?: Omit<HTTPExecutorOptions, 'fetch'> & {
+     fetch: AsyncFetchFn;
+-}): AsyncExecutor<any, HTTPExecutorOptions>;
++}): AsyncExecutor<any, HTTPExecutorOptions, ExecutionResultAdditions>;
+ export declare function buildHTTPExecutor(options?: Omit<HTTPExecutorOptions, 'fetch'> & {
+     fetch: RegularFetchFn;
+-}): AsyncExecutor<any, HTTPExecutorOptions>;
+-export declare function buildHTTPExecutor(options?: Omit<HTTPExecutorOptions, 'fetch'>): AsyncExecutor<any, HTTPExecutorOptions>;
++}): AsyncExecutor<any, HTTPExecutorOptions, ExecutionResultAdditions>;
++export declare function buildHTTPExecutor(options?: Omit<HTTPExecutorOptions, 'fetch'>): AsyncExecutor<any, HTTPExecutorOptions, ExecutionResultAdditions>;
+ export { isLiveQueryOperationDefinitionNode };
+diff --git a/node_modules/@graphql-tools/executor-http/typings/index.d.ts b/node_modules/@graphql-tools/executor-http/typings/index.d.ts
+index e646d1c..b88fe3a 100644
+--- a/node_modules/@graphql-tools/executor-http/typings/index.d.ts
++++ b/node_modules/@graphql-tools/executor-http/typings/index.d.ts
+@@ -22,6 +22,10 @@ export interface HTTPExecutorOptions {
+      * Additional headers to include when querying the original schema
+      */
+     headers?: HeadersConfig | ((executorRequest?: ExecutionRequest) => HeadersConfig);
++    /**
++     * Whether to include response headers in result
++     */
++    outputHeaders?: boolean;
+     /**
+      * HTTP method to use when querying the original schema.
+      */
+@@ -51,14 +55,18 @@ export interface HTTPExecutorOptions {
+     FormData?: typeof FormData;
+ }
+ export type HeadersConfig = Record<string, string>;
++export type ExecutionResultAdditions = {
++    /** Response headers. Only non-existant if fetch doesn't return response. */
++    headers?: Headers;
++};
+ export declare function buildHTTPExecutor(options?: Omit<HTTPExecutorOptions, 'fetch'> & {
+     fetch: SyncFetchFn;
+-}): SyncExecutor<any, HTTPExecutorOptions>;
++}): SyncExecutor<any, HTTPExecutorOptions, ExecutionResultAdditions>;
+ export declare function buildHTTPExecutor(options?: Omit<HTTPExecutorOptions, 'fetch'> & {
+     fetch: AsyncFetchFn;
+-}): AsyncExecutor<any, HTTPExecutorOptions>;
++}): AsyncExecutor<any, HTTPExecutorOptions, ExecutionResultAdditions>;
+ export declare function buildHTTPExecutor(options?: Omit<HTTPExecutorOptions, 'fetch'> & {
+     fetch: RegularFetchFn;
+-}): AsyncExecutor<any, HTTPExecutorOptions>;
+-export declare function buildHTTPExecutor(options?: Omit<HTTPExecutorOptions, 'fetch'>): AsyncExecutor<any, HTTPExecutorOptions>;
++}): AsyncExecutor<any, HTTPExecutorOptions, ExecutionResultAdditions>;
++export declare function buildHTTPExecutor(options?: Omit<HTTPExecutorOptions, 'fetch'>): AsyncExecutor<any, HTTPExecutorOptions, ExecutionResultAdditions>;
+ export { isLiveQueryOperationDefinitionNode };

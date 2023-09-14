@@ -8,7 +8,8 @@ module.exports = {
     ignorePatterns: [
         "node_modules",
         "dist",
-        "/server/src/types/schema.ts", //auto generated
+        "/server/src/types/schema.ts", // auto-generated
+        "/server/__test__/graphql/", // auto-generated
         ".eslintrc.js",
         "webpack.config.js",
         "next-env.d.ts",

@@ -1,9 +1,8 @@
-import type { IncomingMessage, ServerResponse } from "http";
 import type { ISessionModel, IUserSignature } from "Types/models";
+import type { WithCookieStore } from "Util/misc";
 import type { Knex } from "Database";
 
 import { v4 as uuid } from "uuid";
-import cookie from "cookie";
 import { addMonths } from "date-fns";
 
 async function create(knex: Knex, tries = 100): Promise<ISessionModel> {
@@ -42,21 +41,21 @@ async function load(knex: Knex, id: string): Promise<ISessionModel> {
 /** authenticates client and provides session object */
 export default async function init(
     knex: Knex,
-    req: IncomingMessage,
-    res: ServerResponse
+    request: WithCookieStore<Request>
 ): Promise<ISessionModel> {
-    const id = cookie.parse(req.headers.cookie ?? "").sessionID;
+    const sessionID = await request.cookieStore.get("sessionID");
+    const session = sessionID
+        ? await load(knex, sessionID.value)
+        : await create(knex);
 
-    const session = id ? await load(knex, id) : await create(knex);
-
-    res.setHeader(
-        "Set-Cookie",
-        cookie.serialize("sessionID", session.id, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            expires: addMonths(new Date(), 6),
-        })
-    );
+    await request.cookieStore.set({
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        expires: addMonths(new Date(), 6),
+        name: "sessionID",
+        value: session.id,
+        domain: null,
+    });
 
     return session;
 }

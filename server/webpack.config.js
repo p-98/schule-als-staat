@@ -13,7 +13,7 @@ module.exports = (env, argv) => {
         mode: argv.mode,
         entry: [
             ...(production ? [] : ["webpack/hot/poll?1000"]),
-            "./src/server.ts",
+            "./src/index.ts",
         ],
         resolve: {
             extensions: [".js", ".ts"],

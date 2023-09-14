@@ -2,7 +2,7 @@ import type { Knex } from "knex";
 import { afterEach, beforeEach, describe, test } from "@jest/globals";
 import { assert } from "chai";
 
-import { createKnex } from "Database";
+import { emptyKnex } from "Database";
 import { seedSourceFactory, withSpecific } from "Util/test";
 
 const singleData = { id: "accountId", balance: 0, redemptionBalance: 0 };
@@ -20,8 +20,7 @@ describe("database functionality", () => {
     let knex: Knex;
 
     beforeEach(async () => {
-        knex = createKnex();
-        await knex.migrate.up({ name: "init-schema" });
+        knex = await emptyKnex();
     });
     afterEach(async () => {
         await knex.destroy();

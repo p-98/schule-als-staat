@@ -1,4 +1,5 @@
 {
     "editor.tabSize": 4,
-    "prettier.prettierPath": ""
+    "prettier.prettierPath": "",
+    "typescript.tsdk": "node_modules/typescript/lib"
 }

@@ -1,7 +1,25 @@
 import type { Knex as _Knex } from "knex";
+import type { ExecutionResult } from "graphql";
+import type { CookieMap } from "set-cookie-parser";
+import type {
+    HeadersConfig,
+    HTTPExecutorOptions,
+    SyncFetchFn,
+    AsyncFetchFn,
+    RegularFetchFn,
+    ExecutionResultAdditions,
+} from "@graphql-tools/executor-http";
+import type {
+    Executor,
+    SyncExecutor,
+    AsyncExecutor,
+    ExecutionRequest,
+} from "@graphql-tools/utils";
+
 import type { Knex } from "Database";
 import type { IAppContext } from "Server";
 
+import { assert } from "chai";
 import {
     mapValues,
     set,
@@ -10,7 +28,14 @@ import {
     intersection,
     isEmpty,
     isString,
+    pipe,
+    map,
+    join,
 } from "lodash/fp";
+import { buildHTTPExecutor } from "@graphql-tools/executor-http";
+import { parse as parseSetCookie } from "set-cookie-parser";
+import { serialize as serializeCookie } from "cookie";
+import { ValueOrPromise } from "value-or-promise";
 
 import config from "Config";
 
@@ -49,7 +74,7 @@ export const withSpecific = <SeedName extends string>(
     ...seeds: SeedName[]
 ): _Knex.SeederConfig => ({
     ...seedConfig,
-    specific: isEmpty(seeds) ? undefined : (seeds as unknown as string),
+    specific: isEmpty(seeds) ? undefined : ((seeds as unknown) as string),
 });
 
 const setNotImplemented = <
@@ -81,3 +106,96 @@ export const mockAppContext = (knex: Knex): IAppContext =>
         config,
         knex,
     });
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export function buildHTTPCookieExecutor(
+    buildOptions?: Omit<HTTPExecutorOptions, "fetch"> & {
+        fetch: SyncFetchFn;
+    }
+): SyncExecutor<any, HTTPExecutorOptions, ExecutionResultAdditions>;
+export function buildHTTPCookieExecutor(
+    buildOptions?: Omit<HTTPExecutorOptions, "fetch"> & {
+        fetch: AsyncFetchFn;
+    }
+): AsyncExecutor<any, HTTPExecutorOptions, ExecutionResultAdditions>;
+export function buildHTTPCookieExecutor(
+    buildOptions?: Omit<HTTPExecutorOptions, "fetch"> & {
+        fetch: RegularFetchFn;
+    }
+): AsyncExecutor<any, HTTPExecutorOptions, ExecutionResultAdditions>;
+export function buildHTTPCookieExecutor(
+    buildOptions?: Omit<HTTPExecutorOptions, "fetch">
+): AsyncExecutor<any, HTTPExecutorOptions, ExecutionResultAdditions>;
+export function buildHTTPCookieExecutor(
+    buildOptions?: HTTPExecutorOptions
+): Executor<any, HTTPExecutorOptions, ExecutionResultAdditions> {
+    let cookies: CookieMap = {};
+
+    const executor = buildHTTPExecutor({
+        ...buildOptions,
+        outputHeaders: true,
+        headers: (executorRequest) => {
+            let headers: HeadersConfig = {};
+            if (typeof buildOptions?.headers === "object")
+                headers = buildOptions.headers;
+            if (typeof buildOptions?.headers === "function")
+                headers = buildOptions.headers(executorRequest);
+
+            const cookiesStr = pipe(
+                Object.values,
+                map(({ name, value }) => serializeCookie(name, value)),
+                join(";")
+            )(cookies);
+            if (headers.Cookie) headers.Cookie += `;${cookiesStr}`;
+            else headers.Cookie = cookiesStr;
+            return headers;
+        },
+    });
+    const cookieExecutor = (
+        request: ExecutionRequest<any, any, any, HTTPExecutorOptions>
+    ) =>
+        new ValueOrPromise(() => executor(request))
+            .then((result) => {
+                const setCookie = result?.headers?.getSetCookie?.();
+                if (setCookie)
+                    cookies = {
+                        ...cookies,
+                        ...parseSetCookie(setCookie, { map: true }),
+                    };
+                return result;
+            })
+            .then((result) => {
+                const cleanResult = { ...result };
+                if (buildOptions?.outputHeaders !== true)
+                    delete cleanResult.headers;
+                return result;
+            })
+            .resolve();
+    return cookieExecutor;
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+/**
+ * Function according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing)
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function assertSingleValue<TValue extends object>(
+    value: TValue | AsyncIterable<TValue>
+): asserts value is TValue {
+    assert.notProperty(
+        value,
+        (Symbol.asyncIterator as unknown) as string,
+        "Expected single value"
+    );
+}
+
+export function assertNoErrors<TExtensions, TData>(
+    value: ExecutionResult<TData, TExtensions>
+): asserts value is ExecutionResult<TData, TExtensions> & {
+    data: TData /* | null? */;
+    headers: Headers;
+} {
+    if (value.errors && value.errors[0]) {
+        throw value.errors[0];
+    }
+}

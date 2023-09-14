@@ -1,9 +1,10 @@
-import type { IncomingMessage, RequestListener, ServerResponse } from "http";
-import type { YogaInitialContext } from "graphql-yoga";
+/* eslint-disable react-hooks/rules-of-hooks */
+import type { YogaInitialContext, YogaServerInstance } from "graphql-yoga";
+import type { Knex } from "Database";
 import type { TEvents, TPayload } from "Types/models";
-import { TResolvers } from "Types/schema";
+import type { TResolvers } from "Types/schema";
+import type { WithCookieStore } from "Util/misc";
 
-import { createServer } from "http";
 import {
     createPubSub,
     createSchema,
@@ -11,6 +12,7 @@ import {
     pipe as pipeSub,
     filter,
 } from "graphql-yoga";
+import { useCookies } from "@whatwg-node/server-plugin-cookies";
 import {
     VoidTypeDefinition,
     VoidResolver,
@@ -76,33 +78,28 @@ import { assertRole, checkRole } from "Util/auth";
 import { formatDateZ } from "Util/date";
 import { GraphQLYogaError } from "Util/error";
 import config from "Config";
-import { createKnex } from "Database";
 
 import * as typeDefs from "./schema.graphql";
 import sessionFactory from "./sessionFactory";
 
 const pubsub = createPubSub<TEvents>();
 
-const knex = (async () => {
-    const instance = createKnex();
-    await instance.migrate.up({ name: "init-schema" });
-    return instance;
-})();
-
-const createAppContext = async ({ req, res }: IYogaContext) => ({
-    session: await sessionFactory(await knex, req, res),
-    knex: await knex,
+const createAppContext = (knex: Knex) => async ({
+    request,
+}: IInitialContext) => ({
+    session: await sessionFactory(knex, request),
+    knex,
     config,
     pubsub,
 });
 type UnPromise<P> = P extends Promise<infer T> ? T : never;
-interface YogaServerContext {
-    req: IncomingMessage;
-    res: ServerResponse;
+export type IAppContext = UnPromise<
+    ReturnType<ReturnType<typeof createAppContext>>
+>;
+interface IInitialContext extends YogaInitialContext {
+    request: WithCookieStore<Request>;
 }
-type IYogaContext = YogaInitialContext & YogaServerContext;
-export type IAppContext = UnPromise<ReturnType<typeof createAppContext>>;
-export type IContext = IAppContext & IYogaContext;
+export type IContext = IAppContext & IInitialContext;
 
 const resolvers: TResolvers = {
     Void: VoidResolver,
@@ -486,18 +483,15 @@ const resolvers: TResolvers = {
     },
 };
 
-const yoga = createYoga({
-    schema: createSchema({
-        typeDefs: [typeDefs, VoidTypeDefinition, DateTimeTypeDefinition],
-        resolvers,
-    }),
-    context: createAppContext,
-});
-const server = createServer((yoga as unknown) as RequestListener);
-
-const host = "127.0.0.1";
-const port = 4000;
-server.listen(port, host, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Server running at ${host}:${port}`);
-});
+/** Factory function for usage in unit tests */
+export const yogaFactory = (
+    knex: Knex
+): YogaServerInstance<IInitialContext, IAppContext> =>
+    createYoga({
+        schema: createSchema({
+            typeDefs: [typeDefs, VoidTypeDefinition, DateTimeTypeDefinition],
+            resolvers,
+        }),
+        context: createAppContext(knex),
+        plugins: [useCookies()],
+    });

@@ -6,7 +6,7 @@ import { assert } from "chai";
 import { addHours, addDays } from "date-fns/fp";
 import { curry, curryN, __, map, pipe } from "lodash/fp";
 
-import { createKnex } from "Database";
+import { emptyKnex } from "Database";
 import { seedSourceFactory, withSpecific, mockAppContext } from "Util/test";
 import { parseDateAndTime, formatDateZ, formatDateTimeZ } from "Util/date";
 
@@ -41,8 +41,7 @@ const seedSource = seedSourceFactory({
 let knex: Knex;
 let ctx: IAppContext;
 beforeEach(async () => {
-    knex = createKnex();
-    await knex.migrate.up({ name: "init-schema" });
+    knex = await emptyKnex();
     ctx = mockAppContext(knex);
 });
 afterEach(async () => {

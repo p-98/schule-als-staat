@@ -1,4 +1,5 @@
 import { addDays, subDays } from "date-fns";
+import path from "node:path";
 
 export default {
     currencies: {
@@ -23,12 +24,20 @@ export default {
         borderControlCompanyId: "BCTRL",
         warehouseCompanyId: "WAREH",
     },
+    database: {
+        file: "database.sqlite3",
+    },
     openingHours: {
-        dates: [subDays(new Date(), 1), new Date(), addDays(new Date(), 1)].map(
-            (date) => date.toISOString().slice(0, 10)
-        ),
+        dates: [
+            subDays(new Date(), 1),
+            new Date(),
+            addDays(new Date(), 1),
+        ].map((date) => date.toISOString().slice(0, 10)),
         open: "09:00:00+02:00",
         close: "16:00:00+02:00",
     },
     guestInitialBalance: 50,
 };
+
+export const resolve = (...pathSegments: string[]): string =>
+    path.resolve(__dirname, ...pathSegments);
