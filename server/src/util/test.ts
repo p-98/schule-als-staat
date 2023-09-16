@@ -1,5 +1,5 @@
 import type { Knex as _Knex } from "knex";
-import type { ExecutionResult } from "graphql";
+import type { ExecutionResult, GraphQLError } from "graphql";
 import type { CookieMap } from "set-cookie-parser";
 import type {
     HeadersConfig,
@@ -192,10 +192,20 @@ export function assertSingleValue<TValue extends object>(
 export function assertNoErrors<TExtensions, TData>(
     value: ExecutionResult<TData, TExtensions>
 ): asserts value is ExecutionResult<TData, TExtensions> & {
-    data: TData /* | null? */;
-    headers: Headers;
+    data: TData;
 } {
-    if (value.errors && value.errors[0]) {
-        throw value.errors[0];
-    }
+    assert.isUndefined(value.errors);
+}
+
+export function assertSingleError<TExtensions, TData>(
+    value: ExecutionResult<TData, TExtensions>
+): asserts value is ExecutionResult<TData, TExtensions> & {
+    errors: readonly [GraphQLError, ...[never]];
+} {
+    assert.isArray(value.errors, "Result needs to have errors");
+    assert.lengthOf(
+        value.errors as ReadonlyArray<GraphQLError>,
+        1,
+        "Result needs to have exactly one error"
+    );
 }

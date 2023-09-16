@@ -6,6 +6,7 @@ import {
     seedSourceFactory,
     withSpecific,
     buildHTTPCookieExecutor,
+    assertSingleError,
 } from "Util/test";
 
 import bcrypt from "bcrypt";
@@ -36,6 +37,29 @@ const seedSource = seedSourceFactory({
     },
 });
 
+const sessionQuery = graphql(/* GraphQL */ `
+    query Session {
+        session {
+            id
+            user {
+                id
+            }
+        }
+    }
+`);
+const loginMutation = graphql(/* GraphQL */ `
+    mutation Login($type: UserType!, $id: String!, $password: String) {
+        login(user: { type: $type, id: $id }, password: $password) {
+            id
+        }
+    }
+`);
+const logoutMutation = graphql(/* GraphQL */ `
+    mutation Logout {
+        logout
+    }
+`);
+
 test("obtain session id, login, logout", async () => {
     const knex = await emptyKnex();
     await knex.seed.run(withSpecific({ seedSource }, "citizen-max-mustermann"));
@@ -44,31 +68,7 @@ test("obtain session id, login, logout", async () => {
         // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
         // eslint-disable-next-line @typescript-eslint/unbound-method
         fetch: yoga.fetch,
-        outputHeaders: true,
     });
-
-    const sessionQuery = graphql(/* GraphQL */ `
-        query Session {
-            session {
-                id
-                user {
-                    id
-                }
-            }
-        }
-    `);
-    const loginQuery = graphql(/* GraphQL */ `
-        mutation Login($type: UserType!, $id: String!, $password: String) {
-            login(user: { type: $type, id: $id }, password: $password) {
-                id
-            }
-        }
-    `);
-    const logoutQuery = graphql(/* GraphQL */ `
-        mutation Logout {
-            logout
-        }
-    `);
 
     const before = await exec({ document: sessionQuery });
     assertSingleValue(before);
@@ -78,7 +78,10 @@ test("obtain session id, login, logout", async () => {
         "User must not be logged in initially"
     );
 
-    const login = await exec({ document: loginQuery, variables: credentials });
+    const login = await exec({
+        document: loginMutation,
+        variables: credentials,
+    });
     assertSingleValue(login);
     assertNoErrors(login);
 
@@ -97,7 +100,7 @@ test("obtain session id, login, logout", async () => {
         "Logged in user changed"
     );
 
-    const logout = await exec({ document: logoutQuery });
+    const logout = await exec({ document: logoutMutation });
     assertSingleValue(logout);
     assertNoErrors(logout);
 
@@ -114,4 +117,50 @@ test("obtain session id, login, logout", async () => {
         end.data.session.user,
         "Must be logged out after logout mutation"
     );
+
+    await knex.destroy();
+});
+
+test("invalid username", async () => {
+    const knex = await emptyKnex();
+    await knex.seed.run(withSpecific({ seedSource }, "citizen-max-mustermann"));
+    const yoga = yogaFactory(knex);
+    const exec = buildHTTPCookieExecutor({
+        // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        fetch: yoga.fetch,
+        outputHeaders: true,
+    });
+
+    const result = await exec({
+        document: loginMutation,
+        variables: { ...credentials, id: "citizenId2" },
+    });
+    assertSingleValue(result);
+    assertSingleError(result);
+    assert.strictEqual(result.errors[0]?.extensions.code, "CITIZEN_NOT_FOUND");
+
+    await knex.destroy();
+});
+
+test("invalid password", async () => {
+    const knex = await emptyKnex();
+    await knex.seed.run(withSpecific({ seedSource }, "citizen-max-mustermann"));
+    const yoga = yogaFactory(knex);
+    const exec = buildHTTPCookieExecutor({
+        // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        fetch: yoga.fetch,
+        outputHeaders: true,
+    });
+
+    const result = await exec({
+        document: loginMutation,
+        variables: { ...credentials, password: "invalid-password" },
+    });
+    assertSingleValue(result);
+    assertSingleError(result);
+    assert.strictEqual(result.errors[0].extensions.code, "INVALID_PASSWORD");
+
+    await knex.destroy();
 });
