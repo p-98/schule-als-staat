@@ -18,9 +18,8 @@ export async function getVotes(
     voteId: number
 ): Promise<IVoteCitizenEdgeModel[]> {
     const query = knex("votingPapers")
-        .select()
-        .where({ voteId })
-        .innerJoin("votes", "votingPapers.voteId", "votes.id");
+        .select("vote", "citizenId")
+        .where("votingPapers.voteId", voteId);
 
     return (await query).map((raw) => ({
         ...raw,

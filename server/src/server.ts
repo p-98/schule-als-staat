@@ -167,7 +167,7 @@ const resolvers: TResolvers = {
     },
     EmploymentOffer: {
         company: (parent, _, ctx) => getCompany(ctx, parent.companyId),
-        employee: (parent, _, ctx) => getCitizen(ctx, parent.citizenId),
+        citizen: (parent, _, ctx) => getCitizen(ctx, parent.citizenId),
     },
 
     TransferTransaction: {
@@ -284,7 +284,7 @@ const resolvers: TResolvers = {
             return acceptEmploymentOffer(
                 ctx,
                 ctx.session.userSignature.id,
-                safeParseInt(args.id, 10)
+                args.id
             );
         },
         rejectEmploymentOffer: async (_, args, ctx) => {
@@ -293,7 +293,7 @@ const resolvers: TResolvers = {
             return rejectEmploymentOffer(
                 ctx,
                 ctx.session.userSignature.id,
-                safeParseInt(args.id, 10),
+                args.id,
                 args.reason ?? null
             );
         },
@@ -303,7 +303,7 @@ const resolvers: TResolvers = {
             return deleteEmploymentOffer(
                 ctx,
                 ctx.session.userSignature.id,
-                safeParseInt(args.id, 10)
+                args.id
             );
         },
         cancelEmployment: async (_, args, ctx) => {
@@ -318,11 +318,7 @@ const resolvers: TResolvers = {
                     { code: "PERMISSION_DENIED" }
                 );
 
-            return cancelEmployment(
-                ctx,
-                ctx.session.userSignature,
-                safeParseInt(args.id, 10)
-            );
+            return cancelEmployment(ctx, ctx.session.userSignature, args.id);
         },
 
         payBonus: async (_, args, ctx) => {
@@ -483,10 +479,13 @@ const resolvers: TResolvers = {
     },
 };
 
+/** Type of the yoga instance created by factory function */
+export type TYogaServerInstance = YogaServerInstance<
+    IInitialContext,
+    IAppContext
+>;
 /** Factory function for usage in unit tests */
-export const yogaFactory = (
-    knex: Knex
-): YogaServerInstance<IInitialContext, IAppContext> =>
+export const yogaFactory = (knex: Knex): TYogaServerInstance =>
     createYoga({
         schema: createSchema({
             typeDefs: [typeDefs, VoidTypeDefinition, DateTimeTypeDefinition],

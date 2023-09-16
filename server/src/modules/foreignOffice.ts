@@ -1,5 +1,6 @@
 import type { TNullable } from "Types";
 import type { IGuestUserModel } from "Types/models";
+import type { IBankAccount, IGuest } from "Types/knex";
 import type { IAppContext } from "Server";
 
 import { GraphQLYogaError } from "Util/error";
@@ -11,10 +12,12 @@ export async function getGuest(
     { knex }: IAppContext,
     id: string
 ): Promise<IGuestUserModel> {
-    const raw = await knex("guests")
-        .first()
-        .where({ id })
-        .innerJoin("bankAccounts", "guests.bankAccountId", "bankAccounts.id");
+    const raw = (await knex("guests")
+        // select order important, because both tables contain id field
+        .select("bankAccounts.*", "guests.*")
+        .where("guests.id", id)
+        .innerJoin("bankAccounts", "guests.bankAccountId", "bankAccounts.id")
+        .first()) as (IGuest & IBankAccount) | undefined;
 
     if (!raw)
         throw new GraphQLYogaError(`Guest with id ${id} not found`, {
@@ -52,27 +55,22 @@ export async function createGuest(
             ctx,
             config.guestInitialBalance
         );
-        await trx("guests").insert({
-            id: uuidv4(),
-            cardId,
-            bankAccountId: bankAccount.id,
-            name,
-            enteredAt: date,
-        });
+        const inserted = await trx("guests")
+            .insert({
+                id: uuidv4(),
+                cardId,
+                bankAccountId: bankAccount.id,
+                name,
+                enteredAt: date,
+            })
+            .returning("*");
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const raw = (await trx("guests")
-            .select("*")
-            .where({ cardId })
-            .orderBy("enteredAt", "desc")
-            .innerJoin(
-                "bankAccounts",
-                "guests.bankAccountId",
-                "bankAccounts.id"
-            )
-            .first())!;
+        const guest = inserted[0]!;
         return {
             type: "GUEST",
-            ...raw,
+            // spread order important, because both tables contain id field
+            ...bankAccount,
+            ...guest,
             leftAt: null,
         };
     });

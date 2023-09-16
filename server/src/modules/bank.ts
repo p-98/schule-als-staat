@@ -112,10 +112,9 @@ async function getSalaryTransactions(
 ): Promise<ISalaryTransactionModel[]> {
     if (user.type === "GUEST") return [];
 
+    const idColumn = user.type === "CITIZEN" ? "citizenId" : "companyId";
     const query = knex("employments")
-        .where({
-            [user.type === "CITIZEN" ? "employeeId" : "companyId"]: user.id,
-        })
+        .where(`employments.${idColumn}`, user.id)
         .innerJoin(
             "salaryTransactions",
             "employments.id",
@@ -182,14 +181,14 @@ export async function payBonus(
                     ${employmentIds.map(() => "(?)").join(",")}
                 )
             UPDATE bankAccounts
-            SET balance = balance + ?
+            SET bankAccounts.balance = bankAccounts.balance + ?
             FROM (
                 SELECT citizens.bankAccountId FROM updates
                 INNER JOIN employments on updates.employmentId = employments.id
                 INNER JOIN citizens on employments.citizenId = citizens.id
             ) as updates
             WHERE bankAccounts.id = updates.bankAccountId
-            RETURNING id`,
+            RETURNING updates.employmentId`,
             [...employmentIds, value]
         )) as { id: number }[];
         if (employeesResult.length !== employmentIds.length)
@@ -361,7 +360,7 @@ export async function sell(
                 (VALUES
                     ${items.map(() => "(?, ?)").join(",")}
                 )
-            SELECT id as productId, amount, products.price
+            SELECT purchaseProducts.id as productId, purchaseProducts.amount, products.price
             FROM purchaseProducts
             INNER JOIN products on products.id = purchaseProducts.id`
         )) as { productId: string; amount: number; price: number }[];

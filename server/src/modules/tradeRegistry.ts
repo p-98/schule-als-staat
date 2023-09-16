@@ -4,7 +4,7 @@ import { GraphQLYogaError } from "Util/error";
 import { v4 as uuidv4 } from "uuid";
 import { startOfToday, endOfToday, startOfDay } from "date-fns";
 import { eachHourOfInterval, addHours, addDays } from "date-fns/fp";
-import { eq, filter, keyBy, map, negate, pipe, zip } from "lodash/fp";
+import { eq, filter, keyBy, map, negate, pipe, zip, pick } from "lodash/fp";
 import {
     ICompanyStatsFragmentModel,
     ICompanyUserModel,
@@ -17,7 +17,7 @@ import {
     IWorktimeModel,
 } from "Types/models";
 import { TCreateEmploymentOfferInput } from "Types/schema";
-import { IProduct, IProductSale } from "Types/knex";
+import { IBankAccount, ICompany, IProduct, IProductSale } from "Types/knex";
 import { TNullable } from "Types";
 import {
     startOfHour as sqlStartOfHour,
@@ -31,14 +31,12 @@ export async function getCompany(
     { knex }: IAppContext,
     id: string
 ): Promise<ICompanyUserModel> {
-    const raw = await knex("companies")
-        .first()
-        .where({ id })
-        .innerJoin(
-            "bankAccounts",
-            "companies.bankAccountId",
-            "bankAccounts.id"
-        );
+    const raw = (await knex("companies")
+        // select order important, because both tables contain id field
+        .select("bankAccounts.*", "companies.*")
+        .where("companies.id", id)
+        .innerJoin("bankAccounts", "companies.bankAccountId", "bankAccounts.id")
+        .first()) as (ICompany & IBankAccount) | undefined;
 
     if (!raw)
         throw new GraphQLYogaError(`Company with id ${id} not found`, {
@@ -255,7 +253,7 @@ export async function getSalesToday(
                     knex.ref("amount").withSchema("productSales"),
                     knex.ref("date").withSchema("purchaseTransactions")
                 )
-                .where({ productId })
+                .where("productSales.productId", productId)
                 .innerJoin(
                     "purchaseTransactions",
                     "productSales.purchaseId",
@@ -287,7 +285,7 @@ export async function getSalesPerDay(
     const result = (await knex
         .from(
             knex("productSales")
-                .where({ productId })
+                .where("productSales.productId", productId)
                 .innerJoin(
                     "purchaseTransactions",
                     "productSales.purchaseId",
@@ -345,12 +343,12 @@ export async function getProductStats(
         .from<IProductSale & { startOfHour: string }>(
             knex("productSales")
                 .select(
-                    "*",
+                    "productSales.*",
                     knex.raw(
                         "strftime('%Y-%m-%d %H:00:00.000', purchaseTransactions.date, 'localtime') AS startOfHour"
                     )
                 )
-                .where({ productId })
+                .where("productSales.productId", productId)
                 .innerJoin(
                     "purchaseTransactions",
                     "productSales.purchaseId",
@@ -387,11 +385,15 @@ export async function createEmploymentOffer(
     companyId: string,
     offer: TCreateEmploymentOfferInput
 ): Promise<IEmploymentOfferModel> {
-    return knex("employmentOffers").insert({
-        ...offer,
-        companyId,
-        state: "PENDING",
-    });
+    const inserted = await knex("employmentOffers")
+        .insert({
+            ...offer,
+            companyId,
+            state: "PENDING",
+        })
+        .returning("*");
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return inserted[0]!;
 }
 
 export async function acceptEmploymentOffer(
@@ -399,39 +401,43 @@ export async function acceptEmploymentOffer(
     citizenId: string,
     id: number
 ): Promise<IEmploymentOfferModel> {
-    const offer = await knex("employmentOffers")
-        .select("*")
-        .where({ id })
-        .first();
+    return knex.transaction(async (trx) => {
+        const offer = await trx("employmentOffers")
+            .select("*")
+            .where({ id })
+            .first();
 
-    if (!offer)
-        throw new GraphQLYogaError(`EmploymentOffer with id ${id} not found`, {
-            code: "EMPLOYMENT_OFFER_NOT_FOUND",
+        if (!offer)
+            throw new GraphQLYogaError(
+                `EmploymentOffer with id ${id} not found`,
+                {
+                    code: "EMPLOYMENT_OFFER_NOT_FOUND",
+                }
+            );
+        if (offer.citizenId !== citizenId)
+            throw new GraphQLYogaError("Not logged in as correct user", {
+                code: "PERMISSION_DENIED",
+            });
+        if (offer.state !== "PENDING")
+            throw new GraphQLYogaError(
+                `EmploymentOffer with id ${id} not rejected`,
+                {
+                    code: "EMPLOYMENT_OFFER_NOT_PENDING",
+                }
+            );
+
+        await trx("employments").insert({
+            ...pick(["companyId", "citizenId", "salary", "minWorktime"], offer),
+            employer: false,
+            cancelled: false,
         });
-    if (offer.citizenId !== citizenId)
-        throw new GraphQLYogaError("Not logged in as correct user", {
-            code: "PERMISSION_DENIED",
-        });
-    if (offer.state !== "PENDING")
-        throw new GraphQLYogaError(
-            `EmploymentOffer with id ${id} not rejected`,
-            {
-                code: "EMPLOYMENT_OFFER_NOT_REJECTED",
-            }
-        );
-
-    await knex.transaction(async (trx) =>
-        Promise.all([
-            trx("employmentOffers").update({ state: "ACCEPTED" }).where({ id }),
-            trx("employments").insert({
-                ...offer,
-                employer: false,
-                cancelled: false,
-            }),
-        ])
-    );
-
-    return { ...offer, state: "ACCEPTED" };
+        const updated = await trx("employmentOffers")
+            .update({ state: "ACCEPTED" })
+            .where({ id })
+            .returning("*");
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return updated[0]!;
+    });
 }
 
 export async function rejectEmploymentOffer(

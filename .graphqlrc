@@ -1,5 +1,8 @@
 {
     "schema": "./server/src/schema.graphql",
+    "documents": [
+        "server/__test__/*.test.ts"
+    ],
     "extensions": {
         "languageService": {
             "useSchemaFileDefinitions": true

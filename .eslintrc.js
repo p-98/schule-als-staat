@@ -104,7 +104,10 @@ module.exports = {
                 ],
                 "@graphql-eslint/strict-id-in-types": [
                     "error",
-                    { exceptions: { suffixes: ["Fragment", "Edge"] } },
+                    {
+                        exceptions: { suffixes: ["Fragment", "Edge"] },
+                        acceptedIdTypes: ["ID", "Int"],
+                    },
                 ],
             },
         },

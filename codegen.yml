@@ -4,6 +4,8 @@ generates:
     ./server/__test__/graphql/:
         documents: ["server/__test__/*.test.ts"]
         preset: client-preset
+        presetConfig:
+            fragmentMasking: false
         config:
             emitLegacyCommonJSImports: true
             scalars:
