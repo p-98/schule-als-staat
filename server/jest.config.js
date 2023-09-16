@@ -19,4 +19,5 @@ module.exports = {
         ...tsjPreset.transform,
         "\\.(gql|graphql)$": "@graphql-tools/jest-transform",
     },
+    maxWorkers: 1,
 };
