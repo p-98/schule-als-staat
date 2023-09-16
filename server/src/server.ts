@@ -73,7 +73,7 @@ import {
 } from "Modules/electoralOffice";
 import { chargeCustoms, registerBorderCrossing } from "Modules/borderControl";
 import { createGuest, removeGuest } from "Modules/foreignOffice";
-import { fileToBase64, safeParseInt } from "Util/parse";
+import { fileToBase64 } from "Util/parse";
 import { assertRole, checkRole } from "Util/auth";
 import { formatDateZ } from "Util/date";
 import { GraphQLYogaError } from "Util/error";
@@ -155,7 +155,7 @@ const resolvers: TResolvers = {
 
     Employment: {
         company: (parent, _, ctx) => getCompany(ctx, parent.companyId),
-        employee: (parent, _, ctx) => getCitizen(ctx, parent.citizenId),
+        citizen: (parent, _, ctx) => getCitizen(ctx, parent.citizenId),
         worktimeToday: (parent, _, ctx) =>
             getWorktimeForDay(ctx, parent.id, formatDateZ(new Date())),
         worktimeYesterday: (parent, _, ctx) =>
@@ -328,9 +328,7 @@ const resolvers: TResolvers = {
                 ctx,
                 ctx.session.userSignature.id,
                 args.value,
-                args.employmentIds.map((employmentId) =>
-                    safeParseInt(employmentId, 10)
-                )
+                args.employmentIds
             );
         },
         changeCurrencies: async (_, args, ctx) => {

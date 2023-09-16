@@ -35,7 +35,6 @@ enum UserType {
 enum EmploymentOfferState {
     PENDING
     REJECTED
-    ACCEPTED
 }
 
 " change action types "
@@ -145,9 +144,9 @@ type Worktime {
 
 " Contains information about an employment "
 type Employment {
-    id: ID!
+    id: Int!
     company: CompanyUser!
-    employee: CitizenUser!
+    citizen: CitizenUser!
 
     # dynamic values
     " in seconds "
@@ -404,14 +403,14 @@ type Mutation {
 
     createEmploymentOffer(offer: CreateEmploymentOfferInput!): EmploymentOffer!
         @auth(role: [COMPANY])
-    acceptEmploymentOffer(id: Int!): EmploymentOffer! @auth(role: [CITIZEN])
+    acceptEmploymentOffer(id: Int!): Employment! @auth(role: [CITIZEN])
     rejectEmploymentOffer(id: Int!, reason: String): EmploymentOffer!
         @auth(role: [CITIZEN])
     " offer must be rejected to be deleted "
     deleteEmploymentOffer(id: Int!): Void @auth(role: [COMPANY])
     cancelEmployment(id: Int!): Void @auth(role: [CITIZEN, COMPANY])
 
-    payBonus(value: Float!, employmentIds: [ID!]!): [SalaryTransaction!]!
+    payBonus(value: Float!, employmentIds: [Int!]!): [SalaryTransaction!]!
         @auth(role: [COMPANY])
     changeCurrencies(
         change: ChangeTransactionInput!

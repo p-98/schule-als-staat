@@ -400,7 +400,7 @@ export async function acceptEmploymentOffer(
     { knex }: IAppContext,
     citizenId: string,
     id: number
-): Promise<IEmploymentOfferModel> {
+): Promise<IEmploymentModel> {
     return knex.transaction(async (trx) => {
         const offer = await trx("employmentOffers")
             .select("*")
@@ -426,17 +426,22 @@ export async function acceptEmploymentOffer(
                 }
             );
 
-        await trx("employments").insert({
-            ...pick(["companyId", "citizenId", "salary", "minWorktime"], offer),
-            employer: false,
-            cancelled: false,
-        });
-        const updated = await trx("employmentOffers")
+        const inserted = await trx("employments")
+            .insert({
+                ...pick(
+                    ["companyId", "citizenId", "salary", "minWorktime"],
+                    offer
+                ),
+                employer: false,
+                cancelled: false,
+            })
+            .returning("*");
+        await trx("employmentOffers")
             .update({ state: "ACCEPTED" })
             .where({ id })
             .returning("*");
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return updated[0]!;
+        return inserted[0]!;
     });
 }
 

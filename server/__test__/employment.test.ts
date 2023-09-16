@@ -9,6 +9,7 @@ import {
 } from "Util/test";
 
 import bcrypt from "bcrypt";
+import { omit } from "lodash/fp";
 import { yogaFactory } from "Server";
 import { emptyKnex } from "Database";
 import { graphql } from "./graphql";
@@ -70,6 +71,20 @@ graphql(/* GraphQL */ `
         minWorktime
     }
 `);
+graphql(/* GraphQL */ `
+    fragment NoId_EmploymentFragment on Employment {
+        company {
+            id
+        }
+        citizen {
+            id
+        }
+        worktimeToday
+        worktimeYesterday
+        salary
+        minWorktime
+    }
+`);
 
 const loginMutation = graphql(/* GraphQL */ `
     mutation Login($type: UserType!, $id: String!, $password: String) {
@@ -80,6 +95,9 @@ const loginMutation = graphql(/* GraphQL */ `
 `);
 
 test("create and accept", async () => {
+    const salary = 1.0;
+    const minWorktime = 3600;
+
     const knex = await emptyKnex();
     await knex.seed.run(withSpecific({ seedSource }, "citizen-company"));
     const yoga = yogaFactory(knex);
@@ -112,8 +130,8 @@ test("create and accept", async () => {
         document: graphql(/* GraphQL */ `
             mutation CreateOffer(
                 $citizenId: ID!
-                $salary: Float! = 1.0
-                $minWorktime: Int! = 3600
+                $salary: Float!
+                $minWorktime: Int!
             ) {
                 createEmploymentOffer(
                     offer: {
@@ -126,35 +144,38 @@ test("create and accept", async () => {
                 }
             }
         `),
-        variables: { citizenId: citizenCredentials.id },
+        variables: { citizenId: citizenCredentials.id, salary, minWorktime },
     });
     assertSingleValue(create);
     assertNoErrors(create);
     const offer = create.data.createEmploymentOffer;
-    assert.deepStrictEqual(offer, {
-        id: 1,
+    assert.deepStrictEqual(omit("id", offer), {
         company: { id: companyCredentials.id },
         citizen: { id: citizenCredentials.id },
         state: "PENDING",
-        salary: 1.0,
-        minWorktime: 3600,
+        salary,
+        minWorktime,
     });
 
     const accepted = await execCitizen({
         document: graphql(/* GraphQL */ `
             mutation AcceptOffer($id: Int!) {
                 acceptEmploymentOffer(id: $id) {
-                    ...All_EmploymentOfferFragment
+                    ...NoId_EmploymentFragment
                 }
             }
         `),
-        variables: offer,
+        variables: { id: offer.id },
     });
     assertSingleValue(accepted);
     assertNoErrors(accepted);
     assert.deepStrictEqual(accepted.data.acceptEmploymentOffer, {
-        ...offer,
-        state: "ACCEPTED",
+        company: { id: companyCredentials.id },
+        citizen: { id: citizenCredentials.id },
+        worktimeToday: 0,
+        worktimeYesterday: 0,
+        salary,
+        minWorktime,
     });
 
     await knex.destroy();
