@@ -25,10 +25,14 @@
 .highlighted-states--activated::before {
     opacity: 0.12;
 }
-.highlighted-states--activated:not(.highlighted-states--non-interactive):hover::before {
+.highlighted-states--activated:not(
+        .highlighted-states--non-interactive
+    ):hover::before {
     opacity: 0.16;
 }
-.highlighted-states--activated:not(.highlighted-states--non-interactive):focus::before {
+.highlighted-states--activated:not(
+        .highlighted-states--non-interactive
+    ):focus::before {
     transition-duration: 75ms;
     opacity: 0.24;
 }
@@ -36,10 +40,14 @@
 .highlighted-states--selected::before {
     opacity: 0.08;
 }
-.highlighted-states--selected:not(.highlighted-states--non-interactive):hover::before {
+.highlighted-states--selected:not(
+        .highlighted-states--non-interactive
+    ):hover::before {
     opacity: 0.12;
 }
-.highlighted-states--selected:not(.highlighted-states--non-interactive):focus::before {
+.highlighted-states--selected:not(
+        .highlighted-states--non-interactive
+    ):focus::before {
     transition-duration: 75ms;
     opacity: 0.2;
 }

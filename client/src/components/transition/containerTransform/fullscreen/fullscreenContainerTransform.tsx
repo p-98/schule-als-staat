@@ -97,7 +97,9 @@ interface IFullscreenContainerTransformProps
     expectTransformation: boolean;
     onTransformFinish?: (open: boolean, activeElementDOM: HTMLElement) => void;
 }
-export const FullscreenContainerTransform: React.FC<IFullscreenContainerTransformProps> = ({
+export const FullscreenContainerTransform: React.FC<
+    IFullscreenContainerTransformProps
+> = ({
     children,
     renderTo = "#fullscreen",
     open: openTarget,

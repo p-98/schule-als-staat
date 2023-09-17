@@ -23,10 +23,8 @@ import styles from "./accountInfo.module.css";
 
 export const AccountInfo: React.FC = () => {
     const [user, setUser] = useState<TUser | null>(null);
-    const [
-        expectCloseInteraction,
-        predictionListeners,
-    ] = usePredictionObserver();
+    const [expectCloseInteraction, predictionListeners] =
+        usePredictionObserver();
 
     return (
         <GridPage>

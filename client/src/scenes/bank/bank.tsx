@@ -25,10 +25,8 @@ import styles from "./bank.module.css";
 
 export const Bank: React.FC = () => {
     const [user, setUser] = useState<TUser | null>(null);
-    const [
-        expectCloseInteraction,
-        predictionListeners,
-    ] = usePredictionObserver();
+    const [expectCloseInteraction, predictionListeners] =
+        usePredictionObserver();
 
     return (
         <BankUserContext.Provider value={user}>

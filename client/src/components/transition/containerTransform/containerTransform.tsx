@@ -173,10 +173,9 @@ interface IContainerTransformElementProps {
     elementKey: string;
 }
 
-export const ContainerTransformElement: React.FC<IContainerTransformElementProps> = ({
-    children,
-    elementKey,
-}: IContainerTransformElementProps) =>
+export const ContainerTransformElement: React.FC<
+    IContainerTransformElementProps
+> = ({ children, elementKey }: IContainerTransformElementProps) =>
     React.cloneElement(children, {
         className: cn(
             children.props.className,

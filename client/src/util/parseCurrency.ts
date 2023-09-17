@@ -3,7 +3,7 @@ import config from "Config";
 interface IOptions {
     currency: keyof typeof config.currencies;
     currencySymbol:
-        | keyof typeof config.currencies[keyof typeof config.currencies]
+        | keyof (typeof config.currencies)[keyof typeof config.currencies]
         | "none";
     omitDecimals: boolean;
 }

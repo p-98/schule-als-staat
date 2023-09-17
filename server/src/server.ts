@@ -84,14 +84,14 @@ import sessionFactory from "./sessionFactory";
 
 const pubsub = createPubSub<TEvents>();
 
-const createAppContext = (knex: Knex) => async ({
-    request,
-}: IInitialContext) => ({
-    session: await sessionFactory(knex, request),
-    knex,
-    config,
-    pubsub,
-});
+const createAppContext =
+    (knex: Knex) =>
+    async ({ request }: IInitialContext) => ({
+        session: await sessionFactory(knex, request),
+        knex,
+        config,
+        pubsub,
+    });
 type UnPromise<P> = P extends Promise<infer T> ? T : never;
 export type IAppContext = UnPromise<
     ReturnType<ReturnType<typeof createAppContext>>

@@ -38,7 +38,9 @@ export function getOffset(domElement: HTMLElement): IOffset {
     };
 }
 export function setOffset(domElement: HTMLElement, offset: IOffset): void {
-    const parentClientRect = (domElement.parentElement as HTMLElement).getBoundingClientRect();
+    const parentClientRect = (
+        domElement.parentElement as HTMLElement
+    ).getBoundingClientRect();
     /* eslint-disable no-param-reassign */
     domElement.style.top = `${offset.top - parentClientRect.top}px`;
     domElement.style.left = `${offset.left - parentClientRect.left}px`;

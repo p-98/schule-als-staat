@@ -28,11 +28,9 @@ export default {
         file: "database.sqlite3",
     },
     openingHours: {
-        dates: [
-            subDays(new Date(), 1),
-            new Date(),
-            addDays(new Date(), 1),
-        ].map((date) => date.toISOString().slice(0, 10)),
+        dates: [subDays(new Date(), 1), new Date(), addDays(new Date(), 1)].map(
+            (date) => date.toISOString().slice(0, 10)
+        ),
         open: "09:00:00+02:00",
         close: "16:00:00+02:00",
     },

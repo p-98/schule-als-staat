@@ -181,7 +181,7 @@ export async function getCompanyStats(
             companyId,
         })) as { startOfHour: string; staff: number; cost: number }[];
 
-        const revenueResult = ((await trx("purchaseTransactions")
+        const revenueResult = (await trx("purchaseTransactions")
             .select(knex.raw(`${sqlStartOfHour("date")} as startOfHour`))
             .where({ companyId })
             .andWhereBetween("date", [
@@ -190,7 +190,7 @@ export async function getCompanyStats(
             ])
             .groupBy("startOfHour")
             .sum({ grossRevenue: "grossPrice" })
-            .sum({ netRevenue: "netPrice" })) as unknown) as {
+            .sum({ netRevenue: "netPrice" })) as unknown as {
             startOfHour: string;
             grossRevenue: number;
             netRevenue: number;
@@ -219,7 +219,7 @@ export async function getWorktimeForDay(
         clamp("worktimes.end", ":startOfDate", ":endOfDate"),
         clamp("coalesce(worktimes.start, :now)", ":startOfDate", ":endOfDate")
     );
-    const { worktime } = ((await knex("worktimes")
+    const { worktime } = (await knex("worktimes")
         .select(
             knex.raw(`total(${worktimeSql}) as worktime`, {
                 startOfDate: formatDateTimeZ(startOfDate),
@@ -228,7 +228,7 @@ export async function getWorktimeForDay(
             })
         )
         .where({ employmentId })
-        .first()) as unknown) as { worktime: number };
+        .first()) as unknown as { worktime: number };
 
     return Math.round(worktime);
 }

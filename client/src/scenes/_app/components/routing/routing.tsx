@@ -92,9 +92,7 @@ export default [
         label: "Bestellungen",
         icon: "store",
     }),
-] as ((props: {
-    forceUpdate: () => void;
-}) =>
+] as ((props: { forceUpdate: () => void }) =>
     | {
           href: string;
           label: string;

@@ -47,8 +47,9 @@ export const FadeTransition: React.FC<IFadeTransitionProps> = ({
 
                 // fade in scrim
                 if (anchor === "fullscreen")
-                    (containerDOM.parentElement as HTMLDivElement).style.backgroundColor =
-                        "rgba(0, 0, 0, 0.32)";
+                    (
+                        containerDOM.parentElement as HTMLDivElement
+                    ).style.backgroundColor = "rgba(0, 0, 0, 0.32)";
 
                 containerDOM.style.width = `${targetWidth}px`;
                 containerDOM.style.height = `${targetHeight}px`;
@@ -78,8 +79,9 @@ export const FadeTransition: React.FC<IFadeTransitionProps> = ({
 
         // fade out scrim
         if (anchor === "fullscreen")
-            (containerDOM.parentElement as HTMLDivElement).style.backgroundColor =
-                "";
+            (
+                containerDOM.parentElement as HTMLDivElement
+            ).style.backgroundColor = "";
 
         const onTransitionEnd = () => {
             containerDOM.removeEventListener("transitionend", onTransitionEnd);

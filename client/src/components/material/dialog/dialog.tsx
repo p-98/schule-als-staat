@@ -66,8 +66,8 @@ export const SimpleDialog = React.memo(
         ({ title, content, accept, cancel, children, ...restProps }, ref) => {
             const defaultProp = accept?.isDefaultAction
                 ? {
-                      [MDCDialogFoundation.strings
-                          .BUTTON_DEFAULT_ATTRIBUTE]: true,
+                      [MDCDialogFoundation.strings.BUTTON_DEFAULT_ATTRIBUTE]:
+                          true,
                   }
                 : {};
 

@@ -74,7 +74,7 @@ export const withSpecific = <SeedName extends string>(
     ...seeds: SeedName[]
 ): _Knex.SeederConfig => ({
     ...seedConfig,
-    specific: isEmpty(seeds) ? undefined : ((seeds as unknown) as string),
+    specific: isEmpty(seeds) ? undefined : (seeds as unknown as string),
 });
 
 const setNotImplemented = <
@@ -184,7 +184,7 @@ export function assertSingleValue<TValue extends object>(
 ): asserts value is TValue {
     assert.notProperty(
         value,
-        (Symbol.asyncIterator as unknown) as string,
+        Symbol.asyncIterator as unknown as string,
         "Expected single value"
     );
 }

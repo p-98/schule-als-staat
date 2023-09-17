@@ -50,10 +50,9 @@ interface IFullscreenContainerTransformElementProps {
     /** Automatically injected by FullscreenContainerTransform */
     optimize?: boolean;
 }
-export const FullscreenContainerTransformElement: React.FC<IFullscreenContainerTransformElementProps> = ({
-    children,
-    optimize,
-}: IFullscreenContainerTransformElementProps) =>
+export const FullscreenContainerTransformElement: React.FC<
+    IFullscreenContainerTransformElementProps
+> = ({ children, optimize }: IFullscreenContainerTransformElementProps) =>
     React.cloneElement(children, {
         className: cn(
             children.props.className,
@@ -68,10 +67,9 @@ interface IFullscreenContainerTransformHandleProps {
     /** Automatically injected by FullscreenContainerTransform */
     optimize?: boolean;
 }
-export const FullscreenContainerTransformHandle: React.FC<IFullscreenContainerTransformHandleProps> = ({
-    children,
-    optimize,
-}: IFullscreenContainerTransformHandleProps) =>
+export const FullscreenContainerTransformHandle: React.FC<
+    IFullscreenContainerTransformHandleProps
+> = ({ children, optimize }: IFullscreenContainerTransformHandleProps) =>
     React.cloneElement(children, {
         className: cn(
             children.props.className,
@@ -102,10 +100,9 @@ export const FullscreenContainerTransformScrim = forwardRef<
 interface IFullscreenContainerTransformFadingWrapperProps {
     optimize: boolean;
 }
-export const FullscreenContainerTransformFadingWrapper: React.FC<IFullscreenContainerTransformFadingWrapperProps> = ({
-    optimize,
-    children,
-}) => (
+export const FullscreenContainerTransformFadingWrapper: React.FC<
+    IFullscreenContainerTransformFadingWrapperProps
+> = ({ optimize, children }) => (
     <div
         className={cn(
             styles["container-transform__fading-wrapper"],

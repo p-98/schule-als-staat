@@ -69,7 +69,7 @@ export const Chart: React.FC = () => {
                             datasets: [
                                 {
                                     label: "Personalkosten",
-                                    data: (data as unknown) as ScatterDataPoint[],
+                                    data: data as unknown as ScatterDataPoint[],
                                     parsing: {
                                         yAxisKey: "staff",
                                     },
@@ -78,7 +78,7 @@ export const Chart: React.FC = () => {
                                 },
                                 {
                                     label: "Nettoumsatz",
-                                    data: (data as unknown) as ScatterDataPoint[],
+                                    data: data as unknown as ScatterDataPoint[],
                                     parsing: {
                                         yAxisKey: "netRevenue",
                                     },
@@ -86,7 +86,7 @@ export const Chart: React.FC = () => {
                                 },
                                 {
                                     label: "Gewinn",
-                                    data: (data as unknown) as ScatterDataPoint[],
+                                    data: data as unknown as ScatterDataPoint[],
                                     parsing: {
                                         yAxisKey: "profit",
                                     },

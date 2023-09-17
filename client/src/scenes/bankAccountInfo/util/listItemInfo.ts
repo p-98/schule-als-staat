@@ -35,12 +35,8 @@ const generatorMap = {
         };
     },
     change: (transaction: IChangeTransaction) => {
-        const {
-            baseCurrency,
-            baseValue,
-            targetValue,
-            targetCurrency,
-        } = transaction;
+        const { baseCurrency, baseValue, targetValue, targetCurrency } =
+            transaction;
 
         const toVirtual = baseCurrency === "real";
 

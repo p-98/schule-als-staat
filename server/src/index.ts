@@ -10,7 +10,7 @@ const port = 4000;
 
 const knex = loadKnex();
 const yoga = yogaFactory(knex);
-const server = createServer((yoga as unknown) as RequestListener);
+const server = createServer(yoga as unknown as RequestListener);
 server.listen(port, host, () => {
     // eslint-disable-next-line no-console
     console.log(`Server running at ${host}:${port}`);
