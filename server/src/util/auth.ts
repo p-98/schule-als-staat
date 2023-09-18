@@ -21,8 +21,9 @@ export function checkRole(user: TUserLike, role: TAuthRole): boolean {
     if (user === null) return false;
 
     switch (role) {
-        case "COMPANY":
+        case "GUEST":
         case "CITIZEN":
+        case "COMPANY":
             return user.type === role;
 
         case "BANK":
@@ -44,6 +45,10 @@ export function checkRole(user: TUserLike, role: TAuthRole): boolean {
 
 export function assertRole(
     user: TUserLike,
+    role: "GUEST"
+): asserts user is TUserLike & { type: "GUEST" };
+export function assertRole(
+    user: TUserLike,
     role: "CITIZEN"
 ): asserts user is TUserLike & { type: "CITIZEN" };
 export function assertRole(
@@ -56,11 +61,14 @@ export function assertRole(user: TUserLike, role: TAuthRole): void {
 
     let message: string;
     switch (role) {
-        case "COMPANY":
-            message = "Not logged in as company";
+        case "GUEST":
+            message = "Not logged in as guest";
             break;
         case "CITIZEN":
             message = "Not logged in as citizen";
+            break;
+        case "COMPANY":
+            message = "Not logged in as company";
             break;
         case "BANK":
             message = "Not logged in as bank";

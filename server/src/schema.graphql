@@ -18,6 +18,7 @@ enum AuthRole {
     USER
     CITIZEN
     COMPANY
+    GUEST
     POLICE
     BANK
     BORDER_CONTROL
@@ -33,6 +34,15 @@ enum UserType {
 
 " state of employment offer "
 enum EmploymentOfferState {
+    PENDING
+    REJECTED
+}
+" state of employment offer available to citizens "
+enum EmploymentOfferStateCitizenInput {
+    PENDING
+}
+" state of employment offer available to companies "
+enum EmploymentOfferStateCompanyInput {
     PENDING
     REJECTED
 }
@@ -108,6 +118,9 @@ type CitizenUser implements User {
     lastName: String!
     image: String!
     employment: Employment
+    employmentOffers(
+        state: EmploymentOfferStateCitizenInput! = PENDING
+    ): [EmploymentOffer!]!
 }
 " A company user "
 type CompanyUser implements User {
@@ -121,6 +134,9 @@ type CompanyUser implements User {
     products: [Product!]!
     employer: Employment!
     employees: [Employment!]!
+    employmentOffers(
+        state: EmploymentOfferStateCompanyInput!
+    ): [EmploymentOffer!]!
     stats: [CompanyStatsFragment!]!
 }
 " Representing a 1h timeframe of the company's stats "
@@ -387,6 +403,9 @@ type Query {
     " for debugging only "
     session: Session! @auth(role: [ADMIN])
     me: User! @auth(role: [USER])
+    meGuest: GuestUser! @auth(role: [GUEST])
+    meCitizen: CitizenUser! @auth(role: [CITIZEN])
+    meCompany: CompanyUser! @auth(role: [COMPANY])
 
     votes: [Vote!]!
 

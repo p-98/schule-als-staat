@@ -72,7 +72,8 @@ graphql(/* GraphQL */ `
     }
 `);
 graphql(/* GraphQL */ `
-    fragment NoId_EmploymentFragment on Employment {
+    fragment All_EmploymentFragment on Employment {
+        id
         company {
             id
         }
@@ -83,6 +84,34 @@ graphql(/* GraphQL */ `
         worktimeYesterday
         salary
         minWorktime
+    }
+`);
+
+const EmploymentAndOffersCitizenQuery = graphql(/* GraphQL */ `
+    query EmploymentOffersCitizen {
+        meCitizen {
+            employmentOffers {
+                ...All_EmploymentOfferFragment
+            }
+            employment {
+                ...All_EmploymentFragment
+            }
+        }
+    }
+`);
+const EmploymentAndOffersCompanyQuery = graphql(/* GraphQL */ `
+    query EmploymentOffersCompany {
+        meCompany {
+            pendingOffers: employmentOffers(state: PENDING) {
+                ...All_EmploymentOfferFragment
+            }
+            rejectedOffers: employmentOffers(state: REJECTED) {
+                ...All_EmploymentOfferFragment
+            }
+            employees {
+                ...All_EmploymentFragment
+            }
+        }
     }
 `);
 
@@ -134,6 +163,27 @@ test("create and accept", async () => {
     assertSingleValue(loginCompany);
     assertNoErrors(loginCompany);
 
+    const emptyCitizen = await execCitizen({
+        document: EmploymentAndOffersCitizenQuery,
+    });
+    assertSingleValue(emptyCitizen);
+    assertNoErrors(emptyCitizen);
+    assert.deepStrictEqual(
+        emptyCitizen.data.meCitizen,
+        { employmentOffers: [], employment: null },
+        "Employment and pending offers must be empty at beginning"
+    );
+    const emptyCompany = await execCompany({
+        document: EmploymentAndOffersCompanyQuery,
+    });
+    assertSingleValue(emptyCompany);
+    assertNoErrors(emptyCompany);
+    assert.deepStrictEqual(
+        emptyCompany.data.meCompany,
+        { pendingOffers: [], rejectedOffers: [], employees: [] },
+        "Employments and pending offers must be empty at beginning"
+    );
+
     const create = await execCompany({
         document: graphql(/* GraphQL */ `
             mutation CreateOffer(
@@ -165,19 +215,41 @@ test("create and accept", async () => {
         minWorktime,
     });
 
-    const accepted = await execCitizen({
+    const pendingCitizen = await execCitizen({
+        document: EmploymentAndOffersCitizenQuery,
+    });
+    assertSingleValue(pendingCitizen);
+    assertNoErrors(pendingCitizen);
+    assert.deepStrictEqual(
+        pendingCitizen.data.meCitizen,
+        { employmentOffers: [offer], employment: null },
+        "Pending EmploymentOffers must only be the created one"
+    );
+    const pendingCompany = await execCompany({
+        document: EmploymentAndOffersCompanyQuery,
+    });
+    assertSingleValue(pendingCompany);
+    assertNoErrors(pendingCompany);
+    assert.deepStrictEqual(
+        pendingCompany.data.meCompany,
+        { pendingOffers: [offer], rejectedOffers: [], employees: [] },
+        "Pending EmploymentOffers must only be the created one"
+    );
+
+    const accept = await execCitizen({
         document: graphql(/* GraphQL */ `
             mutation AcceptOffer($id: Int!) {
                 acceptEmploymentOffer(id: $id) {
-                    ...NoId_EmploymentFragment
+                    ...All_EmploymentFragment
                 }
             }
         `),
         variables: { id: offer.id },
     });
-    assertSingleValue(accepted);
-    assertNoErrors(accepted);
-    assert.deepStrictEqual(accepted.data.acceptEmploymentOffer, {
+    assertSingleValue(accept);
+    assertNoErrors(accept);
+    const employment = accept.data.acceptEmploymentOffer;
+    assert.deepStrictEqual(omit("id", employment), {
         company: { id: companyCredentials.id },
         citizen: { id: citizenCredentials.id },
         worktimeToday: 0,
@@ -185,4 +257,25 @@ test("create and accept", async () => {
         salary,
         minWorktime,
     });
+
+    const acceptedCitizen = await execCitizen({
+        document: EmploymentAndOffersCitizenQuery,
+    });
+    assertSingleValue(acceptedCitizen);
+    assertNoErrors(acceptedCitizen);
+    assert.deepStrictEqual(
+        acceptedCitizen.data.meCitizen,
+        { employmentOffers: [], employment },
+        "Pending EmploymentOffers must be empty after accepting"
+    );
+    const acceptedCompany = await execCompany({
+        document: EmploymentAndOffersCompanyQuery,
+    });
+    assertSingleValue(acceptedCompany);
+    assertNoErrors(acceptedCompany);
+    assert.deepStrictEqual(
+        acceptedCompany.data.meCompany,
+        { pendingOffers: [], rejectedOffers: [], employees: [employment] },
+        "Pending EmploymentOffers must be empty after accepting"
+    );
 });

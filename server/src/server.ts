@@ -1,7 +1,13 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import type { YogaInitialContext, YogaServerInstance } from "graphql-yoga";
 import type { Knex } from "Database";
-import type { TEvents, TPayload } from "Types/models";
+import type {
+    ICitizenUserModel,
+    ICompanyUserModel,
+    IGuestUserModel,
+    TEvents,
+    TPayload,
+} from "Types/models";
 import type { TResolvers } from "Types/schema";
 import type { WithCookieStore } from "Util/misc";
 
@@ -64,6 +70,7 @@ import {
     addProduct,
     editProduct,
     removeProduct,
+    getEmploymentOffers,
 } from "Modules/tradeRegistry";
 import {
     createVote,
@@ -72,7 +79,7 @@ import {
     vote,
 } from "Modules/electoralOffice";
 import { chargeCustoms, registerBorderCrossing } from "Modules/borderControl";
-import { createGuest, removeGuest } from "Modules/foreignOffice";
+import { createGuest, getGuest, removeGuest } from "Modules/foreignOffice";
 import { fileToBase64 } from "Util/parse";
 import { assertRole, checkRole } from "Util/auth";
 import { formatDateZ } from "Util/date";
@@ -141,11 +148,15 @@ const resolvers: TResolvers = {
     CitizenUser: {
         employment: async (parent, _, ctx) =>
             (await getEmployments(ctx, parent))[0],
+        employmentOffers: async (parent, args, ctx) =>
+            getEmploymentOffers(ctx, parent, args.state),
     },
     CompanyUser: {
         products: (parent, _, ctx) => getProducts(ctx, parent.id),
         employer: (parent, _, ctx) => getEmployer(ctx, parent.id),
         employees: (parent, _, ctx) => getEmployments(ctx, parent),
+        employmentOffers: (parent, args, ctx) =>
+            getEmploymentOffers(ctx, parent, args.state),
         stats: (parent, _, ctx) => getCompanyStats(ctx, parent.id),
     },
 
@@ -233,13 +244,40 @@ const resolvers: TResolvers = {
         me: (_, __, ctx) => {
             if (!ctx.session.userSignature)
                 throw new GraphQLYogaError("Not logged in", {
-                    code: "NOT_LOGGED_IN",
+                    code: "PERMISSION_DENIED",
                 });
 
             if (!ctx.session.$user)
                 ctx.session.$user = getUser(ctx, ctx.session.userSignature);
 
             return ctx.session.$user;
+        },
+        meGuest: (_, __, ctx) => {
+            const { userSignature } = ctx.session;
+            assertRole(userSignature, "GUEST");
+
+            if (!ctx.session.$user)
+                ctx.session.$user = getGuest(ctx, userSignature.id);
+
+            return ctx.session.$user as Promise<IGuestUserModel>;
+        },
+        meCitizen: (_, __, ctx) => {
+            const { userSignature } = ctx.session;
+            assertRole(userSignature, "CITIZEN");
+
+            if (!ctx.session.$user)
+                ctx.session.$user = getCitizen(ctx, userSignature.id);
+
+            return ctx.session.$user as Promise<ICitizenUserModel>;
+        },
+        meCompany: (_, __, ctx) => {
+            const { userSignature } = ctx.session;
+            assertRole(userSignature, "COMPANY");
+
+            if (!ctx.session.$user)
+                ctx.session.$user = getCompany(ctx, userSignature.id);
+
+            return ctx.session.$user as Promise<ICompanyUserModel>;
         },
         /* eslint-enable no-param-reassign */
 

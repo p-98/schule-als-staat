@@ -16,7 +16,11 @@ import {
     IUserSignature,
     IWorktimeModel,
 } from "Types/models";
-import { TCreateEmploymentOfferInput } from "Types/schema";
+import {
+    TCreateEmploymentOfferInput,
+    TEmploymentOfferStateCitizenInput,
+    TEmploymentOfferStateCompanyInput,
+} from "Types/schema";
 import { IBankAccount, ICompany, IProduct, IProductSale } from "Types/knex";
 import { TNullable } from "Types";
 import {
@@ -107,10 +111,6 @@ export async function getEmployer(
 
 export async function getEmployments(
     ctx: IAppContext,
-    user: IUserSignature & { type: "GUEST" }
-): Promise<[never]>;
-export async function getEmployments(
-    ctx: IAppContext,
     user: IUserSignature & { type: "CITIZEN" }
 ): Promise<[IEmploymentModel]>;
 export async function getEmployments(
@@ -118,21 +118,34 @@ export async function getEmployments(
     user: IUserSignature & { type: "COMPANY" }
 ): Promise<IEmploymentModel[]>;
 export async function getEmployments(
-    ctx: IAppContext,
-    user: IUserSignature
-): Promise<IEmploymentModel[]>;
-export async function getEmployments(
     { knex }: IAppContext,
-    user: IUserSignature
+    user: IUserSignature & { type: "CITIZEN" | "COMPANY" }
 ): Promise<IEmploymentModel[]> {
-    if (user.type === "GUEST") return [];
-
-    const query = knex("employments")
+    return knex("employments")
         .select("*")
-        .where(user.type === "CITIZEN" ? "employeeId" : "companyId", user.id)
+        .where(user.type === "CITIZEN" ? "citizenId" : "companyId", user.id)
         .andWhere("cancelled", false);
+}
 
-    return query;
+export async function getEmploymentOffers(
+    ctx: IAppContext,
+    user: IUserSignature & { type: "CITIZEN" },
+    state: TEmploymentOfferStateCitizenInput
+): Promise<IEmploymentOfferModel[]>;
+export async function getEmploymentOffers(
+    ctx: IAppContext,
+    user: IUserSignature & { type: "COMPANY" },
+    state: TEmploymentOfferStateCompanyInput
+): Promise<IEmploymentOfferModel[]>;
+export async function getEmploymentOffers(
+    { knex }: IAppContext,
+    user: IUserSignature & { type: "CITIZEN" | "COMPANY" },
+    state: TEmploymentOfferStateCitizenInput | TEmploymentOfferStateCompanyInput
+): Promise<IEmploymentOfferModel[]> {
+    return knex("employmentOffers")
+        .select("*")
+        .where(user.type === "CITIZEN" ? "citizenId" : "companyId", user.id)
+        .andWhere("state", state);
 }
 
 export async function getCompanyStats(
