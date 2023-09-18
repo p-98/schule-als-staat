@@ -1,4 +1,4 @@
-import { test } from "@jest/globals";
+import { afterEach, beforeEach, test } from "@jest/globals";
 import { assert } from "chai";
 import {
     assertNoErrors,
@@ -10,8 +10,8 @@ import {
 } from "Util/test";
 
 import bcrypt from "bcrypt";
-import { yogaFactory } from "Server";
-import { emptyKnex } from "Database";
+import { type TYogaServerInstance, yogaFactory } from "Server";
+import { emptyKnex, type Knex } from "Database";
 import { graphql } from "./graphql";
 
 const credentials = {
@@ -60,10 +60,18 @@ const logoutMutation = graphql(/* GraphQL */ `
     }
 `);
 
+let knex: Knex;
+let yoga: TYogaServerInstance;
+beforeEach(async () => {
+    knex = await emptyKnex();
+    yoga = yogaFactory(knex);
+});
+afterEach(async () => {
+    await knex.destroy();
+});
+
 test("obtain session id, login, logout", async () => {
-    const knex = await emptyKnex();
     await knex.seed.run(withSpecific({ seedSource }, "citizen-max-mustermann"));
-    const yoga = yogaFactory(knex);
     const exec = buildHTTPCookieExecutor({
         // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
         // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -117,14 +125,10 @@ test("obtain session id, login, logout", async () => {
         end.data.session.user,
         "Must be logged out after logout mutation"
     );
-
-    await knex.destroy();
 });
 
 test("invalid username", async () => {
-    const knex = await emptyKnex();
     await knex.seed.run(withSpecific({ seedSource }, "citizen-max-mustermann"));
-    const yoga = yogaFactory(knex);
     const exec = buildHTTPCookieExecutor({
         // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
         // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -139,14 +143,10 @@ test("invalid username", async () => {
     assertSingleValue(result);
     assertSingleError(result);
     assert.strictEqual(result.errors[0]?.extensions.code, "CITIZEN_NOT_FOUND");
-
-    await knex.destroy();
 });
 
 test("invalid password", async () => {
-    const knex = await emptyKnex();
     await knex.seed.run(withSpecific({ seedSource }, "citizen-max-mustermann"));
-    const yoga = yogaFactory(knex);
     const exec = buildHTTPCookieExecutor({
         // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
         // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -161,6 +161,4 @@ test("invalid password", async () => {
     assertSingleValue(result);
     assertSingleError(result);
     assert.strictEqual(result.errors[0].extensions.code, "INVALID_PASSWORD");
-
-    await knex.destroy();
 });

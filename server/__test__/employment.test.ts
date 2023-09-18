@@ -1,4 +1,4 @@
-import { test } from "@jest/globals";
+import { test, beforeEach, afterEach } from "@jest/globals";
 import { assert } from "chai";
 import {
     assertNoErrors,
@@ -10,8 +10,8 @@ import {
 
 import bcrypt from "bcrypt";
 import { omit } from "lodash/fp";
-import { yogaFactory } from "Server";
-import { emptyKnex } from "Database";
+import { type TYogaServerInstance, yogaFactory } from "Server";
+import { type Knex, emptyKnex } from "Database";
 import { graphql } from "./graphql";
 
 const citizenCredentials = {
@@ -94,13 +94,21 @@ const loginMutation = graphql(/* GraphQL */ `
     }
 `);
 
+let knex: Knex;
+let yoga: TYogaServerInstance;
+beforeEach(async () => {
+    knex = await emptyKnex();
+    yoga = yogaFactory(knex);
+});
+afterEach(async () => {
+    await knex.destroy();
+});
+
 test("create and accept", async () => {
     const salary = 1.0;
     const minWorktime = 3600;
 
-    const knex = await emptyKnex();
     await knex.seed.run(withSpecific({ seedSource }, "citizen-company"));
-    const yoga = yogaFactory(knex);
 
     const execCitizen = buildHTTPCookieExecutor({
         // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
@@ -177,6 +185,4 @@ test("create and accept", async () => {
         salary,
         minWorktime,
     });
-
-    await knex.destroy();
 });
