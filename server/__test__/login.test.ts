@@ -142,7 +142,7 @@ test("invalid username", async () => {
     });
     assertSingleValue(result);
     assertSingleError(result);
-    assert.strictEqual(result.errors[0]?.extensions.code, "CITIZEN_NOT_FOUND");
+    assert.strictEqual(result.errors[0].extensions.code, "CITIZEN_NOT_FOUND");
 });
 
 test("invalid password", async () => {

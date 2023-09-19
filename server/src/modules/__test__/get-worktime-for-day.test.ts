@@ -43,6 +43,8 @@ let ctx: IAppContext;
 beforeEach(async () => {
     knex = await emptyKnex();
     ctx = mockAppContext(knex);
+    // prevent inserting users and bankAccounts, because function never deals with them
+    await knex.raw("PRAGMA foreign_keys = OFF");
 });
 afterEach(async () => {
     await knex.destroy();

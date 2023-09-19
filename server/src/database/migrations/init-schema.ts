@@ -17,7 +17,7 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.createTable("guests", (table) => {
         table.uuid("id").primary();
         table.text("cardId").notNullable();
-        table.uuid("bankAccountId").notNullable();
+        table.uuid("bankAccountId").notNullable().index();
         table.foreign("bankAccountId").references("id").inTable("bankAccounts");
         table.text("name");
         table.datetime("enteredAt").notNullable();
@@ -26,7 +26,7 @@ export async function up(knex: Knex): Promise<void> {
 
     await knex.schema.createTable("citizens", (table) => {
         table.uuid("id").primary();
-        table.uuid("bankAccountId").notNullable();
+        table.uuid("bankAccountId").notNullable().index();
         table.foreign("bankAccountId").references("id").inTable("bankAccounts");
         table.text("firstName").notNullable();
         table.text("lastName").notNullable();
@@ -36,7 +36,7 @@ export async function up(knex: Knex): Promise<void> {
 
     await knex.schema.createTable("companies", (table) => {
         table.uuid("id").primary();
-        table.uuid("bankAccountId").notNullable();
+        table.uuid("bankAccountId").notNullable().index();
         table.foreign("bankAccountId").references("id").inTable("bankAccounts");
         table.text("name").notNullable();
         table.text("password").notNullable();
@@ -45,9 +45,9 @@ export async function up(knex: Knex): Promise<void> {
 
     await knex.schema.createTable("employments", (table) => {
         table.increments("id");
-        table.uuid("companyId").notNullable();
+        table.uuid("companyId").notNullable().index();
         table.foreign("companyId").references("id").inTable("companies");
-        table.uuid("citizenId").notNullable();
+        table.uuid("citizenId").notNullable().index();
         table.foreign("citizenId").references("id").inTable("citizens");
         table.double("salary").notNullable();
         table.integer("minWorktime").notNullable();
@@ -57,7 +57,7 @@ export async function up(knex: Knex): Promise<void> {
 
     await knex.schema.createTable("worktimes", (table) => {
         table.increments("id");
-        table.integer("employmentId").notNullable();
+        table.integer("employmentId").notNullable().index();
         table.foreign("employmentId").references("id").inTable("employments");
         table.dateTime("start").notNullable();
         table.dateTime("end");
@@ -65,9 +65,9 @@ export async function up(knex: Knex): Promise<void> {
 
     await knex.schema.createTable("employmentOffers", (table) => {
         table.increments("id");
-        table.uuid("companyId").notNullable();
+        table.uuid("companyId").notNullable().index();
         table.foreign("companyId").references("id").inTable("companies");
-        table.uuid("citizenId").notNullable();
+        table.uuid("citizenId").notNullable().index();
         table.foreign("citizenId").references("id").inTable("citizens");
         table
             .text("state")
@@ -103,7 +103,7 @@ export async function up(knex: Knex): Promise<void> {
         table.increments("id");
         table.datetime("date").notNullable();
         table.json("customerUserSignature").notNullable();
-        table.uuid("companyId").notNullable();
+        table.uuid("companyId").notNullable().index();
         table.foreign("companyId").references("id").inTable("companies");
         table.double("grossPrice").notNullable();
         table.double("netPrice").notNullable();
@@ -120,17 +120,17 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.createTable("salaryTransactions", (table) => {
         table.increments("id");
         table.datetime("date").notNullable();
-        table.integer("employmentId").notNullable();
+        table.integer("employmentId").notNullable().index();
         table.foreign("employmentId").references("id").inTable("employments");
         table.double("grossValue").notNullable();
         table.double("netValue").notNullable();
-        table.integer("worktimeId"); // null => bonus payment, not null => salary for endet shift
+        table.integer("worktimeId").index(); // null => bonus payment, not null => salary for endet shift
         table.foreign("worktimeId").references("id").inTable("worktimes");
     });
 
     await knex.schema.createTable("products", (table) => {
         table.uuid("id").primary();
-        table.uuid("companyId").notNullable();
+        table.uuid("companyId").notNullable().index();
         table.foreign("companyId").references("id").inTable("companies");
         table.text("name").notNullable();
         table.double("price").notNullable();
@@ -138,12 +138,12 @@ export async function up(knex: Knex): Promise<void> {
     });
 
     await knex.schema.createTable("productSales", (table) => {
-        table.uuid("purchaseId").notNullable();
+        table.uuid("purchaseId").notNullable().index();
         table
             .foreign("purchaseId")
             .references("id")
             .inTable("purchaseTransactions");
-        table.uuid("productId").notNullable();
+        table.uuid("productId").notNullable().index();
         table.foreign("productId").references("id").inTable("products");
         table.primary(["purchaseId", "productId"]);
         table.integer("amount").notNullable();
@@ -165,9 +165,9 @@ export async function up(knex: Knex): Promise<void> {
     });
 
     await knex.schema.createTable("votingPapers", (table) => {
-        table.uuid("voteId").notNullable();
+        table.uuid("voteId").notNullable().index();
         table.foreign("voteId").references("id").inTable("votes");
-        table.uuid("citizenId").notNullable();
+        table.uuid("citizenId").notNullable().index();
         table.foreign("citizenId").references("id").inTable("citizens");
         table.primary(["voteId", "citizenId"]);
         // number[]
@@ -176,7 +176,7 @@ export async function up(knex: Knex): Promise<void> {
 
     await knex.schema.createTable("stays", (table) => {
         table.increments("id");
-        table.uuid("citizenId").notNullable();
+        table.uuid("citizenId").notNullable().index();
         table.foreign("citizenId").references("id").inTable("citizens");
         table.datetime("enteredAt").notNullable();
         table.datetime("leftAt");

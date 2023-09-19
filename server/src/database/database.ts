@@ -20,8 +20,8 @@ class MigrationSource implements _Knex.MigrationSource<INamedMigration> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Knex = _Knex<any, unknown[]>;
 
-const createKnex = (filename: string): Knex =>
-    _knex({
+const createKnex = async (filename: string): Promise<Knex> => {
+    const knex = _knex({
         client: "sqlite3",
         connection: {
             filename,
@@ -31,14 +31,17 @@ const createKnex = (filename: string): Knex =>
             migrationSource: new MigrationSource(),
         },
     });
+    await knex.raw("PRAGMA foreign_keys = ON");
+    return knex;
+};
 
-export const loadKnex = (): Knex => {
+export const loadKnex = async (): Promise<Knex> => {
     const file = resolveConfig(config.database.file);
     return createKnex(file);
 };
 
 export const emptyKnex = async (): Promise<Knex> => {
-    const knex = createKnex(":memory:");
+    const knex = await createKnex(":memory:");
     await knex.migrate.up({ name: "init-schema" });
     return knex;
 };
