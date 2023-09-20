@@ -129,19 +129,21 @@ let knex: Knex;
 let yoga: TYogaServerInstance;
 type TUserExecutor = UnPromise<ReturnType<typeof buildHTTPUserExecutor>>;
 let citizen: TUserExecutor;
-let differentCitizen: TUserExecutor;
 let company: TUserExecutor;
-let differentCompany: TUserExecutor;
+let citizenWithIdOfCompany: TUserExecutor;
+let companyWithIdOfCitizen: TUserExecutor;
 beforeEach(async () => {
     knex = await emptyKnex();
     yoga = yogaFactory(knex);
     citizen = await buildHTTPUserExecutor(knex, yoga, { type: "CITIZEN" });
-    differentCitizen = await buildHTTPUserExecutor(knex, yoga, {
-        type: "CITIZEN",
-    });
     company = await buildHTTPUserExecutor(knex, yoga, { type: "COMPANY" });
-    differentCompany = await buildHTTPUserExecutor(knex, yoga, {
+    citizenWithIdOfCompany = await buildHTTPUserExecutor(knex, yoga, {
+        type: "CITIZEN",
+        id: company.id,
+    });
+    companyWithIdOfCitizen = await buildHTTPUserExecutor(knex, yoga, {
         type: "COMPANY",
+        id: citizen.id,
     });
 });
 afterEach(async () => {
@@ -249,12 +251,12 @@ const testAcceptOffer = async (): Promise<IEmployment> => {
         variables: { id: 404 },
     });
     assertInvalid(invalidId, "EMPLOYMENT_OFFER_NOT_FOUND");
-    const wrongCitizen = await differentCitizen({
+    const wrongUserId = await citizenWithIdOfCompany({
         document: acceptOfferMutation,
         variables: { id: offer.id },
     });
-    assertInvalid(wrongCitizen, "PERMISSION_DENIED");
-    const wrongUserType = await company({
+    assertInvalid(wrongUserId, "PERMISSION_DENIED");
+    const wrongUserType = await companyWithIdOfCitizen({
         document: acceptOfferMutation,
         variables: { id: offer.id },
     });
@@ -292,21 +294,21 @@ const testCancelEmployment = async (citizenOrCompany: TUserExecutor) => {
     const employment = await testAcceptOffer();
 
     // invalid requests
-    const invalidId = await citizen({
+    const invalidId = await citizenOrCompany({
         document: cancelEmploymentMutation,
         variables: { id: 404 },
     });
     assertInvalid(invalidId, "EMPLOYMENT_NOT_FOUND");
-    const wrongCitizen = await differentCitizen({
+    const wrongCitizenId = await citizenWithIdOfCompany({
         document: cancelEmploymentMutation,
         variables: { id: employment.id },
     });
-    assertInvalid(wrongCitizen, "PERMISSION_DENIED");
-    const wrongCompany = await differentCompany({
+    assertInvalid(wrongCitizenId, "PERMISSION_DENIED");
+    const wrongCompanyId = await companyWithIdOfCitizen({
         document: cancelEmploymentMutation,
         variables: { id: employment.id },
     });
-    assertInvalid(wrongCompany, "PERMISSION_DENIED");
+    assertInvalid(wrongCompanyId, "PERMISSION_DENIED");
     const guest = await buildHTTPUserExecutor(knex, yoga, { type: "GUEST" });
     const wrongUserType = await guest({
         document: cancelEmploymentMutation,
@@ -345,12 +347,12 @@ const testRejectOffer = async (): Promise<IEmploymentOffer> => {
         variables: { id: 404, reason },
     });
     assertInvalid(invalidId, "EMPLOYMENT_OFFER_NOT_FOUND");
-    const wrongCitizen = await differentCitizen({
+    const wrongUserId = await citizenWithIdOfCompany({
         document: rejectOfferMutation,
         variables: { id: offer.id, reason },
     });
-    assertInvalid(wrongCitizen, "PERMISSION_DENIED");
-    const wrongUserType = await company({
+    assertInvalid(wrongUserId, "PERMISSION_DENIED");
+    const wrongUserType = await companyWithIdOfCitizen({
         document: rejectOfferMutation,
         variables: { id: offer.id, reason },
     });
@@ -386,12 +388,12 @@ const testDeleteOffer = async () => {
         variables: { id: 404 },
     });
     assertInvalid(invalidId, "EMPLOYMENT_OFFER_NOT_FOUND");
-    const wrongCompany = await differentCompany({
+    const wrongUserId = await companyWithIdOfCitizen({
         document: deleteOfferMutation,
         variables: { id: offer.id },
     });
-    assertInvalid(wrongCompany, "PERMISSION_DENIED");
-    const wrongUserType = await citizen({
+    assertInvalid(wrongUserId, "PERMISSION_DENIED");
+    const wrongUserType = await citizenWithIdOfCompany({
         document: deleteOfferMutation,
         variables: { id: offer.id },
     });
