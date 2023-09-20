@@ -1,61 +1,19 @@
+/* eslint-disable jest/expect-expect */
 import { test, beforeEach, afterEach } from "@jest/globals";
 import { assert } from "chai";
 import {
     assertNoErrors,
     assertSingleValue,
-    seedSourceFactory,
-    withSpecific,
-    buildHTTPCookieExecutor,
+    buildHTTPUserExecutor,
+    assertSingleError,
 } from "Util/test";
 
-import bcrypt from "bcrypt";
 import { omit } from "lodash/fp";
+import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance, yogaFactory } from "Server";
 import { type Knex, emptyKnex } from "Database";
+import { type UnPromise } from "Util/misc";
 import { graphql } from "./graphql";
-
-const citizenCredentials = {
-    type: "CITIZEN" as const,
-    id: "citizenId1",
-    password: "citizenPassword",
-};
-const companyCredentials = {
-    type: "COMPANY" as const,
-    id: "companyId1",
-    password: "companyPassword",
-};
-
-const seedSource = seedSourceFactory({
-    "citizen-company": async (knex) => {
-        await knex("bankAccounts").insert([
-            {
-                id: "bankAccountId1",
-                balance: 1.0,
-                redemptionBalance: 0.0,
-            },
-            {
-                id: "bankAccountId2",
-                balance: 1.0,
-                redemptionBalance: 0.0,
-            },
-        ]);
-        await knex("citizens").insert({
-            id: citizenCredentials.id,
-            firstName: "Max",
-            lastName: "Mustermann",
-            bankAccountId: "bankAccountId1",
-            image: "",
-            password: await bcrypt.hash(citizenCredentials.password, 10),
-        });
-        await knex("companies").insert({
-            id: companyCredentials.id,
-            bankAccountId: "bankAccountId2",
-            name: "Donuts Ltd.",
-            password: await bcrypt.hash(companyCredentials.password, 10),
-            image: "",
-        });
-    },
-});
 
 graphql(/* GraphQL */ `
     fragment All_EmploymentOfferFragment on EmploymentOffer {
@@ -86,9 +44,8 @@ graphql(/* GraphQL */ `
         minWorktime
     }
 `);
-
 const EmploymentAndOffersCitizenQuery = graphql(/* GraphQL */ `
-    query EmploymentOffersCitizen {
+    query EmploymentAndOffersCitizen {
         meCitizen {
             employmentOffers {
                 ...All_EmploymentOfferFragment
@@ -99,8 +56,8 @@ const EmploymentAndOffersCitizenQuery = graphql(/* GraphQL */ `
         }
     }
 `);
-const EmploymentAndOffersCompanyQuery = graphql(/* GraphQL */ `
-    query EmploymentOffersCompany {
+const EmploymentsAndOffersCompanyQuery = graphql(/* GraphQL */ `
+    query EmploymentsAndOffersCompany {
         meCompany {
             pendingOffers: employmentOffers(state: PENDING) {
                 ...All_EmploymentOfferFragment
@@ -115,167 +72,347 @@ const EmploymentAndOffersCompanyQuery = graphql(/* GraphQL */ `
     }
 `);
 
-const loginMutation = graphql(/* GraphQL */ `
-    mutation Login($type: UserType!, $id: String!, $password: String) {
-        login(user: { type: $type, id: $id }, password: $password) {
-            id
+const createOfferMutation = graphql(/* GraphQL */ `
+    mutation CreateOffer($citizenId: ID!, $salary: Float!, $minWorktime: Int!) {
+        createEmploymentOffer(
+            offer: {
+                citizenId: $citizenId
+                salary: $salary
+                minWorktime: $minWorktime
+            }
+        ) {
+            ...All_EmploymentOfferFragment
         }
     }
 `);
+const acceptOfferMutation = graphql(/* GraphQL */ `
+    mutation AcceptOffer($id: Int!) {
+        acceptEmploymentOffer(id: $id) {
+            ...All_EmploymentFragment
+        }
+    }
+`);
+const rejectOfferMutation = graphql(/* GraphQL */ `
+    mutation RejectOffer($id: Int!, $reason: String) {
+        rejectEmploymentOffer(id: $id, reason: $reason) {
+            ...All_EmploymentOfferFragment
+        }
+    }
+`);
+const deleteOfferMutation = graphql(/* GraphQL */ `
+    mutation DeleteOffer($id: Int!) {
+        deleteEmploymentOffer(id: $id)
+    }
+`);
+const cancelEmploymentMutation = graphql(/* GraphQL */ `
+    mutation CancelEmployment($id: Int!) {
+        cancelEmployment(id: $id)
+    }
+`);
 
+type IEmploymentOffer = ResultOf<
+    typeof createOfferMutation
+>["createEmploymentOffer"];
+type IEmployment = ResultOf<
+    typeof acceptOfferMutation
+>["acceptEmploymentOffer"];
+type ICitizenState = ResultOf<
+    typeof EmploymentAndOffersCitizenQuery
+>["meCitizen"];
+type ICompanyState = ResultOf<
+    typeof EmploymentsAndOffersCompanyQuery
+>["meCompany"];
+
+const minWorktime = 3600;
+const salary = 1.0;
 let knex: Knex;
 let yoga: TYogaServerInstance;
+type TUserExecutor = UnPromise<ReturnType<typeof buildHTTPUserExecutor>>;
+let citizen: TUserExecutor;
+let differentCitizen: TUserExecutor;
+let company: TUserExecutor;
+let differentCompany: TUserExecutor;
 beforeEach(async () => {
     knex = await emptyKnex();
     yoga = yogaFactory(knex);
+    citizen = await buildHTTPUserExecutor(knex, yoga, { type: "CITIZEN" });
+    differentCitizen = await buildHTTPUserExecutor(knex, yoga, {
+        type: "CITIZEN",
+    });
+    company = await buildHTTPUserExecutor(knex, yoga, { type: "COMPANY" });
+    differentCompany = await buildHTTPUserExecutor(knex, yoga, {
+        type: "COMPANY",
+    });
 });
 afterEach(async () => {
     await knex.destroy();
 });
 
-test("create and accept", async () => {
-    const salary = 1.0;
-    const minWorktime = 3600;
+const assertCitizenAndCompanyStates =
+    (citizenExpected: ICitizenState, citizenMessage?: string) =>
+    async (companyExpected: ICompanyState, companyMessage?: string) => {
+        const citizenResult = await citizen({
+            document: EmploymentAndOffersCitizenQuery,
+        });
+        assertSingleValue(citizenResult);
+        assertNoErrors(citizenResult);
+        assert.deepStrictEqual(
+            citizenResult.data.meCitizen,
+            citizenExpected,
+            citizenMessage
+        );
 
-    await knex.seed.run(withSpecific({ seedSource }, "citizen-company"));
+        const companyResult = await company({
+            document: EmploymentsAndOffersCompanyQuery,
+        });
+        assertSingleValue(companyResult);
+        assertNoErrors(companyResult);
+        assert.deepStrictEqual(
+            companyResult.data.meCompany,
+            companyExpected,
+            companyMessage
+        );
+    };
+const assertInvalid = (
+    actual: UnPromise<ReturnType<TUserExecutor>>,
+    code: string
+) => {
+    assertSingleValue(actual);
+    assertSingleError(actual);
+    assert.strictEqual(actual.errors[0].extensions.code, code);
+};
 
-    const execCitizen = buildHTTPCookieExecutor({
-        // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        fetch: yoga.fetch,
-    });
-    const loginCitizen = await execCitizen({
-        document: loginMutation,
-        variables: citizenCredentials,
-    });
-    assertSingleValue(loginCitizen);
-    assertNoErrors(loginCitizen);
-
-    const execCompany = buildHTTPCookieExecutor({
-        // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        fetch: yoga.fetch,
-    });
-    const loginCompany = await execCompany({
-        document: loginMutation,
-        variables: companyCredentials,
-    });
-    assertSingleValue(loginCompany);
-    assertNoErrors(loginCompany);
-
-    const emptyCitizen = await execCitizen({
-        document: EmploymentAndOffersCitizenQuery,
-    });
-    assertSingleValue(emptyCitizen);
-    assertNoErrors(emptyCitizen);
-    assert.deepStrictEqual(
-        emptyCitizen.data.meCitizen,
+const testCreateOffer = async (): Promise<IEmploymentOffer> => {
+    await assertCitizenAndCompanyStates(
         { employmentOffers: [], employment: null },
         "Employment and pending offers must be empty at beginning"
-    );
-    const emptyCompany = await execCompany({
-        document: EmploymentAndOffersCompanyQuery,
-    });
-    assertSingleValue(emptyCompany);
-    assertNoErrors(emptyCompany);
-    assert.deepStrictEqual(
-        emptyCompany.data.meCompany,
+    )(
         { pendingOffers: [], rejectedOffers: [], employees: [] },
-        "Employments and pending offers must be empty at beginning"
+        "Employments and offers must be empty at beginning"
     );
 
-    const create = await execCompany({
-        document: graphql(/* GraphQL */ `
-            mutation CreateOffer(
-                $citizenId: ID!
-                $salary: Float!
-                $minWorktime: Int!
-            ) {
-                createEmploymentOffer(
-                    offer: {
-                        citizenId: $citizenId
-                        salary: $salary
-                        minWorktime: $minWorktime
-                    }
-                ) {
-                    ...All_EmploymentOfferFragment
-                }
-            }
-        `),
-        variables: { citizenId: citizenCredentials.id, salary, minWorktime },
+    // invalid requests
+    const invalidCitizenId = await company({
+        document: createOfferMutation,
+        variables: { citizenId: "invalidCitizenId", minWorktime, salary },
     });
-    assertSingleValue(create);
-    assertNoErrors(create);
-    const offer = create.data.createEmploymentOffer;
+    assertInvalid(invalidCitizenId, "CITIZEN_NOT_FOUND");
+    const invalidMinWorktime = await company({
+        document: createOfferMutation,
+        variables: { citizenId: citizen.id, minWorktime: -1, salary },
+    });
+    assertInvalid(invalidMinWorktime, "BAD_USER_INPUT");
+    const invalidSalary = await company({
+        document: createOfferMutation,
+        variables: { citizenId: citizen.id, minWorktime, salary: -1.0 },
+    });
+    assertInvalid(invalidSalary, "BAD_USER_INPUT");
+    const wrongUserType = await citizen({
+        document: createOfferMutation,
+        variables: { citizenId: citizen.id, minWorktime, salary },
+    });
+    assertInvalid(wrongUserType, "PERMISSION_DENIED");
+
+    // valid request
+    const createOffer = await company({
+        document: createOfferMutation,
+        variables: { citizenId: citizen.id, salary, minWorktime },
+    });
+    assertSingleValue(createOffer);
+    assertNoErrors(createOffer);
+    const offer = createOffer.data.createEmploymentOffer;
     assert.deepStrictEqual(omit("id", offer), {
-        company: { id: companyCredentials.id },
-        citizen: { id: citizenCredentials.id },
+        company: { id: company.id },
+        citizen: { id: citizen.id },
         state: "PENDING",
         salary,
         minWorktime,
     });
 
-    const pendingCitizen = await execCitizen({
-        document: EmploymentAndOffersCitizenQuery,
-    });
-    assertSingleValue(pendingCitizen);
-    assertNoErrors(pendingCitizen);
-    assert.deepStrictEqual(
-        pendingCitizen.data.meCitizen,
+    await assertCitizenAndCompanyStates(
         { employmentOffers: [offer], employment: null },
         "Pending EmploymentOffers must only be the created one"
-    );
-    const pendingCompany = await execCompany({
-        document: EmploymentAndOffersCompanyQuery,
-    });
-    assertSingleValue(pendingCompany);
-    assertNoErrors(pendingCompany);
-    assert.deepStrictEqual(
-        pendingCompany.data.meCompany,
+    )(
         { pendingOffers: [offer], rejectedOffers: [], employees: [] },
         "Pending EmploymentOffers must only be the created one"
     );
 
-    const accept = await execCitizen({
-        document: graphql(/* GraphQL */ `
-            mutation AcceptOffer($id: Int!) {
-                acceptEmploymentOffer(id: $id) {
-                    ...All_EmploymentFragment
-                }
-            }
-        `),
+    return offer;
+};
+
+const testAcceptOffer = async (): Promise<IEmployment> => {
+    const offer = await testCreateOffer();
+
+    // invalid requests
+    const invalidId = await citizen({
+        document: acceptOfferMutation,
+        variables: { id: 404 },
+    });
+    assertInvalid(invalidId, "EMPLOYMENT_OFFER_NOT_FOUND");
+    const wrongCitizen = await differentCitizen({
+        document: acceptOfferMutation,
         variables: { id: offer.id },
     });
-    assertSingleValue(accept);
-    assertNoErrors(accept);
-    const employment = accept.data.acceptEmploymentOffer;
+    assertInvalid(wrongCitizen, "PERMISSION_DENIED");
+    const wrongUserType = await company({
+        document: acceptOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertInvalid(wrongUserType, "PERMISSION_DENIED");
+
+    // valid request
+    const acceptOffer = await citizen({
+        document: acceptOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertSingleValue(acceptOffer);
+    assertNoErrors(acceptOffer);
+    const employment = acceptOffer.data.acceptEmploymentOffer;
     assert.deepStrictEqual(omit("id", employment), {
-        company: { id: companyCredentials.id },
-        citizen: { id: citizenCredentials.id },
+        company: { id: company.id },
+        citizen: { id: citizen.id },
         worktimeToday: 0,
         worktimeYesterday: 0,
         salary,
         minWorktime,
     });
 
-    const acceptedCitizen = await execCitizen({
-        document: EmploymentAndOffersCitizenQuery,
-    });
-    assertSingleValue(acceptedCitizen);
-    assertNoErrors(acceptedCitizen);
-    assert.deepStrictEqual(
-        acceptedCitizen.data.meCitizen,
+    await assertCitizenAndCompanyStates(
         { employmentOffers: [], employment },
         "Pending EmploymentOffers must be empty after accepting"
-    );
-    const acceptedCompany = await execCompany({
-        document: EmploymentAndOffersCompanyQuery,
-    });
-    assertSingleValue(acceptedCompany);
-    assertNoErrors(acceptedCompany);
-    assert.deepStrictEqual(
-        acceptedCompany.data.meCompany,
+    )(
         { pendingOffers: [], rejectedOffers: [], employees: [employment] },
-        "Pending EmploymentOffers must be empty after accepting"
+        "Pending EmploymentOffers must be empty and employment must be present after accepting"
     );
-});
+
+    return employment;
+};
+
+const testCancelEmployment = async (citizenOrCompany: TUserExecutor) => {
+    const employment = await testAcceptOffer();
+
+    // invalid requests
+    const invalidId = await citizen({
+        document: cancelEmploymentMutation,
+        variables: { id: 404 },
+    });
+    assertInvalid(invalidId, "EMPLOYMENT_NOT_FOUND");
+    const wrongCitizen = await differentCitizen({
+        document: cancelEmploymentMutation,
+        variables: { id: employment.id },
+    });
+    assertInvalid(wrongCitizen, "PERMISSION_DENIED");
+    const wrongCompany = await differentCompany({
+        document: cancelEmploymentMutation,
+        variables: { id: employment.id },
+    });
+    assertInvalid(wrongCompany, "PERMISSION_DENIED");
+    const guest = await buildHTTPUserExecutor(knex, yoga, { type: "GUEST" });
+    const wrongUserType = await guest({
+        document: cancelEmploymentMutation,
+        variables: { id: employment.id },
+    });
+    assertInvalid(wrongUserType, "PERMISSION_DENIED");
+
+    // valid request
+    const cancelEmployment = await citizenOrCompany({
+        document: cancelEmploymentMutation,
+        variables: { id: employment.id },
+    });
+    assertSingleValue(cancelEmployment);
+    assertNoErrors(cancelEmployment);
+    const cancelled = cancelEmployment.data.cancelEmployment;
+    assert.strictEqual(cancelled, null);
+
+    await assertCitizenAndCompanyStates(
+        { employmentOffers: [], employment: null },
+        "Employment and offers must be empty after cancelling"
+    )(
+        { pendingOffers: [], rejectedOffers: [], employees: [] },
+        "Employments and offers must be empty after cancelling"
+    );
+};
+test("create, accept, cancel by citizen", () => testCancelEmployment(citizen));
+test("create, accept, cancel by company", () => testCancelEmployment(company));
+
+const testRejectOffer = async (): Promise<IEmploymentOffer> => {
+    const offer = await testCreateOffer();
+    const reason = "reason for rejection";
+
+    // invalid requests
+    const invalidId = await citizen({
+        document: rejectOfferMutation,
+        variables: { id: 404, reason },
+    });
+    assertInvalid(invalidId, "EMPLOYMENT_OFFER_NOT_FOUND");
+    const wrongCitizen = await differentCitizen({
+        document: rejectOfferMutation,
+        variables: { id: offer.id, reason },
+    });
+    assertInvalid(wrongCitizen, "PERMISSION_DENIED");
+    const wrongUserType = await company({
+        document: rejectOfferMutation,
+        variables: { id: offer.id, reason },
+    });
+    assertInvalid(wrongUserType, "PERMISSION_DENIED");
+
+    // valid request
+    const rejectOffer = await citizen({
+        document: rejectOfferMutation,
+        variables: { id: offer.id, reason },
+    });
+    assertSingleValue(rejectOffer);
+    assertNoErrors(rejectOffer);
+    const rejected = rejectOffer.data.rejectEmploymentOffer;
+    assert.deepStrictEqual(rejected, { ...offer, state: "REJECTED" });
+
+    await assertCitizenAndCompanyStates(
+        { employmentOffers: [], employment: null },
+        "Pending EmploymentOffers must be empty after rejecting"
+    )(
+        { pendingOffers: [], rejectedOffers: [rejected], employees: [] },
+        "Pending EmploymentOffers must only be empty and rejected must be present after rejecting"
+    );
+
+    return offer;
+};
+
+const testDeleteOffer = async () => {
+    const offer = await testRejectOffer();
+
+    // invalid requests
+    const invalidId = await company({
+        document: deleteOfferMutation,
+        variables: { id: 404 },
+    });
+    assertInvalid(invalidId, "EMPLOYMENT_OFFER_NOT_FOUND");
+    const wrongCompany = await differentCompany({
+        document: deleteOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertInvalid(wrongCompany, "PERMISSION_DENIED");
+    const wrongUserType = await citizen({
+        document: deleteOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertInvalid(wrongUserType, "PERMISSION_DENIED");
+
+    // valid request
+    const deleteOffer = await company({
+        document: deleteOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertSingleValue(deleteOffer);
+    assertNoErrors(deleteOffer);
+    const deleted = deleteOffer.data.deleteEmploymentOffer;
+    assert.strictEqual(deleted, null);
+
+    await assertCitizenAndCompanyStates(
+        { employmentOffers: [], employment: null },
+        "Employment and offers must be empty after deleting"
+    )(
+        { pendingOffers: [], rejectedOffers: [], employees: [] },
+        "Employments and offers must be empty after deleting"
+    );
+};
+test("create, reject, delete", testDeleteOffer);

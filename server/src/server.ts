@@ -9,7 +9,7 @@ import type {
     TPayload,
 } from "Types/models";
 import type { TResolvers } from "Types/schema";
-import type { WithCookieStore } from "Util/misc";
+import type { WithCookieStore, UnPromise } from "Util/misc";
 
 import {
     createPubSub,
@@ -99,7 +99,6 @@ const createAppContext =
         config,
         pubsub,
     });
-type UnPromise<P> = P extends Promise<infer T> ? T : never;
 export type IAppContext = UnPromise<
     ReturnType<ReturnType<typeof createAppContext>>
 >;

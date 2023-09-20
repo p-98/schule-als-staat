@@ -80,5 +80,5 @@ export function assertRole(user: TUserLike, role: TAuthRole): void {
             throw new Error("Role assertion check not yet implemented");
     }
 
-    throw new GraphQLYogaError(message, { code: "PERMISSION_DENIESD" });
+    throw new GraphQLYogaError(message, { code: "PERMISSION_DENIED" });
 }

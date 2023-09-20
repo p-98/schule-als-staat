@@ -2,7 +2,9 @@ overwrite: true
 schema: "./server/src/schema.graphql"
 generates:
     ./server/__test__/graphql/:
-        documents: ["server/__test__/*.test.ts"]
+        documents:
+            - "server/__test__/*.test.ts"
+            - "server/src/util/test.ts"
         preset: client-preset
         presetConfig:
             fragmentMasking: false

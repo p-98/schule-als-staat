@@ -1,6 +1,6 @@
 import type { IAppContext } from "Server";
 
-import { GraphQLYogaError } from "Util/error";
+import { GraphQLYogaError, hasCode } from "Util/error";
 import { v4 as uuidv4 } from "uuid";
 import { startOfToday, endOfToday, startOfDay } from "date-fns";
 import { eachHourOfInterval, addHours, addDays } from "date-fns/fp";
@@ -398,15 +398,33 @@ export async function createEmploymentOffer(
     companyId: string,
     offer: TCreateEmploymentOfferInput
 ): Promise<IEmploymentOfferModel> {
-    const inserted = await knex("employmentOffers")
-        .insert({
-            ...offer,
-            companyId,
-            state: "PENDING",
-        })
-        .returning("*");
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return inserted[0]!;
+    if (offer.minWorktime <= 0)
+        throw new GraphQLYogaError("minWorktime must be positive", {
+            code: "BAD_USER_INPUT",
+        });
+    if (offer.salary <= 0)
+        throw new GraphQLYogaError("salary must be positive", {
+            code: "BAD_USER_INPUT",
+        });
+
+    try {
+        const inserted = await knex("employmentOffers")
+            .insert({
+                ...offer,
+                companyId,
+                state: "PENDING",
+            })
+            .returning("*");
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return inserted[0]!;
+    } catch (err) {
+        if (hasCode(err) && err.code === "SQLITE_CONSTRAINT")
+            throw new GraphQLYogaError(
+                `Citizen with id ${offer.citizenId} does not exist`,
+                { code: "CITIZEN_NOT_FOUND" }
+            );
+        throw err;
+    }
 }
 
 export async function acceptEmploymentOffer(

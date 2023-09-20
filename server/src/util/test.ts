@@ -17,7 +17,8 @@ import type {
 } from "@graphql-tools/utils";
 
 import type { Knex } from "Database";
-import type { IAppContext } from "Server";
+import type { IAppContext, TYogaServerInstance } from "Server";
+import type { IUserSignature } from "Types/models";
 
 import { assert } from "chai";
 import {
@@ -36,8 +37,11 @@ import { buildHTTPExecutor } from "@graphql-tools/executor-http";
 import { parse as parseSetCookie } from "set-cookie-parser";
 import { serialize as serializeCookie } from "cookie";
 import { ValueOrPromise } from "value-or-promise";
+import bcrypt from "bcrypt";
 
 import config from "Config";
+import { formatDateTimeZ } from "Util/date";
+import { graphql } from "__test__/graphql";
 
 /* Seeding helper functions for unit testing
  */
@@ -107,6 +111,41 @@ export const mockAppContext = (knex: Knex): IAppContext =>
         knex,
     });
 
+/**
+ * Function according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing)
+ */
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function assertSingleValue<TValue extends object>(
+    value: TValue | AsyncIterable<TValue>
+): asserts value is TValue {
+    assert.notProperty(
+        value,
+        Symbol.asyncIterator as unknown as string,
+        "Expected single value"
+    );
+}
+
+export function assertNoErrors<TExtensions, TData>(
+    value: ExecutionResult<TData, TExtensions>
+): asserts value is ExecutionResult<TData, TExtensions> & {
+    data: TData;
+} {
+    assert.isUndefined(value.errors);
+}
+
+export function assertSingleError<TExtensions, TData>(
+    value: ExecutionResult<TData, TExtensions>
+): asserts value is ExecutionResult<TData, TExtensions> & {
+    errors: ReadonlyArray<GraphQLError> & [GraphQLError];
+} {
+    assert.isArray(value.errors, "Result needs to have errors");
+    assert.lengthOf(
+        value.errors as ReadonlyArray<GraphQLError>,
+        1,
+        "Result needs to have exactly one error"
+    );
+}
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function buildHTTPCookieExecutor(
     buildOptions?: Omit<HTTPExecutorOptions, "fetch"> & {
@@ -175,37 +214,92 @@ export function buildHTTPCookieExecutor(
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
-/**
- * Function according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing)
- */
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function assertSingleValue<TValue extends object>(
-    value: TValue | AsyncIterable<TValue>
-): asserts value is TValue {
-    assert.notProperty(
-        value,
-        Symbol.asyncIterator as unknown as string,
-        "Expected single value"
-    );
+export type TYogaExecutor = AsyncExecutor<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any,
+    HTTPExecutorOptions,
+    ExecutionResultAdditions
+>;
+export interface ICredentials extends IUserSignature {
+    password: string;
 }
+type SomePartial<T extends Record<K, unknown>, K extends keyof T> = Omit<T, K> &
+    Partial<Pick<T, K>>;
+let usersCreated = 0;
+/** Use same password for all users, because hash is slow */
+const userPassword = "userPassword";
+const userPasswordHash = bcrypt.hash(userPassword, 1);
 
-export function assertNoErrors<TExtensions, TData>(
-    value: ExecutionResult<TData, TExtensions>
-): asserts value is ExecutionResult<TData, TExtensions> & {
-    data: TData;
-} {
-    assert.isUndefined(value.errors);
-}
+export async function buildHTTPUserExecutor(
+    knex: Knex,
+    yoga: TYogaServerInstance,
+    { type, id }: SomePartial<IUserSignature, "id">
+): Promise<TYogaExecutor & ICredentials> {
+    usersCreated += 1;
+    const userNum = usersCreated;
 
-export function assertSingleError<TExtensions, TData>(
-    value: ExecutionResult<TData, TExtensions>
-): asserts value is ExecutionResult<TData, TExtensions> & {
-    errors: readonly [GraphQLError, ...[never]];
-} {
-    assert.isArray(value.errors, "Result needs to have errors");
-    assert.lengthOf(
-        value.errors as ReadonlyArray<GraphQLError>,
-        1,
-        "Result needs to have exactly one error"
+    const credentials: ICredentials = {
+        type,
+        id: id ?? `${type.toLowerCase()}IdOfUser${userNum}`,
+        password: userPassword,
+    };
+    const bankAccountId = `bankAccountIdForUser${userNum}`;
+
+    const seedSource = seedSourceFactory({
+        bankAccount: async (seedKnex) => {
+            await seedKnex("bankAccounts").insert({
+                id: bankAccountId,
+                balance: 1.0,
+                redemptionBalance: 0.0,
+            });
+        },
+        GUEST: async (seedKnex) =>
+            seedKnex("guests").insert({
+                id: credentials.id,
+                cardId: `cardIdOfUser${userNum}`,
+                bankAccountId,
+                name: `guestNameOfUser${userNum}`,
+                enteredAt: formatDateTimeZ(new Date()),
+            }),
+        CITIZEN: async (seedKnex) =>
+            seedKnex("citizens").insert({
+                id: credentials.id,
+                firstName: `firstNameOfUser${userNum}`,
+                lastName: `lastNameOfUser${userNum}`,
+                bankAccountId,
+                image: "",
+                password: await userPasswordHash,
+            }),
+        COMPANY: async (seedKnex) =>
+            seedKnex("companies").insert({
+                id: credentials.id,
+                bankAccountId,
+                name: `companyNameOfUser${userNum}`,
+                password: await userPasswordHash,
+                image: "",
+            }),
+    });
+    await knex.seed.run(
+        withSpecific({ seedSource }, "bankAccount", credentials.type)
     );
+    const executor = buildHTTPCookieExecutor({
+        // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        fetch: yoga.fetch,
+    });
+    const login = await executor({
+        document: graphql(/* GraphQL */ `
+            mutation Login($type: UserType!, $id: String!, $password: String) {
+                login(user: { type: $type, id: $id }, password: $password) {
+                    id
+                }
+            }
+        `),
+        variables: credentials,
+    });
+
+    assertSingleValue(login);
+    assertNoErrors(login);
+
+    return Object.assign(executor, credentials);
 }
