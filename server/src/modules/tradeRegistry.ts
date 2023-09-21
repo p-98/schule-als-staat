@@ -497,9 +497,9 @@ export async function rejectEmploymentOffer(
         });
     if (offer.state !== "PENDING")
         throw new GraphQLYogaError(
-            `EmploymentOffer with id ${id} not rejected`,
+            `EmploymentOffer with id ${id} not pending`,
             {
-                code: "EMPLOYMENT_OFFER_NOT_REJECTED",
+                code: "EMPLOYMENT_OFFER_NOT_PENDING",
             }
         );
 

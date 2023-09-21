@@ -239,6 +239,13 @@ const testCreateOffer = async (): Promise<IEmploymentOffer> => {
         "Pending EmploymentOffers must only be the created one"
     );
 
+    // invalid when pending
+    const deleteOffer = await company({
+        document: deleteOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertInvalid(deleteOffer, "EMPLOYMENT_OFFER_NOT_REJECTED");
+
     return offer;
 };
 
@@ -287,6 +294,23 @@ const testAcceptOffer = async (): Promise<IEmployment> => {
         "Pending EmploymentOffers must be empty and employment must be present after accepting"
     );
 
+    // invalid when accepted
+    const acceptAgain = await citizen({
+        document: acceptOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertInvalid(acceptAgain, "EMPLOYMENT_OFFER_NOT_PENDING");
+    const rejectOffer = await citizen({
+        document: rejectOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertInvalid(rejectOffer, "EMPLOYMENT_OFFER_NOT_PENDING");
+    const deleteOffer = await company({
+        document: deleteOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertInvalid(deleteOffer, "EMPLOYMENT_OFFER_NOT_REJECTED");
+
     return employment;
 };
 
@@ -333,6 +357,18 @@ const testCancelEmployment = async (citizenOrCompany: TUserExecutor) => {
         { pendingOffers: [], rejectedOffers: [], employees: [] },
         "Employments and offers must be empty after cancelling"
     );
+
+    // invalid when cancelled
+    const cancelAgainCitizen = await citizen({
+        document: cancelEmploymentMutation,
+        variables: { id: employment.id },
+    });
+    assertInvalid(cancelAgainCitizen, "EMPLOYMENT_ALREADY_CANCELLED");
+    const cancelAgainCompany = await company({
+        document: cancelEmploymentMutation,
+        variables: { id: employment.id },
+    });
+    assertInvalid(cancelAgainCompany, "EMPLOYMENT_ALREADY_CANCELLED");
 };
 test("create, accept, cancel by citizen", () => testCancelEmployment(citizen));
 test("create, accept, cancel by company", () => testCancelEmployment(company));
@@ -376,6 +412,18 @@ const testRejectOffer = async (): Promise<IEmploymentOffer> => {
         "Pending EmploymentOffers must only be empty and rejected must be present after rejecting"
     );
 
+    // invalid when rejected
+    const acceptOffer = await citizen({
+        document: acceptOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertInvalid(acceptOffer, "EMPLOYMENT_OFFER_NOT_PENDING");
+    const rejectAgain = await citizen({
+        document: rejectOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertInvalid(rejectAgain, "EMPLOYMENT_OFFER_NOT_PENDING");
+
     return offer;
 };
 
@@ -416,5 +464,22 @@ const testDeleteOffer = async () => {
         { pendingOffers: [], rejectedOffers: [], employees: [] },
         "Employments and offers must be empty after deleting"
     );
+
+    // invalid when deleted
+    const acceptOffer = await citizen({
+        document: acceptOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertInvalid(acceptOffer, "EMPLOYMENT_OFFER_NOT_PENDING");
+    const rejectOffer = await citizen({
+        document: rejectOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertInvalid(rejectOffer, "EMPLOYMENT_OFFER_NOT_PENDING");
+    const deleteAgain = await company({
+        document: deleteOfferMutation,
+        variables: { id: offer.id },
+    });
+    assertInvalid(deleteAgain, "EMPLOYMENT_OFFER_NOT_REJECTED");
 };
 test("create, reject, delete", testDeleteOffer);
