@@ -1,14 +1,10 @@
 import type { TNullable } from "Types";
-import type {
-    ICitizenUserModel,
-    ICompanyUserModel,
-    IUserSignature,
-    TUserModel,
-} from "Types/models";
+import type { IUserSignature, TUserModel } from "Types/models";
 import type { TAuthRole, TCredentialsInput } from "Types/schema";
 
 import bcrypt from "bcrypt";
-import { GraphQLYogaError } from "Util/error";
+import { isNil } from "lodash/fp";
+import { assert, GraphQLYogaError } from "Util/error";
 import { getUser } from "Modules/users";
 import config from "Config";
 import { IAppContext } from "Server";
@@ -17,27 +13,27 @@ export async function assertCredentials(
     ctx: IAppContext,
     credentials: TCredentialsInput
 ): Promise<void> {
-    if (credentials.type === "GUEST") {
-        if (credentials.password !== null)
-            throw new GraphQLYogaError("Must not specify password for guest", {
-                code: "BAD_USER_INPUT",
-            });
+    // implicitly checks that user exists
+    const user = await getUser(ctx, credentials);
+    if (user.type === "GUEST") {
+        assert(
+            isNil(credentials.password),
+            "Must not specify password for guest",
+            "BAD_USER_INPUT"
+        );
         return;
     }
 
-    if (credentials.password === undefined || credentials.password === null)
-        throw new GraphQLYogaError(
-            `Must specify password for ${credentials.type.toLowerCase()}`,
-            { code: "BAD_USER_INPUT" }
-        );
-    const userModel = (await getUser(ctx, credentials)) as
-        | ICitizenUserModel
-        | ICompanyUserModel;
-
-    if (!(await bcrypt.compare(credentials.password, userModel.password)))
-        throw new GraphQLYogaError("Invalid password", {
-            code: "INVALID_PASSWORD",
-        });
+    assert(
+        !isNil(credentials.password),
+        `Must specify password for ${user.type.toLowerCase()}`,
+        "BAD_USER_INPUT"
+    );
+    assert(
+        await bcrypt.compare(credentials.password, user.password),
+        "Invalid password",
+        "PERMISSION_DENIED"
+    );
 }
 
 // function for checking privileges

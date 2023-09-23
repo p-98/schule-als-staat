@@ -17,7 +17,7 @@ import type {
 } from "Types/knex";
 import type { IAppContext } from "Server";
 
-import { isNil, isNull, isUndefined } from "lodash/fp";
+import { isNull, isUndefined } from "lodash/fp";
 import {
     EUserTypeTableMap,
     parseUserSignature,
