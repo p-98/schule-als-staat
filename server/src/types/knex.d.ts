@@ -84,7 +84,7 @@ export interface ITransferTransaction {
 export interface IChangeTransaction {
     id: number;
     date: string;
-    userSignature: string;
+    userSignature: TNullable<string>;
     action: "VIRTUAL_TO_REAL" | "REAL_TO_VIRTUAL";
     valueVirtual: number;
     valueReal: number;
@@ -205,8 +205,8 @@ declare module "knex/types/tables" {
         >;
         changeTransactions: Knex.CompositeTableType<
             IChangeTransaction,
-            Omit<IChangeTransaction, "id">,
-            never
+            TOmit<IChangeTransaction, "id" | "userSignature">,
+            Pick<IChangeTransaction, "userSignature">
         >;
         purchaseTransactions: Knex.CompositeTableType<
             IPurchaseTransaction,

@@ -120,6 +120,10 @@ export interface IChangeTransactionModel extends ITransactionBaseModel {
     valueVirtual: number;
     valueReal: number;
 }
+export type IChangeTransactionDraftModel = Omit<
+    IChangeTransactionModel,
+    "userSignature"
+>;
 
 export interface IPurchaseTransactionModel extends ITransactionBaseModel {
     type: "PURCHASE";

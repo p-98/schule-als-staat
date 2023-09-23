@@ -90,7 +90,8 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.createTable("changeTransactions", (table) => {
         table.increments("id");
         table.datetime("date").notNullable();
-        table.json("userSignature").notNullable();
+        // null => not fullfilled; not null => fullfilled
+        table.json("userSignature");
         table
             .string("action")
             .notNullable()

@@ -1,4 +1,5 @@
 import type {
+    IChangeTransactionDraftModel,
     IChangeTransactionModel,
     ICustomsTransactionModel,
     IPurchaseTransactionModel,
@@ -24,11 +25,10 @@ import {
 import { formatDateTimeZ } from "Util/date";
 import { v4 as uuidv4 } from "uuid";
 import { GraphQLYogaError } from "Util/error";
-import { TChangeTransactionInput } from "Types/schema";
-import { IChangeTransaction } from "Types/knex";
+import { TChangeTransactionInput, TCredentialsInput } from "Types/schema";
 import { TNullable } from "Types";
+import { assertCredentials, assertRole, checkRole } from "Util/auth";
 import { getUser } from "./users";
-import { checkPassword } from "./sessions";
 
 async function getTransferTransactions(
     { knex }: IAppContext,
@@ -57,12 +57,14 @@ async function getChangeTransactions(
 
     const query = knex("changeTransactions")
         .select("*")
-        .where({ userSignature: signatureString });
+        .whereNotNull("userSignature")
+        .andWhere({ userSignature: signatureString });
 
     return (await query).map((raw) => ({
         type: "CHANGE",
         ...raw,
-        userSignature: parseUserSignature(raw.userSignature),
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        userSignature: parseUserSignature(raw.userSignature!),
     }));
 }
 
@@ -219,52 +221,116 @@ export async function payBonus(
 }
 
 export async function changeCurrencies(
-    ctx: IAppContext,
-    change: TChangeTransactionInput,
-    password: string
-): Promise<IChangeTransactionModel> {
-    const { knex, config } = ctx;
+    { knex, config }: IAppContext,
+    change: TChangeTransactionInput
+): Promise<IChangeTransactionDraftModel> {
     const date = formatDateTimeZ(new Date());
-    const user = await getUser(ctx, change.user);
-    const signedVirtualValue =
-        change.action === "REAL_TO_VIRTUAL"
-            ? change.valueVirtual
-            : -change.valueVirtual;
 
-    if (change.valueVirtual < 0 || change.valueReal < 0)
+    if (change.value <= 0)
         throw new GraphQLYogaError("Values must not be negative", {
             code: "BAD_USER_INPUT",
         });
-    if (!(await checkPassword(user, password)))
-        throw new GraphQLYogaError("Invalid password", {
-            code: "INVALID_PASSWORD",
-        });
+    const valueReal =
+        change.action === "VIRTUAL_TO_REAL"
+            ? config.currencyExchange.realPerVirtual * change.value
+            : change.value;
+    const valueVirtual =
+        change.action === "REAL_TO_VIRTUAL"
+            ? config.currencyExchange.virtualPerReal * change.value
+            : change.value;
 
     return knex.transaction(async (trx) => {
-        await trx("bankAccounts")
-            .decrement("balance", signedVirtualValue)
-            .where("id", config.server.stateBankAccountId);
-        await trx("bankAccounts")
-            .increment("balance", signedVirtualValue)
-            .where("id", user.bankAccountId);
+        const inserted = await trx("changeTransactions")
+            .insert({
+                date,
+                action: change.action,
+                valueVirtual,
+                valueReal,
+            })
+            .returning("*");
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const raw = inserted[0]!;
 
-        await trx("changeTransactions").insert({
-            date,
-            userSignature: stringifyUserSignature(user),
-            action: change.action,
-            valueVirtual: change.valueVirtual,
-            valueReal: change.valueReal,
-        });
-        const raw = (await trx("changeTransactions")
+        return { type: "CHANGE", ...raw };
+    });
+}
+/** Pay a change transaction draft
+ *
+ * Authorized calls:
+ * A company specifying no explicit user
+ * The bank specifiying an explicit user
+ */
+export async function payChangeTransaction(
+    ctx: IAppContext,
+    credentials: TNullable<TCredentialsInput>,
+    id: number
+): Promise<IChangeTransactionModel> {
+    const { knex, session, config } = ctx;
+    return knex.transaction(async (trx) => {
+        const userSignature: IUserSignature = await (async () => {
+            if (checkRole(session.userSignature, "BANK")) {
+                if (credentials === null)
+                    throw new GraphQLYogaError("Must specify user", {
+                        code: "BAD_USER_INPUT",
+                    });
+                await assertCredentials(ctx, credentials);
+                return credentials;
+            }
+
+            if (credentials !== null)
+                throw new GraphQLYogaError("Must not specify user", {
+                    code: "BAD_USER_INPUT",
+                });
+            assertRole(session.userSignature, "USER");
+            return session.userSignature;
+        })();
+
+        const draft = await trx("changeTransactions")
             .select("*")
-            .orderBy("id", "desc")
-            .first()) as IChangeTransaction;
+            .where({ id })
+            .first();
+        if (!draft)
+            throw new GraphQLYogaError(
+                `Change transaction with id ${id} not found`,
+                { code: "CHANGE_TRANSACTION_NOT_FOUND" }
+            );
+        if (draft.userSignature !== null)
+            throw new GraphQLYogaError(
+                `Change transaction with id ${id} already paid`,
+                { code: "CHANGE_TRANSACTION_ALREADY_PAID" }
+            );
 
-        return {
-            type: "CHANGE",
-            ...raw,
-            userSignature: parseUserSignature(raw.userSignature),
-        };
+        const cost =
+            draft.action === "REAL_TO_VIRTUAL"
+                ? draft.valueVirtual
+                : -draft.valueVirtual;
+
+        await trx("bankAccounts")
+            .increment("bankAccounts.balance", cost)
+            .innerJoin(
+                "companies",
+                "companies.bankAccountId",
+                "bankAccounts.id"
+            )
+            .where("companies.id", config.server.bankCompanyId);
+        const updatedCompany = await trx("bankAccounts")
+            .where("id", (await getUser(ctx, userSignature)).bankAccountId)
+            .returning("balance");
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        if (updatedCompany[0]!.balance < 0)
+            throw new GraphQLYogaError("Not enough money to complete change.", {
+                code: "BALANCE_TOO_LOW",
+            });
+
+        const updatedTransaction = await trx("changeTransactions")
+            .update({
+                userSignature: stringifyUserSignature(userSignature),
+            })
+            .where({ id })
+            .returning("*");
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const raw = updatedTransaction[0]!;
+        return { type: "CHANGE", ...raw, userSignature };
     });
 }
 

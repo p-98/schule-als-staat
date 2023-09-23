@@ -41,6 +41,7 @@ import { EUserTypes, getUser } from "Modules/users";
 import {
     getTransactionsByUser,
     payBonus,
+    payChangeTransaction,
     changeCurrencies,
     transferMoney,
     sell,
@@ -371,7 +372,12 @@ const resolvers: TResolvers = {
         changeCurrencies: async (_, args, ctx) => {
             assertRole(ctx.session.userSignature, "BANK");
 
-            return changeCurrencies(ctx, args.change, args.password);
+            return changeCurrencies(ctx, args.change);
+        },
+        payChangeTransaction: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "USER");
+
+            return payChangeTransaction(ctx, args.credentials ?? null, args.id);
         },
         transferMoney: async (_, args, ctx) => {
             assertRole(ctx.session.userSignature, "CITIZEN");

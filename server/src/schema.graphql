@@ -190,12 +190,12 @@ type EmploymentOffer {
 
 " Base type for transactions"
 interface Transaction {
-    id: ID!
+    id: Int!
     date: DateTime!
 }
 " A transfer transaction "
 type TransferTransaction implements Transaction {
-    id: ID!
+    id: Int!
     date: DateTime!
     sender: User!
     receiver: User!
@@ -204,16 +204,30 @@ type TransferTransaction implements Transaction {
 }
 " A change transaction "
 type ChangeTransaction implements Transaction {
-    id: ID!
+    id: Int!
     date: DateTime!
     user: User!
     action: ChangeTransactionAction!
     valueVirtual: Float!
     valueReal: Float!
 }
+" The draft of a change transaction "
+type ChangeTransactionDraft implements Transaction {
+    id: Int!
+    date: DateTime!
+    action: ChangeTransactionAction!
+    valueVirtual: Float!
+    valueReal: Float!
+}
+" Input type of a change transaction of changeCurrencies mutation"
+input ChangeTransactionInput {
+    action: ChangeTransactionAction!
+    " value in the currency from which is changed "
+    value: Float!
+}
 " A purchase transaction "
 type PurchaseTransaction implements Transaction {
-    id: ID!
+    id: Int!
     date: DateTime!
     customer: User!
     company: CompanyUser!
@@ -230,14 +244,14 @@ type PurchaseItem {
 }
 " A customs transaction "
 type CustomsTransaction implements Transaction {
-    id: ID!
+    id: Int!
     date: DateTime!
     user: User!
     customs: Float!
 }
 " A salary transaction "
 type SalaryTransaction implements Transaction {
-    id: ID!
+    id: Int!
     date: DateTime!
     employment: Employment!
     grossValue: Float!
@@ -309,6 +323,12 @@ input UserSignatureInput {
     type: UserType!
     id: String!
 }
+" Information to authenticate a user "
+input CredentialsInput {
+    type: UserType!
+    id: ID!
+    password: String
+}
 
 " Input for addProduct mutation "
 input AddProductInput {
@@ -331,14 +351,6 @@ input CreateEmploymentOfferInput {
     minWorktime: Int!
 }
 
-" Input for changeCurrencies mutation "
-input ChangeTransactionInput {
-    user: UserSignatureInput!
-
-    action: ChangeTransactionAction!
-    valueVirtual: Float!
-    valueReal: Float!
-}
 " Input for transferMoney mutation "
 input TransferTransactionInput {
     " receiver must be a citizen "
@@ -431,10 +443,13 @@ type Mutation {
 
     payBonus(value: Float!, employmentIds: [Int!]!): [SalaryTransaction!]!
         @auth(role: [COMPANY])
-    changeCurrencies(
-        change: ChangeTransactionInput!
-        password: String!
-    ): ChangeTransaction! @auth(role: [BANK])
+    changeCurrencies(change: ChangeTransactionInput!): ChangeTransactionDraft!
+        @auth(role: [BANK])
+    " Pay a change transaction draft. Only bank must specify explicit user. "
+    payChangeTransaction(
+        id: Int!
+        credentials: CredentialsInput
+    ): ChangeTransaction! @auth(role: [USER])
     transferMoney(transfer: TransferTransactionInput!): TransferTransaction!
         @auth(role: [CITIZEN])
     sell(
