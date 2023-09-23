@@ -48,6 +48,7 @@ module.exports = {
                     { props: true, ignorePropertyModificationsFor: ["state"] },
                 ],
                 "import/prefer-default-export": "off",
+                "@typescript-eslint/no-non-null-assertion": "off",
             },
             globals: {
                 React: "writable",

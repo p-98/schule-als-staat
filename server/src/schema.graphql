@@ -219,7 +219,7 @@ type ChangeTransactionDraft implements Transaction {
     valueVirtual: Float!
     valueReal: Float!
 }
-" Input type of a change transaction of changeCurrencies mutation"
+" Input type of a change transaction "
 input ChangeTransactionInput {
     action: ChangeTransactionAction!
     " value in the currency from which is changed "

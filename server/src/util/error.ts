@@ -15,3 +15,11 @@ export const hasCode = (obj: unknown): obj is { code: string } =>
     obj !== null &&
     inOperator("code", obj) &&
     typeof obj.code === "string";
+
+export function assert(
+    condition: boolean,
+    message: string,
+    code: string
+): asserts condition {
+    if (!condition) throw new GraphQLError(message, { extensions: { code } });
+}

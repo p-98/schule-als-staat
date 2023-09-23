@@ -17,6 +17,7 @@ import type {
 } from "Types/knex";
 import type { IAppContext } from "Server";
 
+import { isNil, isNull, isUndefined } from "lodash/fp";
 import {
     EUserTypeTableMap,
     parseUserSignature,
@@ -24,7 +25,7 @@ import {
 } from "Util/parse";
 import { formatDateTimeZ } from "Util/date";
 import { v4 as uuidv4 } from "uuid";
-import { GraphQLYogaError } from "Util/error";
+import { assert, GraphQLYogaError } from "Util/error";
 import { TChangeTransactionInput, TCredentialsInput } from "Types/schema";
 import { TNullable } from "Types";
 import { assertCredentials, assertRole, checkRole } from "Util/auth";
@@ -226,10 +227,7 @@ export async function changeCurrencies(
 ): Promise<IChangeTransactionDraftModel> {
     const date = formatDateTimeZ(new Date());
 
-    if (change.value <= 0)
-        throw new GraphQLYogaError("Values must not be negative", {
-            code: "BAD_USER_INPUT",
-        });
+    assert(change.value > 0, "Value must be positive", "BAD_USER_INPUT");
     const valueReal =
         change.action === "VIRTUAL_TO_REAL"
             ? config.currencyExchange.realPerVirtual * change.value
@@ -269,18 +267,20 @@ export async function payChangeTransaction(
     return knex.transaction(async (trx) => {
         const userSignature: IUserSignature = await (async () => {
             if (checkRole(session.userSignature, "BANK")) {
-                if (credentials === null)
-                    throw new GraphQLYogaError("Must specify user", {
-                        code: "BAD_USER_INPUT",
-                    });
+                assert(
+                    !isNull(credentials),
+                    "Must specify credentials",
+                    "BAD_USER_INPUT"
+                );
                 await assertCredentials(ctx, credentials);
                 return credentials;
             }
 
-            if (credentials !== null)
-                throw new GraphQLYogaError("Must not specify user", {
-                    code: "BAD_USER_INPUT",
-                });
+            assert(
+                isNull(credentials),
+                "Must not specify credentials",
+                "BAD_USER_INPUT"
+            );
             assertRole(session.userSignature, "USER");
             return session.userSignature;
         })();
@@ -289,19 +289,18 @@ export async function payChangeTransaction(
             .select("*")
             .where({ id })
             .first();
-        if (!draft)
-            throw new GraphQLYogaError(
-                `Change transaction with id ${id} not found`,
-                { code: "CHANGE_TRANSACTION_NOT_FOUND" }
-            );
-        if (draft.userSignature !== null)
-            throw new GraphQLYogaError(
-                `Change transaction with id ${id} already paid`,
-                { code: "CHANGE_TRANSACTION_ALREADY_PAID" }
-            );
-
+        assert(
+            !isUndefined(draft),
+            `Change transaction with id ${id} not found`,
+            "CHANGE_TRANSACTION_NOT_FOUND"
+        );
+        assert(
+            isNull(draft.userSignature),
+            `Change transaction with id ${id} already paid`,
+            "CHANGE_TRANSACTION_ALREADY_PAID"
+        );
         const cost =
-            draft.action === "REAL_TO_VIRTUAL"
+            draft.action === "VIRTUAL_TO_REAL"
                 ? draft.valueVirtual
                 : -draft.valueVirtual;
 
@@ -313,24 +312,24 @@ export async function payChangeTransaction(
                 "bankAccounts.id"
             )
             .where("companies.id", config.server.bankCompanyId);
+
         const updatedCompany = await trx("bankAccounts")
+            .decrement("balance", cost)
             .where("id", (await getUser(ctx, userSignature)).bankAccountId)
             .returning("balance");
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        if (updatedCompany[0]!.balance < 0)
-            throw new GraphQLYogaError("Not enough money to complete change.", {
-                code: "BALANCE_TOO_LOW",
-            });
+        assert(
+            updatedCompany[0]!.balance >= 0,
+            "Not enough money to complete change.",
+            "BALANCE_TOO_LOW"
+        );
 
-        const updatedTransaction = await trx("changeTransactions")
+        const [updatedTransaction] = await trx("changeTransactions")
             .update({
                 userSignature: stringifyUserSignature(userSignature),
             })
             .where({ id })
             .returning("*");
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const raw = updatedTransaction[0]!;
-        return { type: "CHANGE", ...raw, userSignature };
+        return { type: "CHANGE", ...updatedTransaction!, userSignature };
     });
 }
 
