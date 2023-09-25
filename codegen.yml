@@ -40,6 +40,7 @@ generates:
                 EmploymentOffer: ./models#IEmploymentOfferModel
                 TransferTransaction: ./models#ITransferTransactionModel
                 ChangeTransaction: ./models#IChangeTransactionModel
+                ChangeDraft: ./models#IChangeDraftModel
                 PurchaseTransaction: ./models#IPurchaseTransactionModel
                 PurchaseItem: ./models#IPurchaseItemModel
                 CustomsTransaction: ./models#ICustomsTransactionModel

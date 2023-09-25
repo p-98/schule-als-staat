@@ -41,10 +41,11 @@ import { EUserTypes, getUser } from "Modules/users";
 import {
     getTransactionsByUser,
     payBonus,
-    payChangeTransaction,
+    payChangeDraft,
     changeCurrencies,
     transferMoney,
     sell,
+    deleteChangeDraft,
 } from "Modules/bank";
 import { getCitizen } from "Modules/registryOffice";
 import {
@@ -189,6 +190,7 @@ const resolvers: TResolvers = {
     ChangeTransaction: {
         user: (parent, _, ctx) => getUser(ctx, parent.userSignature),
     },
+    ChangeDraft: {},
     PurchaseItem: {
         product: (parent, _, ctx) => getProduct(ctx, parent.productId),
     },
@@ -374,10 +376,15 @@ const resolvers: TResolvers = {
 
             return changeCurrencies(ctx, args.change);
         },
-        payChangeTransaction: async (_, args, ctx) => {
+        payChangeDraft: async (_, args, ctx) => {
             assertRole(ctx.session.userSignature, "USER");
 
-            return payChangeTransaction(ctx, args.credentials ?? null, args.id);
+            return payChangeDraft(ctx, args.credentials ?? null, args.id);
+        },
+        deleteChangeDraft: async (_, args, ctx) => {
+            assertRole(ctx.session.userSignature, "BANK");
+
+            return deleteChangeDraft(ctx, args.id);
         },
         transferMoney: async (_, args, ctx) => {
             assertRole(ctx.session.userSignature, "CITIZEN");

@@ -212,7 +212,7 @@ type ChangeTransaction implements Transaction {
     valueReal: Float!
 }
 " The draft of a change transaction "
-type ChangeTransactionDraft implements Transaction {
+type ChangeDraft implements Transaction {
     id: Int!
     date: DateTime!
     action: ChangeTransactionAction!
@@ -220,7 +220,7 @@ type ChangeTransactionDraft implements Transaction {
     valueReal: Float!
 }
 " Input type of a change transaction "
-input ChangeTransactionInput {
+input ChangeInput {
     action: ChangeTransactionAction!
     " value in the currency from which is changed "
     value: Float!
@@ -443,13 +443,11 @@ type Mutation {
 
     payBonus(value: Float!, employmentIds: [Int!]!): [SalaryTransaction!]!
         @auth(role: [COMPANY])
-    changeCurrencies(change: ChangeTransactionInput!): ChangeTransactionDraft!
-        @auth(role: [BANK])
+    changeCurrencies(change: ChangeInput!): ChangeDraft! @auth(role: [BANK])
     " Pay a change transaction draft. Only bank must specify explicit user. "
-    payChangeTransaction(
-        id: Int!
-        credentials: CredentialsInput
-    ): ChangeTransaction! @auth(role: [USER])
+    payChangeDraft(id: Int!, credentials: CredentialsInput): ChangeTransaction!
+        @auth(role: [USER])
+    deleteChangeDraft(id: Int!): Void @auth(role: [BANK])
     transferMoney(transfer: TransferTransactionInput!): TransferTransaction!
         @auth(role: [CITIZEN])
     sell(

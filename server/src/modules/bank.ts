@@ -1,5 +1,5 @@
 import type {
-    IChangeTransactionDraftModel,
+    IChangeDraftModel,
     IChangeTransactionModel,
     ICustomsTransactionModel,
     IPurchaseTransactionModel,
@@ -26,7 +26,7 @@ import {
 import { formatDateTimeZ } from "Util/date";
 import { v4 as uuidv4 } from "uuid";
 import { assert, GraphQLYogaError } from "Util/error";
-import { TChangeTransactionInput, TCredentialsInput } from "Types/schema";
+import { TChangeInput, TCredentialsInput } from "Types/schema";
 import { TNullable } from "Types";
 import { assertCredentials, assertRole, checkRole } from "Util/auth";
 import { getUser } from "./users";
@@ -223,8 +223,8 @@ export async function payBonus(
 
 export async function changeCurrencies(
     { knex, config }: IAppContext,
-    change: TChangeTransactionInput
-): Promise<IChangeTransactionDraftModel> {
+    change: TChangeInput
+): Promise<IChangeDraftModel> {
     const date = formatDateTimeZ(new Date());
 
     assert(change.value > 0, "Value must be positive", "BAD_USER_INPUT");
@@ -258,7 +258,7 @@ export async function changeCurrencies(
  * A company specifying no explicit user
  * The bank specifiying an explicit user
  */
-export async function payChangeTransaction(
+export async function payChangeDraft(
     ctx: IAppContext,
     credentials: TNullable<TCredentialsInput>,
     id: number
@@ -331,6 +331,32 @@ export async function payChangeTransaction(
             .returning("*");
         return { type: "CHANGE", ...updatedTransaction!, userSignature };
     });
+}
+/** Delete a change transaction draft
+ *
+ * Authorized calls: The bank.
+ */
+export async function deleteChangeDraft(
+    { knex, session }: IAppContext,
+    id: number
+): Promise<void> {
+    assertRole(session.userSignature, "BANK");
+    const draft = await knex("changeTransactions")
+        .select("*")
+        .where({ id })
+        .first();
+    assert(
+        !isUndefined(draft),
+        `Change transaction with id ${id} not found.`,
+        "CHANGE_TRANSACTION_NOT_FOUND"
+    );
+    assert(
+        isNull(draft.userSignature),
+        `Change transaction with id ${id} already paid`,
+        "CHANGE_TRANSACTION_ALREADY_PAID"
+    );
+
+    await knex("changeTransactions").delete().where({ id });
 }
 
 export async function transferMoney(

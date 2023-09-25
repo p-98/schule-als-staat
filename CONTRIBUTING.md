@@ -44,3 +44,10 @@ Example of a user signature: `{type: "COMPANY", id: "..."}`
 Usage of patch-package:
 
 -   @graphql-tools/executor-http and @graphql-tools/utils reflecting changes found in fork https://github.com/p-98/graphql-tools
+
+# Server design
+
+-   order of guards:
+    1. Input validation
+    2. Authorization
+    3. State validation (after authorization to prevent leaking of sensitive information)
