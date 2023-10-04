@@ -20,7 +20,7 @@ import type { Knex } from "Database";
 import type { IAppContext, TYogaServerInstance } from "Server";
 import type { IUserSignature } from "Types/models";
 
-import { assert } from "chai";
+import { assert, AssertionError } from "chai";
 import {
     mapValues,
     set,
@@ -42,6 +42,7 @@ import bcrypt from "bcrypt";
 import config from "Config";
 import { formatDateTimeZ } from "Util/date";
 import { graphql } from "__test__/graphql";
+import { UnPromise } from "Util/misc";
 
 /* Seeding helper functions for unit testing
  */
@@ -146,6 +147,23 @@ export function assertSingleError<TExtensions, TData>(
     );
 }
 
+export const assertInvalid = (
+    actual: UnPromise<ReturnType<TUserExecutor>>,
+    code: string
+): void => {
+    assertSingleValue(actual);
+    assertSingleError(actual);
+    try {
+        assert.property(actual.errors[0], "extensions");
+        assert.strictEqual(actual.errors[0].extensions.code, code);
+    } catch (err) {
+        if (!(err instanceof AssertionError)) throw err;
+        console.error(actual.errors[0]);
+        // eslint-disable-next-line @typescript-eslint/no-throw-literal
+        throw err;
+    }
+};
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export function buildHTTPCookieExecutor(
     buildOptions?: Omit<HTTPExecutorOptions, "fetch"> & {
@@ -221,7 +239,7 @@ export type TYogaExecutor = AsyncExecutor<
     ExecutionResultAdditions
 >;
 export interface ICredentials extends IUserSignature {
-    password: string;
+    password: undefined | string;
 }
 type SomePartial<T extends Record<K, unknown>, K extends keyof T> = Omit<T, K> &
     Partial<Pick<T, K>>;
@@ -241,7 +259,7 @@ export async function buildHTTPUserExecutor(
     const credentials: ICredentials = {
         type,
         id: id ?? `${type.toLowerCase()}IdOfUser${userNum}`,
-        password: userPassword,
+        password: type === "GUEST" ? undefined : userPassword,
     };
     const bankAccountId = `bankAccountIdForUser${userNum}`;
 
@@ -249,7 +267,7 @@ export async function buildHTTPUserExecutor(
         bankAccount: async (seedKnex) => {
             await seedKnex("bankAccounts").insert({
                 id: bankAccountId,
-                balance: 1.0,
+                balance: 10.0,
                 redemptionBalance: 0.0,
             });
         },
@@ -303,3 +321,4 @@ export async function buildHTTPUserExecutor(
 
     return Object.assign(executor, credentials);
 }
+export type TUserExecutor = UnPromise<ReturnType<typeof buildHTTPUserExecutor>>;

@@ -16,6 +16,7 @@ generates:
                 File: "@whatwg-node/fetch#File"
             strictScalars: true
             useTypeImports: true
+            skipTypename: true
             arrayInputCoercion: false
             enumsAsTypes: true
     ./server/src/types/schema.ts:

@@ -272,7 +272,7 @@ export async function payChangeDraft(
                     "Must specify credentials",
                     "BAD_USER_INPUT"
                 );
-                await assertCredentials(ctx, credentials);
+                await assertCredentials({ ...ctx, knex: trx }, credentials);
                 return credentials;
             }
 
@@ -299,26 +299,29 @@ export async function payChangeDraft(
             `Change transaction with id ${id} already paid`,
             "CHANGE_TRANSACTION_ALREADY_PAID"
         );
+
         const cost =
             draft.action === "VIRTUAL_TO_REAL"
                 ? draft.valueVirtual
                 : -draft.valueVirtual;
 
-        await trx("bankAccounts")
-            .increment("bankAccounts.balance", cost)
-            .innerJoin(
-                "companies",
-                "companies.bankAccountId",
-                "bankAccounts.id"
-            )
-            .where("companies.id", config.server.bankCompanyId);
+        await trx.raw(
+            `
+            UPDATE bankAccounts
+            SET balance = balance + :cost
+            FROM companies
+            WHERE companies.bankAccountId = bankAccounts.id AND companies.id = :bankCompanyId
+        `,
+            { cost, bankCompanyId: config.server.bankCompanyId }
+        );
 
-        const updatedCompany = await trx("bankAccounts")
+        const user = await getUser({ ...ctx, knex: trx }, userSignature);
+        const updatedUser = await trx("bankAccounts")
             .decrement("balance", cost)
-            .where("id", (await getUser(ctx, userSignature)).bankAccountId)
+            .where("id", user.bankAccountId)
             .returning("balance");
         assert(
-            updatedCompany[0]!.balance >= 0,
+            updatedUser[0]!.balance >= 0,
             "Not enough money to complete change.",
             "BALANCE_TOO_LOW"
         );

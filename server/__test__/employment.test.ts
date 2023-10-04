@@ -5,14 +5,14 @@ import {
     assertNoErrors,
     assertSingleValue,
     buildHTTPUserExecutor,
-    assertSingleError,
+    assertInvalid,
+    type TUserExecutor,
 } from "Util/test";
 
 import { omit } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance, yogaFactory } from "Server";
 import { type Knex, emptyKnex } from "Database";
-import { type UnPromise } from "Util/misc";
 import { graphql } from "./graphql";
 
 graphql(/* GraphQL */ `
@@ -127,7 +127,6 @@ const minWorktime = 3600;
 const salary = 1.0;
 let knex: Knex;
 let yoga: TYogaServerInstance;
-type TUserExecutor = UnPromise<ReturnType<typeof buildHTTPUserExecutor>>;
 let citizen: TUserExecutor;
 let company: TUserExecutor;
 let citizenWithIdOfCompany: TUserExecutor;
@@ -175,14 +174,6 @@ const assertCitizenAndCompanyStates =
             companyMessage
         );
     };
-const assertInvalid = (
-    actual: UnPromise<ReturnType<TUserExecutor>>,
-    code: string
-) => {
-    assertSingleValue(actual);
-    assertSingleError(actual);
-    assert.strictEqual(actual.errors[0].extensions.code, code);
-};
 
 const testCreateOffer = async (): Promise<IEmploymentOffer> => {
     await assertCitizenAndCompanyStates(
