@@ -112,6 +112,10 @@ export enum ETransactionTypes {
     CUSTOMS = "CustomsTransaction",
     SALARY = "SalaryTransaction",
 }
+// maps the TransactionType enum to the draft object type names
+export enum EDraftTypes {
+    CHANGE = "ChangeDraft",
+}
 
 interface ITransactionBaseModel {
     type: TTransactionType;
@@ -170,6 +174,7 @@ export type TTransactionModel =
     | IPurchaseTransactionModel
     | ICustomsTransactionModel
     | ISalaryTransactionModel;
+export type TDraftModel = IChangeDraftModel;
 
 export interface IBorderCrossingModel {
     citizenId: string;

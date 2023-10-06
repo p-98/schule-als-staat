@@ -45,10 +45,15 @@ const balanceAndChangeTransactionsQuery = graphql(/* GraphQL */ `
         me {
             balance
             transactions {
-                __typename
-                id
                 ... on ChangeTransaction {
                     ...All_ChangeTransactionFragment
+                }
+            }
+            ... on CompanyUser {
+                drafts {
+                    ... on ChangeDraft {
+                        ...All_ChangeDraftFragment
+                    }
                 }
             }
         }
@@ -165,7 +170,11 @@ const assertBankAndUserStates =
             assertNoErrors(inactiveResult);
             assert.deepStrictEqual(
                 inactiveResult.data.me,
-                { balance: 10.0, transactions: [] },
+                {
+                    balance: 10.0,
+                    transactions: [],
+                    ...(inactiveUser.type === "COMPANY" && { drafts: [] }),
+                },
                 "Unused user should have untouched state"
             );
         });
@@ -178,7 +187,7 @@ const testChangeCurrencies = async (
     const input = { action, value };
 
     await assertBankAndUserStates(
-        { balance: 10.0, transactions: [] },
+        { balance: 10.0, transactions: [], drafts: [] },
         "Initially nothing should be changed"
     )(undefined);
 
@@ -224,8 +233,8 @@ const testChangeCurrencies = async (
     assert.isAtMost(new Date(draft.date).getTime(), after.getTime());
 
     await assertBankAndUserStates(
-        { balance: 10.0, transactions: [] },
-        "After draft creation nothing should be changed"
+        { balance: 10.0, transactions: [], drafts: [draft] },
+        "After draft creation draft should be present"
     )(undefined);
 
     return draft;
@@ -285,7 +294,8 @@ const testPayDraft = async (
                 draft.action === "REAL_TO_VIRTUAL"
                     ? 10.0 - 2 * config.currencyExchange.virtualPerReal
                     : 10.0 + 2,
-            transactions: [{ __typename: "ChangeTransaction", ...transaction }],
+            transactions: [transaction],
+            drafts: [],
         },
         "After payment transaction should be registered"
     )(
@@ -295,7 +305,8 @@ const testPayDraft = async (
                 draft.action === "REAL_TO_VIRTUAL"
                     ? 10.0 + 2 * config.currencyExchange.virtualPerReal
                     : 10.0 - 2,
-            transactions: [{ __typename: "ChangeTransaction", ...transaction }],
+            transactions: [transaction],
+            ...(user.type === "COMPANY" && { drafts: [] }),
         },
         "After payment transaction should be registered"
     );
@@ -348,7 +359,7 @@ const testDeleteDraft = async (draft: IChangeDraft) => {
     assert.strictEqual(deleteDraft.data.deleteChangeDraft, null);
 
     await assertBankAndUserStates(
-        { balance: 10.0, transactions: [] },
+        { balance: 10.0, transactions: [], drafts: [] },
         "After draft deletion nothing should be changed"
     )(undefined);
 

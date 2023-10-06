@@ -6,6 +6,7 @@ import type {
     ISalaryTransactionModel,
     ITransferTransactionModel,
     IUserSignature,
+    TDraftModel,
     TTransactionModel,
     TUserModel,
 } from "Types/models";
@@ -147,6 +148,38 @@ export async function getTransactionsByUser(
         getCustomsTransactions(ctx, user),
         getSalaryTransactions(ctx, user),
     ]);
+
+    // sort by ascending date
+    return (await query).flat().sort(({ date: date1 }, { date: date2 }) => {
+        if (date1 < date2) return -1;
+        if (date1 > date2) return 1;
+        return 0;
+    });
+}
+
+export async function getChangeDrafts(
+    { knex }: IAppContext,
+    companyId: string
+): Promise<IChangeDraftModel[]> {
+    const user: IUserSignature = { type: "COMPANY", id: companyId };
+
+    if (!checkRole(user, "BANK")) return [];
+
+    const result = await knex("changeTransactions")
+        .select("*")
+        .whereNull("userSignature");
+
+    return result.map((raw) => ({
+        type: "CHANGE",
+        ...raw,
+    }));
+}
+
+export async function getDraftsByUser(
+    ctx: IAppContext,
+    companyId: string
+): Promise<TDraftModel[]> {
+    const query = Promise.all([getChangeDrafts(ctx, companyId)]);
 
     // sort by ascending date
     return (await query).flat().sort(({ date: date1 }, { date: date2 }) => {

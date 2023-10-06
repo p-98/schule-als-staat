@@ -129,6 +129,7 @@ type CompanyUser implements User {
     " amount of virtual money that can be changed back to real money "
     redemptionBalance: Float!
     transactions: [Transaction!]!
+    drafts: [Draft!]!
     name: String!
     image: String!
     products: [Product!]!
@@ -193,6 +194,11 @@ interface Transaction {
     id: Int!
     date: DateTime!
 }
+" Base type for transaction drafts "
+interface Draft {
+    id: Int!
+    date: DateTime!
+}
 " A transfer transaction "
 type TransferTransaction implements Transaction {
     id: Int!
@@ -212,7 +218,7 @@ type ChangeTransaction implements Transaction {
     valueReal: Float!
 }
 " The draft of a change transaction "
-type ChangeDraft {
+type ChangeDraft implements Draft {
     id: Int!
     date: DateTime!
     action: ChangeTransactionAction!

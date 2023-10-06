@@ -158,6 +158,7 @@ export const assertInvalid = (
         assert.strictEqual(actual.errors[0].extensions.code, code);
     } catch (err) {
         if (!(err instanceof AssertionError)) throw err;
+        // eslint-disable-next-line no-console
         console.error(actual.errors[0]);
         // eslint-disable-next-line @typescript-eslint/no-throw-literal
         throw err;

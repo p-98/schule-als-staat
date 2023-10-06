@@ -46,6 +46,7 @@ import {
     transferMoney,
     sell,
     deleteChangeDraft,
+    getDraftsByUser,
 } from "Modules/bank";
 import { getCitizen } from "Modules/registryOffice";
 import {
@@ -86,7 +87,7 @@ import { fileToBase64 } from "Util/parse";
 import { assertRole, checkRole } from "Util/auth";
 import { formatDateZ } from "Util/date";
 import { GraphQLYogaError } from "Util/error";
-import { EUserTypes, ETransactionTypes } from "Types/models";
+import { EUserTypes, ETransactionTypes, EDraftTypes } from "Types/models";
 import config from "Config";
 
 import * as typeDefs from "./schema.graphql";
@@ -159,6 +160,7 @@ const resolvers: TResolvers = {
     },
     CompanyUser: {
         transactions: (parent, _, ctx) => getTransactionsByUser(ctx, parent),
+        drafts: (parent, _, ctx) => getDraftsByUser(ctx, parent.id),
         products: (parent, _, ctx) => getProducts(ctx, parent.id),
         employer: (parent, _, ctx) => getEmployer(ctx, parent.id),
         employees: (parent, _, ctx) => getEmployments(ctx, parent),
@@ -190,6 +192,9 @@ const resolvers: TResolvers = {
 
     Transaction: {
         __resolveType: (parent) => ETransactionTypes[parent.type],
+    },
+    Draft: {
+        __resolveType: (parent) => EDraftTypes[parent.type],
     },
     TransferTransaction: {
         sender: (parent, _, ctx) => getUser(ctx, parent.senderUserSignature),
