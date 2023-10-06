@@ -37,7 +37,7 @@ import {
     addBook,
 } from "Modules/library";
 import { checkPassword, login, logout } from "Modules/sessions";
-import { EUserTypes, getUser } from "Modules/users";
+import { getUser } from "Modules/users";
 import {
     getTransactionsByUser,
     payBonus,
@@ -86,6 +86,7 @@ import { fileToBase64 } from "Util/parse";
 import { assertRole, checkRole } from "Util/auth";
 import { formatDateZ } from "Util/date";
 import { GraphQLYogaError } from "Util/error";
+import { EUserTypes, ETransactionTypes } from "Types/models";
 import config from "Config";
 
 import * as typeDefs from "./schema.graphql";
@@ -146,13 +147,18 @@ const resolvers: TResolvers = {
         __resolveType: (parent) => EUserTypes[parent.type],
         transactions: (parent, _, ctx) => getTransactionsByUser(ctx, parent),
     },
+    GuestUser: {
+        transactions: (parent, _, ctx) => getTransactionsByUser(ctx, parent),
+    },
     CitizenUser: {
+        transactions: (parent, _, ctx) => getTransactionsByUser(ctx, parent),
         employment: async (parent, _, ctx) =>
             (await getEmployments(ctx, parent))[0],
         employmentOffers: async (parent, args, ctx) =>
             getEmploymentOffers(ctx, parent, args.state),
     },
     CompanyUser: {
+        transactions: (parent, _, ctx) => getTransactionsByUser(ctx, parent),
         products: (parent, _, ctx) => getProducts(ctx, parent.id),
         employer: (parent, _, ctx) => getEmployer(ctx, parent.id),
         employees: (parent, _, ctx) => getEmployments(ctx, parent),
@@ -182,6 +188,9 @@ const resolvers: TResolvers = {
         citizen: (parent, _, ctx) => getCitizen(ctx, parent.citizenId),
     },
 
+    Transaction: {
+        __resolveType: (parent) => ETransactionTypes[parent.type],
+    },
     TransferTransaction: {
         sender: (parent, _, ctx) => getUser(ctx, parent.senderUserSignature),
         receiver: (parent, _, ctx) =>

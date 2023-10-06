@@ -18,6 +18,12 @@ export interface ISessionModel {
 }
 
 export type TUserType = "COMPANY" | "CITIZEN" | "GUEST";
+// maps the UserType enum to the object type names
+export enum EUserTypes {
+    GUEST = "GuestUser",
+    CITIZEN = "CitizenUser",
+    COMPANY = "CompanyUser",
+}
 export interface IUserSignature {
     type: TUserType;
     id: string;
@@ -98,6 +104,14 @@ export type TTransactionType =
     | "PURCHASE"
     | "CUSTOMS"
     | "SALARY";
+// maps the TransactionType enum to the object type names
+export enum ETransactionTypes {
+    TRANSFER = "TransferTransaction",
+    CHANGE = "ChangeTransaction",
+    PURCHASE = "PurchaseTransaction",
+    CUSTOMS = "CustomsTransaction",
+    SALARY = "SalaryTransaction",
+}
 
 interface ITransactionBaseModel {
     type: TTransactionType;

@@ -59,7 +59,12 @@ async function getChangeTransactions(
     const query = knex("changeTransactions")
         .select("*")
         .whereNotNull("userSignature")
-        .andWhere({ userSignature: signatureString });
+        .andWhere(
+            (builder) =>
+                !checkRole(user, "BANK") &&
+                // eslint-disable-next-line no-void
+                void builder.where({ userSignature: signatureString })
+        );
 
     return (await query).map((raw) => ({
         type: "CHANGE",

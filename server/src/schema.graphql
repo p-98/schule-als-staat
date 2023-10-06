@@ -212,7 +212,7 @@ type ChangeTransaction implements Transaction {
     valueReal: Float!
 }
 " The draft of a change transaction "
-type ChangeDraft implements Transaction {
+type ChangeDraft {
     id: Int!
     date: DateTime!
     action: ChangeTransactionAction!

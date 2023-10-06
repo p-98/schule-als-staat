@@ -11,13 +11,6 @@ import { getGuest } from "Modules/foreignOffice";
 import { getCitizen } from "Modules/registryOffice";
 import { getCompany } from "Modules/tradeRegistry";
 
-// maps the UserType enum to the object type names
-export enum EUserTypes {
-    GUEST = "GuestUser",
-    CITIZEN = "CitizenUser",
-    COMPANY = "CompanyUser",
-}
-
 export async function getUser(
     ctx: IAppContext,
     user: IUserSignature & { type: "GUEST" }

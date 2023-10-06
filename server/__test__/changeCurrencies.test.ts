@@ -40,6 +40,20 @@ graphql(/* GraphQL */ `
     }
 `);
 
+const balanceAndChangeTransactionsQuery = graphql(/* GraphQL */ `
+    query BalanceAndChangeTransactions {
+        me {
+            balance
+            transactions {
+                __typename
+                id
+                ... on ChangeTransaction {
+                    ...All_ChangeTransactionFragment
+                }
+            }
+        }
+    }
+`);
 const changeCurrenciesMutation = graphql(/* GraphQL */ `
     mutation ChangeCurrencies(
         $action: ChangeTransactionAction!
@@ -99,6 +113,7 @@ afterEach(async () => {
 type IChangeDraft = ResultOf<
     typeof changeCurrenciesMutation
 >["changeCurrencies"];
+type IState = ResultOf<typeof balanceAndChangeTransactionsQuery>["me"];
 
 // Map user types to their graphql type
 const typename = {
@@ -113,11 +128,59 @@ function forEachUserType<T>(
     return Promise.all([citizen, company, guest].map(fn));
 }
 
+const assertBankAndUserStates =
+    (bankExpected: IState, bankMessage?: string) =>
+    async (
+        activeUser?: TUserExecutor,
+        userExpected?: IState,
+        userMessage?: string
+    ) => {
+        const bankResult = await bank({
+            document: balanceAndChangeTransactionsQuery,
+        });
+        assertSingleValue(bankResult);
+        assertNoErrors(bankResult);
+        assert.deepStrictEqual(bankResult.data.me, bankExpected, bankMessage);
+
+        if (activeUser && userExpected) {
+            const activeResult = await activeUser({
+                document: balanceAndChangeTransactionsQuery,
+            });
+            assertSingleValue(activeResult);
+            assertNoErrors(activeResult);
+            assert.deepStrictEqual(
+                activeResult.data.me,
+                userExpected,
+                userMessage
+            );
+        }
+
+        await forEachUserType(async (inactiveUser) => {
+            if (inactiveUser === activeUser) return;
+
+            const inactiveResult = await inactiveUser({
+                document: balanceAndChangeTransactionsQuery,
+            });
+            assertSingleValue(inactiveResult);
+            assertNoErrors(inactiveResult);
+            assert.deepStrictEqual(
+                inactiveResult.data.me,
+                { balance: 10.0, transactions: [] },
+                "Unused user should have untouched state"
+            );
+        });
+    };
+
 const testChangeCurrencies = async (
     action: TChangeTransactionAction
 ): Promise<IChangeDraft> => {
     const value = 2.0;
     const input = { action, value };
+
+    await assertBankAndUserStates(
+        { balance: 10.0, transactions: [] },
+        "Initially nothing should be changed"
+    )(undefined);
 
     // invalid requests
     const invalidValue = await bank({
@@ -159,6 +222,11 @@ const testChangeCurrencies = async (
     });
     assert.isAtLeast(new Date(draft.date).getTime(), before.getTime());
     assert.isAtMost(new Date(draft.date).getTime(), after.getTime());
+
+    await assertBankAndUserStates(
+        { balance: 10.0, transactions: [] },
+        "After draft creation nothing should be changed"
+    )(undefined);
 
     return draft;
 };
@@ -211,6 +279,27 @@ const testPayDraft = async (
         user: { __typename: typename[user.type], id: user.id },
     });
 
+    await assertBankAndUserStates(
+        {
+            balance:
+                draft.action === "REAL_TO_VIRTUAL"
+                    ? 10.0 - 2 * config.currencyExchange.virtualPerReal
+                    : 10.0 + 2,
+            transactions: [{ __typename: "ChangeTransaction", ...transaction }],
+        },
+        "After payment transaction should be registered"
+    )(
+        user,
+        {
+            balance:
+                draft.action === "REAL_TO_VIRTUAL"
+                    ? 10.0 + 2 * config.currencyExchange.virtualPerReal
+                    : 10.0 - 2,
+            transactions: [{ __typename: "ChangeTransaction", ...transaction }],
+        },
+        "After payment transaction should be registered"
+    );
+
     // invalid when paid
     const deleteDraft = await bank({
         document: deleteDraftMutation,
@@ -257,6 +346,11 @@ const testDeleteDraft = async (draft: IChangeDraft) => {
     assertSingleValue(deleteDraft);
     assertNoErrors(deleteDraft);
     assert.strictEqual(deleteDraft.data.deleteChangeDraft, null);
+
+    await assertBankAndUserStates(
+        { balance: 10.0, transactions: [] },
+        "After draft deletion nothing should be changed"
+    )(undefined);
 
     // invalid when deleted
     const deleteAgain = await bank({
