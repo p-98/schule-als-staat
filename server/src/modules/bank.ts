@@ -104,9 +104,9 @@ async function getCustomsTransactions(
 ): Promise<ICustomsTransactionModel[]> {
     const signatureString = stringifyUserSignature(user);
 
-    const query = knex("customsTransactions")
-        .select("*")
-        .where({ userSignature: signatureString });
+    const query = checkRole(user, "BORDER_CONTROL")
+        ? knex("customsTransactions")
+        : knex("customsTransactions").where({ userSignature: signatureString });
 
     return (await query).map((raw) => ({
         type: "CUSTOMS",

@@ -14,6 +14,7 @@ import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance, yogaFactory } from "Server";
 import { type Knex, emptyKnex } from "Database";
 import type { TChangeTransactionAction } from "Types/schema";
+import { EUserTypes } from "Types/models";
 import config from "Config";
 import { graphql } from "./graphql";
 
@@ -119,13 +120,6 @@ type IChangeDraft = ResultOf<
     typeof changeCurrenciesMutation
 >["changeCurrencies"];
 type IState = ResultOf<typeof balanceAndChangeTransactionsQuery>["me"];
-
-// Map user types to their graphql type
-const typename = {
-    CITIZEN: "CitizenUser",
-    COMPANY: "CompanyUser",
-    GUEST: "GuestUser",
-} as const;
 
 function forEachUserType<T>(
     fn: (user: TUserExecutor) => Promise<T>
@@ -248,7 +242,7 @@ const testPayDraft = async (
     // invalid requests
     const invalidIdBank = await bank({
         document: payDraftBankMutation,
-        variables: { id: 404, credentials: { ...user } },
+        variables: { id: 404, credentials: user.credentials },
     });
     assertInvalid(invalidIdBank, "CHANGE_TRANSACTION_NOT_FOUND");
     const missingCredentials = await bank({
@@ -265,7 +259,7 @@ const testPayDraft = async (
         assertInvalid(invalidIdUser, "CHANGE_TRANSACTION_NOT_FOUND");
         const addedCredentials = await _user({
             document: payDraftBankMutation,
-            variables: { id: draft.id, credentials: { ..._user } },
+            variables: { id: draft.id, credentials: user.credentials },
         });
         assertInvalid(addedCredentials, "BAD_USER_INPUT");
     });
@@ -274,7 +268,7 @@ const testPayDraft = async (
     const payDraft = useBank
         ? await bank({
               document: payDraftBankMutation,
-              variables: { id: draft.id, credentials: { ...user } },
+              variables: { id: draft.id, credentials: user.credentials },
           })
         : await user({
               document: payDraftUserMutation,
@@ -285,7 +279,7 @@ const testPayDraft = async (
     const transaction = payDraft.data.payChangeDraft;
     assert.deepStrictEqual(transaction, {
         ...draft,
-        user: { __typename: typename[user.type], id: user.id },
+        user: { __typename: EUserTypes[user.type], id: user.id },
     });
 
     await assertBankAndUserStates(
@@ -320,7 +314,7 @@ const testPayDraft = async (
     await forEachUserType(async (_user) => {
         const payDraftBank = await bank({
             document: payDraftBankMutation,
-            variables: { id: draft.id, credentials: { ..._user } },
+            variables: { id: draft.id, credentials: user.credentials },
         });
         assertInvalid(payDraftBank, "CHANGE_TRANSACTION_ALREADY_PAID");
         const payDraftUser = await _user({
@@ -372,7 +366,7 @@ const testDeleteDraft = async (draft: IChangeDraft) => {
     await forEachUserType(async (_user) => {
         const payDraftBank = await bank({
             document: payDraftBankMutation,
-            variables: { id: draft.id, credentials: { ..._user } },
+            variables: { id: draft.id, credentials: _user.credentials },
         });
         assertInvalid(payDraftBank, "CHANGE_TRANSACTION_NOT_FOUND");
         const payDraftUser = await _user({

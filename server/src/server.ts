@@ -449,11 +449,8 @@ const resolvers: TResolvers = {
                 null
             );
         },
-        chargeCustoms: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "BORDER_CONTROL");
-
-            return chargeCustoms(ctx, args.customs.user, args.customs.value);
-        },
+        chargeCustoms: (_, args, ctx) =>
+            chargeCustoms(ctx, args.customs.user, args.customs.customs),
 
         registerBorderCrossing: async (_, args, ctx) => {
             assertRole(ctx.session.userSignature, "BORDER_CONTROL");

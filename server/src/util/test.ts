@@ -32,6 +32,7 @@ import {
     pipe,
     map,
     join,
+    pick,
 } from "lodash/fp";
 import { buildHTTPExecutor } from "@graphql-tools/executor-http";
 import { parse as parseSetCookie } from "set-cookie-parser";
@@ -253,7 +254,10 @@ export async function buildHTTPUserExecutor(
     knex: Knex,
     yoga: TYogaServerInstance,
     { type, id }: SomePartial<IUserSignature, "id">
-): Promise<TYogaExecutor & ICredentials> {
+): Promise<
+    TYogaExecutor &
+        ICredentials & { credentials: ICredentials; signature: IUserSignature }
+> {
     usersCreated += 1;
     const userNum = usersCreated;
 
@@ -320,6 +324,9 @@ export async function buildHTTPUserExecutor(
     assertSingleValue(login);
     assertNoErrors(login);
 
-    return Object.assign(executor, credentials);
+    return Object.assign(executor, credentials, {
+        signature: pick(["type", "id"], credentials),
+        credentials,
+    });
 }
 export type TUserExecutor = UnPromise<ReturnType<typeof buildHTTPUserExecutor>>;

@@ -1,70 +1,61 @@
 import type { IAppContext } from "Server";
 
-import { GraphQLYogaError } from "Util/error";
-import {
-    EUserTypeTableMap,
-    parseUserSignature,
-    stringifyUserSignature,
-} from "Util/parse";
+import { assert } from "Util/error";
+import { parseUserSignature, stringifyUserSignature } from "Util/parse";
 import { formatDateTimeZ } from "Util/date";
-import type { IStay, ICustomsTransaction } from "Types/knex";
+import type { IStay } from "Types/knex";
 import type {
     IBorderCrossingModel,
     ICustomsTransactionModel,
     IUserSignature,
 } from "Types/models";
+import { assertRole } from "Util/auth";
+import { getUser } from "Modules/users";
 
 export async function chargeCustoms(
-    { knex, config }: IAppContext,
+    ctx: IAppContext,
     user: IUserSignature,
     customs: number
 ): Promise<ICustomsTransactionModel> {
-    if (customs <= 0)
-        throw new GraphQLYogaError("Value must be greater than 0.", {
-            code: "BAD_USER_INPUT",
-        });
+    const { knex, config, session } = ctx;
+    assertRole(session.userSignature, "BORDER_CONTROL");
+    assert(customs > 0, "Customs must be positive", "BAD_USER_INPUT");
 
     const date = formatDateTimeZ(new Date());
     return knex.transaction(async (trx) => {
-        // use knex.raw because knex doesn't support returning on sqlite
-        const customerTable = EUserTypeTableMap[user.type];
-        const [userResult] = (await trx.raw(
-            `UPDATE bankAccounts
-            SET balance = balance - :customs
-            WHERE (
-                SELECT bankAccountId FROM ${customerTable} WHERE id = :customerId
-            )
-            RETURNING balance`,
-            { customs, customerId: user.id }
-        )) as { balance: number }[];
-        if (!userResult)
-            throw new GraphQLYogaError(
-                `User with signature ${stringifyUserSignature(user)} not found`,
-                { code: "USER_NOT_FOUND" }
-            );
-        if (userResult.balance < 0)
-            throw new GraphQLYogaError(
-                `Not enough money to complete bonus payment`,
-                { code: "BALANCE_TOO_LOW" }
-            );
+        const userModel = await getUser({ ...ctx, knex: trx }, user);
+        const updatedUser = await trx("bankAccounts")
+            .decrement("balance", customs)
+            .where("id", userModel.bankAccountId)
+            .returning("balance");
+        assert(
+            updatedUser[0]!.balance >= 0,
+            "User has not enough money to complete charge",
+            "BALANCE_TOO_LOW"
+        );
 
-        await trx("bankAccounts")
-            .increment("balance", customs)
-            .where("id", config.server.stateBankAccountId);
+        await trx.raw(
+            `
+            update bankAccounts
+            set balance = balance + :customs
+            from companies
+            where companies.bankAccountId = bankAccounts.id
+                  and companies.id = :companyId
+        `,
+            { customs, companyId: config.server.borderControlCompanyId }
+        );
 
-        await trx("customsTransactions").insert({
-            date,
-            userSignature: stringifyUserSignature(user),
-            customs,
-        });
-        const raw = (await trx("customsTransactions")
-            .select("*")
-            .where("id", knex.raw("last_insert_rowid()"))
-            .first()) as ICustomsTransaction;
+        const [raw] = await trx("customsTransactions")
+            .insert({
+                date,
+                userSignature: stringifyUserSignature(user),
+                customs,
+            })
+            .returning("*");
         return {
             type: "CUSTOMS",
-            ...raw,
-            userSignature: parseUserSignature(raw.userSignature),
+            ...raw!,
+            userSignature: parseUserSignature(raw!.userSignature),
         };
     });
 }

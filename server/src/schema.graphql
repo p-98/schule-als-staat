@@ -255,6 +255,11 @@ type CustomsTransaction implements Transaction {
     user: User!
     customs: Float!
 }
+" Input type for customs transaction "
+input CustomsInput {
+    user: UserSignatureInput!
+    customs: Float!
+}
 " A salary transaction "
 type SalaryTransaction implements Transaction {
     id: Int!
@@ -379,11 +384,6 @@ input PurchaseTransactionInput {
 input WarehousePurchaseTransactionInput {
     items: [PurchaseItemInput!]!
 }
-" Input for chargeCustoms mutation "
-input CustomsTransactionInput {
-    user: UserSignatureInput!
-    value: Float!
-}
 
 " Input for createGuest mutation "
 input CreateGuestInput {
@@ -463,7 +463,7 @@ type Mutation {
     warehousePurchase(
         purchase: WarehousePurchaseTransactionInput!
     ): PurchaseTransaction! @auth(role: [COMPANY])
-    chargeCustoms(customs: CustomsTransactionInput!): CustomsTransaction!
+    chargeCustoms(customs: CustomsInput!): CustomsTransaction!
         @auth(role: [BORDER_CONTROL])
 
     registerBorderCrossing(citizenId: ID!): BorderCrossing!
