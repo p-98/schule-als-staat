@@ -43,6 +43,7 @@ generates:
                 ChangeTransaction: ./models#IChangeTransactionModel
                 ChangeDraft: ./models#IChangeDraftModel
                 PurchaseTransaction: ./models#IPurchaseTransactionModel
+                PurchaseDraft: ./models#IPurchaseDraftModel
                 PurchaseItem: ./models#IPurchaseItemModel
                 CustomsTransaction: ./models#ICustomsTransactionModel
                 SalaryTransaction: ./models#ISalaryTransactionModel

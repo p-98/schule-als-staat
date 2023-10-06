@@ -115,6 +115,7 @@ export enum ETransactionTypes {
 // maps the TransactionType enum to the draft object type names
 export enum EDraftTypes {
     CHANGE = "ChangeDraft",
+    PURCHASE = "PurchaseDraft",
 }
 
 interface ITransactionBaseModel {
@@ -148,6 +149,10 @@ export interface IPurchaseTransactionModel extends ITransactionBaseModel {
     netPrice: number;
     discount: TNullable<number>;
 }
+export type IPurchaseDraftModel = Omit<
+    IPurchaseTransactionModel,
+    "customerUserSignature"
+>;
 
 export interface IPurchaseItemModel {
     productId: string;
@@ -174,7 +179,7 @@ export type TTransactionModel =
     | IPurchaseTransactionModel
     | ICustomsTransactionModel
     | ISalaryTransactionModel;
-export type TDraftModel = IChangeDraftModel;
+export type TDraftModel = IChangeDraftModel | IPurchaseDraftModel;
 
 export interface IBorderCrossingModel {
     citizenId: string;

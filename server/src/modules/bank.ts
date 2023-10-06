@@ -2,23 +2,22 @@ import type {
     IChangeDraftModel,
     IChangeTransactionModel,
     ICustomsTransactionModel,
+    IPurchaseDraftModel,
     IPurchaseTransactionModel,
     ISalaryTransactionModel,
     ITransferTransactionModel,
     IUserSignature,
     TDraftModel,
     TTransactionModel,
-    TUserModel,
 } from "Types/models";
 import type {
     IBankAccount,
-    IPurchaseTransaction,
     ISalaryTransaction,
     ITransferTransaction,
 } from "Types/knex";
 import type { IAppContext } from "Server";
 
-import { isNull, isUndefined } from "lodash/fp";
+import { all, isNull, isUndefined, map } from "lodash/fp";
 import {
     EUserTypeTableMap,
     parseUserSignature,
@@ -30,7 +29,9 @@ import { assert, GraphQLYogaError } from "Util/error";
 import { TChangeInput, TCredentialsInput } from "Types/schema";
 import { TNullable } from "Types";
 import { assertCredentials, assertRole, checkRole } from "Util/auth";
+import { values } from "Util/sql";
 import { getUser } from "./users";
+import { getCompany } from "./tradeRegistry";
 
 async function getTransferTransactions(
     { knex }: IAppContext,
@@ -94,7 +95,7 @@ async function getPurchaseTransactions(
     return (await query).map((raw) => ({
         type: "PURCHASE",
         ...raw,
-        customerUserSignature: parseUserSignature(raw.customerUserSignature),
+        customerUserSignature: parseUserSignature(raw.customerUserSignature!),
     }));
 }
 
@@ -467,97 +468,191 @@ export async function transferMoney(
 }
 
 export async function sell(
-    { knex }: IAppContext,
+    ctx: IAppContext,
     companyId: string,
-    customer: TUserModel,
     items: { productId: string; amount: number }[],
     discount: TNullable<number>
-): Promise<IPurchaseTransactionModel> {
-    // TODO: implement taxes
-    if (discount && discount <= 0)
-        throw new GraphQLYogaError(
-            "Discount must be greater than 0 or omitted",
-            { code: "BAD_USER_INPUT" }
-        );
-    if (items.find((item) => item.amount <= 0))
-        throw new GraphQLYogaError("Amount of item must be greater than 0", {
-            code: "BAD_USER_INPUT",
-        });
-
-    const date = formatDateTimeZ(new Date());
+): Promise<IPurchaseDraftModel> {
+    const { knex } = ctx;
     return knex.transaction(async (trx) => {
-        // use knex.raw bacause knex doesn't support ctes
-        const prices = (await trx.raw(
-            `WITH purchaseProducts(id, amount) AS
-                (VALUES
-                    ${items.map(() => "(?, ?)").join(",")}
-                )
-            SELECT purchaseProducts.id as productId, purchaseProducts.amount, products.price
-            FROM purchaseProducts
-            INNER JOIN products on products.id = purchaseProducts.id`
-        )) as { productId: string; amount: number; price: number }[];
-        if (prices.length < items.length)
-            throw new GraphQLYogaError("One of the products doesn't exist", {
-                code: "PRODUCT_NOT_FOUND",
-            });
+        // TODO: implement taxes
+        await getCompany({ ...ctx, knex: trx }, companyId); // check company exists
+        assert(
+            isNull(discount) || discount > 0,
+            "Discound must be positive or omitted",
+            "BAD_USER_INPUT"
+        );
+        assert(
+            all((item) => item.amount > 0, items),
+            "Amount of items must be positive",
+            "BAD_USER_INPUT"
+        );
+        const date = formatDateTimeZ(new Date());
 
-        const totalPrice = prices.reduce(
-            (prev, item) => prev + item.amount * item.price,
+        const itemsTable = map((_) => [_.productId, _.amount], items);
+        const withPrices = (await trx.raw(
+            `WITH purchaseProducts(productId, amount) AS (:values)
+            SELECT purchaseProducts.productId, purchaseProducts.amount, products.price
+            FROM purchaseProducts
+            INNER JOIN products on products.id = purchaseProducts.productId`,
+            { values: values(trx, itemsTable) }
+        )) as { productId: string; amount: number; price: number }[];
+        assert(
+            withPrices.length === items.length,
+            "One of the product doesn't exist",
+            "PRODUCT_NOT_FOUND"
+        );
+
+        const totalPrice = withPrices.reduce(
+            (total, _) => total + _.amount * _.price,
             0
         );
 
-        // use knex.raw because knex doesn't support returning on sqlite
-        const customerTable = EUserTypeTableMap[customer.type];
-        const [customerResult] = (await trx.raw(
-            `UPDATE bankAccounts
-            SET balance = balance - :totalPrice
-            WHERE (
-                SELECT bankAccountId FROM ${customerTable} WHERE id = :customerId
-            )
-            RETURNING balance`,
-            { totalPrice, customerId: customer.id }
-        )) as [{ balance: number }];
-        // existance of customer already checked cause userModel is passed
-        if (customerResult.balance < 0)
-            throw new GraphQLYogaError(
-                "Not enough money to complete purchase",
-                { code: "BALANCE_TOO_LOW" }
-            );
-
-        await trx("bankAccounts")
-            .increment("balance", totalPrice)
-            .where("id", companyId);
-
-        await trx("purchaseTransactions").insert({
-            date,
-            customerUserSignature: stringifyUserSignature(customer),
-            companyId,
-            grossPrice: totalPrice,
-            netPrice: totalPrice,
-            discount,
-        });
-        const rawPurchase = (await trx("purchaseTransactions")
-            .select("*")
-            .where("id", knex.raw("last_insert_rowid()"))
-            .first()) as IPurchaseTransaction;
-
+        const inserted = await trx("purchaseTransactions")
+            .insert({
+                date,
+                companyId,
+                grossPrice: totalPrice,
+                netPrice: totalPrice,
+                discount,
+            })
+            .returning("*");
+        const draft = inserted[0]!;
         await trx("productSales").insert(
-            prices.map(({ productId, amount, price }) => ({
-                purchaseId: rawPurchase.id,
+            withPrices.map(({ productId, amount, price }) => ({
+                purchaseId: draft.id,
                 productId,
                 amount,
                 grossRevenue: amount * price,
             }))
         );
+        return { type: "PURCHASE", ...draft };
+    });
+}
+export async function payPurchaseDraft(
+    ctx: IAppContext,
+    id: number,
+    credentials: TNullable<TCredentialsInput>
+): Promise<IPurchaseTransactionModel> {
+    const { knex, session } = ctx;
+    return knex.transaction(async (trx) => {
+        const [draft] = await trx("purchaseTransactions")
+            .select("*")
+            .where({ id });
+        assert(
+            !isUndefined(draft),
+            `Purchase transaction with id ${id} not found`,
+            "PURCHASE_TRANSACTION_NOT_FOUND"
+        );
+        assert(
+            isNull(draft.customerUserSignature),
+            `Purchase transaction with id ${id} already paid`,
+            "PURCHASE_TRANSACTION_ALREADY_PAID"
+        );
 
+        const customerUserSignature: IUserSignature = await (async () => {
+            if (
+                checkRole(session.userSignature, "COMPANY") &&
+                session.userSignature.id === draft.companyId
+            ) {
+                assert(
+                    !isNull(credentials),
+                    "Must specify credentials",
+                    "BAD_USER_INPUT"
+                );
+                await assertCredentials({ ...ctx, knex: trx }, credentials);
+                return credentials;
+            }
+
+            assert(
+                isNull(credentials),
+                "Must no specify credentials",
+                "BAD_USER_INPUT"
+            );
+            assertRole(session.userSignature, "USER");
+            return session.userSignature;
+        })();
+
+        await trx.raw(
+            `
+            UPDATE bankAccounts
+            SET balance = balance + :netPrice
+            FROM companies
+            WHERE companies.bankAccountId = bankAccounts.id AND companies.id = :companyId
+        `,
+            draft
+        );
+
+        const customer = await getUser(
+            { ...ctx, knex: trx },
+            customerUserSignature
+        );
+        const updatedCustomer = await trx("bankAccounts")
+            .decrement("balance", draft.grossPrice)
+            .where("id", customer.bankAccountId)
+            .returning("balance");
+        assert(
+            updatedCustomer[0]!.balance >= 0,
+            "Not enough money to complete Purchase.",
+            "BALANCE_TOO_LOW"
+        );
+
+        const [raw] = await trx("purchaseTransactions")
+            .update({
+                customerUserSignature: stringifyUserSignature(
+                    customerUserSignature
+                ),
+            })
+            .where({ id: draft.id })
+            .returning("*");
         return {
             type: "PURCHASE",
-            ...rawPurchase,
-            customerUserSignature: parseUserSignature(
-                rawPurchase.customerUserSignature
-            ),
+            ...raw!,
+            customerUserSignature,
         };
     });
+}
+export async function deletePurchaseDraft(
+    { knex, session }: IAppContext,
+    id: number
+): Promise<void> {
+    return knex.transaction(async (trx) => {
+        const [draft] = await trx("purchaseTransactions")
+            .select("*")
+            .where({ id });
+        assert(
+            !isUndefined(draft),
+            `Purchase transaction with id ${id} not found`,
+            "PURCHASE_TRANSACTION_NOT_FOUND"
+        );
+        assert(
+            isNull(draft.customerUserSignature),
+            `Purchase transaction with id ${id} already paid`,
+            "PURCHASE_TRANSACTION_ALREADY_PAID"
+        );
+
+        assertRole(session.userSignature, "COMPANY");
+        assert(
+            session.userSignature.id === draft.companyId,
+            "Not logged in as correct user",
+            "PERMISSION_DENIED"
+        );
+
+        await knex("purchaseTransactions").delete().where({ id });
+    });
+}
+export async function warehousePurchase(
+    ctx: IAppContext,
+    items: { productId: string; amount: number }[]
+): Promise<IPurchaseTransactionModel> {
+    const { session, knex } = ctx;
+    assertRole(session.userSignature, "COMPANY");
+
+    const draft = await sell(ctx, session.userSignature.id, items, null);
+    const transaction = await payPurchaseDraft(ctx, draft.id, null);
+    await knex("warehouseOrders").insert({ purchaseId: transaction.id });
+
+    return transaction;
 }
 
 export async function createBankAccount(

@@ -36,7 +36,7 @@ import {
     getAuthor,
     addBook,
 } from "Modules/library";
-import { checkPassword, login, logout } from "Modules/sessions";
+import { login, logout } from "Modules/sessions";
 import { getUser } from "Modules/users";
 import {
     getTransactionsByUser,
@@ -47,6 +47,7 @@ import {
     sell,
     deleteChangeDraft,
     getDraftsByUser,
+    warehousePurchase,
 } from "Modules/bank";
 import { getCitizen } from "Modules/registryOffice";
 import {
@@ -211,6 +212,11 @@ const resolvers: TResolvers = {
     PurchaseTransaction: {
         customer: (parent, _, ctx) =>
             getUser(ctx, parent.customerUserSignature),
+        company: (parent, _, ctx) => getCompany(ctx, parent.companyId),
+        tax: (parent) => parent.grossPrice - parent.netPrice,
+        items: (parent, _, ctx) => getPurchaseItems(ctx, parent.id),
+    },
+    PurchaseDraft: {
         company: (parent, _, ctx) => getCompany(ctx, parent.companyId),
         tax: (parent) => parent.grossPrice - parent.netPrice,
         items: (parent, _, ctx) => getPurchaseItems(ctx, parent.id),
@@ -416,39 +422,17 @@ const resolvers: TResolvers = {
                 args.transfer.purpose ?? null
             );
         },
-        sell: async (_, args, ctx) => {
+        sell: (_, args, ctx) => {
             assertRole(ctx.session.userSignature, "COMPANY");
-            if (!checkRole(args.purchase.customer, "CITIZEN"))
-                throw new GraphQLYogaError(
-                    "Only citizens are allowed to make a purchase.",
-                    { code: "FORBIDDEN_PURCHASE_CUSTOMER" }
-                );
-
-            const customer = await getUser(ctx, args.purchase.customer);
-            if (!(await checkPassword(customer, args.password)))
-                throw new GraphQLYogaError("Invalid password of customer", {
-                    code: "INVALID_PASSWORD",
-                });
-
             return sell(
                 ctx,
                 ctx.session.userSignature.id,
-                customer,
                 args.purchase.items,
                 args.purchase.discount ?? null
             );
         },
-        warehousePurchase: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "COMPANY");
-
-            return sell(
-                ctx,
-                ctx.config.server.warehouseCompanyId,
-                await getUser(ctx, ctx.session.userSignature),
-                args.purchase.items,
-                null
-            );
-        },
+        warehousePurchase: (_, args, ctx) =>
+            warehousePurchase(ctx, args.purchase.items),
         chargeCustoms: (_, args, ctx) =>
             chargeCustoms(ctx, args.customs.user, args.customs.customs),
 

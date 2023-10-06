@@ -243,9 +243,30 @@ type PurchaseTransaction implements Transaction {
     items: [PurchaseItem!]!
     discount: Float
 }
+" The draft of a purchase transaction "
+type PurchaseDraft implements Draft {
+    id: Int!
+    date: DateTime!
+    company: CompanyUser!
+    grossPrice: Float!
+    netPrice: Float!
+    tax: Float!
+    items: [PurchaseItem!]!
+    discount: Float!
+}
+" Input type of a purchase transaction "
+input PurchaseInput {
+    items: [PurchaseItemInput!]!
+    discount: Float
+}
 " Tuple with product and amount for use in purchases " # eslint-disable-next-line @graphql-eslint/strict-id-in-types
 type PurchaseItem {
     product: Product!
+    amount: Int!
+}
+" Tuple with product and amount for use in purchases "
+input PurchaseItemInput {
+    productId: ID!
     amount: Int!
 }
 " A customs transaction "
@@ -369,17 +390,6 @@ input TransferTransactionInput {
     value: Float!
     purpose: String
 }
-" Tuple with product and amount for use in purchases "
-input PurchaseItemInput {
-    productId: ID!
-    amount: Int!
-}
-" Input for sell mutation "
-input PurchaseTransactionInput {
-    customer: UserSignatureInput!
-    items: [PurchaseItemInput!]!
-    discount: Float
-}
 " Input for warehousePurchase mutation "
 input WarehousePurchaseTransactionInput {
     items: [PurchaseItemInput!]!
@@ -456,10 +466,15 @@ type Mutation {
     deleteChangeDraft(id: Int!): Void @auth(role: [BANK])
     transferMoney(transfer: TransferTransactionInput!): TransferTransaction!
         @auth(role: [CITIZEN])
-    sell(
-        purchase: PurchaseTransactionInput!
-        password: String!
-    ): PurchaseTransaction! @auth(role: [COMPANY])
+
+    sell(purchase: PurchaseInput!): PurchaseDraft! @auth(role: [COMPANY])
+    " Pay a change transaction draft. Only selling company must specify explicit user. "
+    payPurchaseDraft(
+        id: Int!
+        credentials: CredentialsInput
+    ): PurchaseTransaction!
+    deletePurchaseDraft(id: Int!): Void
+
     warehousePurchase(
         purchase: WarehousePurchaseTransactionInput!
     ): PurchaseTransaction! @auth(role: [COMPANY])

@@ -93,7 +93,7 @@ export interface IChangeTransaction {
 export interface IPurchaseTransaction {
     id: number;
     date: string;
-    customerUserSignature: string;
+    customerUserSignature: TNullable<string>;
     companyId: string;
     grossPrice: number;
     netPrice: number;
@@ -156,6 +156,10 @@ export interface IStay {
     leftAt: TNullable<string>;
 }
 
+export interface IWarehouseOrder {
+    purchaseId: number;
+}
+
 declare module "knex/types/tables" {
     interface Tables {
         sessions: Knex.CompositeTableType<
@@ -210,8 +214,8 @@ declare module "knex/types/tables" {
         >;
         purchaseTransactions: Knex.CompositeTableType<
             IPurchaseTransaction,
-            Omit<IPurchaseTransaction, "id">,
-            never
+            Omit<IPurchaseTransaction, "id" | "customerUserSignature">,
+            Pick<IPurchaseTransaction, "customerUserSignature">
         >;
         customsTransactions: Knex.CompositeTableType<
             ICustomsTransaction,
@@ -247,6 +251,11 @@ declare module "knex/types/tables" {
             IStay,
             Omit<IStay, "id" | "leftAt">,
             Partial<Pick<IStay, "leftAt">>
+        >;
+        warehouseOrders: Knex.CompositeTableType<
+            IWarehouseOrder,
+            IWarehouseOrder,
+            never
         >;
     }
 }

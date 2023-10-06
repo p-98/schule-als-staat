@@ -103,7 +103,7 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.createTable("purchaseTransactions", (table) => {
         table.increments("id");
         table.datetime("date").notNullable();
-        table.json("customerUserSignature").notNullable();
+        table.json("customerUserSignature");
         table.uuid("companyId").notNullable().index();
         table.foreign("companyId").references("id").inTable("companies");
         table.double("grossPrice").notNullable();
@@ -181,6 +181,14 @@ export async function up(knex: Knex): Promise<void> {
         table.foreign("citizenId").references("id").inTable("citizens");
         table.datetime("enteredAt").notNullable();
         table.datetime("leftAt");
+    });
+
+    await knex.schema.createTable("warehouseOrders", (table) => {
+        table.integer("purchaseId").primary();
+        table
+            .foreign("purchaseId")
+            .references("id")
+            .inTable("purchaseTransactions");
     });
 }
 
