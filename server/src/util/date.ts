@@ -1,6 +1,6 @@
 import type Config from "Config";
-import { eq, filter, map, negate, pipe, zip } from "lodash/fp";
-import { eachHourOfInterval, endOfHour } from "date-fns/fp";
+import { filter, map, negate, pipe, zip } from "lodash/fp";
+import { eachHourOfInterval, endOfHour, isEqual } from "date-fns/fp";
 
 /** Returns Date constructed of date and time
  *
@@ -42,7 +42,7 @@ export function openingHours(
     };
     const startOfHours = pipe(
         eachHourOfInterval,
-        filter<Date>(negate(eq(openInterval.end)))
+        filter<Date>(negate(isEqual(openInterval.end)))
     )(openInterval);
     const hoursStartEnd = zip(
         map(formatDateTimeZ, startOfHours),
