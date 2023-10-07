@@ -304,14 +304,21 @@ type BorderCrossing {
 " A product of an company "
 type Product {
     id: ID!
+    revision: ID!
     company: CompanyUser!
     name: String!
     price: Float!
+    deleted: Boolean!
     salesToday: Int!
     salesTotal: Int!
     salesPerDay: Float!
     grossRevenueTotal: Float!
     stats: [ProductStatsFragment!]!
+}
+" Input type for Product "
+input ProductInput {
+    name: String!
+    price: Float!
 }
 " Representing a 1h timeframe of the product's stats"
 type ProductStatsFragment {
@@ -360,18 +367,6 @@ input CredentialsInput {
     type: UserType!
     id: ID!
     password: String
-}
-
-" Input for addProduct mutation "
-input AddProductInput {
-    name: String!
-    price: Float!
-}
-" Input for editProduct mutation "
-input EditProductInput {
-    id: ID!
-    name: String
-    price: Float
 }
 
 " Input for createEmploymentOffer mutation "
@@ -488,10 +483,11 @@ type Mutation {
         @auth(role: [BORDER_CONTROL])
     removeGuest(cardId: ID!): Void @auth(role: [BORDER_CONTROL])
 
-    addProduct(product: AddProductInput!): Product! @auth(role: [COMPANY])
-    editProduct(product: EditProductInput!): Product! @auth(role: [COMPANY])
+    addProduct(product: ProductInput!): Product! @auth(role: [COMPANY])
+    editProduct(id: ID!, product: ProductInput!): Product!
+        @auth(role: [COMPANY])
     " remove product from the company's inventory "
-    removeProduct(productId: ID!): Void @auth(role: [COMPANY])
+    removeProduct(id: ID!): Void @auth(role: [COMPANY])
 
     createVote(vote: CreateVoteInput!): Vote! @auth(role: [POLITICS])
     vote(vote: VoteInput!): VoteCitizenEdge! @auth(role: [CITIZEN])

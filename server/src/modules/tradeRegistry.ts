@@ -1,10 +1,18 @@
 import type { IAppContext } from "Server";
 
-import { GraphQLYogaError, hasCode } from "Util/error";
+import { assert, GraphQLYogaError, hasCode } from "Util/error";
 import { v4 as uuidv4 } from "uuid";
-import { startOfToday, endOfToday, startOfDay } from "date-fns";
-import { eachHourOfInterval, addHours, addDays } from "date-fns/fp";
-import { eq, filter, keyBy, map, negate, pipe, zip, pick } from "lodash/fp";
+import { startOfDay } from "date-fns";
+import { addDays, endOfDay } from "date-fns/fp";
+import {
+    keyBy,
+    pipe,
+    pick,
+    isUndefined,
+    flatMap,
+    curry,
+    filter,
+} from "lodash/fp";
 import {
     ICompanyStatsFragmentModel,
     ICompanyUserModel,
@@ -20,8 +28,9 @@ import {
     TCreateEmploymentOfferInput,
     TEmploymentOfferStateCitizenInput,
     TEmploymentOfferStateCompanyInput,
+    TProductInput,
 } from "Types/schema";
-import { IBankAccount, ICompany, IProduct, IProductSale } from "Types/knex";
+import { IBankAccount, ICompany } from "Types/knex";
 import { TNullable } from "Types";
 import {
     startOfHour as sqlStartOfHour,
@@ -29,7 +38,8 @@ import {
     unixepochDiff,
     values,
 } from "Util/sql";
-import { formatDateTimeZ, formatDateZ, parseDateAndTime } from "Util/date";
+import { formatDateTimeZ, formatDateZ, openingHours } from "Util/date";
+import { assertRole } from "Util/auth";
 
 export async function getCompany(
     { knex }: IAppContext,
@@ -57,14 +67,16 @@ export async function getProduct(
     { knex }: IAppContext,
     id: string
 ): Promise<IProductModel> {
-    const raw = await knex("products").select("*").where({ id }).first();
-
-    if (!raw)
-        throw new GraphQLYogaError(`Product with id ${id} not found`, {
-            code: "PRODUCT_NOT_FOUND",
-        });
-
-    return raw;
+    const product = await knex("products")
+        .select("*")
+        .where({ id, deleted: false })
+        .first();
+    assert(
+        !isUndefined(product),
+        `Product with id ${id} not found`,
+        "PRODUCT_NOT_FOUND"
+    );
+    return product;
 }
 
 export async function getProducts(
@@ -152,19 +164,8 @@ export async function getCompanyStats(
     { knex, config }: IAppContext,
     companyId: string
 ): Promise<ICompanyStatsFragmentModel[]> {
-    const today = formatDateZ(new Date());
-    const openInterval = {
-        start: parseDateAndTime(today, config.openingHours.open),
-        end: parseDateAndTime(today, config.openingHours.close),
-    };
-    const startOfHours = pipe(
-        eachHourOfInterval,
-        filter<Date>(negate(eq(openInterval.end)))
-    )(openInterval);
-    const hoursStartEnd = zip(
-        map(formatDateTimeZ, startOfHours),
-        map(pipe(addHours(1), formatDateTimeZ), startOfHours)
-    ) as [string, string][];
+    const now = new Date();
+    const hoursStartEnd = openingHours(config, formatDateZ(now));
 
     return knex.transaction(async (trx) => {
         const clampToHour = (x: string) => clamp(x, "hours.start", "hours.end");
@@ -198,8 +199,8 @@ export async function getCompanyStats(
             .select(knex.raw(`${sqlStartOfHour("date")} as startOfHour`))
             .where({ companyId })
             .andWhereBetween("date", [
-                startOfToday().toISOString(),
-                endOfToday().toISOString(),
+                formatDateTimeZ(startOfDay(now)),
+                formatDateTimeZ(endOfDay(now)),
             ])
             .groupBy("startOfHour")
             .sum({ grossRevenue: "grossPrice" })
@@ -255,128 +256,128 @@ export async function getPurchaseItems(
         .where({ purchaseId });
 }
 
+/** Get sales of product for current day
+ *
+ * Assumes productId to be valid.
+ */
 export async function getSalesToday(
     { knex }: IAppContext,
     productId: string
 ): Promise<number> {
-    const query = knex
-        .from(
-            knex("productSales")
-                .select(
-                    knex.ref("amount").withSchema("productSales"),
-                    knex.ref("date").withSchema("purchaseTransactions")
-                )
-                .where("productSales.productId", productId)
-                .innerJoin(
-                    "purchaseTransactions",
-                    "productSales.purchaseId",
-                    "purchaseTransactions.id"
-                )
-        )
-        .sum({ salesToday: "amount" })
-        .where("date", ">=", startOfToday())
-        .first();
-    return (await query)?.salesToday as number;
+    const query: { salesToday: number }[] = await knex.raw(
+        `SELECT total(amount) as salesToday
+        FROM productSales
+        WHERE productSales.productId = :productId
+        INNER JOIN purchaseTransactions
+        ON productSales.purchaseId = purchaseTransactions.id AND date >= :startOfToday`,
+        { productId, startOfToday: formatDateTimeZ(startOfDay(new Date())) }
+    );
+    return query[0]!.salesToday;
 }
 
+/** Get sales of product for all days
+ *
+ * Assumes productId to be valid.
+ */
 export async function getSalesTotal(
     { knex }: IAppContext,
     productId: string
 ): Promise<number> {
-    const query = knex("productSales")
-        .sum({ salesTotal: "amount" })
-        .where({ productId })
-        .first();
-    return (await query)?.salesTotal as number;
+    const query: { salesTotal: number }[] = await knex.raw(
+        `SELECT total(amount) as salesTotal
+        FROM productSales
+        WHERE productId = :productId`,
+        { productId }
+    );
+    return query[0]!.salesTotal;
 }
 
-/** Return total sales on the first day, and the average of the past days otherwise */
+/** Return total sales on the first day, and the average of the past days otherwise
+ *
+ * Assumes productId to be valid.
+ */
 export async function getSalesPerDay(
-    { knex }: IAppContext,
+    ctx: IAppContext,
     productId: string
 ): Promise<number> {
-    const result = (await knex
-        .from(
-            knex("productSales")
-                .where("productSales.productId", productId)
-                .innerJoin(
-                    "purchaseTransactions",
-                    "productSales.purchaseId",
-                    "purchaseTransactions.id"
-                )
-                .sum({
-                    salesExcludingToday: knex.raw(
-                        "CASE WHEN purchaseTransactions.date < ? THEN productSales.amount END",
-                        [formatDateTimeZ(startOfToday())]
-                    ),
-                    salesToday: knex.raw(
-                        "CASE WHEN purchaseTransactions.date >= ? THEN productSales.amount END",
-                        [formatDateTimeZ(startOfToday())]
-                    ),
-                })
-        )
-        .select(
-            "*",
-            knex
-                .from(
-                    knex("purchaseTransactions")
-                        .select("date")
-                        .where("date", "<", formatDateTimeZ(startOfToday()))
-                        .groupBy("date")
-                )
-                .count({ dateCountExcludingToday: "date" })
-                .as("dateCountExcludingToday")
-        )
-        .first()) as {
-        dateCountExcludingToday: number;
-        salesToday: number;
-        salesExcludingToday: number;
-    };
+    const { knex, config } = ctx;
+    /** Start of day in localtime */
+    const startOfT0day = startOfDay(new Date());
+    const beforeToday = pipe(
+        (date: string) =>
+            new Date(`${date}T00:00:00.000${config.openingHours.timezone}`),
+        (_) => _ < startOfT0day
+    );
+    const pastDays = config.openingHours.dates.filter(beforeToday);
 
-    if (result.dateCountExcludingToday === 0) return result.salesToday;
-    return result.salesExcludingToday / result.dateCountExcludingToday;
+    const isFirstDay = pastDays.length === 0;
+    if (isFirstDay) return getSalesToday(ctx, productId);
+
+    const query: { salesPastDays: number }[] = await knex.raw(
+        `SELECT total(amount) as salesPastDays
+        FROM productSales
+        WHERE purchaseTransactions.date < :startOfToday
+        INNER JOIN purchaseTransactions ON purchaseTransactions.id = productSales.purchaseId`,
+        { startOfToday: formatDateTimeZ(startOfT0day) }
+    );
+    return query[0]!.salesPastDays / pastDays.length;
 }
 
+/** Return total gross revenue for product
+ *
+ * Assumes productId to be valid.
+ */
 export async function getGrossRevenueTotal(
     { knex }: IAppContext,
     productId: string
 ): Promise<number> {
-    const query = knex("productSales")
-        .where({ productId })
-        .sum({ grossRevenueTotal: "grossRevenue" })
-        .first();
-    return (await query)?.grossRevenueTotal as number;
+    const query: { grossRevenueTotal: number }[] = await knex.raw(
+        `SELECT total(amount * price) as grossRevenueTotal
+        FROM productSales
+        WHERE productSales.productId = :productId
+        INNER JOIN products
+                ON productSales.productId = products.id
+               AND productSales.productRevision = products.revision`,
+        { productId }
+    );
+    return query[0]!.grossRevenueTotal;
 }
 
+/** Return array hour-wise statistics for product
+ *
+ * Assumes productId to be valid.
+ */
 export async function getProductStats(
-    { knex }: IAppContext,
+    { knex, config }: IAppContext,
     productId: string
 ): Promise<IProductStatsFragmentModel[]> {
-    const query = knex
-        .from<IProductSale & { startOfHour: string }>(
-            knex("productSales")
-                .select(
-                    "productSales.*",
-                    knex.raw(
-                        "strftime('%Y-%m-%d %H:00:00.000', purchaseTransactions.date, 'localtime') AS startOfHour"
-                    )
-                )
-                .where("productSales.productId", productId)
-                .innerJoin(
-                    "purchaseTransactions",
-                    "productSales.purchaseId",
-                    "purchaseTransactions.id"
-                )
-        )
-        .select("startOfHour")
-        .groupBy("startOfHour")
-        .sum({ sales: "amount", grossRevenue: "grossRevenue" });
+    const now = formatDateTimeZ(new Date());
+    const fragments = pipe(
+        flatMap(curry(openingHours)(config)),
+        filter(([startOfHour]) => startOfHour < now)
+    )(config.openingHours.dates);
 
-    return (await query).map((raw) => ({
-        ...raw,
-        sales: raw.sales as number,
-        grossRevenue: raw.grossRevenue as number,
-    }));
+    const query: {
+        startOfHour: string;
+        sales: number;
+        grossRevenue: number;
+    }[] = await knex.raw(
+        `WITH fragments(startOfHour, endOfHour) AS :fragments
+        SELECT fragments.startOfHour, total(amount) as sales, total(amount * price) as grossRevenue
+        FROM fragments
+        WHERE productSales.productId = :productId
+        INNER JOIN purchaseTransactions
+                ON fragments.startOfHour <= purchaseTransactions.date
+               AND fragments.endOfHour   >= purchaseTransactions.date
+        INNER JOIN productSales
+                ON productSales.purchaseId = purchaseTransactions.id
+        INNER JOIN products
+                ON products.id = productSales.productId
+               AND products.revision = productSales.productRevision
+        GROUP BY fragments.startOfHour`,
+        { fragments: values(knex, fragments), productId }
+    );
+    return query;
 }
 
 export async function getWorktime(
@@ -571,66 +572,73 @@ export async function cancelEmployment(
     await knex("employments").update({ cancelled: true }).where({ id });
 }
 
+const assertProductInput = ({ name, price }: TProductInput) => {
+    assert(name.trim() !== "", "Name must not be empty", "BAD_USER_INPUT");
+    assert(price > 0, "Price must be positive", "BAD_USER_INPUT");
+};
+const assertProductOwnership = (
+    { session }: IAppContext,
+    product: IProductModel
+) => {
+    assertRole(session.userSignature, "COMPANY");
+    assert(
+        product.companyId === session.userSignature.id,
+        "You don't own this product",
+        "PERMISSION_DENIED"
+    );
+};
 export async function addProduct(
-    { knex }: IAppContext,
-    companyId: string,
-    name: string,
-    price: number
+    { knex, session }: IAppContext,
+    productInput: TProductInput
 ): Promise<IProductModel> {
-    const id = uuidv4();
-    return knex.transaction(async (trx) => {
-        await trx("products").insert({
-            id,
-            companyId,
-            name,
-            price,
+    assertRole(session.userSignature, "COMPANY");
+    assertProductInput(productInput);
+
+    const [product] = await knex("products")
+        .insert({
+            id: uuidv4(),
+            revision: uuidv4(),
+            companyId: session.userSignature.id,
+            ...productInput,
             deleted: false,
-        });
-        return trx("products")
-            .select("*")
-            .where({ id })
-            .first() as Promise<IProduct>;
-    });
+        })
+        .returning("*");
+    return product!;
 }
-
 export async function editProduct(
-    { knex }: IAppContext,
-    companyId: string,
+    ctx: IAppContext,
     id: string,
-    name: TNullable<string>,
-    price: TNullable<number>
+    productInput: TProductInput
 ): Promise<IProductModel> {
+    const { knex } = ctx;
     return knex.transaction(async (trx) => {
-        const affected = await trx("products")
-            .update({
-                ...(name && { name }),
-                ...(price && { price }),
-            })
-            .where({ id, companyId, deleted: false });
-        if (affected === 0)
-            throw new GraphQLYogaError(`Product with id ${id} not found.`, {
-                code: "PRODUCT_NOT_FOUND",
-            });
+        const product = await getProduct(ctx, id); // checks product exists
+        assertProductOwnership(ctx, product);
 
-        return trx("products")
-            .select("*")
-            .where({ id })
-            .first() as Promise<IProduct>;
+        assertProductInput(productInput);
+
+        await trx("products").update("deleted", true).where({ id });
+        const [newProduct] = await knex("products")
+            .insert({
+                id: product.id,
+                revision: uuidv4(),
+                companyId: product.companyId,
+                ...productInput,
+                deleted: false,
+            })
+            .returning("*");
+        return newProduct!;
     });
 }
-
 export async function removeProduct(
-    { knex }: IAppContext,
-    companyId: string,
+    ctx: IAppContext,
     id: string
 ): Promise<void> {
+    const { knex } = ctx;
     return knex.transaction(async (trx) => {
-        const affected = await trx("products")
-            .update({ deleted: true })
-            .where({ id, companyId });
-        if (affected === 0)
-            throw new GraphQLYogaError(`Product with id ${id} not found.`, {
-                code: "PRODUCT_NOT_FOUND",
-            });
+        const product = await getProduct(ctx, id); // checks product exists
+        assertProductOwnership(ctx, product);
+
+        await trx("products").update("deleted", true).where({ id });
     });
 }

@@ -1,3 +1,7 @@
+import type Config from "Config";
+import { eq, filter, map, negate, pipe, zip } from "lodash/fp";
+import { eachHourOfInterval, endOfHour } from "date-fns/fp";
+
 /** Returns Date constructed of date and time
  *
  * @param date date compliant to RFC 3339 Section 5.6 full-date (e.g. 2023-04-07)
@@ -26,3 +30,23 @@ export const formatDateZ = (date: Date): string =>
  * @returns string of form "mm.ss.sssZ"
  */
 export const formatTimeZ = (date: Date): string => date.toISOString().slice(11);
+
+/** For a given day, returns the array of start and end of hours the state is open */
+export function openingHours(
+    config: typeof Config,
+    date: string
+): [string, string][] {
+    const openInterval = {
+        start: parseDateAndTime(date, config.openingHours.open),
+        end: parseDateAndTime(date, config.openingHours.close),
+    };
+    const startOfHours = pipe(
+        eachHourOfInterval,
+        filter<Date>(negate(eq(openInterval.end)))
+    )(openInterval);
+    const hoursStartEnd = zip(
+        map(formatDateTimeZ, startOfHours),
+        map(pipe(endOfHour, formatDateTimeZ), startOfHours)
+    ) as [string, string][];
+    return hoursStartEnd;
+}

@@ -475,7 +475,6 @@ export async function sell(
 ): Promise<IPurchaseDraftModel> {
     const { knex } = ctx;
     return knex.transaction(async (trx) => {
-        // TODO: implement taxes
         await getCompany({ ...ctx, knex: trx }, companyId); // check company exists
         assert(
             isNull(discount) || discount > 0,
@@ -490,40 +489,48 @@ export async function sell(
         const date = formatDateTimeZ(new Date());
 
         const itemsTable = map((_) => [_.productId, _.amount], items);
-        const withPrices = (await trx.raw(
+        const products: {
+            id: string;
+            revision: string;
+            amount: number;
+            price: number;
+        }[] = await trx.raw(
             `WITH purchaseProducts(productId, amount) AS (:values)
-            SELECT purchaseProducts.productId, purchaseProducts.amount, products.price
+            SELECT purchaseProducts.amount, products.id, products.revision, products.price
             FROM purchaseProducts
-            INNER JOIN products on products.id = purchaseProducts.productId`,
+            INNER JOIN products on products.id = purchaseProducts.productId
+                   AND products.deleted IS FALSE`,
             { values: values(trx, itemsTable) }
-        )) as { productId: string; amount: number; price: number }[];
+        );
         assert(
-            withPrices.length === items.length,
+            products.length === items.length,
             "One of the product doesn't exist",
             "PRODUCT_NOT_FOUND"
         );
 
-        const totalPrice = withPrices.reduce(
+        const totalPrice = products.reduce(
             (total, _) => total + _.amount * _.price,
             0
         );
+        // TODO: implement taxes
+        const tax = 0;
 
         const inserted = await trx("purchaseTransactions")
             .insert({
                 date,
                 companyId,
                 grossPrice: totalPrice,
-                netPrice: totalPrice,
+                tax,
                 discount,
             })
             .returning("*");
         const draft = inserted[0]!;
         await trx("productSales").insert(
-            withPrices.map(({ productId, amount, price }) => ({
+            products.map(({ id, revision, amount }) => ({
                 purchaseId: draft.id,
-                productId,
+                productId: id,
+                productRevision: revision,
                 amount,
-                grossRevenue: amount * price,
             }))
         );
         return { type: "PURCHASE", ...draft };

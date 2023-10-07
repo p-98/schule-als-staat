@@ -1,5 +1,6 @@
 import { addDays, subDays } from "date-fns";
 import path from "node:path";
+import { formatDateZ } from "./server/src/util/date";
 
 export default {
     currencies: {
@@ -29,10 +30,11 @@ export default {
     },
     openingHours: {
         dates: [subDays(new Date(), 1), new Date(), addDays(new Date(), 1)].map(
-            (date) => date.toISOString().slice(0, 10)
+            formatDateZ
         ),
         open: "09:00:00+02:00",
         close: "16:00:00+02:00",
+        timezone: "+02:00",
     },
     guestInitialBalance: 50,
 };

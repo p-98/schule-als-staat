@@ -107,8 +107,25 @@ export async function up(knex: Knex): Promise<void> {
         table.uuid("companyId").notNullable().index();
         table.foreign("companyId").references("id").inTable("companies");
         table.double("grossPrice").notNullable();
-        table.double("netPrice").notNullable();
+        table.double("tax").notNullable();
         table.double("discount");
+    });
+
+    await knex.schema.createTable("productSales", (table) => {
+        table.uuid("purchaseId").notNullable().index();
+        table
+            .foreign("purchaseId")
+            .references("id")
+            .inTable("purchaseTransactions");
+        table.uuid("productId").notNullable();
+        table.uuid("productRevision").notNullable();
+        table.index(["productId", "productRevision"]);
+        table
+            .foreign(["productId", "productRevision"])
+            .references(["id", "revision"])
+            .inTable("products");
+        table.primary(["purchaseId", "productId"]);
+        table.integer("amount").notNullable();
     });
 
     await knex.schema.createTable("customsTransactions", (table) => {
@@ -130,25 +147,14 @@ export async function up(knex: Knex): Promise<void> {
     });
 
     await knex.schema.createTable("products", (table) => {
-        table.uuid("id").primary();
+        table.uuid("id").notNullable();
+        table.uuid("revision").notNullable();
+        table.primary(["id", "revision"]);
         table.uuid("companyId").notNullable().index();
         table.foreign("companyId").references("id").inTable("companies");
         table.text("name").notNullable();
         table.double("price").notNullable();
         table.boolean("deleted").notNullable();
-    });
-
-    await knex.schema.createTable("productSales", (table) => {
-        table.uuid("purchaseId").notNullable().index();
-        table
-            .foreign("purchaseId")
-            .references("id")
-            .inTable("purchaseTransactions");
-        table.uuid("productId").notNullable().index();
-        table.foreign("productId").references("id").inTable("products");
-        table.primary(["purchaseId", "productId"]);
-        table.integer("amount").notNullable();
-        table.double("grossRevenue").notNullable();
     });
 
     await knex.schema.createTable("votes", (table) => {

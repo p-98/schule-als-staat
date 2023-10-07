@@ -96,8 +96,15 @@ export interface IPurchaseTransaction {
     customerUserSignature: TNullable<string>;
     companyId: string;
     grossPrice: number;
-    netPrice: number;
+    tax: number;
     discount: TNullable<number>;
+}
+
+export interface IProductSale {
+    purchaseId: number;
+    productId: string;
+    productRevision: string;
+    amount: number;
 }
 
 export interface ICustomsTransaction {
@@ -118,17 +125,11 @@ export interface ISalaryTransaction {
 
 export interface IProduct {
     id: string;
+    revision: string;
     companyId: string;
     name: string;
     price: number;
     deleted: boolean;
-}
-
-export interface IProductSale {
-    purchaseId: number;
-    productId: string;
-    amount: number;
-    grossRevenue: number;
 }
 
 export interface IVote {
@@ -217,6 +218,11 @@ declare module "knex/types/tables" {
             Omit<IPurchaseTransaction, "id" | "customerUserSignature">,
             Pick<IPurchaseTransaction, "customerUserSignature">
         >;
+        productSales: Knex.CompositeTableType<
+            IProductSale,
+            IProductSale,
+            never
+        >;
         customsTransactions: Knex.CompositeTableType<
             ICustomsTransaction,
             Omit<ICustomsTransaction, "id">,
@@ -230,12 +236,7 @@ declare module "knex/types/tables" {
         products: Knex.CompositeTableType<
             IProduct,
             IProduct,
-            Partial<TOmit<IProduct, "id">>
-        >;
-        productSales: Knex.CompositeTableType<
-            IProductSale,
-            IProductSale,
-            never
+            Pick<IProduct, "deleted">
         >;
         votes: Knex.CompositeTableType<
             IVote,

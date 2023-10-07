@@ -213,12 +213,12 @@ const resolvers: TResolvers = {
         customer: (parent, _, ctx) =>
             getUser(ctx, parent.customerUserSignature),
         company: (parent, _, ctx) => getCompany(ctx, parent.companyId),
-        tax: (parent) => parent.grossPrice - parent.netPrice,
+        netPrice: (parent) => parent.grossPrice - parent.tax,
         items: (parent, _, ctx) => getPurchaseItems(ctx, parent.id),
     },
     PurchaseDraft: {
         company: (parent, _, ctx) => getCompany(ctx, parent.companyId),
-        tax: (parent) => parent.grossPrice - parent.netPrice,
+        netPrice: (parent) => parent.grossPrice - parent.tax,
         items: (parent, _, ctx) => getPurchaseItems(ctx, parent.id),
     },
     CustomsTransaction: {
@@ -453,36 +453,9 @@ const resolvers: TResolvers = {
             return removeGuest(ctx, args.cardId);
         },
 
-        addProduct: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "COMPANY");
-
-            return addProduct(
-                ctx,
-                ctx.session.userSignature.id,
-                args.product.name,
-                args.product.price
-            );
-        },
-        editProduct: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "COMPANY");
-
-            return editProduct(
-                ctx,
-                ctx.session.userSignature.id,
-                args.product.id,
-                args.product.name ?? null,
-                args.product.price ?? null
-            );
-        },
-        removeProduct: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "COMPANY");
-
-            return removeProduct(
-                ctx,
-                ctx.session.userSignature.id,
-                args.productId
-            );
-        },
+        addProduct: (_, args, ctx) => addProduct(ctx, args.product),
+        editProduct: (_, args, ctx) => editProduct(ctx, args.id, args.product),
+        removeProduct: (_, args, ctx) => removeProduct(ctx, args.id),
 
         createVote: async (_, args, ctx) => {
             assertRole(ctx.session.userSignature, "POLITICS");

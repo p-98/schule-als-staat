@@ -146,7 +146,7 @@ export interface IPurchaseTransactionModel extends ITransactionBaseModel {
     customerUserSignature: IUserSignature;
     companyId: string;
     grossPrice: number;
-    netPrice: number;
+    tax: number;
     discount: TNullable<number>;
 }
 export type IPurchaseDraftModel = Omit<
@@ -189,6 +189,7 @@ export interface IBorderCrossingModel {
 
 export interface IProductModel {
     id: string;
+    revision: string;
     companyId: string;
     name: string;
     price: number;
