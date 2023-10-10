@@ -42,7 +42,8 @@ async function getTransferTransactions(
     const query = knex("transferTransactions")
         .select("*")
         .where({ senderUserSignature: signatureString })
-        .orWhere({ receiverUserSignature: signatureString });
+        .orWhere({ receiverUserSignature: signatureString })
+        .orderBy([{ column: "date" }, { column: "id" }]);
 
     return (await query).map((raw) => ({
         type: "TRANSFER",
@@ -66,7 +67,8 @@ async function getChangeTransactions(
                 !checkRole(user, "BANK") &&
                 // eslint-disable-next-line no-void
                 void builder.where({ userSignature: signatureString })
-        );
+        )
+        .orderBy([{ column: "date" }, { column: "id" }]);
 
     return (await query).map((raw) => ({
         type: "CHANGE",
@@ -94,7 +96,8 @@ async function getPurchaseTransactions(
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 builder.andWhere({ companyId: user.id });
             }
-        });
+        })
+        .orderBy([{ column: "date" }, { column: "id" }]);
 
     return (await query).map((raw) => ({
         type: "PURCHASE",
@@ -109,9 +112,14 @@ async function getCustomsTransactions(
 ): Promise<ICustomsTransactionModel[]> {
     const signatureString = stringifyUserSignature(user);
 
-    const query = checkRole(user, "BORDER_CONTROL")
-        ? knex("customsTransactions")
-        : knex("customsTransactions").where({ userSignature: signatureString });
+    const query = knex("customsTransactions")
+        .where((builder) => {
+            if (!checkRole(user, "BORDER_CONTROL")) {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                builder.where({ userSignature: signatureString });
+            }
+        })
+        .orderBy([{ column: "date" }, { column: "id" }]);
 
     return (await query).map((raw) => ({
         type: "CUSTOMS",
@@ -134,7 +142,10 @@ async function getSalaryTransactions(
             "employments.id",
             "salaryTransactions.employmentId"
         )
-        .select("salaryTransactions.*") as Promise<ISalaryTransaction[]>;
+        .select("salaryTransactions.*")
+        .orderBy([{ column: "date" }, { column: "id" }]) as Promise<
+        ISalaryTransaction[]
+    >;
 
     return (await query).map((raw) => ({
         type: "SALARY",
@@ -172,7 +183,8 @@ export async function getChangeDrafts(
 
     const result = await knex("changeTransactions")
         .select("*")
-        .whereNull("userSignature");
+        .whereNull("userSignature")
+        .orderBy([{ column: "date" }, { column: "id" }]);
 
     return result.map((raw) => ({
         type: "CHANGE",
@@ -187,7 +199,8 @@ export async function getPurchaseDrafts(
     const result = await knex("purchaseTransactions")
         .select("*")
         .whereNull("customerUserSignature")
-        .andWhere({ companyId });
+        .andWhere({ companyId })
+        .orderBy([{ column: "date" }, { column: "id" }]);
 
     return result.map((raw) => ({
         type: "PURCHASE",
