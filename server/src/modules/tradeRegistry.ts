@@ -65,12 +65,12 @@ export async function getCompany(
 
 export async function getProduct(
     { knex }: IAppContext,
-    id: string
+    id: string,
+    revision?: string
 ): Promise<IProductModel> {
-    const product = await knex("products")
-        .select("*")
-        .where({ id, deleted: false })
-        .first();
+    const product = !isUndefined(revision)
+        ? await knex("products").where({ id, revision }).first()
+        : await knex("products").where({ id, deleted: false }).first();
     assert(
         !isUndefined(product),
         `Product with id ${id} not found`,
@@ -252,7 +252,7 @@ export async function getPurchaseItems(
     purchaseId: number
 ): Promise<IPurchaseItemModel[]> {
     return knex("productSales")
-        .select("productId", "amount")
+        .select("productId", "amount", "productRevision")
         .where({ purchaseId });
 }
 
@@ -612,13 +612,13 @@ export async function editProduct(
 ): Promise<IProductModel> {
     const { knex } = ctx;
     return knex.transaction(async (trx) => {
-        const product = await getProduct(ctx, id); // checks product exists
-        assertProductOwnership(ctx, product);
+        const product = await getProduct({ ...ctx, knex: trx }, id); // checks product exists
+        assertProductOwnership({ ...ctx, knex: trx }, product);
 
         assertProductInput(productInput);
 
         await trx("products").update("deleted", true).where({ id });
-        const [newProduct] = await knex("products")
+        const [newProduct] = await trx("products")
             .insert({
                 id: product.id,
                 revision: uuidv4(),
@@ -636,8 +636,8 @@ export async function removeProduct(
 ): Promise<void> {
     const { knex } = ctx;
     return knex.transaction(async (trx) => {
-        const product = await getProduct(ctx, id); // checks product exists
-        assertProductOwnership(ctx, product);
+        const product = await getProduct({ ...ctx, knex: trx }, id); // checks product exists
+        assertProductOwnership({ ...ctx, knex: trx }, product);
 
         await trx("products").update("deleted", true).where({ id });
     });

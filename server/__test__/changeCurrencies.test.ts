@@ -1,4 +1,3 @@
-/* eslint-disable jest/expect-expect */
 import { test, beforeEach, afterEach } from "@jest/globals";
 import { assert } from "chai";
 import {

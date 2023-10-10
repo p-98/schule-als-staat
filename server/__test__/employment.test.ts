@@ -1,4 +1,3 @@
-/* eslint-disable jest/expect-expect */
 import { test, beforeEach, afterEach } from "@jest/globals";
 import { assert } from "chai";
 import {
@@ -473,4 +472,4 @@ const testDeleteOffer = async () => {
     });
     assertInvalid(deleteAgain, "EMPLOYMENT_OFFER_NOT_REJECTED");
 };
-test("create, reject, delete", testDeleteOffer);
+test("create, reject, delete", () => testDeleteOffer());

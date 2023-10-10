@@ -84,13 +84,17 @@ async function getPurchaseTransactions(
 
     const query = knex("purchaseTransactions")
         .select("*")
+        // user is customer
         .where({ customerUserSignature: signatureString })
-        .orWhere(
-            (builder) =>
-                user.type === "COMPANY" &&
-                // eslint-disable-next-line no-void
-                void builder.where({ companyId: user.id })
-        );
+        // user is seller
+        .orWhere((builder) => {
+            if (user.type === "COMPANY") {
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                builder.whereNotNull("customerUserSignature");
+                // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                builder.andWhere({ companyId: user.id });
+            }
+        });
 
     return (await query).map((raw) => ({
         type: "PURCHASE",
@@ -176,11 +180,29 @@ export async function getChangeDrafts(
     }));
 }
 
+export async function getPurchaseDrafts(
+    { knex }: IAppContext,
+    companyId: string
+): Promise<IPurchaseDraftModel[]> {
+    const result = await knex("purchaseTransactions")
+        .select("*")
+        .whereNull("customerUserSignature")
+        .andWhere({ companyId });
+
+    return result.map((raw) => ({
+        type: "PURCHASE",
+        ...raw,
+    }));
+}
+
 export async function getDraftsByUser(
     ctx: IAppContext,
     companyId: string
 ): Promise<TDraftModel[]> {
-    const query = Promise.all([getChangeDrafts(ctx, companyId)]);
+    const query = Promise.all([
+        getChangeDrafts(ctx, companyId),
+        getPurchaseDrafts(ctx, companyId),
+    ]);
 
     // sort by ascending date
     return (await query).flat().sort(({ date: date1 }, { date: date2 }) => {
@@ -492,14 +514,15 @@ export async function sell(
         const products: {
             id: string;
             revision: string;
+            companyId: string;
             amount: number;
             price: number;
         }[] = await trx.raw(
             `WITH purchaseProducts(productId, amount) AS (:values)
-            SELECT purchaseProducts.amount, products.id, products.revision, products.price
+            SELECT purchaseProducts.amount, products.id, products.revision, products.companyId, products.price
             FROM purchaseProducts
-            INNER JOIN products on products.id = purchaseProducts.productId
-                   AND products.deleted IS FALSE`,
+            INNER JOIN products ON products.id = purchaseProducts.productId
+            WHERE products.deleted IS FALSE`,
             { values: values(trx, itemsTable) }
         );
         assert(
@@ -507,11 +530,15 @@ export async function sell(
             "One of the product doesn't exist",
             "PRODUCT_NOT_FOUND"
         );
-
-        const totalPrice = products.reduce(
-            (total, _) => total + _.amount * _.price,
-            0
+        assert(
+            all((_) => _.companyId === companyId, products),
+            "One of the products has a different owner",
+            "PERMISSION_DENIED"
         );
+
+        const totalPrice =
+            products.reduce((total, _) => total + _.amount * _.price, 0) -
+            (discount ?? 0);
         // TODO: implement taxes
         const tax = 0;
 
@@ -580,14 +607,13 @@ export async function payPurchaseDraft(
             return session.userSignature;
         })();
 
+        const netPrice = draft.grossPrice - draft.tax;
         await trx.raw(
-            `
-            UPDATE bankAccounts
+            `UPDATE bankAccounts
             SET balance = balance + :netPrice
             FROM companies
-            WHERE companies.bankAccountId = bankAccounts.id AND companies.id = :companyId
-        `,
-            draft
+            WHERE companies.bankAccountId = bankAccounts.id AND companies.id = :companyId`,
+            { companyId: draft.companyId, netPrice }
         );
 
         const customer = await getUser(
@@ -645,7 +671,8 @@ export async function deletePurchaseDraft(
             "PERMISSION_DENIED"
         );
 
-        await knex("purchaseTransactions").delete().where({ id });
+        await trx("productSales").delete().where({ purchaseId: draft.id });
+        await trx("purchaseTransactions").delete().where({ id });
     });
 }
 export async function warehousePurchase(

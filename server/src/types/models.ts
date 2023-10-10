@@ -156,6 +156,7 @@ export type IPurchaseDraftModel = Omit<
 
 export interface IPurchaseItemModel {
     productId: string;
+    productRevision: string;
     amount: number;
 }
 

@@ -61,7 +61,7 @@ module.exports = {
             rules: {
                 "jest/expect-expect": [
                     "warn",
-                    { assertFunctionNames: ["assert.*"] },
+                    { assertFunctionNames: ["assert.*", "test*"] },
                 ],
             },
         },

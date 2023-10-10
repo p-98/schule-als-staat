@@ -48,6 +48,8 @@ import {
     deleteChangeDraft,
     getDraftsByUser,
     warehousePurchase,
+    payPurchaseDraft,
+    deletePurchaseDraft,
 } from "Modules/bank";
 import { getCitizen } from "Modules/registryOffice";
 import {
@@ -207,7 +209,8 @@ const resolvers: TResolvers = {
     },
     ChangeDraft: {},
     PurchaseItem: {
-        product: (parent, _, ctx) => getProduct(ctx, parent.productId),
+        product: (parent, _, ctx) =>
+            getProduct(ctx, parent.productId, parent.productRevision),
     },
     PurchaseTransaction: {
         customer: (parent, _, ctx) =>
@@ -431,6 +434,10 @@ const resolvers: TResolvers = {
                 args.purchase.discount ?? null
             );
         },
+        payPurchaseDraft: (_, args, ctx) =>
+            payPurchaseDraft(ctx, args.id, args.credentials ?? null),
+        deletePurchaseDraft: (_, args, ctx) =>
+            deletePurchaseDraft(ctx, args.id),
         warehousePurchase: (_, args, ctx) =>
             warehousePurchase(ctx, args.purchase.items),
         chargeCustoms: (_, args, ctx) =>
