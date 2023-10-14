@@ -12,12 +12,13 @@ import type {
 } from "Types/models";
 import type {
     IBankAccount,
+    IEmployment,
     ISalaryTransaction,
     ITransferTransaction,
 } from "Types/knex";
 import type { IAppContext } from "Server";
 
-import { all, isNull, isUndefined, map } from "lodash/fp";
+import { all, isEmpty, isNull, isUndefined, map } from "lodash/fp";
 import {
     EUserTypeTableMap,
     parseUserSignature,
@@ -226,72 +227,87 @@ export async function getDraftsByUser(
 }
 
 export async function payBonus(
-    { knex }: IAppContext,
-    companyId: string,
+    { knex, session }: IAppContext,
     value: number,
     employmentIds: number[]
 ): Promise<ISalaryTransactionModel[]> {
-    // TODO: implement taxes
-    const date = formatDateTimeZ(new Date());
     return knex.transaction(async (trx) => {
-        // use knex.raw because knex doesn't support returning on sqlite
-        const [companyResult] = (await trx.raw(
+        const date = formatDateTimeZ(new Date());
+
+        assert(value > 0, "Value must be positive", "BAD_USER_INPUT");
+        // TODO: implement taxes
+        const tax = 0;
+        const grossValue = value;
+        const netValue = value - tax;
+        const cost = grossValue * employmentIds.length;
+
+        assertRole(session.userSignature, "COMPANY");
+        const company = session.userSignature;
+        const [updatedCompany]: { balance: number }[] = await trx.raw(
             `UPDATE bankAccounts
-            SET balance = balance - :value
-            WHERE id = (
-                SELECT bankAccountId FROM companies WHERE id = :companyId
-            )
+            SET balance = balance - :cost
+            FROM companies
+            WHERE bankAccounts.id = companies.bankAccountId
+              AND companies.id = :companyId
             RETURNING balance`,
-            { value, companyId }
-        )) as { balance: number }[];
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        if (companyResult!.balance < 0)
-            throw new GraphQLYogaError(
-                `Not enough money to complete bonus payment`,
-                { code: "BALANCE_TOO_LOW" }
-            );
-
-        // use knex.raw bacause knex doesn't support ctes
-        const employeesResult = (await trx.raw(
-            `WITH updates(employmentId) AS
-                (VALUES
-                    ${employmentIds.map(() => "(?)").join(",")}
-                )
-            UPDATE bankAccounts
-            SET bankAccounts.balance = bankAccounts.balance + ?
-            FROM (
-                SELECT citizens.bankAccountId FROM updates
-                INNER JOIN employments on updates.employmentId = employments.id
-                INNER JOIN citizens on employments.citizenId = citizens.id
-            ) as updates
-            WHERE bankAccounts.id = updates.bankAccountId
-            RETURNING updates.employmentId`,
-            [...employmentIds, value]
-        )) as { id: number }[];
-        if (employeesResult.length !== employmentIds.length)
-            throw new GraphQLYogaError(
-                "Failed to update balance of all employees",
-                { code: "BAD_EMPLOYMENT_ID" }
-            );
-
-        await trx("salaryTransactions").insert(
-            employmentIds.map((employmentId) => ({
-                date,
-                employmentId,
-                grossValue: value,
-                netValue: value,
-                worktimeId: null,
-            }))
+            { cost, companyId: company.id }
+        );
+        assert(
+            updatedCompany!.balance > 0,
+            "Not enough money to complete bonus payment",
+            "BALANCE_TOO_LOW"
         );
 
-        const returnQuery = trx("salaryTransactions")
-            .select("*")
-            .orderBy("id", "desc")
-            .limit(employmentIds.length);
-        return (await returnQuery).map((raw) => ({
-            type: "SALARY",
-            ...raw,
-        }));
+        assert(
+            !isEmpty(employmentIds),
+            "EmploymentsIds must not be empty",
+            "BAD_USER_INPUT"
+        );
+        const singleton = <T>(item: T): [T] => [item];
+        const employments: IEmployment[] = await trx.raw(
+            `WITH inputEmployments(id) as (:inputs)
+            SELECT employments.*
+            FROM inputEmployments
+            NATURAL JOIN employments`,
+            { inputs: values(trx, employmentIds.map(singleton)) }
+        );
+        assert(
+            employments.length === employmentIds.length,
+            "One of the employments is invalid",
+            "EMPLOYMENT_NOT_FOUND"
+        );
+        assert(
+            all((_) => _.companyId === company.id, employments),
+            "One of the employments is from a different company",
+            "PERMISSION_DENIED"
+        );
+        const employmentsTable = employments.map((_) => [_.citizenId]);
+        await trx.raw(
+            `WITH employments(citizenId) AS (:employments)
+            UPDATE bankAccounts
+            SET balance = balance + :netValue
+            FROM (
+                SELECT citizens.bankAccountId
+                FROM employments
+                INNER JOIN citizens on employments.citizenId = citizens.id
+            ) as citizens
+            WHERE bankAccounts.id = citizens.bankAccountId`,
+            { employments: values(trx, employmentsTable), netValue }
+        );
+
+        const transactions = await trx("salaryTransactions")
+            .insert(
+                employmentIds.map((employmentId) => ({
+                    date,
+                    employmentId,
+                    grossValue,
+                    tax,
+                    worktimeId: null,
+                }))
+            )
+            .orderBy([{ column: "date" }, { column: "id" }])
+            .returning("*");
+        return transactions.map((raw) => ({ type: "SALARY", ...raw }));
     });
 }
 

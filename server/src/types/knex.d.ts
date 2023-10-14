@@ -119,7 +119,7 @@ export interface ISalaryTransaction {
     date: string;
     employmentId: number;
     grossValue: number;
-    netValue: number;
+    tax: number;
     worktimeId: TNullable<number>;
 }
 

@@ -170,7 +170,7 @@ export interface ISalaryTransactionModel extends ITransactionBaseModel {
     type: "SALARY";
     employmentId: number;
     grossValue: number;
-    netValue: number;
+    tax: number;
     worktimeId: TNullable<number>;
 }
 

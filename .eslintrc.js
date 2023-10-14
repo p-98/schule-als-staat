@@ -63,6 +63,24 @@ module.exports = {
                     "warn",
                     { assertFunctionNames: ["assert.*", "test*"] },
                 ],
+                "@typescript-eslint/naming-convention": [
+                    // adjusted from airbnb-typescript
+                    "error",
+                    {
+                        selector: "variable",
+                        format: ["camelCase", "PascalCase", "UPPER_CASE"],
+                        leadingUnderscore: "allow",
+                    },
+                    {
+                        selector: "function",
+                        format: ["camelCase", "PascalCase"],
+                    },
+                    {
+                        selector: "typeLike",
+                        format: ["PascalCase"],
+                    },
+                ],
+                "no-underscore-dangle": "off",
             },
         },
         {

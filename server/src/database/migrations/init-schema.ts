@@ -141,7 +141,7 @@ export async function up(knex: Knex): Promise<void> {
         table.integer("employmentId").notNullable().index();
         table.foreign("employmentId").references("id").inTable("employments");
         table.double("grossValue").notNullable();
-        table.double("netValue").notNullable();
+        table.double("tax").notNullable();
         table.integer("worktimeId").index(); // null => bonus payment, not null => salary for endet shift
         table.foreign("worktimeId").references("id").inTable("worktimes");
     });

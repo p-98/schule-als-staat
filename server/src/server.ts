@@ -233,6 +233,7 @@ const resolvers: TResolvers = {
             if (parent.worktimeId === null) return null;
             return getWorktime(ctx, parent.worktimeId);
         },
+        netValue: (parent) => parent.grossValue - parent.tax,
         isBonus: (parent) => parent.worktimeId === null,
     },
 
@@ -384,16 +385,8 @@ const resolvers: TResolvers = {
             return cancelEmployment(ctx, ctx.session.userSignature, args.id);
         },
 
-        payBonus: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "COMPANY");
-
-            return payBonus(
-                ctx,
-                ctx.session.userSignature.id,
-                args.value,
-                args.employmentIds
-            );
-        },
+        payBonus: (_, args, ctx) =>
+            payBonus(ctx, args.value, args.employmentIds),
         changeCurrencies: async (_, args, ctx) => {
             assertRole(ctx.session.userSignature, "BANK");
 
