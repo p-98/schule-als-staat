@@ -13,5 +13,6 @@
             "Util/*": ["src/util/*"],
             "Config": ["../config.ts"]
         }
-    }
+    },
+    "include": [".", "../types.ts"]
 }

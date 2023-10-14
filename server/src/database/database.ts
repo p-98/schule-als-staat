@@ -1,6 +1,7 @@
-import _knex, { Knex as _Knex } from "knex";
 import { identity, get } from "lodash/fp";
-import config, { resolve as resolveConfig } from "Config";
+import _knex, { Knex as _Knex } from "knex";
+import config from "Config";
+import { resolveRoot } from "Util/misc";
 
 import * as initSchemaMigration from "./migrations/init-schema";
 
@@ -36,7 +37,7 @@ const createKnex = async (filename: string): Promise<Knex> => {
 };
 
 export const loadKnex = async (): Promise<Knex> => {
-    const file = resolveConfig(config.database.file);
+    const file = resolveRoot(config.database.file);
     return createKnex(file);
 };
 
