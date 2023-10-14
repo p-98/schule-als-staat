@@ -10,7 +10,7 @@ $ git clone https://github.com/p-98/schule-als-staat
 
 ### Client
 
-To start the mockup, Node v12 for x86 and the alpha branch are needed.
+To start the mockup, Node v12 for x86 is currently needed.
 
 On apple silicon run the following before proceeding:
 
@@ -21,7 +21,6 @@ On apple silicon run the following before proceeding:
 Then on all platforms do:
 
 ```console
-    git checkout alpha
     nvm install lts/erbium
     nvm use lts/erbium
     npm install
