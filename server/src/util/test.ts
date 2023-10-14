@@ -201,7 +201,7 @@ export function buildHTTPCookieExecutor(
                 headers = buildOptions.headers(executorRequest);
 
             const cookiesStr = pipe(
-                Object.values,
+                (_: CookieMap) => Object.values(_),
                 map(({ name, value }) => serializeCookie(name, value)),
                 join(";")
             )(cookies);
