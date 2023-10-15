@@ -38,7 +38,7 @@ export const Chart: React.FC = () => {
     const [display, setDisplay] = useState(options.length - 1);
 
     let data = genFinancesData();
-    if (display === EDisplay.TotalDays) data = cumulateFinancesData(data);
+    if (display === EDisplay.TotalDays.valueOf()) data = cumulateFinancesData(data);
     if (display > 1) {
         const date = (dates[display - 2] as Date).toDateString();
         data = data.filter((fragment) => fragment.date.toDateString() === date);
@@ -74,7 +74,7 @@ export const Chart: React.FC = () => {
                                         yAxisKey: "staff",
                                     },
                                     ...themeLine(theme.error as string),
-                                    stepped: display !== EDisplay.TotalDays,
+                                    stepped: display !== EDisplay.TotalDays.valueOf(),
                                 },
                                 {
                                     label: "Nettoumsatz",
@@ -128,11 +128,11 @@ export const Chart: React.FC = () => {
                                     type: "timeseries",
                                     time: {
                                         unit:
-                                            display === EDisplay.TotalDays
+                                            display === EDisplay.TotalDays.valueOf()
                                                 ? "day"
                                                 : "hour",
                                         tooltipFormat:
-                                            display === EDisplay.TotalDays
+                                            display === EDisplay.TotalDays.valueOf()
                                                 ? "dd.MM."
                                                 : "dd.MM. h 'Uhr'",
                                     },
@@ -146,10 +146,10 @@ export const Chart: React.FC = () => {
                                                 date,
                                                 "h 'Uhr'"
                                             );
-                                            if (display === EDisplay.TotalDays)
+                                            if (display === EDisplay.TotalDays.valueOf())
                                                 return format(date, "dd.MM.");
                                             if (
-                                                display === EDisplay.TotalHours
+                                                display === EDisplay.TotalHours.valueOf()
                                             ) {
                                                 return date.getHours() === 9
                                                     ? `${format(

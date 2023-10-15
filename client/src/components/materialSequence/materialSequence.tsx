@@ -3,8 +3,10 @@ import cn from "classnames";
 import {
     Modes,
     SiblingTransitionBase,
-    ISiblingTransitionBaseElementProps,
 } from "Components/transition/siblingTransitionBase/siblingTransitionBase";
+import {
+    ISiblingTransitionBaseElementProps
+} from "Components/transition/siblingTransitionBase/children"
 import { Button } from "Components/material/button";
 
 import styles from "./materialSequence.module.css";

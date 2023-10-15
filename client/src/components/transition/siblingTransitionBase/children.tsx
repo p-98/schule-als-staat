@@ -6,7 +6,7 @@ import styles from "./siblingTransitionBase.module.css";
 export type TChildren =
     React.ReactElement<ISiblingTransitionBaseElementProps>[];
 
-interface ISiblingTransitionBaseElementProps {
+export interface ISiblingTransitionBaseElementProps {
     index: number;
     children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
 }

@@ -42,7 +42,7 @@ export const BonusPayout: React.FC = () => {
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
     const toggleEmployee = useCallback(
-        (employee) => {
+        (employee: TUser) => {
             const selectedIndex = selectedEmployees.indexOf(employee);
 
             // not selected: add to selected

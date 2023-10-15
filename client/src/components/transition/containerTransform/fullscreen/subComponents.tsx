@@ -45,7 +45,7 @@ export const FullscreenContainerTransformWrapper = forwardRef<
     )
 );
 
-interface IFullscreenContainerTransformElementProps {
+export interface IFullscreenContainerTransformElementProps {
     children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
     /** Automatically injected by FullscreenContainerTransform */
     optimize?: boolean;
@@ -62,7 +62,7 @@ export const FullscreenContainerTransformElement: React.FC<
         ),
     });
 
-interface IFullscreenContainerTransformHandleProps {
+export interface IFullscreenContainerTransformHandleProps {
     children: React.ReactElement<React.HTMLAttributes<HTMLElement>>;
     /** Automatically injected by FullscreenContainerTransform */
     optimize?: boolean;
@@ -79,7 +79,7 @@ export const FullscreenContainerTransformHandle: React.FC<
         ),
     });
 
-interface IFullscreenContainerTransformScrimProps {
+export interface IFullscreenContainerTransformScrimProps {
     transitionTime: number;
 }
 export const FullscreenContainerTransformScrim = forwardRef<
