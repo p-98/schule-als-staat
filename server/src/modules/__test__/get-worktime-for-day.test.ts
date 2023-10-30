@@ -12,7 +12,7 @@ import { parseDateAndTime, formatDateZ, formatDateTimeZ } from "Util/date";
 
 import { getWorktimeForDay } from "Modules/tradeRegistry";
 
-const now = new Date();
+const now = new Date("2023-10-20T15:00:00.000+02:00");
 const today = formatDateZ(now);
 
 const employmentId = 420;
