@@ -1,4 +1,5 @@
-import { IUserSignature } from "Types/models";
+import type { File } from "@whatwg-node/fetch";
+import type { IUserSignature } from "Types/models";
 
 export function safeParseInt(string: string, radix: number): number {
     const number = parseInt(string, radix);
@@ -9,9 +10,12 @@ export function safeParseInt(string: string, radix: number): number {
     return number;
 }
 
-export async function fileToBase64(file: File): Promise<string> {
+export async function fileToDataUrl(file: File): Promise<string> {
+    const encoding = "base64";
+    const mime = file.type;
     const arrayBuffer = await file.arrayBuffer();
-    return Buffer.from(arrayBuffer).toString("base64");
+    const data = Buffer.from(arrayBuffer).toString(encoding);
+    return `data:${mime};${encoding},${data}`;
 }
 
 /** safely stringifies user signatures */

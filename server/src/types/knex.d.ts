@@ -133,7 +133,7 @@ export interface IProduct {
 }
 
 export interface IVote {
-    id: number;
+    id: string;
     type: "CONSENSUS" | "RADIO";
     title: string;
     description: string;
@@ -145,7 +145,7 @@ export interface IVote {
 }
 
 export interface IVotingPaper {
-    voteId: number;
+    voteId: string;
     citizenId: string;
     vote: string;
 }
@@ -240,7 +240,7 @@ declare module "knex/types/tables" {
         >;
         votes: Knex.CompositeTableType<
             IVote,
-            TOmit<IVote, "id" | "result" | "chartInfo">,
+            TOmit<IVote, "result" | "chartInfo">,
             Partial<Pick<IVote, "result" | "chartInfo">>
         >;
         votingPapers: Knex.CompositeTableType<

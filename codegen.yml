@@ -11,7 +11,7 @@ generates:
         config:
             emitLegacyCommonJSImports: true
             scalars:
-                DateTime: string
+                DateTimeISO: string
                 Void: void
                 File: "@whatwg-node/fetch#File"
             strictScalars: true
@@ -50,10 +50,9 @@ generates:
                 BorderCrossing: ./models#IBorderCrossingModel
                 Product: ./models#IProductModel
                 ProductStatsFragment: ./models#IProductStatsFragmentModel
-                VoteCitizenEdge: ./models#IVoteCitizenEdgeModel
                 Vote: ./models#IVoteModel
             strictScalars: true
             scalars:
-                DateTime: string
+                DateTimeISO: string
                 Void: void
                 File: "@whatwg-node/fetch#File"

@@ -158,7 +158,7 @@ export async function up(knex: Knex): Promise<void> {
     });
 
     await knex.schema.createTable("votes", (table) => {
-        table.increments("id");
+        table.uuid("id").primary();
         table.text("type").notNullable().checkIn(["CONSENSUS", "RADIO"]);
         table.text("title").notNullable();
         table.text("description").notNullable();

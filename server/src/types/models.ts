@@ -203,19 +203,15 @@ export interface IProductStatsFragmentModel {
     startOfHour: string;
 }
 
-export interface IVoteCitizenEdgeModel {
-    citizenId: string;
-    vote: number[];
-}
-
 export interface IVoteModel {
-    id: number;
+    id: string;
     type: "CONSENSUS" | "RADIO";
     title: string;
     description: string;
     image: string;
     endAt: string;
     choices: string[];
+    votingPaper: TNullable<number[]>;
     result: TNullable<number[]>;
     chartInfo: TNullable<string>;
 }

@@ -79,14 +79,13 @@ import {
     getEmploymentOffers,
 } from "Modules/tradeRegistry";
 import {
+    castVote,
     createVote,
+    deleteVote,
     getAllVotes,
-    getVotes,
-    vote,
 } from "Modules/electoralOffice";
 import { chargeCustoms, registerBorderCrossing } from "Modules/borderControl";
 import { createGuest, getGuest, removeGuest } from "Modules/foreignOffice";
-import { fileToBase64 } from "Util/parse";
 import { assertRole, checkRole } from "Util/auth";
 import { formatDateZ } from "Util/date";
 import { GraphQLYogaError } from "Util/error";
@@ -251,13 +250,7 @@ const resolvers: TResolvers = {
         stats: (parent, _, ctx) => getProductStats(ctx, parent.id),
     },
 
-    VoteCitizenEdge: {
-        user: (parent, _, ctx) => getCitizen(ctx, parent.citizenId),
-    },
-
-    Vote: {
-        votes: (parent, _, ctx) => getVotes(ctx, parent.id),
-    },
+    Vote: {},
 
     Query: {
         books: () => getAllBooks(),
@@ -457,29 +450,9 @@ const resolvers: TResolvers = {
         editProduct: (_, args, ctx) => editProduct(ctx, args.id, args.product),
         removeProduct: (_, args, ctx) => removeProduct(ctx, args.id),
 
-        createVote: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "POLITICS");
-
-            return createVote(
-                ctx,
-                args.vote.type,
-                args.vote.title,
-                args.vote.description,
-                await fileToBase64(args.vote.image),
-                args.vote.endAt,
-                args.vote.choices
-            );
-        },
-        vote: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "CITIZEN");
-
-            return vote(
-                ctx,
-                ctx.session.userSignature.id,
-                args.vote.voteId,
-                args.vote.vote
-            );
-        },
+        createVote: (_, args, ctx) => createVote(ctx, args.vote),
+        deleteVote: (_, args, ctx) => deleteVote(ctx, args.id),
+        castVote: (_, args, ctx) => castVote(ctx, args.id, args.votingPaper),
     },
     Subscription: {
         addedBook: {

@@ -3,7 +3,7 @@ scalar File
 " For void returns, handled by graphql-scalars "
 scalar Void
 " For RFC 3339 datetime strings, handled by graphql-scalars "
-scalar DateTime
+scalar DateTimeISO
 
 " requires ONE of the roles provided to be present on the current loged in user "
 directive @auth(role: [AuthRole!] = [ADMIN]) on FIELD_DEFINITION | OBJECT
@@ -61,7 +61,9 @@ enum BorderCrossingAction {
 
 " type of vote "
 enum VoteType {
+    " Every choice is rated individually between 0.0 and 1.0 "
     CONSENSUS
+    " One choice is selected with 1.0, all others set to 0.0 "
     RADIO
 }
 
@@ -104,8 +106,8 @@ type GuestUser implements User {
     redemptionBalance: Float!
     transactions: [Transaction!]!
     name: String
-    enteredAt: DateTime!
-    leftAt: DateTime
+    enteredAt: DateTimeISO!
+    leftAt: DateTimeISO
 }
 " A citizen user "
 type CitizenUser implements User {
@@ -142,7 +144,7 @@ type CompanyUser implements User {
 }
 " Representing a 1h timeframe of the company's stats "
 type CompanyStatsFragment {
-    startOfHour: DateTime!
+    startOfHour: DateTimeISO!
     staff: Float!
     staffCost: Float!
     grossRevenue: Float!
@@ -154,9 +156,9 @@ type CompanyStatsFragment {
 type Worktime {
     id: ID!
     employment: Employment!
-    start: DateTime!
+    start: DateTimeISO!
     " If null, the shift has not yet ended "
-    end: DateTime
+    end: DateTimeISO
 }
 
 " Contains information about an employment "
@@ -192,17 +194,17 @@ type EmploymentOffer {
 " Base type for transactions"
 interface Transaction {
     id: Int!
-    date: DateTime!
+    date: DateTimeISO!
 }
 " Base type for transaction drafts "
 interface Draft {
     id: Int!
-    date: DateTime!
+    date: DateTimeISO!
 }
 " A transfer transaction "
 type TransferTransaction implements Transaction {
     id: Int!
-    date: DateTime!
+    date: DateTimeISO!
     sender: User!
     receiver: User!
     value: Float!
@@ -211,7 +213,7 @@ type TransferTransaction implements Transaction {
 " A change transaction "
 type ChangeTransaction implements Transaction {
     id: Int!
-    date: DateTime!
+    date: DateTimeISO!
     user: User!
     action: ChangeTransactionAction!
     valueVirtual: Float!
@@ -220,7 +222,7 @@ type ChangeTransaction implements Transaction {
 " The draft of a change transaction "
 type ChangeDraft implements Draft {
     id: Int!
-    date: DateTime!
+    date: DateTimeISO!
     action: ChangeTransactionAction!
     valueVirtual: Float!
     valueReal: Float!
@@ -234,7 +236,7 @@ input ChangeInput {
 " A purchase transaction "
 type PurchaseTransaction implements Transaction {
     id: Int!
-    date: DateTime!
+    date: DateTimeISO!
     customer: User!
     company: CompanyUser!
     grossPrice: Float!
@@ -246,7 +248,7 @@ type PurchaseTransaction implements Transaction {
 " The draft of a purchase transaction "
 type PurchaseDraft implements Draft {
     id: Int!
-    date: DateTime!
+    date: DateTimeISO!
     company: CompanyUser!
     grossPrice: Float!
     netPrice: Float!
@@ -272,7 +274,7 @@ input PurchaseItemInput {
 " A customs transaction "
 type CustomsTransaction implements Transaction {
     id: Int!
-    date: DateTime!
+    date: DateTimeISO!
     user: User!
     customs: Float!
 }
@@ -284,7 +286,7 @@ input CustomsInput {
 " A salary transaction "
 type SalaryTransaction implements Transaction {
     id: Int!
-    date: DateTime!
+    date: DateTimeISO!
     employment: Employment!
     grossValue: Float!
     netValue: Float!
@@ -298,7 +300,7 @@ type SalaryTransaction implements Transaction {
 type BorderCrossing {
     citizen: CitizenUser!
     action: BorderCrossingAction!
-    date: DateTime!
+    date: DateTimeISO!
 }
 
 " A product of an company "
@@ -322,16 +324,11 @@ input ProductInput {
 }
 " Representing a 1h timeframe of the product's stats"
 type ProductStatsFragment {
-    startOfHour: DateTime!
+    startOfHour: DateTimeISO!
     sales: Int!
     grossRevenue: Float!
 }
 
-" Contains information about a user vote "
-type VoteCitizenEdge {
-    user: CitizenUser!
-    vote: [Float!]!
-}
 " A vote "
 type Vote {
     id: ID!
@@ -339,12 +336,23 @@ type Vote {
     title: String!
     description: String!
     image: String!
-    endAt: DateTime!
+    endAt: DateTimeISO!
     choices: [String!]!
+    " Vote of current user, if he voted "
+    # eslint-disable-next-line @graphql-eslint/no-typename-prefix
+    votingPaper: [Float!]
+    " Result taking all votes into account, if the vote has endet "
     result: [Float!]
     chartInfo: String
-    # eslint-disable-next-line @graphql-eslint/no-typename-prefix
-    votes: [VoteCitizenEdge!]!
+}
+" Input for createVote mutation "
+input VoteInput {
+    type: VoteType!
+    title: String!
+    description: String!
+    image: File!
+    endAt: DateTimeISO!
+    choices: [String!]!
 }
 
 #             #
@@ -396,21 +404,6 @@ input CreateGuestInput {
     name: String
 }
 
-" Input for createVote mutation "
-input CreateVoteInput {
-    type: VoteType!
-    title: String!
-    description: String!
-    image: File!
-    endAt: DateTime!
-    choices: [String!]!
-}
-" Input for vote mutation "
-input VoteInput {
-    voteId: ID!
-    vote: [Float!]!
-}
-
 #                #
 # API Root types #
 #                #
@@ -430,6 +423,7 @@ type Query {
     meCitizen: CitizenUser! @auth(role: [CITIZEN])
     meCompany: CompanyUser! @auth(role: [COMPANY])
 
+    " Information on all votes. Authorized: Citizen, Political Admin "
     votes: [Vote!]!
 
     userFromCard(cardId: ID!): User!
@@ -489,8 +483,12 @@ type Mutation {
     " remove product from the company's inventory "
     removeProduct(id: ID!): Void @auth(role: [COMPANY])
 
-    createVote(vote: CreateVoteInput!): Vote! @auth(role: [POLITICS])
-    vote(vote: VoteInput!): VoteCitizenEdge! @auth(role: [CITIZEN])
+    " Create a vote. Authorized: Political admin "
+    createVote(vote: VoteInput!): Vote!
+    " Delete a vote. Authorized: Political admin "
+    deleteVote(id: ID!): Void
+    " Cast your vote. Authorized: Citizen "
+    castVote(id: ID!, votingPaper: [Float!]!): Vote!
 }
 
 " Subscriptions "

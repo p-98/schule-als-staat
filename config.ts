@@ -17,9 +17,13 @@ export default {
     },
     server: {
         stateBankAccountId: "STATE",
+        warehouseCompanyId: "WAREH",
+
+        adminCitizenIds: ["ADMIN"],
         bankCompanyId: "SBANK",
         borderControlCompanyId: "BCTRL",
-        warehouseCompanyId: "WAREH",
+        policeCompanyId: "POLICE",
+        policiticsCompanyId: "POLITICS",
     },
     database: {
         file: "database.sqlite3",

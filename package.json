@@ -4,7 +4,7 @@
     "description": "",
     "scripts": {
         "postinstall": "patch-package && graphql-codegen",
-        "precommit": "npm run build-server && npm run test-server",
+        "precommit": "npm i && npm run build-server && npm run test-server",
         "dev-client": "cd ./client && next dev",
         "build-client": "cd ./client && next build",
         "start-client": "cd ./client && next start",

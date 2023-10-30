@@ -49,6 +49,8 @@ module.exports = {
                 ],
                 "import/prefer-default-export": "off",
                 "@typescript-eslint/no-non-null-assertion": "off",
+                "default-case": "off",
+                "@typescript-eslint/switch-exhaustiveness-check": "error",
             },
             globals: {
                 React: "writable",
@@ -124,7 +126,9 @@ module.exports = {
                 "@graphql-eslint/strict-id-in-types": [
                     "error",
                     {
-                        exceptions: { suffixes: ["Fragment", "Edge"] },
+                        exceptions: {
+                            suffixes: ["Fragment"],
+                        },
                         acceptedIdTypes: ["ID", "Int"],
                     },
                 ],
