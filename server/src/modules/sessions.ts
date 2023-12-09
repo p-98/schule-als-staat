@@ -1,11 +1,13 @@
 import type { IAppContext } from "Server";
 
-import { GraphQLYogaError } from "Util/error";
-import type { IUserSignature, TUserModel } from "Types/models";
+import { assert } from "Util/error";
+import type { TUserModel } from "Types/models";
 import bcrypt from "bcrypt";
-import { getUser } from "Modules/users";
 import { TNullable } from "Types";
 import { stringifyUserSignature } from "Util/parse";
+import { TCredentialsInput } from "Types/schema";
+import { assertCredentials } from "Util/auth";
+import { omit } from "lodash/fp";
 
 export async function checkPassword(
     userModel: TUserModel,
@@ -19,37 +21,38 @@ export async function checkPassword(
 
 export async function login(
     ctx: IAppContext,
-    id: string,
-    userSignature: IUserSignature,
-    password: TNullable<string>
+    credentials: TCredentialsInput
 ): Promise<TUserModel> {
-    const { knex } = ctx;
-    const userModel = await getUser(ctx, userSignature);
-
-    if (!(await checkPassword(userModel, password)))
-        throw new GraphQLYogaError("Invalid password", {
-            code: "INVALID_PASSWORD",
-        });
+    const { knex, session } = ctx;
+    const user = await assertCredentials(ctx, credentials);
 
     const success = await knex("sessions")
         .update({
-            userSignature: stringifyUserSignature(userSignature),
+            userSignature: stringifyUserSignature(credentials),
         })
-        .where({ id });
-    if (!success)
-        throw new GraphQLYogaError(`Session with id ${id} not found`, {
-            code: "SESSION_NOT_FOUND",
-        });
+        .where({ id: session.id });
+    assert(
+        success === 1,
+        `Session with id ${session.id} not found`,
+        "SESSION_NOT_FOUND"
+    );
+    session.userSignature = omit("password", credentials);
 
-    return userModel;
+    return user;
 }
 
-export async function logout({ knex }: IAppContext, id: string): Promise<void> {
+export async function logout(
+    { knex, session }: IAppContext,
+    id: string
+): Promise<void> {
     const success = await knex("sessions")
         .update({ userSignature: null })
         .where({ id });
-    if (!success)
-        throw new GraphQLYogaError(`Session with id ${id} not found`, {
-            code: "SESSION_NOT_FOUND",
-        });
+    assert(
+        success === 1,
+        `Session with id ${id} not found`,
+        "SESSION_NOT_FOUND"
+    );
+    // eslint-disable-next-line no-param-reassign
+    session.userSignature = null;
 }

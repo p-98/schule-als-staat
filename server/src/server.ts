@@ -309,22 +309,8 @@ const resolvers: TResolvers = {
             return newBook;
         },
 
-        /* eslint-disable no-param-reassign */
-        login: async (_, args, ctx) => {
-            const userModel = await login(
-                ctx,
-                ctx.session.id,
-                args.user,
-                args.password ?? null
-            );
-            ctx.session.userSignature = args.user;
-            return userModel;
-        },
-        logout: async (_, __, ctx) => {
-            await logout(ctx, ctx.session.id);
-            ctx.session.userSignature = null;
-        },
-        /* eslint-enable no-param-reassign */
+        login: (_, args, ctx) => login(ctx, args.credentials),
+        logout: (_, __, ctx) => logout(ctx, ctx.session.id),
 
         createEmploymentOffer: async (_, args, ctx) => {
             assertRole(ctx.session.userSignature, "COMPANY");

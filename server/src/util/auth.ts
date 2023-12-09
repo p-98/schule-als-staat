@@ -1,5 +1,5 @@
 import type { TNullable } from "Types";
-import type { IUserSignature } from "Types/models";
+import type { IUserSignature, TUserModel } from "Types/models";
 import type { TAuthRole, TCredentialsInput } from "Types/schema";
 
 import bcrypt from "bcrypt";
@@ -12,7 +12,7 @@ import { IAppContext } from "Server";
 export async function assertCredentials(
     ctx: IAppContext,
     credentials: TCredentialsInput
-): Promise<void> {
+): Promise<TUserModel> {
     // implicitly checks that user exists
     const user = await getUser(ctx, credentials);
     if (user.type === "GUEST") {
@@ -21,7 +21,7 @@ export async function assertCredentials(
             "Must not specify password for guest",
             "BAD_USER_INPUT"
         );
-        return;
+        return user;
     }
 
     assert(
@@ -31,9 +31,10 @@ export async function assertCredentials(
     );
     assert(
         await bcrypt.compare(credentials.password, user.password),
-        "Invalid password",
-        "PERMISSION_DENIED"
+        "Wrong password",
+        "WRONG_PASSWORD"
     );
+    return user;
 }
 
 // function for checking privileges

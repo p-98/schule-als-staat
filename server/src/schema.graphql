@@ -98,6 +98,12 @@ interface User {
     redemptionBalance: Float!
     transactions: [Transaction!]!
 }
+" Information to authenticate a user "
+input CredentialsInput {
+    type: UserType!
+    id: ID!
+    password: String
+}
 " A guest user "
 type GuestUser implements User {
     id: ID!
@@ -370,12 +376,6 @@ input UserSignatureInput {
     type: UserType!
     id: String!
 }
-" Information to authenticate a user "
-input CredentialsInput {
-    type: UserType!
-    id: ID!
-    password: String
-}
 
 " Input for createEmploymentOffer mutation "
 input CreateEmploymentOfferInput {
@@ -434,7 +434,7 @@ type Mutation {
     addBook(input: AddBookInput!): Book!
 
     " login as user; guests don't need a password "
-    login(user: UserSignatureInput!, password: String): User!
+    login(credentials: CredentialsInput!): User!
     logout: Void
 
     createEmploymentOffer(offer: CreateEmploymentOfferInput!): EmploymentOffer!
@@ -453,6 +453,7 @@ type Mutation {
     payChangeDraft(id: Int!, credentials: CredentialsInput): ChangeTransaction!
         @auth(role: [USER])
     deleteChangeDraft(id: Int!): Void @auth(role: [BANK])
+    " TODO: write tests "
     transferMoney(transfer: TransferTransactionInput!): TransferTransaction!
         @auth(role: [CITIZEN])
 
@@ -464,15 +465,18 @@ type Mutation {
     ): PurchaseTransaction!
     deletePurchaseDraft(id: Int!): Void
 
+    " TODO: write tests "
     warehousePurchase(
         purchase: WarehousePurchaseTransactionInput!
     ): PurchaseTransaction! @auth(role: [COMPANY])
     chargeCustoms(customs: CustomsInput!): CustomsTransaction!
         @auth(role: [BORDER_CONTROL])
 
+    " TODO: write tests "
     registerBorderCrossing(citizenId: ID!): BorderCrossing!
         @auth(role: [BORDER_CONTROL])
 
+    " TODO: write tests "
     createGuest(guest: CreateGuestInput!): GuestUser!
         @auth(role: [BORDER_CONTROL])
     removeGuest(cardId: ID!): Void @auth(role: [BORDER_CONTROL])

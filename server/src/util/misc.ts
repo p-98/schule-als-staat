@@ -85,3 +85,15 @@ export function pipe1(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return pipe(...fs)(arg);
 }
+
+export const forEachAsync = async <T, R>(
+    arr: T[],
+    callback: (val: T) => Promise<R>
+): Promise<void> => {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const val of arr) {
+        // explicit sequential, non-parallel behaviour is wanted
+        // eslint-disable-next-line no-await-in-loop
+        await callback(val);
+    }
+};

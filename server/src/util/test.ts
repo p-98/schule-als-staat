@@ -243,30 +243,27 @@ export type TYogaExecutor = AsyncExecutor<
 export interface ICredentials extends IUserSignature {
     password: undefined | string;
 }
-type SomePartial<T extends Record<K, unknown>, K extends keyof T> = Omit<T, K> &
+type PartialProp<T extends Record<K, unknown>, K extends keyof T> = Omit<T, K> &
     Partial<Pick<T, K>>;
 let usersCreated = 0;
 /** Use same password for all users, because hash is slow */
 const userPassword = "userPassword";
 const userPasswordHash = bcrypt.hash(userPassword, 1);
 
-export async function buildHTTPUserExecutor(
+export async function seedUser(
     knex: Knex,
-    yoga: TYogaServerInstance,
-    { type, id }: SomePartial<IUserSignature, "id">
-): Promise<
-    TYogaExecutor &
-        ICredentials & { credentials: ICredentials; signature: IUserSignature }
-> {
+    { type, id }: PartialProp<IUserSignature, "id">
+): Promise<ICredentials> {
     usersCreated += 1;
     const userNum = usersCreated;
 
+    const defaultId = `${type.toLowerCase()}IdOfUser${userNum}`;
     const credentials: ICredentials = {
+        id: id ?? defaultId,
         type,
-        id: id ?? `${type.toLowerCase()}IdOfUser${userNum}`,
         password: type === "GUEST" ? undefined : userPassword,
     };
-    const bankAccountId = `bankAccountIdForUser${userNum}`;
+    const bankAccountId = `bankAccountIdFor${credentials.type}${credentials.id}`;
 
     const seedSource = seedSourceFactory({
         bankAccount: async (seedKnex) => {
@@ -279,16 +276,16 @@ export async function buildHTTPUserExecutor(
         GUEST: async (seedKnex) =>
             seedKnex("guests").insert({
                 id: credentials.id,
-                cardId: `cardIdOfUser${userNum}`,
+                cardId: `cardIdOfGUEST${id}`,
                 bankAccountId,
-                name: `guestNameOfUser${userNum}`,
+                name: `guestNameOfGUEST${id}`,
                 enteredAt: formatDateTimeZ(new Date()),
             }),
         CITIZEN: async (seedKnex) =>
             seedKnex("citizens").insert({
                 id: credentials.id,
-                firstName: `firstNameOfUser${userNum}`,
-                lastName: `lastNameOfUser${userNum}`,
+                firstName: `firstNameOfCITIZEN${id}`,
+                lastName: `lastNameOfCITIZEN${id}`,
                 bankAccountId,
                 image: "",
                 password: await userPasswordHash,
@@ -297,27 +294,45 @@ export async function buildHTTPUserExecutor(
             seedKnex("companies").insert({
                 id: credentials.id,
                 bankAccountId,
-                name: `companyNameOfUser${userNum}`,
+                name: `companyNameOfCOMPANY${id}`,
                 password: await userPasswordHash,
                 image: "",
             }),
     });
-    await knex.seed.run(
-        withSpecific({ seedSource }, "bankAccount", credentials.type)
-    );
+    await knex.seed.run(withSpecific({ seedSource }, "bankAccount", type));
+    return credentials;
+}
+
+graphql(/* GraphQL */ `
+    fragment UserSignature_UserFragment on User {
+        __typename
+        id
+    }
+`);
+const loginMutation = graphql(/* GraphQL */ `
+    mutation Login($type: UserType!, $id: ID!, $password: String) {
+        login(credentials: { type: $type, id: $id, password: $password }) {
+            ...UserSignature_UserFragment
+        }
+    }
+`);
+export async function buildHTTPUserExecutor(
+    knex: Knex,
+    yoga: TYogaServerInstance,
+    userSignature: PartialProp<IUserSignature, "id">
+): Promise<
+    TYogaExecutor &
+        ICredentials & { credentials: ICredentials; signature: IUserSignature }
+> {
+    const credentials = await seedUser(knex, userSignature);
+
     const executor = buildHTTPCookieExecutor({
         // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
         // eslint-disable-next-line @typescript-eslint/unbound-method
         fetch: yoga.fetch,
     });
     const login = await executor({
-        document: graphql(/* GraphQL */ `
-            mutation Login($type: UserType!, $id: String!, $password: String) {
-                login(user: { type: $type, id: $id }, password: $password) {
-                    id
-                }
-            }
-        `),
+        document: loginMutation,
         variables: credentials,
     });
 
