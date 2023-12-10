@@ -120,35 +120,49 @@ const assertRoleMessages = {
 };
 export function assertRole(
     user: TNullable<IUserSignature>,
-    role: "ADMIN"
+    role: "ADMIN",
+    message?: string,
+    code?: string
 ): asserts user is IUserSignature & { type: "CITIZEN" };
 export function assertRole(
     user: TNullable<IUserSignature>,
-    role: "USER"
+    role: "USER",
+    message?: string,
+    code?: string
 ): asserts user is IUserSignature;
 export function assertRole(
     user: TNullable<IUserSignature>,
-    role: "CITIZEN"
+    role: "CITIZEN",
+    message?: string,
+    code?: string
 ): asserts user is IUserSignature & { type: "CITIZEN" };
 export function assertRole(
     user: TNullable<IUserSignature>,
-    role: "COMPANY"
+    role: "COMPANY",
+    message?: string,
+    code?: string
 ): asserts user is IUserSignature & { type: "COMPANY" };
 export function assertRole(
     user: TNullable<IUserSignature>,
-    role: "GUEST"
+    role: "GUEST",
+    message?: string,
+    code?: string
 ): asserts user is IUserSignature & { type: "GUEST" };
 export function assertRole(
     user: TNullable<IUserSignature>,
-    role: "POLICE" | "BANK" | "BORDER_CONTROL" | "POLITICS"
+    role: "POLICE" | "BANK" | "BORDER_CONTROL" | "POLITICS",
+    message?: string,
+    code?: string
 ): asserts user is IUserSignature & { type: "COMPANY" };
 export function assertRole(
     user: TNullable<IUserSignature>,
-    role: TAuthRole
+    role: TAuthRole,
+    message?: string,
+    code?: string
 ): void {
     assert(
         checkRole(user, role),
-        assertRoleMessages[role],
-        "PERMISSION_DENIED"
+        message ?? assertRoleMessages[role],
+        code ?? "PERMISSION_DENIED"
     );
 }

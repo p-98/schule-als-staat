@@ -91,6 +91,7 @@ type Session {
 
 " Base type for users "
 interface User {
+    type: UserType!
     id: ID!
 
     balance: Float!
@@ -106,6 +107,7 @@ input CredentialsInput {
 }
 " A guest user "
 type GuestUser implements User {
+    type: UserType!
     id: ID!
     balance: Float!
     " amount of virtual money that can be changed back to real money "
@@ -117,6 +119,7 @@ type GuestUser implements User {
 }
 " A citizen user "
 type CitizenUser implements User {
+    type: UserType!
     id: ID!
     balance: Float!
     " amount of virtual money that can be changed back to real money "
@@ -132,6 +135,7 @@ type CitizenUser implements User {
 }
 " A company user "
 type CompanyUser implements User {
+    type: UserType!
     id: ID!
     balance: Float!
     " amount of virtual money that can be changed back to real money "
@@ -213,6 +217,13 @@ type TransferTransaction implements Transaction {
     date: DateTimeISO!
     sender: User!
     receiver: User!
+    value: Float!
+    purpose: String
+}
+" Input for a transfer transaction "
+input TransferTransactionInput {
+    " receiver must be a citizen "
+    receiver: UserSignatureInput!
     value: Float!
     purpose: String
 }
@@ -386,13 +397,6 @@ input CreateEmploymentOfferInput {
     minWorktime: Int!
 }
 
-" Input for transferMoney mutation "
-input TransferTransactionInput {
-    " receiver must be a citizen "
-    receiver: UserSignatureInput!
-    value: Float!
-    purpose: String
-}
 " Input for warehousePurchase mutation "
 input WarehousePurchaseTransactionInput {
     items: [PurchaseItemInput!]!
@@ -453,9 +457,8 @@ type Mutation {
     payChangeDraft(id: Int!, credentials: CredentialsInput): ChangeTransaction!
         @auth(role: [USER])
     deleteChangeDraft(id: Int!): Void @auth(role: [BANK])
-    " TODO: write tests "
+    " Transfer money to another citizen. Authorized: Citizen "
     transferMoney(transfer: TransferTransactionInput!): TransferTransaction!
-        @auth(role: [CITIZEN])
 
     sell(purchase: PurchaseInput!): PurchaseDraft! @auth(role: [COMPANY])
     " Pay a change transaction draft. Only selling company must specify explicit user. "

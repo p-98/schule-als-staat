@@ -10,12 +10,7 @@ import type {
     TDraftModel,
     TTransactionModel,
 } from "Types/models";
-import type {
-    IBankAccount,
-    IEmployment,
-    ISalaryTransaction,
-    ITransferTransaction,
-} from "Types/knex";
+import type { IBankAccount, IEmployment, ISalaryTransaction } from "Types/knex";
 import type { IAppContext } from "Server";
 
 import { all, isEmpty, isNull, isUndefined, map } from "lodash/fp";
@@ -453,34 +448,48 @@ export async function deleteChangeDraft(
 }
 
 export async function transferMoney(
-    { knex }: IAppContext,
-    user: IUserSignature,
+    ctx: IAppContext,
     receiver: IUserSignature,
     value: number,
     purpose: TNullable<string>
 ): Promise<ITransferTransactionModel> {
-    if (value <= 0)
-        throw new GraphQLYogaError("Value must be greater than 0.", {
-            code: "BAD_USER_INPUT",
-        });
-
+    const { knex, session } = ctx;
+    const sender = session.userSignature;
     const date = formatDateTimeZ(new Date());
+
     return knex.transaction(async (trx) => {
-        const senderResult = await trx("bankAccounts")
+        assertRole(
+            sender,
+            "CITIZEN",
+            "Only citizens can send money",
+            "TRANSFER_SENDER_RESTRICTED"
+        );
+        assertRole(
+            receiver,
+            "CITIZEN",
+            "Only citizens can receive money",
+            "TRANSFER_RECEIVER_RESTRICTED"
+        );
+        if (value <= 0)
+            throw new GraphQLYogaError("Value must be greater than 0.", {
+                code: "BAD_USER_INPUT",
+            });
+
+        const updatedSenders: { balance: number }[] = await trx("bankAccounts")
             .decrement("balance", value)
             .where(
                 "id",
-                trx(EUserTypeTableMap[user.type])
+                trx(EUserTypeTableMap[sender.type])
                     .select("bankAccountId")
-                    .where("id", user.id)
+                    .where("id", sender.id)
             )
-            .andWhere("balance", ">=", value);
-        if (senderResult === 0)
-            throw new GraphQLYogaError(
-                `Not enough money to complete transfer`,
-                { code: "BALANCE_TOO_LOW" }
-            );
-        const receiverResult = await trx("bankAccounts")
+            .returning("balance");
+        assert(
+            updatedSenders[0]!.balance >= 0,
+            "Not enough money to complete transfer",
+            "BALANCE_TOO_LOW"
+        );
+        const updatedReceivers = await trx("bankAccounts")
             .increment("balance", value)
             .where(
                 "id",
@@ -488,25 +497,24 @@ export async function transferMoney(
                     .select("bankAccountId")
                     .where("id", receiver.id)
             );
-        if (receiverResult === 0)
-            throw new GraphQLYogaError(
-                `User with signature ${stringifyUserSignature(
-                    user
-                )} doesn't exist`,
-                { code: "USER_NOT_FOUND" }
-            );
+        assert(
+            updatedReceivers === 1,
+            `User with signature ${stringifyUserSignature(
+                receiver
+            )} not found.`,
+            "USER_NOT_FOUND"
+        );
 
-        await trx("transferTransactions").insert({
-            date,
-            senderUserSignature: stringifyUserSignature(user),
-            receiverUserSignature: stringifyUserSignature(receiver),
-            value,
-            purpose,
-        });
-        const raw = (await trx("transferTransactions")
-            .select("*")
-            .orderBy("id", "desc")
-            .first()) as ITransferTransaction;
+        const inserted = await trx("transferTransactions")
+            .insert({
+                date,
+                senderUserSignature: stringifyUserSignature(sender),
+                receiverUserSignature: stringifyUserSignature(receiver),
+                value,
+                purpose,
+            })
+            .returning("*");
+        const raw = inserted[0]!;
         return {
             type: "TRANSFER",
             ...raw,

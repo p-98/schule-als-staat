@@ -381,22 +381,13 @@ const resolvers: TResolvers = {
 
             return deleteChangeDraft(ctx, args.id);
         },
-        transferMoney: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "CITIZEN");
-            if (!checkRole(args.transfer.receiver, "CITIZEN"))
-                throw new GraphQLYogaError(
-                    "Money can only be tranfered to citizens.",
-                    { code: "FORBIDDEN_TRANSFER_TARGET" }
-                );
-
-            return transferMoney(
+        transferMoney: (_, args, ctx) =>
+            transferMoney(
                 ctx,
-                ctx.session.userSignature,
                 args.transfer.receiver,
                 args.transfer.value,
                 args.transfer.purpose ?? null
-            );
-        },
+            ),
         sell: (_, args, ctx) => {
             assertRole(ctx.session.userSignature, "COMPANY");
             return sell(
