@@ -304,7 +304,7 @@ const resolvers: TResolvers = {
     },
     Mutation: {
         addBook: (_, args, ctx) => {
-            const newBook = addBook(args.input);
+            const newBook = addBook(args.book);
             ctx.pubsub.publish("ADDED_BOOK", newBook);
             return newBook;
         },
@@ -389,6 +389,7 @@ const resolvers: TResolvers = {
                 args.transfer.purpose ?? null
             ),
         sell: (_, args, ctx) => {
+            // check role here, so function can be reused for warehouse purchase
             assertRole(ctx.session.userSignature, "COMPANY");
             return sell(
                 ctx,
@@ -406,22 +407,12 @@ const resolvers: TResolvers = {
         chargeCustoms: (_, args, ctx) =>
             chargeCustoms(ctx, args.customs.user, args.customs.customs),
 
-        registerBorderCrossing: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "BORDER_CONTROL");
+        registerBorderCrossing: (_, args, ctx) =>
+            registerBorderCrossing(ctx, args.citizenId),
 
-            return registerBorderCrossing(ctx, args.citizenId);
-        },
-
-        createGuest: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "BORDER_CONTROL");
-
-            return createGuest(ctx, args.guest.name ?? null, args.guest.cardId);
-        },
-        removeGuest: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "BORDER_CONTROL");
-
-            return removeGuest(ctx, args.cardId);
-        },
+        createGuest: (_, args, ctx) =>
+            createGuest(ctx, args.cardId, args.guest),
+        removeGuest: (_, args, ctx) => removeGuest(ctx, args.cardId),
 
         addProduct: (_, args, ctx) => addProduct(ctx, args.product),
         editProduct: (_, args, ctx) => editProduct(ctx, args.id, args.product),

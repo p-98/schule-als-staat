@@ -1,12 +1,13 @@
-import type { TNullable } from "Types";
 import type { IGuestUserModel } from "Types/models";
 import type { IBankAccount, IGuest } from "Types/knex";
 import type { IAppContext } from "Server";
+import type { TGuestUserInput } from "Types/schema";
 
-import { GraphQLYogaError } from "Util/error";
 import { v4 as uuidv4 } from "uuid";
+import { assert, GraphQLYogaError } from "Util/error";
 import { formatDateTimeZ } from "Util/date";
 import { createBankAccount } from "Modules/bank";
+import { assertRole } from "Util/auth";
 
 export async function getGuest(
     { knex }: IAppContext,
@@ -33,11 +34,14 @@ export async function getGuest(
 
 export async function createGuest(
     ctx: IAppContext,
-    name: TNullable<string>,
-    cardId: string
+    cardId: string,
+    guest: TGuestUserInput
 ): Promise<IGuestUserModel> {
-    const { knex, config } = ctx;
+    const { knex, config, session } = ctx;
     const date = formatDateTimeZ(new Date());
+
+    assertRole(session.userSignature, "BORDER_CONTROL");
+
     return knex.transaction(async (trx) => {
         const lastGuestOnCard = await trx("guests")
             .select("leftAt")
@@ -45,12 +49,11 @@ export async function createGuest(
             .orderBy("enteredAt", "desc")
             .first();
         const isCardOccupied = lastGuestOnCard && !lastGuestOnCard.leftAt;
-        if (isCardOccupied)
-            throw new GraphQLYogaError(
-                "There is already a guest account assigned to this card.",
-                { code: "CARD_OCCUPIED" }
-            );
-
+        assert(
+            !isCardOccupied,
+            "There is already a guest account assigned to this card.",
+            "CARD_OCCUPIED"
+        );
         const bankAccount = await createBankAccount(
             ctx,
             config.guestInitialBalance
@@ -60,39 +63,41 @@ export async function createGuest(
                 id: uuidv4(),
                 cardId,
                 bankAccountId: bankAccount.id,
-                name,
+                name: guest.name,
                 enteredAt: date,
             })
             .returning("*");
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const guest = inserted[0]!;
+        const raw = inserted[0]!;
         return {
             type: "GUEST",
             // spread order important, because both tables contain id field
             ...bankAccount,
-            ...guest,
+            ...raw,
             leftAt: null,
         };
     });
 }
 
 export async function removeGuest(
-    { knex }: IAppContext,
+    { knex, session }: IAppContext,
     cardId: string
 ): Promise<void> {
     const date = formatDateTimeZ(new Date());
+
+    assertRole(session.userSignature, "BORDER_CONTROL");
+
     return knex.transaction(async (trx) => {
         const lastGuestOnCard = await trx("guests")
             .select("leftAt")
             .where({ cardId })
             .orderBy("enteredAt", "desc")
             .first();
-        const isCardOccupied = lastGuestOnCard && !lastGuestOnCard.leftAt;
-        if (!isCardOccupied)
-            throw new GraphQLYogaError(
-                "There is currenently no guest account assigned to this card.",
-                { code: "CARD_NOT_OCCUPIED" }
-            );
+        const isCardOccupied = !!lastGuestOnCard && !lastGuestOnCard.leftAt;
+        assert(
+            isCardOccupied,
+            "There is currenently no guest account assigned to this card.",
+            "CARD_NOT_OCCUPIED"
+        );
 
         await trx("guests").update({ leftAt: date }).where({ cardId });
     });

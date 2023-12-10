@@ -76,6 +76,11 @@ type Book {
     title: String!
     author: Author!
 }
+" Input type of a book "
+input BookInput {
+    title: String!
+    author: String!
+}
 
 " Ein Author " # eslint-disable-next-line @graphql-eslint/strict-id-in-types
 type Author {
@@ -99,7 +104,12 @@ interface User {
     redemptionBalance: Float!
     transactions: [Transaction!]!
 }
-" Information to authenticate a user "
+" Information needed to identify a user "
+input UserSignatureInput {
+    type: UserType!
+    id: String!
+}
+" Information needed to authenticate a user "
 input CredentialsInput {
     type: UserType!
     id: ID!
@@ -116,6 +126,10 @@ type GuestUser implements User {
     name: String
     enteredAt: DateTimeISO!
     leftAt: DateTimeISO
+}
+" Input type of a guest "
+input GuestUserInput {
+    name: String
 }
 " A citizen user "
 type CitizenUser implements User {
@@ -200,6 +214,14 @@ type EmploymentOffer {
     " worktime per day in seconds "
     minWorktime: Int!
 }
+" Input type for an employment offer "
+input EmploymentOfferInput {
+    citizenId: ID!
+    " virtual currency per hour "
+    salary: Float!
+    " worktime per day in seconds "
+    minWorktime: Int!
+}
 
 " Base type for transactions"
 interface Transaction {
@@ -277,6 +299,11 @@ type PurchaseDraft implements Draft {
 input PurchaseInput {
     items: [PurchaseItemInput!]!
     discount: Float
+}
+
+" Input type of a purchase at warehouse transaction "
+input WarehousePurchaseInput {
+    items: [PurchaseItemInput!]!
 }
 " Tuple with product and amount for use in purchases " # eslint-disable-next-line @graphql-eslint/strict-id-in-types
 type PurchaseItem {
@@ -372,42 +399,6 @@ input VoteInput {
     choices: [String!]!
 }
 
-#             #
-# Input types #
-#             #
-
-" Input for addBook mutation "
-input AddBookInput {
-    title: String!
-    author: String!
-}
-
-" Information needed to identify a user "
-input UserSignatureInput {
-    type: UserType!
-    id: String!
-}
-
-" Input for createEmploymentOffer mutation "
-input CreateEmploymentOfferInput {
-    citizenId: ID!
-    " virtual currency per hour "
-    salary: Float!
-    " worktime per day in seconds "
-    minWorktime: Int!
-}
-
-" Input for warehousePurchase mutation "
-input WarehousePurchaseTransactionInput {
-    items: [PurchaseItemInput!]!
-}
-
-" Input for createGuest mutation "
-input CreateGuestInput {
-    cardId: ID!
-    name: String
-}
-
 #                #
 # API Root types #
 #                #
@@ -427,7 +418,7 @@ type Query {
     meCitizen: CitizenUser! @auth(role: [CITIZEN])
     meCompany: CompanyUser! @auth(role: [COMPANY])
 
-    " Information on all votes. Authorized: Citizen, Political Admin "
+    " Information on all votes. Authorized: citizen, political admin "
     votes: [Vote!]!
 
     userFromCard(cardId: ID!): User!
@@ -435,66 +426,72 @@ type Query {
 
 " Mutations "
 type Mutation {
-    addBook(input: AddBookInput!): Book!
+    addBook(book: BookInput!): Book!
 
-    " login as user; guests don't need a password "
+    " Login as user, successive calls are possible. Guests must no specify a password "
     login(credentials: CredentialsInput!): User!
+    " Logout as user, succeessive calls are possible "
     logout: Void
 
-    createEmploymentOffer(offer: CreateEmploymentOfferInput!): EmploymentOffer!
-        @auth(role: [COMPANY])
-    acceptEmploymentOffer(id: Int!): Employment! @auth(role: [CITIZEN])
+    " Create employment offer. Authorized: company "
+    createEmploymentOffer(offer: EmploymentOfferInput!): EmploymentOffer!
+    " Accept employment offer. Authorized: citizen"
+    acceptEmploymentOffer(id: Int!): Employment!
+    " Reject employment offer. Authorized: citizen"
     rejectEmploymentOffer(id: Int!, reason: String): EmploymentOffer!
-        @auth(role: [CITIZEN])
-    " offer must be rejected to be deleted "
-    deleteEmploymentOffer(id: Int!): Void @auth(role: [COMPANY])
-    cancelEmployment(id: Int!): Void @auth(role: [CITIZEN, COMPANY])
+    " Delete rejected employment offer. Authorized: company "
+    deleteEmploymentOffer(id: Int!): Void
+    " Cancel employment. Authorized: company or citizen "
+    cancelEmployment(id: Int!): Void
 
+    " Pay bonus to employees. Authorized: company "
     payBonus(value: Float!, employmentIds: [Int!]!): [SalaryTransaction!]!
-        @auth(role: [COMPANY])
-    changeCurrencies(change: ChangeInput!): ChangeDraft! @auth(role: [BANK])
+    " Create change transaction draft. Authorized: bank "
+    changeCurrencies(change: ChangeInput!): ChangeDraft!
     " Pay a change transaction draft. Only bank must specify explicit user. "
     payChangeDraft(id: Int!, credentials: CredentialsInput): ChangeTransaction!
-        @auth(role: [USER])
-    deleteChangeDraft(id: Int!): Void @auth(role: [BANK])
-    " Transfer money to another citizen. Authorized: Citizen "
+    " Delete a change transaction draft. Authorized: bank "
+    deleteChangeDraft(id: Int!): Void
+    " Transfer money to another citizen. Authorized: citizen "
     transferMoney(transfer: TransferTransactionInput!): TransferTransaction!
-
-    sell(purchase: PurchaseInput!): PurchaseDraft! @auth(role: [COMPANY])
-    " Pay a change transaction draft. Only selling company must specify explicit user. "
+    " Create a purchase draft. Authorized: company "
+    sell(purchase: PurchaseInput!): PurchaseDraft!
+    " Pay a purchase transaction draft. Only selling company must specify explicit user. "
     payPurchaseDraft(
         id: Int!
         credentials: CredentialsInput
     ): PurchaseTransaction!
+    " Delete a purchase draft. Authorized: issuing company"
     deletePurchaseDraft(id: Int!): Void
-
-    " TODO: write tests "
-    warehousePurchase(
-        purchase: WarehousePurchaseTransactionInput!
-    ): PurchaseTransaction! @auth(role: [COMPANY])
+    # TODO: write tests
+    " Order products at the warehouse for the next day. Authorized: company "
+    warehousePurchase(purchase: WarehousePurchaseInput!): PurchaseTransaction!
+    " Charge customs on border crossings. Authorized: border control "
     chargeCustoms(customs: CustomsInput!): CustomsTransaction!
-        @auth(role: [BORDER_CONTROL])
 
-    " TODO: write tests "
+    # TODO: write tests
+    " Register citizens crossing the border to track compulsory attendance. Authorized: border control "
     registerBorderCrossing(citizenId: ID!): BorderCrossing!
-        @auth(role: [BORDER_CONTROL])
 
-    " TODO: write tests "
-    createGuest(guest: CreateGuestInput!): GuestUser!
-        @auth(role: [BORDER_CONTROL])
-    removeGuest(cardId: ID!): Void @auth(role: [BORDER_CONTROL])
+    # TODO: write tests
+    " Register new guest to a free card. Authorized: border control "
+    createGuest(cardId: ID!, guest: GuestUserInput!): GuestUser!
+    # TODO: write tests
+    " Unregister new guest from an occupied card. Authorized: border control "
+    removeGuest(cardId: ID!): Void
 
-    addProduct(product: ProductInput!): Product! @auth(role: [COMPANY])
+    " Add product to company's inventory. Authorized: company "
+    addProduct(product: ProductInput!): Product!
+    " Edit product of company's inventory. Authorized: owning company "
     editProduct(id: ID!, product: ProductInput!): Product!
-        @auth(role: [COMPANY])
-    " remove product from the company's inventory "
-    removeProduct(id: ID!): Void @auth(role: [COMPANY])
+    " Remove product from company's inventory. Authorized: owning company "
+    removeProduct(id: ID!): Void
 
-    " Create a vote. Authorized: Political admin "
+    " Create a vote. Authorized: political admin "
     createVote(vote: VoteInput!): Vote!
-    " Delete a vote. Authorized: Political admin "
+    " Delete a vote. Authorized: political admin "
     deleteVote(id: ID!): Void
-    " Cast your vote. Authorized: Citizen "
+    " Cast your vote. Authorized: citizen "
     castVote(id: ID!, votingPaper: [Float!]!): Vote!
 }
 

@@ -25,7 +25,7 @@ import {
     IWorktimeModel,
 } from "Types/models";
 import {
-    TCreateEmploymentOfferInput,
+    TEmploymentOfferInput,
     TEmploymentOfferStateCitizenInput,
     TEmploymentOfferStateCompanyInput,
     TProductInput,
@@ -397,7 +397,7 @@ export async function getWorktime(
 export async function createEmploymentOffer(
     { knex }: IAppContext,
     companyId: string,
-    offer: TCreateEmploymentOfferInput
+    offer: TEmploymentOfferInput
 ): Promise<IEmploymentOfferModel> {
     if (offer.minWorktime <= 0)
         throw new GraphQLYogaError("minWorktime must be positive", {

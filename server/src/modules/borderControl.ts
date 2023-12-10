@@ -66,9 +66,11 @@ const stay2BorderCrossing = (stay: IStay): IBorderCrossingModel => ({
     date: stay.leftAt ? stay.leftAt : stay.enteredAt,
 });
 export async function registerBorderCrossing(
-    { knex }: IAppContext,
+    { knex, session }: IAppContext,
     citizenId: string
 ): Promise<IBorderCrossingModel> {
+    assertRole(session.userSignature, "BORDER_CONTROL");
+
     return knex.transaction(async (trx) => {
         const lastBorderCrossing = await trx("stays")
             .select("id", "leftAt")
