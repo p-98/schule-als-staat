@@ -529,7 +529,7 @@ export async function transferMoney(
 export async function sell(
     ctx: IAppContext,
     companyId: string,
-    items: { productId: string; amount: number }[],
+    items: { amount: number; product: { id: string; revision: string } }[],
     discount: TNullable<number>
 ): Promise<IPurchaseDraftModel> {
     const { knex } = ctx;
@@ -547,7 +547,10 @@ export async function sell(
         );
         const date = formatDateTimeZ(new Date());
 
-        const itemsTable = map((_) => [_.productId, _.amount], items);
+        const itemsTable = map(
+            (_) => [_.product.id, _.product.revision, _.amount],
+            items
+        );
         const products: {
             id: string;
             revision: string;
@@ -555,10 +558,10 @@ export async function sell(
             amount: number;
             price: number;
         }[] = await trx.raw(
-            `WITH purchaseProducts(productId, amount) AS (:values)
+            `WITH purchaseProducts(id, revision, amount) AS (:values)
             SELECT purchaseProducts.amount, products.id, products.revision, products.companyId, products.price
             FROM purchaseProducts
-            INNER JOIN products ON products.id = purchaseProducts.productId
+            INNER JOIN products ON products.id = purchaseProducts.id AND products.revision = purchaseProducts.revision
             WHERE products.deleted IS FALSE`,
             { values: values(trx, itemsTable) }
         );
@@ -714,12 +717,17 @@ export async function deletePurchaseDraft(
 }
 export async function warehousePurchase(
     ctx: IAppContext,
-    items: { productId: string; amount: number }[]
+    items: { product: { id: string; revision: string }; amount: number }[]
 ): Promise<IPurchaseTransactionModel> {
-    const { session, knex } = ctx;
+    const { session, knex, config } = ctx;
     assertRole(session.userSignature, "COMPANY");
 
-    const draft = await sell(ctx, session.userSignature.id, items, null);
+    const draft = await sell(
+        ctx,
+        config.server.warehouseCompanyId,
+        items,
+        null
+    );
     const transaction = await payPurchaseDraft(ctx, draft.id, null);
     await knex("warehouseOrders").insert({ purchaseId: transaction.id });
 

@@ -140,12 +140,18 @@ export function assertSingleError<TExtensions, TData>(
 ): asserts value is ExecutionResult<TData, TExtensions> & {
     errors: ReadonlyArray<GraphQLError> & [GraphQLError];
 } {
-    assert.isArray(value.errors, "Result needs to have errors");
-    assert.lengthOf(
-        value.errors as ReadonlyArray<GraphQLError>,
-        1,
-        "Result needs to have exactly one error"
-    );
+    try {
+        assert.isArray(value.errors, "Result needs to have errors");
+        assert.lengthOf(
+            value.errors as ReadonlyArray<GraphQLError>,
+            1,
+            "Result needs to have exactly one error"
+        );
+    } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error(value.errors);
+        throw err;
+    }
 }
 
 export const assertInvalid = (

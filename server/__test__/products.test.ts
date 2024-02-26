@@ -9,12 +9,13 @@ import {
     assertInvalid,
 } from "Util/test";
 
-import { omit, negate, set } from "lodash/fp";
+import { omit, negate, set, pick } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance, yogaFactory } from "Server";
 import { type Knex, emptyKnex } from "Database";
 import { EUserTypes } from "Types/models";
 import { graphql } from "./graphql";
+import { ProductRevisionInput } from "./graphql/graphql";
 
 graphql(/* GraphQL */ `
     fragment NoStats_ProductFragment on Product {
@@ -183,6 +184,8 @@ beforeEach(async () => {
 afterEach(async () => {
     await knex.destroy();
 });
+
+const rev: (p: IProduct) => ProductRevisionInput = pick(["id", "revision"]);
 
 async function forEachUserType(
     fn: (user: TUserExecutor) => Promise<void>
@@ -438,10 +441,10 @@ async function testRemoveProduct(product: IProduct) {
     assertInvalid(removeAgain, "PRODUCT_NOT_FOUND");
 }
 
-async function testSell(product: IProduct): Promise<IPurchaseDraft> {
+async function testSell(_product: IProduct): Promise<IPurchaseDraft> {
     const discount = 1.0;
     const amount = 2;
-    const productId = product.id;
+    const product = rev(_product);
 
     const sellerState = await getSellerState();
     assert("drafts" in sellerState);
@@ -449,28 +452,49 @@ async function testSell(product: IProduct): Promise<IPurchaseDraft> {
     // invalid requests
     const invalidDiscount = await seller({
         document: sellMutation,
-        variables: { discount: -1.0, items: [{ amount, productId }] },
+        variables: { discount: -1.0, items: [{ amount, product }] },
     });
     assertInvalid(invalidDiscount, "BAD_USER_INPUT");
     const invalidAmount = await seller({
         document: sellMutation,
-        variables: { discount, items: [{ amount: -1, productId }] },
+        variables: { discount, items: [{ amount: -1, product }] },
     });
     assertInvalid(invalidAmount, "BAD_USER_INPUT");
     const invalidProductId = await seller({
         document: sellMutation,
         variables: {
             discount,
-            items: [{ amount, productId: "invalidProductId" }],
+            items: [{ amount, product: { ...product, id: "invalid" } }],
         },
     });
     assertInvalid(invalidProductId, "PRODUCT_NOT_FOUND");
-    const differentProduct = await testAddProduct(company);
+    const invalidProductRevision = await seller({
+        document: sellMutation,
+        variables: {
+            discount,
+            items: [{ amount, product: { ...product, revision: "invalid" } }],
+        },
+    });
+    assertInvalid(invalidProductRevision, "PRODUCT_NOT_FOUND");
+    const product1Old = await testAddProduct(seller);
+    const product1New = await testEditProduct(product1Old);
+    const oldProductRevision = await seller({
+        document: sellMutation,
+        variables: { discount, items: [{ amount, product: rev(product1Old) }] },
+    });
+    assertInvalid(oldProductRevision, "PRODUCT_NOT_FOUND");
+    await testRemoveProduct(product1New);
+    const removedProduct = await seller({
+        document: sellMutation,
+        variables: { discount, items: [{ amount, product: rev(product1New) }] },
+    });
+    assertInvalid(removedProduct, "PRODUCT_NOT_FOUND");
+    const companyProduct = await testAddProduct(company);
     const wrongProductOwner = await seller({
         document: sellMutation,
         variables: {
             discount,
-            items: [{ amount, productId: differentProduct.id }],
+            items: [{ amount, product: rev(companyProduct) }],
         },
     });
     assertInvalid(wrongProductOwner, "PERMISSION_DENIED");
@@ -479,7 +503,7 @@ async function testSell(product: IProduct): Promise<IPurchaseDraft> {
     const before = new Date();
     const sell = await seller({
         document: sellMutation,
-        variables: { discount, items: [{ amount, productId }] },
+        variables: { discount, items: [{ amount, product }] },
     });
     const after = new Date();
     assertSingleValue(sell);
@@ -490,10 +514,10 @@ async function testSell(product: IProduct): Promise<IPurchaseDraft> {
             __typename: "CompanyUser",
             id: seller.id,
         },
-        grossPrice: amount * product.price - discount,
-        netPrice: amount * product.price - discount,
+        grossPrice: amount * _product.price - discount,
+        netPrice: amount * _product.price - discount,
         tax: 0.0,
-        items: [{ amount, product }],
+        items: [{ amount, product: _product }],
         discount,
     });
     assert.isAtLeast(new Date(draft.date).getTime(), before.getTime());

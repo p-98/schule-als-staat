@@ -312,7 +312,7 @@ type PurchaseItem {
 }
 " Tuple with product and amount for use in purchases "
 input PurchaseItemInput {
-    productId: ID!
+    product: ProductRevisionInput!
     amount: Int!
 }
 " A customs transaction "
@@ -365,6 +365,11 @@ type Product {
 input ProductInput {
     name: String!
     price: Float!
+}
+" Information needed to identify a product revision "
+input ProductRevisionInput {
+    id: ID!
+    revision: ID!
 }
 " Representing a 1h timeframe of the product's stats"
 type ProductStatsFragment {
@@ -463,7 +468,6 @@ type Mutation {
     ): PurchaseTransaction!
     " Delete a purchase draft. Authorized: issuing company"
     deletePurchaseDraft(id: Int!): Void
-    # TODO: write tests
     " Order products at the warehouse for the next day. Authorized: company "
     warehousePurchase(purchase: WarehousePurchaseInput!): PurchaseTransaction!
     " Charge customs on border crossings. Authorized: border control "
