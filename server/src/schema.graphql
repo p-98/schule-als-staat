@@ -129,6 +129,7 @@ type GuestUser implements User {
 }
 " Input type of a guest "
 input GuestUserInput {
+    balance: Float
     name: String
 }
 " A citizen user "

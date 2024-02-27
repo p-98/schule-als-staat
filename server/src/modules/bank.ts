@@ -740,7 +740,7 @@ export async function createBankAccount(
 ): Promise<IBankAccount> {
     const id = uuidv4();
     await knex("bankAccounts").insert({
-        id: uuidv4(),
+        id,
         balance: initBalance,
         redemptionBalance: 0,
     });

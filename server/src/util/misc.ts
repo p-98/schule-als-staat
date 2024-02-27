@@ -37,6 +37,7 @@ export const average = (arr: number[]): number => {
     return sum(arr) / arr.length;
 };
 
+export function pipe1<A, R1>(a: A, f1: (a: A) => R1): R1;
 export function pipe1<A, R1, R2>(a: A, f1: (a: A) => R1, f2: (a: A) => R2): R2;
 export function pipe1<A, R1, R2, R3>(
     a: A,

@@ -8,6 +8,7 @@ import { assert, GraphQLYogaError } from "Util/error";
 import { formatDateTimeZ } from "Util/date";
 import { createBankAccount } from "Modules/bank";
 import { assertRole } from "Util/auth";
+import { isNil } from "lodash/fp";
 
 export async function getGuest(
     { knex }: IAppContext,
@@ -40,6 +41,13 @@ export async function createGuest(
     const { knex, config, session } = ctx;
     const date = formatDateTimeZ(new Date());
 
+    if (!isNil(guest.balance))
+        assert(
+            guest.balance >= 0,
+            "Balance must not be negative",
+            "BAD_USER_INPUT"
+        );
+
     assertRole(session.userSignature, "BORDER_CONTROL");
 
     return knex.transaction(async (trx) => {
@@ -55,8 +63,8 @@ export async function createGuest(
             "CARD_OCCUPIED"
         );
         const bankAccount = await createBankAccount(
-            ctx,
-            config.guestInitialBalance
+            { ...ctx, knex: trx },
+            guest.balance ?? config.guestInitialBalance
         );
         const inserted = await trx("guests")
             .insert({

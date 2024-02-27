@@ -43,7 +43,7 @@ import bcrypt from "bcrypt";
 import config from "Config";
 import { formatDateTimeZ } from "Util/date";
 import { graphql } from "__test__/graphql";
-import { UnPromise } from "Util/misc";
+import { pipe1, UnPromise } from "Util/misc";
 
 /* Seeding helper functions for unit testing
  */
@@ -325,12 +325,21 @@ const loginMutation = graphql(/* GraphQL */ `
 export async function buildHTTPUserExecutor(
     knex: Knex,
     yoga: TYogaServerInstance,
-    userSignature: PartialProp<IUserSignature, "id">
+    userSignature: PartialProp<ICredentials, "id" | "password">,
+    options?: {
+        // if set, assumes `userSignature` argument to be of type ICredentials
+        noSeed?: boolean;
+    }
 ): Promise<
     TYogaExecutor &
         ICredentials & { credentials: ICredentials; signature: IUserSignature }
 > {
-    const credentials = await seedUser(knex, userSignature);
+    const credentials = pipe1(
+        options?.noSeed
+            ? (userSignature as ICredentials)
+            : await seedUser(knex, userSignature),
+        pick(["id", "type", "password"])
+    );
 
     const executor = buildHTTPCookieExecutor({
         // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
