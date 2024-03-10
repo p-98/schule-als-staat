@@ -42,42 +42,42 @@ export function pipe1<A, R1, R2>(a: A, f1: (a: A) => R1, f2: (a: A) => R2): R2;
 export function pipe1<A, R1, R2, R3>(
     a: A,
     f1: (a: A) => R1,
-    f2: (a: A) => R2,
-    f3: (a: A) => R3
+    f2: (a: R1) => R2,
+    f3: (a: R2) => R3
 ): R3;
 export function pipe1<A, R1, R2, R3, R4>(
     a: A,
     f1: (a: A) => R1,
-    f2: (a: A) => R2,
-    f3: (a: A) => R3,
-    f4: (a: A) => R4
+    f2: (a: R2) => R2,
+    f3: (a: R3) => R3,
+    f4: (a: R4) => R4
 ): R4;
 export function pipe1<A, R1, R2, R3, R4, R5>(
     a: A,
     f1: (a: A) => R1,
-    f2: (a: A) => R2,
-    f3: (a: A) => R3,
-    f4: (a: A) => R4,
-    f5: (a: A) => R5
+    f2: (a: R1) => R2,
+    f3: (a: R2) => R3,
+    f4: (a: R3) => R4,
+    f5: (a: R4) => R5
 ): R5;
 export function pipe1<A, R1, R2, R3, R4, R5, R6>(
     a: A,
     f1: (a: A) => R1,
-    f2: (a: A) => R2,
-    f3: (a: A) => R3,
-    f4: (a: A) => R4,
-    f5: (a: A) => R5,
-    f6: (a: A) => R6
+    f2: (a: R1) => R2,
+    f3: (a: R2) => R3,
+    f4: (a: R3) => R4,
+    f5: (a: R4) => R5,
+    f6: (a: R5) => R6
 ): R6;
 export function pipe1<A, R1, R2, R3, R4, R5, R6, R7>(
     a: A,
     f1: (a: A) => R1,
-    f2: (a: A) => R2,
-    f3: (a: A) => R3,
-    f4: (a: A) => R4,
-    f5: (a: A) => R5,
-    f6: (a: A) => R6,
-    f7: (a: A) => R7
+    f2: (a: R1) => R2,
+    f3: (a: R2) => R3,
+    f4: (a: R3) => R4,
+    f5: (a: R4) => R5,
+    f6: (a: R5) => R6,
+    f7: (a: R6) => R7
 ): R7;
 export function pipe1(
     arg: unknown,
