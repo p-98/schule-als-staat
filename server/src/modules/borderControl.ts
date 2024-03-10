@@ -1,5 +1,6 @@
 import type { IAppContext } from "Server";
 
+import { isUndefined } from "lodash/fp";
 import { assert } from "Util/error";
 import { parseUserSignature, stringifyUserSignature } from "Util/parse";
 import { formatDateTimeZ } from "Util/date";
@@ -10,7 +11,9 @@ import type {
     IUserSignature,
 } from "Types/models";
 import { assertRole } from "Util/auth";
+import { compute } from "Util/misc";
 import { getUser } from "Modules/users";
+import { getCitizen } from "./registryOffice";
 
 export async function chargeCustoms(
     ctx: IAppContext,
@@ -66,10 +69,12 @@ const stay2BorderCrossing = (stay: IStay): IBorderCrossingModel => ({
     date: stay.leftAt ? stay.leftAt : stay.enteredAt,
 });
 export async function registerBorderCrossing(
-    { knex, session }: IAppContext,
+    ctx: IAppContext,
     citizenId: string
 ): Promise<IBorderCrossingModel> {
+    const { knex, session } = ctx;
     assertRole(session.userSignature, "BORDER_CONTROL");
+    await getCitizen(ctx, citizenId); // check citizen exists
 
     return knex.transaction(async (trx) => {
         const lastBorderCrossing = await trx("stays")
@@ -77,9 +82,12 @@ export async function registerBorderCrossing(
             .where({ citizenId })
             .orderBy("id", "desc")
             .first();
-        const isEntering = !!lastBorderCrossing?.leftAt;
+        const isEntering = compute(() => {
+            if (isUndefined(lastBorderCrossing)) return true;
+            return !!lastBorderCrossing.leftAt;
+        });
 
-        const returnQuery: Promise<IStay> = isEntering
+        const returnQuery: Promise<IStay[]> = isEntering
             ? trx.raw(
                   `INSERT INTO stays (citizenId, enteredAt)
                   VALUES (?, ?)
@@ -92,9 +100,10 @@ export async function registerBorderCrossing(
                   SET leftAt = ?
                   WHERE citizenId = ?
                   RETURNING *`,
-                  [citizenId, formatDateTimeZ(new Date())]
+                  [formatDateTimeZ(new Date()), citizenId]
               );
+        const stay = (await returnQuery)[0]!;
 
-        return stay2BorderCrossing(await returnQuery);
+        return stay2BorderCrossing(stay);
     });
 }

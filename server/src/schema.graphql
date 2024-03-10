@@ -474,14 +474,11 @@ type Mutation {
     " Charge customs on border crossings. Authorized: border control "
     chargeCustoms(customs: CustomsInput!): CustomsTransaction!
 
-    # TODO: write tests
     " Register citizens crossing the border to track compulsory attendance. Authorized: border control "
     registerBorderCrossing(citizenId: ID!): BorderCrossing!
 
-    # TODO: write tests
     " Register new guest to a free card. Authorized: border control "
     createGuest(cardId: ID!, guest: GuestUserInput!): GuestUser!
-    # TODO: write tests
     " Unregister new guest from an occupied card. Authorized: border control "
     removeGuest(cardId: ID!): Void
 

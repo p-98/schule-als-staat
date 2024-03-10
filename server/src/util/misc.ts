@@ -98,3 +98,24 @@ export const forEachAsync = async <T, R>(
         await callback(val);
     }
 };
+
+/** Use function to compute value
+ *
+ * Simplifies pattern `let x = (() => {...})()`
+ *                 to `let x = compute(() => {...})`
+ */
+export const compute = <T>(f: () => T): T => f();
+
+/* * Haskell-style logging functions * */
+
+/** Log a value and return another  */
+export function log<T>(msg: unknown, x: T): T {
+    // eslint-disable-next-line no-console
+    console.log(msg);
+    return x;
+}
+
+/** Log a value and return it */
+export function logId<T>(x: T): T {
+    return log(x, x);
+}
