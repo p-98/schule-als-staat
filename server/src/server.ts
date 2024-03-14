@@ -9,7 +9,7 @@ import type {
     TPayload,
 } from "Types/models";
 import type { TResolvers } from "Types/schema";
-import type { WithCookieStore, UnPromise } from "Util/misc";
+import { WithCookieStore, UnPromise, mapNullableC } from "Util/misc";
 
 import {
     createPubSub,
@@ -26,7 +26,7 @@ import {
     DateTimeResolver,
 } from "graphql-scalars";
 import { subDays } from "date-fns/fp";
-import { pipe } from "lodash/fp";
+import { curry, pipe } from "lodash/fp";
 
 import {
     getAllBooks,
@@ -87,6 +87,15 @@ import {
 import { chargeCustoms, registerBorderCrossing } from "Modules/borderControl";
 import { createGuest, getGuest, leaveGuest } from "Modules/foreignOffice";
 import { assertRole, checkRole } from "Util/auth";
+import {
+    assignCard,
+    blockCard,
+    getCard,
+    readCard,
+    registerCard,
+    unassignCard,
+    unblockCard,
+} from "Modules/cards";
 import { formatDateZ } from "Util/date";
 import { GraphQLYogaError } from "Util/error";
 import { EUserTypes, ETransactionTypes, EDraftTypes } from "Types/models";
@@ -252,6 +261,11 @@ const resolvers: TResolvers = {
 
     Vote: {},
 
+    Card: {
+        user: (parent, _, ctx) =>
+            mapNullableC(curry(getUser)(ctx))(parent.userSignature),
+    },
+
     Query: {
         books: () => getAllBooks(),
         book: (_, args) => getBook(args.title),
@@ -301,6 +315,9 @@ const resolvers: TResolvers = {
         /* eslint-enable no-param-reassign */
 
         votes: (_, __, ctx) => getAllVotes(ctx),
+
+        readCard: (_, args, ctx) => readCard(ctx, args.id),
+        card: (_, args, ctx) => getCard(ctx, args.id),
     },
     Mutation: {
         addBook: (_, args, ctx) => {
@@ -420,6 +437,12 @@ const resolvers: TResolvers = {
         createVote: (_, args, ctx) => createVote(ctx, args.vote),
         deleteVote: (_, args, ctx) => deleteVote(ctx, args.id),
         castVote: (_, args, ctx) => castVote(ctx, args.id, args.votingPaper),
+
+        registerCard: (_, args, ctx) => registerCard(ctx, args.id),
+        assignCard: (_, args, ctx) => assignCard(ctx, args.id, args.user),
+        unassignCard: (_, args, ctx) => unassignCard(ctx, args.id),
+        blockCard: (_, args, ctx) => blockCard(ctx, args.id),
+        unblockCard: (_, args, ctx) => unblockCard(ctx, args.id),
     },
     Subscription: {
         addedBook: {

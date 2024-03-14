@@ -2,7 +2,8 @@ import type { CookieStore } from "@whatwg-node/cookie-store";
 
 import path from "node:path";
 import { root } from "Config";
-import { pipe, sum } from "lodash/fp";
+import { isNull, pipe, sum } from "lodash/fp";
+import { TNullable } from "Types";
 
 export type WithCookieStore<T> = T & { cookieStore: CookieStore };
 
@@ -105,6 +106,12 @@ export const forEachAsync = async <T, R>(
  *                 to `let x = compute(() => {...})`
  */
 export const compute = <T>(f: () => T): T => f();
+
+/** Apply a function if value is not null */
+export const mapNullableC =
+    <T, U>(f: (_x: T) => U) =>
+    (x: TNullable<T>) =>
+        isNull(x) ? null : f(x);
 
 /* * Haskell-style logging functions * */
 

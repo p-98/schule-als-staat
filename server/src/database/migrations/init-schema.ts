@@ -195,6 +195,12 @@ export async function up(knex: Knex): Promise<void> {
             .references("id")
             .inTable("purchaseTransactions");
     });
+
+    await knex.schema.createTable("cards", (table) => {
+        table.text("id").primary();
+        table.json("userSignature").index();
+        table.boolean("blocked").notNullable();
+    });
 }
 
 export async function down(knex: Knex): Promise<void> {

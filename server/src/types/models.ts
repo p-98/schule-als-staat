@@ -216,6 +216,12 @@ export interface IVoteModel {
     chartInfo: TNullable<string>;
 }
 
+export interface ICardModel {
+    id: string;
+    userSignature: TNullable<IUserSignature>;
+    blocked: boolean;
+}
+
 // event types
 export type TEvents = {
     ADDED_BOOK: [payload: IBookModel];

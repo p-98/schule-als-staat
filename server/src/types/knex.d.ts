@@ -160,6 +160,12 @@ export interface IWarehouseOrder {
     purchaseId: number;
 }
 
+export interface ICard {
+    id: string;
+    userSignature: TNullable<string>;
+    blocked: boolean;
+}
+
 declare module "knex/types/tables" {
     interface Tables {
         sessions: Knex.CompositeTableType<
@@ -256,6 +262,11 @@ declare module "knex/types/tables" {
             IWarehouseOrder,
             IWarehouseOrder,
             never
+        >;
+        cards: Knex.CompositeTableType<
+            ICard,
+            Pick<ICard, "id" | "blocked">,
+            Partial<TOmit<ICard, "id">>
         >;
     }
 }

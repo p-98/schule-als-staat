@@ -51,6 +51,7 @@ generates:
                 Product: ./models#IProductModel
                 ProductStatsFragment: ./models#IProductStatsFragmentModel
                 Vote: ./models#IVoteModel
+                Card: ./models#ICardModel
             strictScalars: true
             scalars:
                 DateTimeISO: string

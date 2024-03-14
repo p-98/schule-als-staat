@@ -1,4 +1,5 @@
 import { GraphQLError, GraphQLErrorExtensions } from "graphql";
+import { curry } from "lodash/fp";
 import { inOperator } from "Types";
 
 /** Conveniently represents flow's "Maybe" type https://flow.org/en/docs/types/maybe/ */
@@ -23,3 +24,4 @@ export function assert(
 ): asserts condition {
     if (!condition) throw new GraphQLError(message, { extensions: { code } });
 }
+export const fail = curry(assert)(false);

@@ -405,6 +405,13 @@ input VoteInput {
     choices: [String!]!
 }
 
+" Information of an id card "
+type Card {
+    id: ID!
+    user: User
+    blocked: Boolean!
+}
+
 #                #
 # API Root types #
 #                #
@@ -427,6 +434,10 @@ type Query {
     " Information on all votes. Authorized: citizen, political admin "
     votes: [Vote!]!
 
+    " Reads user assigned to card, if any. "
+    readCard(id: ID!): User
+    " Read card information. Authorized: border control, admin "
+    card(id: ID!): Card!
 }
 
 " Mutations "
@@ -494,6 +505,17 @@ type Mutation {
     deleteVote(id: ID!): Void
     " Cast your vote. Authorized: citizen "
     castVote(id: ID!, votingPaper: [Float!]!): Vote!
+
+    " Register a new empty unblocked card. Authorized: admin "
+    registerCard(id: ID!): Card!
+    " Assign a user to a card. Authorized: border control, admin "
+    assignCard(id: ID!, user: UserSignatureInput!): Card!
+    " Unassign a user from a card. The card becomes empty egain. Authorized: border control, admin "
+    unassignCard(id: ID!): Card!
+    " Block card preventing its further use. Authorized: admin "
+    blockCard(id: ID!): Card!
+    " Unblock card reenabling it use. Authorized: admin "
+    unblockCard(id: ID!): Card!
 }
 
 " Subscriptions "
