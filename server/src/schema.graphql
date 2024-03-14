@@ -476,9 +476,9 @@ type Mutation {
     " Register citizens crossing the border to track compulsory attendance. Authorized: border control "
     registerBorderCrossing(citizenId: ID!): BorderCrossing!
 
-    " Create a new guest account and register him entering. Authorized: border control "
+    " Create a new guest account and register him entering. Authorized: border control, admin "
     createGuest(guest: GuestUserInput!): GuestUser!
-    " Register a guest leaving. Authorized: border control "
+    " Register a guest leaving. Authorized: border control, admin "
     leaveGuest(id: ID!): GuestUser!
 
     " Add product to company's inventory. Authorized: company "

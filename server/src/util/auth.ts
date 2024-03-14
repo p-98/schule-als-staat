@@ -40,44 +40,54 @@ export async function assertCredentials(
 // function for checking privileges
 export function checkRole(
     user: TNullable<IUserSignature>,
-    role: "ADMIN"
+    role: "ADMIN",
+    opts?: { allowAdmin?: false }
 ): user is IUserSignature & { type: "CITIZEN" };
 export function checkRole(
     user: TNullable<IUserSignature>,
-    role: "USER"
+    role: "USER",
+    opts?: { allowAdmin?: false }
 ): user is IUserSignature;
 export function checkRole(
     user: TNullable<IUserSignature>,
-    role: "CITIZEN"
+    role: "CITIZEN",
+    opts?: { allowAdmin?: false }
 ): user is IUserSignature & { type: "CITIZEN" };
 export function checkRole(
     user: TNullable<IUserSignature>,
-    role: "COMPANY"
+    role: "COMPANY",
+    opts?: { allowAdmin?: false }
 ): user is IUserSignature & { type: "COMPANY" };
 export function checkRole(
     user: TNullable<IUserSignature>,
-    role: "GUEST"
+    role: "GUEST",
+    opts?: { allowAdmin?: false }
 ): user is IUserSignature & { type: "GUEST" };
 export function checkRole(
     user: TNullable<IUserSignature>,
-    role: "POLICE" | "BANK" | "BORDER_CONTROL" | "POLITICS"
+    role: "POLICE" | "BANK" | "BORDER_CONTROL" | "POLITICS",
+    opts?: { allowAdmin?: false }
 ): user is IUserSignature & { type: "COMPANY" };
 export function checkRole(
     user: TNullable<IUserSignature>,
-    role: TAuthRole
+    role: TAuthRole,
+    opts?: { allowAdmin?: boolean }
 ): boolean;
 export function checkRole(
     user: TNullable<IUserSignature>,
-    role: TAuthRole
+    role: TAuthRole,
+    opts?: { allowAdmin?: boolean }
 ): boolean {
     if (user === null) return false;
 
+    const isAdmin =
+        user.type === "CITIZEN" &&
+        config.server.adminCitizenIds.includes(user.id);
+    if (opts?.allowAdmin && isAdmin) return true;
+
     switch (role) {
         case "ADMIN":
-            return (
-                user.type === "CITIZEN" &&
-                config.server.adminCitizenIds.includes(user.id)
-            );
+            return isAdmin;
         case "USER":
             return user !== null;
         case "GUEST":
@@ -121,48 +131,46 @@ const assertRoleMessages = {
 export function assertRole(
     user: TNullable<IUserSignature>,
     role: "ADMIN",
-    message?: string,
-    code?: string
+    opts?: { message?: string; code?: string; allowAdmin?: false }
 ): asserts user is IUserSignature & { type: "CITIZEN" };
 export function assertRole(
     user: TNullable<IUserSignature>,
     role: "USER",
-    message?: string,
-    code?: string
+    opts?: { message?: string; code?: string; allowAdmin?: false }
 ): asserts user is IUserSignature;
 export function assertRole(
     user: TNullable<IUserSignature>,
     role: "CITIZEN",
-    message?: string,
-    code?: string
+    opts?: { message?: string; code?: string; allowAdmin?: false }
 ): asserts user is IUserSignature & { type: "CITIZEN" };
 export function assertRole(
     user: TNullable<IUserSignature>,
     role: "COMPANY",
-    message?: string,
-    code?: string
+    opts?: { message?: string; code?: string; allowAdmin?: false }
 ): asserts user is IUserSignature & { type: "COMPANY" };
 export function assertRole(
     user: TNullable<IUserSignature>,
     role: "GUEST",
-    message?: string,
-    code?: string
+    opts?: { message?: string; code?: string; allowAdmin?: false }
 ): asserts user is IUserSignature & { type: "GUEST" };
 export function assertRole(
     user: TNullable<IUserSignature>,
     role: "POLICE" | "BANK" | "BORDER_CONTROL" | "POLITICS",
-    message?: string,
-    code?: string
+    opts?: { message?: string; code?: string; allowAdmin?: false }
 ): asserts user is IUserSignature & { type: "COMPANY" };
 export function assertRole(
     user: TNullable<IUserSignature>,
     role: TAuthRole,
-    message?: string,
-    code?: string
+    opts?: { message?: string; code?: string; allowAdmin?: boolean }
+): void;
+export function assertRole(
+    user: TNullable<IUserSignature>,
+    role: TAuthRole,
+    opts?: { message?: string; code?: string; allowAdmin?: boolean }
 ): void {
     assert(
-        checkRole(user, role),
-        message ?? assertRoleMessages[role],
-        code ?? "PERMISSION_DENIED"
+        checkRole(user, role, opts),
+        opts?.message ?? assertRoleMessages[role],
+        opts?.code ?? "PERMISSION_DENIED"
     );
 }

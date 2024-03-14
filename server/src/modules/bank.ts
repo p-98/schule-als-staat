@@ -458,18 +458,14 @@ export async function transferMoney(
     const date = formatDateTimeZ(new Date());
 
     return knex.transaction(async (trx) => {
-        assertRole(
-            sender,
-            "CITIZEN",
-            "Only citizens can send money",
-            "TRANSFER_SENDER_RESTRICTED"
-        );
-        assertRole(
-            receiver,
-            "CITIZEN",
-            "Only citizens can receive money",
-            "TRANSFER_RECEIVER_RESTRICTED"
-        );
+        assertRole(sender, "CITIZEN", {
+            message: "Only citizens can send money",
+            code: "TRANSFER_SENDER_RESTRICTED",
+        });
+        assertRole(receiver, "CITIZEN", {
+            message: "Only citizens can receive money",
+            code: "TRANSFER_RECEIVER_RESTRICTED",
+        });
         if (value <= 0)
             throw new GraphQLYogaError("Value must be greater than 0.", {
                 code: "BAD_USER_INPUT",

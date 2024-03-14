@@ -42,7 +42,7 @@ export async function createGuest(
             "BAD_USER_INPUT"
         );
 
-    assertRole(session.userSignature, "BORDER_CONTROL");
+    assertRole(session.userSignature, "BORDER_CONTROL", { allowAdmin: true });
 
     return knex.transaction(async (trx) => {
         const bankAccount = await createBankAccount(
@@ -75,7 +75,7 @@ export async function leaveGuest(
     const { knex, session } = ctx;
     const date = formatDateTimeZ(new Date());
 
-    assertRole(session.userSignature, "BORDER_CONTROL");
+    assertRole(session.userSignature, "BORDER_CONTROL", { allowAdmin: true });
 
     return knex.transaction(async (trx) => {
         const [guest] = await trx("guests").select("leftAt").where({ id });
