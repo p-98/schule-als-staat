@@ -85,7 +85,7 @@ import {
     getAllVotes,
 } from "Modules/electoralOffice";
 import { chargeCustoms, registerBorderCrossing } from "Modules/borderControl";
-import { createGuest, getGuest, removeGuest } from "Modules/foreignOffice";
+import { createGuest, getGuest, leaveGuest } from "Modules/foreignOffice";
 import { assertRole, checkRole } from "Util/auth";
 import { formatDateZ } from "Util/date";
 import { GraphQLYogaError } from "Util/error";
@@ -410,9 +410,8 @@ const resolvers: TResolvers = {
         registerBorderCrossing: (_, args, ctx) =>
             registerBorderCrossing(ctx, args.citizenId),
 
-        createGuest: (_, args, ctx) =>
-            createGuest(ctx, args.cardId, args.guest),
-        removeGuest: (_, args, ctx) => removeGuest(ctx, args.cardId),
+        createGuest: (_, args, ctx) => createGuest(ctx, args.guest),
+        leaveGuest: (_, args, ctx) => leaveGuest(ctx, args.id),
 
         addProduct: (_, args, ctx) => addProduct(ctx, args.product),
         editProduct: (_, args, ctx) => editProduct(ctx, args.id, args.product),

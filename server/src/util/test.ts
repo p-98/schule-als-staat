@@ -282,7 +282,6 @@ export async function seedUser(
         GUEST: async (seedKnex) =>
             seedKnex("guests").insert({
                 id: credentials.id,
-                cardId: `cardIdOfGUEST${id}`,
                 bankAccountId,
                 name: `guestNameOfGUEST${id}`,
                 enteredAt: formatDateTimeZ(new Date()),

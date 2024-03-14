@@ -21,7 +21,6 @@ export interface IBankAccount {
 
 export interface IGuest {
     id: string;
-    cardId: string;
     bankAccountId: string;
     name: TNullable<string>;
     enteredAt: string;

@@ -427,7 +427,6 @@ type Query {
     " Information on all votes. Authorized: citizen, political admin "
     votes: [Vote!]!
 
-    userFromCard(cardId: ID!): User!
 }
 
 " Mutations "
@@ -477,10 +476,10 @@ type Mutation {
     " Register citizens crossing the border to track compulsory attendance. Authorized: border control "
     registerBorderCrossing(citizenId: ID!): BorderCrossing!
 
-    " Register new guest to a free card. Authorized: border control "
-    createGuest(cardId: ID!, guest: GuestUserInput!): GuestUser!
-    " Unregister new guest from an occupied card. Authorized: border control "
-    removeGuest(cardId: ID!): Void
+    " Create a new guest account and register him entering. Authorized: border control "
+    createGuest(guest: GuestUserInput!): GuestUser!
+    " Register a guest leaving. Authorized: border control "
+    leaveGuest(id: ID!): GuestUser!
 
     " Add product to company's inventory. Authorized: company "
     addProduct(product: ProductInput!): Product!

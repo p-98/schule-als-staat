@@ -16,7 +16,6 @@ export async function up(knex: Knex): Promise<void> {
 
     await knex.schema.createTable("guests", (table) => {
         table.uuid("id").primary();
-        table.text("cardId").notNullable();
         table.uuid("bankAccountId").notNullable().index();
         table.foreign("bankAccountId").references("id").inTable("bankAccounts");
         table.text("name");

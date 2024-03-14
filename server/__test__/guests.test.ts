@@ -40,18 +40,17 @@ const guestStateQuery = graphql(/* GraphQL */ `
     }
 `);
 const createGuestMutation = graphql(/* GraphQL */ `
-    mutation CreateGuest($cardId: ID!, $balance: Float, $name: String) {
-        createGuest(
-            cardId: $cardId
-            guest: { balance: $balance, name: $name }
-        ) {
+    mutation CreateGuest($balance: Float, $name: String) {
+        createGuest(guest: { balance: $balance, name: $name }) {
             ...All_GuestUserFragment
         }
     }
 `);
-const removeGuestMutation = graphql(/* GraphQL */ `
-    mutation RemoveGuest($cardId: ID!) {
-        removeGuest(cardId: $cardId)
+const leaveGuestMutation = graphql(/* GraphQL */ `
+    mutation LeaveGuest($id: ID!) {
+        leaveGuest(id: $id) {
+            ...All_GuestUserFragment
+        }
     }
 `);
 
@@ -92,12 +91,13 @@ function assertGuestState(_guest: TUserExecutor) {
         if (isNil(leftAt)) {
             assert.isNull(result.data.meGuest.leftAt);
         } else {
+            assert(!isNil(guest.leftAt));
             assert.isAtLeast(
-                new Date(guest.leftAt as unknown as number).getTime(),
+                new Date(guest.leftAt).getTime(),
                 leftAt[0].getTime()
             );
             assert.isAtMost(
-                new Date(guest.leftAt as unknown as number).getTime(),
+                new Date(guest.leftAt).getTime(),
                 leftAt[1].getTime()
             );
         }
@@ -105,14 +105,13 @@ function assertGuestState(_guest: TUserExecutor) {
 }
 
 async function testCreateGuest(
-    cardId: string,
     balance: TNullable<number>,
     name: TNullable<string>
 ): Promise<TGuest> {
     // invalid requests
     const negativeBalance = await borderControl({
         document: createGuestMutation,
-        variables: { cardId, balance: -1, name },
+        variables: { balance: -1, name },
     });
     assertInvalid(negativeBalance, "BAD_USER_INPUT");
 
@@ -120,7 +119,7 @@ async function testCreateGuest(
     const before = new Date();
     const create = await borderControl({
         document: createGuestMutation,
-        variables: { cardId, balance, name },
+        variables: { balance, name },
     });
     const after = new Date();
     assertSingleValue(create);
@@ -145,24 +144,29 @@ async function testCreateGuest(
     return guest;
 }
 
-async function testRemoveGuest(cardId: string, guest: TGuest): Promise<void> {
+async function testLeaveGuest(guest: TGuest): Promise<void> {
+    const { id } = guest;
+
     // invalid requests
-    const invalidCardId = await borderControl({
-        document: removeGuestMutation,
-        variables: { cardId: "invalidCardId" },
+    const invalidId = await borderControl({
+        document: leaveGuestMutation,
+        variables: { id: "invalidGuestId" },
     });
-    assertInvalid(invalidCardId, "CARD_NOT_OCCUPIED");
+    assertInvalid(invalidId, "GUEST_NOT_FOUND");
 
     // valid request
     const before = new Date();
-    const remove = await borderControl({
-        document: removeGuestMutation,
-        variables: { cardId },
+    const leave = await borderControl({
+        document: leaveGuestMutation,
+        variables: { id },
     });
     const after = new Date();
-    assertSingleValue(remove);
-    assertNoErrors(remove);
-    assert.isNull(remove.data.removeGuest);
+    assertSingleValue(leave);
+    assertNoErrors(leave);
+    const left = leave.data.leaveGuest;
+    assert.deepStrictEqual(omit("leftAt", left), omit("leftAt", guest));
+    assert.isAtLeast(new Date(left.leftAt!).getTime(), before.getTime());
+    assert.isAtMost(new Date(left.leftAt!).getTime(), after.getTime());
 
     const guestClient = await buildHTTPUserExecutor(knex, yoga, guest, {
         noSeed: true,
@@ -171,13 +175,13 @@ async function testRemoveGuest(cardId: string, guest: TGuest): Promise<void> {
 }
 
 test("create, remove default args", async () => {
-    const guest = await testCreateGuest("123", null, null);
-    await testRemoveGuest("123", guest);
+    const guest = await testCreateGuest(null, null);
+    await testLeaveGuest(guest);
 });
 
 test("create, remove explicit args", async () => {
-    const guest = await testCreateGuest("123", 12, "Max Mustermann");
-    await testRemoveGuest("123", guest);
+    const guest = await testCreateGuest(12, "Max Mustermann");
+    await testLeaveGuest(guest);
 });
 
 test.todo("create same card");

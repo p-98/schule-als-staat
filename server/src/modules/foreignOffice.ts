@@ -4,27 +4,22 @@ import type { IAppContext } from "Server";
 import type { TGuestUserInput } from "Types/schema";
 
 import { v4 as uuidv4 } from "uuid";
-import { assert, GraphQLYogaError } from "Util/error";
+import { assert } from "Util/error";
 import { formatDateTimeZ } from "Util/date";
 import { createBankAccount } from "Modules/bank";
 import { assertRole } from "Util/auth";
-import { isNil } from "lodash/fp";
+import { isNil, isNull } from "lodash/fp";
 
 export async function getGuest(
     { knex }: IAppContext,
     id: string
 ): Promise<IGuestUserModel> {
-    const raw = (await knex("guests")
+    const [raw]: (IGuest & IBankAccount)[] = await knex("guests")
         // select order important, because both tables contain id field
         .select("bankAccounts.*", "guests.*")
         .where("guests.id", id)
-        .innerJoin("bankAccounts", "guests.bankAccountId", "bankAccounts.id")
-        .first()) as (IGuest & IBankAccount) | undefined;
-
-    if (!raw)
-        throw new GraphQLYogaError(`Guest with id ${id} not found`, {
-            code: "GUEST_NOT_FOUND",
-        });
+        .innerJoin("bankAccounts", "guests.bankAccountId", "bankAccounts.id");
+    assert(!!raw, `Guest with id ${id} not found`, "GUEST_NOT_FOUND");
 
     return {
         type: "GUEST",
@@ -35,7 +30,6 @@ export async function getGuest(
 
 export async function createGuest(
     ctx: IAppContext,
-    cardId: string,
     guest: TGuestUserInput
 ): Promise<IGuestUserModel> {
     const { knex, config, session } = ctx;
@@ -51,17 +45,6 @@ export async function createGuest(
     assertRole(session.userSignature, "BORDER_CONTROL");
 
     return knex.transaction(async (trx) => {
-        const lastGuestOnCard = await trx("guests")
-            .select("leftAt")
-            .where({ cardId })
-            .orderBy("enteredAt", "desc")
-            .first();
-        const isCardOccupied = lastGuestOnCard && !lastGuestOnCard.leftAt;
-        assert(
-            !isCardOccupied,
-            "There is already a guest account assigned to this card.",
-            "CARD_OCCUPIED"
-        );
         const bankAccount = await createBankAccount(
             { ...ctx, knex: trx },
             guest.balance ?? config.guestInitialBalance
@@ -69,7 +52,6 @@ export async function createGuest(
         const inserted = await trx("guests")
             .insert({
                 id: uuidv4(),
-                cardId,
                 bankAccountId: bankAccount.id,
                 name: guest.name,
                 enteredAt: date,
@@ -86,27 +68,25 @@ export async function createGuest(
     });
 }
 
-export async function removeGuest(
-    { knex, session }: IAppContext,
-    cardId: string
-): Promise<void> {
+export async function leaveGuest(
+    ctx: IAppContext,
+    id: string
+): Promise<IGuestUserModel> {
+    const { knex, session } = ctx;
     const date = formatDateTimeZ(new Date());
 
     assertRole(session.userSignature, "BORDER_CONTROL");
 
     return knex.transaction(async (trx) => {
-        const lastGuestOnCard = await trx("guests")
-            .select("leftAt")
-            .where({ cardId })
-            .orderBy("enteredAt", "desc")
-            .first();
-        const isCardOccupied = !!lastGuestOnCard && !lastGuestOnCard.leftAt;
+        const [guest] = await trx("guests").select("leftAt").where({ id });
+        assert(!!guest, `Guest with id ${id} not found`, "GUEST_NOT_FOUND");
         assert(
-            isCardOccupied,
-            "There is currenently no guest account assigned to this card.",
-            "CARD_NOT_OCCUPIED"
+            isNull(guest.leftAt),
+            "Guest has already left.",
+            "GUEST_ALREADY_LEFT"
         );
 
-        await trx("guests").update({ leftAt: date }).where({ cardId });
+        await trx("guests").update({ leftAt: date }).where({ id });
+        return getGuest({ ...ctx, knex: trx }, id);
     });
 }
