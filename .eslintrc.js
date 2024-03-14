@@ -12,6 +12,7 @@ module.exports = {
         "/server/__test__/graphql/", // auto-generated
         ".eslintrc.js",
         "webpack.config.js",
+        "codegen.ts",
         "next-env.d.ts",
         "./types/**/*.d.ts",
     ],

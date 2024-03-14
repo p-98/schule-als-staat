@@ -101,7 +101,7 @@ import { GraphQLYogaError } from "Util/error";
 import { EUserTypes, ETransactionTypes, EDraftTypes } from "Types/models";
 import config from "Config";
 
-import * as typeDefs from "./schema.graphql";
+import * as typeDefs from "Root/schema.graphql";
 import sessionFactory from "./sessionFactory";
 
 const pubsub = createPubSub<TEvents>();

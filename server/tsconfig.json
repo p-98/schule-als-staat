@@ -11,7 +11,8 @@
             "Modules/*": ["src/modules/*"],
             "Database": ["src/database/database.ts"],
             "Util/*": ["src/util/*"],
-            "Config": ["../config.ts"]
+            "Config": ["../config.ts"],
+            "Root/*": ["../*"]
         }
     },
     "include": [".", "../types.ts"]
