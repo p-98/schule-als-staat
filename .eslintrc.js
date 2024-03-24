@@ -15,6 +15,7 @@ module.exports = {
         "codegen.ts",
         "next-env.d.ts",
         "./types/**/*.d.ts",
+        "examples/*",
     ],
     overrides: [
         {
