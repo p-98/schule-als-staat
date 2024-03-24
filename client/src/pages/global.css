@@ -11,3 +11,9 @@ body,
     --mdc-theme-custom-balance-positive: green;
     --mdc-theme-custom-balance-negative: red;
 }
+
+/* CSS Reset */
+* {
+    margin: 0;
+    padding: 0;
+}

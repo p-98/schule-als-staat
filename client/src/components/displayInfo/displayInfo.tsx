@@ -1,7 +1,9 @@
+import React, { isValidElement } from "react";
+
 import { Icon } from "Components/material/icon";
 import { Typography } from "Components/material/typography";
 import { Theme } from "Components/material/theme";
-import { IconPropT } from "Components/material/types";
+import { IconOptions } from "Components/material/types";
 import cn from "classnames";
 
 // local
@@ -9,10 +11,18 @@ import { HightlightStates } from "Components/highlightStates/highlightStates";
 
 import styles from "./displayInfo.module.css";
 
+function isIconOptions(
+    icon: string | IconOptions | React.ReactElement | undefined
+): icon is IconOptions {
+    if (icon === undefined || typeof icon === "string" || isValidElement(icon))
+        return false;
+    return true;
+}
+
 interface IDisplayInfoProps extends React.HTMLAttributes<HTMLDivElement> {
     label: string;
-    icon?: IconPropT;
-    trailingIcon?: IconPropT;
+    icon?: string | IconOptions | React.ReactElement;
+    trailingIcon?: string | IconOptions | React.ReactElement;
     activated?: boolean;
     selected?: boolean;
 }
@@ -40,7 +50,7 @@ export const DisplayInfo: React.FC<IDisplayInfoProps> = ({
                 <Theme use="textSecondaryOnBackground" wrap>
                     <Icon
                         icon={{
-                            ...(typeof icon === "object" ? icon : { icon }),
+                            ...(isIconOptions(icon) ? icon : { icon }),
                             size: "large",
                         }}
                         className={styles["display-info__icon"]}
@@ -63,7 +73,7 @@ export const DisplayInfo: React.FC<IDisplayInfoProps> = ({
                 <Theme use="textSecondaryOnBackground" wrap>
                     <Icon
                         icon={{
-                            ...(typeof trailingIcon === "object"
+                            ...(isIconOptions(trailingIcon)
                                 ? trailingIcon
                                 : { icon: trailingIcon }),
                             size: "large",

@@ -32,8 +32,9 @@ import styles from "./dialog.module.css";
 export * from "@rmwc/dialog";
 
 // ignore type naming convention to imitate RMWC
+/* eslint-disable react/no-unused-prop-types */
 export interface SimpleDialogProps
-    extends React.HTMLAttributes<HTMLDivElement> {
+    extends Omit<React.HTMLAttributes<HTMLDivElement>, "content"> {
     accept?: {
         label: string;
         onAccept?: () => void;
@@ -61,6 +62,7 @@ export interface SimpleDialogProps
     preventOutsideDismiss?: boolean;
     renderToPortal?: PortalPropT;
 }
+/* eslint-enable react/no-unused-prop-types */
 export const SimpleDialog = React.memo(
     React.forwardRef<HTMLDivElement, SimpleDialogProps>(
         ({ title, content, accept, cancel, children, ...restProps }, ref) => {

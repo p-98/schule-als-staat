@@ -79,7 +79,8 @@ export const Stats: React.FC<IStatsProps> = ({ onGoBack, ...restProps }) => {
                     data={{
                         datasets: [
                             {
-                                type: "bar",
+                                // mixing up types is actually supported
+                                type: "bar" as "line",
                                 label: "Verkäufe",
                                 yAxisID: "yQuantity",
                                 data: sales as unknown as ScatterDataPoint[],

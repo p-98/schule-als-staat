@@ -22,4 +22,8 @@
 .bonus-payout__add-user:last-child {
     background-color: initial;
     background-color: #e0e0e080;
+
+    [class*=mdc-evolution-chip__cell--trailing] {
+        display: none;
+    }
 }

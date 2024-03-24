@@ -4,7 +4,7 @@ import cn from "classnames";
 import { Typography } from "Components/material/typography";
 import { Icon } from "Components/material/icon";
 import { ListDivider } from "Components/material/list";
-import { Tooltip } from "Components/material/tooltip";
+import { RCTooltip } from "Components/material/rc-tooltip";
 import {
     Card,
     CardSubtitle,
@@ -57,9 +57,13 @@ export const EmployeeCard: React.FC<IEmployeeCardProps> = ({ employee }) => {
                 >
                     <div className={styles["employee__image-container"]}>
                         <Image
+                            alt={`employee ${employee.name}`}
                             src={employee.image}
-                            layout="fill"
-                            objectFit="cover"
+                            fill
+                            sizes="100vw"
+                            style={{
+                                objectFit: "cover",
+                            }}
                         />
                     </div>
                     <CardInner>
@@ -93,7 +97,7 @@ export const EmployeeCard: React.FC<IEmployeeCardProps> = ({ employee }) => {
                         <DisplayInfo
                             label="Gearbeitet heute"
                             trailingIcon={
-                                <Tooltip
+                                <RCTooltip
                                     showArrow
                                     content={
                                         <Typography use="body2">
@@ -102,7 +106,7 @@ export const EmployeeCard: React.FC<IEmployeeCardProps> = ({ employee }) => {
                                     }
                                 >
                                     <Icon icon="help" />
-                                </Tooltip>
+                                </RCTooltip>
                             }
                             style={{ gridArea: "worktime-today" }}
                         >

@@ -62,7 +62,7 @@ export const BonusPayout: React.FC = () => {
             <CardHeader>Bonusauszahlung</CardHeader>
             <CardContent>
                 <Typography use="caption">Mitarbeiter</Typography>
-                <ChipSet>
+                <ChipSet input>
                     {selectedEmployees.map((employee) => (
                         <Chip
                             trailingIcon="close"
@@ -110,7 +110,7 @@ export const BonusPayout: React.FC = () => {
                 open={showAddDialog}
             >
                 <CardContent>
-                    <ChipSet choice>
+                    <ChipSet filter>
                         {employees.map((employee) => (
                             <Chip
                                 label={employee.name}

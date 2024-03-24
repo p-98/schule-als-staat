@@ -1,4 +1,4 @@
-import React, { forwardRef, CSSProperties } from "react";
+import React, { forwardRef, CSSProperties, ReactNode } from "react";
 import cn from "classnames";
 
 import styles from "../*containerTransform.module.css";
@@ -98,6 +98,7 @@ export const FullscreenContainerTransformScrim = forwardRef<
 ));
 
 interface IFullscreenContainerTransformFadingWrapperProps {
+    children: ReactNode;
     optimize: boolean;
 }
 export const FullscreenContainerTransformFadingWrapper: React.FC<

@@ -1,9 +1,11 @@
 import cn from "classnames";
+import { ReactNode } from "react";
 
 // local
 import styles from "./GridScrollColumn.module.scss";
 
 interface IGridScrollColumnProps {
+    children: ReactNode;
     desktop?: boolean;
     tablet?: boolean;
     phone?: boolean;

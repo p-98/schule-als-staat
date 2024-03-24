@@ -1,4 +1,18 @@
-import { Chart } from "react-chartjs-2";
+import {
+    Chart as ChartJS,
+    BarController,
+    LineController,
+    DoughnutController,
+    BarElement,
+    LineElement,
+    PointElement,
+    ArcElement,
+    CategoryScale,
+    LinearScale,
+    TimeSeriesScale,
+    Legend,
+    Tooltip,
+} from "chart.js";
 import type { ChartType, TooltipItem } from "chart.js";
 import tinycolor from "tinycolor2";
 
@@ -7,14 +21,29 @@ import theme from "Utility/theme";
 
 export * from "react-chartjs-2";
 
-Chart.defaults.maintainAspectRatio = false;
+ChartJS.register(
+    BarController,
+    LineController,
+    DoughnutController,
+    BarElement,
+    LineElement,
+    PointElement,
+    ArcElement,
+    CategoryScale,
+    LinearScale,
+    TimeSeriesScale,
+    Legend,
+    Tooltip
+);
 
-Chart.defaults.datasets.bar.maxBarThickness = 32;
-Chart.defaults.datasets.bar.borderWidth = 1;
-Chart.defaults.datasets.bar.borderColor = theme.primary as string;
+ChartJS.defaults.maintainAspectRatio = false;
 
-Chart.defaults.plugins.tooltip = {
-    ...Chart.defaults.plugins.tooltip,
+ChartJS.defaults.datasets.bar.maxBarThickness = 32;
+ChartJS.defaults.datasets.bar.borderWidth = 1;
+ChartJS.defaults.datasets.bar.borderColor = theme.primary as string;
+
+ChartJS.defaults.plugins.tooltip = {
+    ...ChartJS.defaults.plugins.tooltip,
     // imitate mdc subtitle2 typography
     bodyFont: {
         family: "Roboto, sans-serif",
@@ -38,7 +67,7 @@ Chart.defaults.plugins.tooltip = {
     caretPadding: 8,
     position: "nearest",
     callbacks: {
-        ...Chart.defaults.plugins.tooltip.callbacks,
+        ...ChartJS.defaults.plugins.tooltip.callbacks,
     },
 
     // imitate card
@@ -47,8 +76,8 @@ Chart.defaults.plugins.tooltip = {
     titleColor: theme.onSecondary as string,
 };
 
-Chart.defaults.datasets.line = {
-    ...Chart.defaults.datasets.line,
+ChartJS.defaults.datasets.line = {
+    ...ChartJS.defaults.datasets.line,
     cubicInterpolationMode: "monotone",
     borderJoinStyle: "round",
     borderCapStyle: "round",

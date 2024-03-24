@@ -24,7 +24,13 @@ export const Navigation: React.FC = () => {
                 const { label, href, icon, disabled } = route;
                 return (
                     // prefetching is disabled because it would preload literally every page
-                    <Link href={href} passHref prefetch={false} key={label}>
+                    <Link
+                        href={href}
+                        passHref
+                        prefetch={false}
+                        key={label}
+                        legacyBehavior
+                    >
                         <SimpleListItem
                             graphic={icon}
                             text={label}
