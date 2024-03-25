@@ -39,6 +39,7 @@
         "@rmwc/rc-tooltip": "^14.1.2",
         "@rmwc/select": "^14.1.2",
         "@rmwc/slider": "^14.1.2",
+        "@rmwc/snackbar": "^14.1.2",
         "@rmwc/tabs": "^14.1.2",
         "@rmwc/textfield": "^14.1.2",
         "@rmwc/theme": "^14.1.2",

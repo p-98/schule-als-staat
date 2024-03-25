@@ -6,6 +6,7 @@ import { Provider as ReduxProvider } from "react-redux";
 import { ThemeProvider } from "Components/material/theme";
 import { Drawer, DrawerContent } from "Components/material/drawer";
 import { ListDivider } from "Components/material/list";
+import { SnackbarQueue } from "Components/material/snackbar";
 
 // local
 import { store } from "Utility/redux/store";
@@ -17,6 +18,7 @@ import {
     close,
 } from "Utility/hooks/redux/drawer";
 import { DynamicAppBarDisplay } from "Components/dynamicAppBar/dynamicAppBar";
+import { messages as notifications } from "Utility/notifications";
 import { Navigation } from "./components/navigation";
 import { DrawerHeader } from "./components/drawerHeader";
 import theme from "../../util/theme";
@@ -52,7 +54,9 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
                             <div
                                 id="fullscreen"
                                 className={styles["app__fullscreen"]}
-                            />
+                            >
+                                <SnackbarQueue messages={notifications} />
+                            </div>
                         </div>
                     </div>
                 ),
