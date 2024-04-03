@@ -1,4 +1,5 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
+import { addTypenameSelectionDocumentTransform } from "@graphql-codegen/client-preset";
 
 const sharedConfig = {
     skipTypename: true,
@@ -18,10 +19,24 @@ const sharedClientPresetConfig = {
     arrayInputCoercion: false,
 };
 
+const mainConfig = {
+    documents: ["client/src/**/*.ts{,x}"],
+    preset: "client-preset" as const,
+    presetConfig: {
+        persistedDocuments: true,
+    },
+    config: {
+        ...sharedClientPresetConfig,
+    },
+    documentTransforms: [addTypenameSelectionDocumentTransform],
+};
+
 const config: CodegenConfig = {
     overwrite: true,
     schema: "schema.graphql",
+    ignoreNoDocuments: true,
     generates: {
+        "./client/src/util/graphql/": mainConfig,
         "./server/__test__/graphql/": {
             documents: ["server/__test__/*.test.ts", "server/src/util/test.ts"],
             preset: "client-preset",

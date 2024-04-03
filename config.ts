@@ -16,6 +16,8 @@ export default {
         realPerVirtual: 1 / 3.141,
     },
     server: {
+        url: "http://127.0.0.1:4000/graphql",
+
         stateBankAccountId: "STATE",
         warehouseCompanyId: "WAREH",
 

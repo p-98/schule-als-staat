@@ -3,6 +3,7 @@
 import type { AppProps } from "next/app";
 import { useMemo } from "react";
 import { Provider as ReduxProvider } from "react-redux";
+import { Provider as UrqlProvider } from "urql";
 import { ThemeProvider } from "Components/material/theme";
 import { Drawer, DrawerContent } from "Components/material/drawer";
 import { ListDivider } from "Components/material/list";
@@ -17,6 +18,7 @@ import {
     useDispatch,
     close,
 } from "Utility/hooks/redux/drawer";
+import { client } from "Utility/urql";
 import { DynamicAppBarDisplay } from "Components/dynamicAppBar/dynamicAppBar";
 import { messages as notifications } from "Utility/notifications";
 import { Navigation } from "./components/navigation";
@@ -67,11 +69,13 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
 };
 
 const Provider: React.FC<AppProps> = (appProps) => (
-    <ReduxProvider store={store}>
-        <ThemeProvider options={theme}>
-            <App {...appProps} />
-        </ThemeProvider>
-    </ReduxProvider>
+    <UrqlProvider value={client}>
+        <ReduxProvider store={store}>
+            <ThemeProvider options={theme}>
+                <App {...appProps} />
+            </ThemeProvider>
+        </ReduxProvider>
+    </UrqlProvider>
 );
 
 export { Provider as App };

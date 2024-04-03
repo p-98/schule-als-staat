@@ -3,6 +3,11 @@ const path = require("path");
 const cwd = process.cwd();
 const rootPath = cwd.endsWith("client") || cwd.endsWith("server") ? ".." : ".";
 
+const regexCamelCase = "[a-z][a-zA-Z0-9]*";
+const regexPascalCase = "[A-Z][a-zA-Z0-9]*";
+const regexUpperCase = "[A-Z]+(?:_[A-Z0-9]+)*";
+const regexFragment = `(?:${regexPascalCase})_(?:${regexPascalCase})Fragment`;
+
 module.exports = {
     root: true,
     ignorePatterns: [
@@ -53,6 +58,27 @@ module.exports = {
                 "@typescript-eslint/no-non-null-assertion": "off",
                 "default-case": "off",
                 "@typescript-eslint/switch-exhaustiveness-check": "error",
+                "no-underscore-dangle": ["error", { allow: ["__typename"] }],
+                "@typescript-eslint/naming-convention": [
+                    //adjusted from airbnb-typescript
+                    "error",
+                    {
+                        selector: "variable",
+                        format: ["camelCase", "PascalCase", "UPPER_CASE"],
+                        filter: {
+                            match: false,
+                            regex: regexFragment,
+                        },
+                    },
+                    {
+                        selector: "function",
+                        format: ["camelCase", "PascalCase"],
+                    },
+                    {
+                        selector: "typeLike",
+                        format: ["PascalCase"],
+                    },
+                ],
             },
             globals: {
                 React: "writable",
