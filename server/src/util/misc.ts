@@ -1,7 +1,6 @@
 import type { CookieStore } from "@whatwg-node/cookie-store";
 
 import path from "node:path";
-import { root } from "Config";
 import { isNull, pipe, sum } from "lodash/fp";
 import { TNullable } from "Types";
 
@@ -9,9 +8,9 @@ export type WithCookieStore<T> = T & { cookieStore: CookieStore };
 
 export type UnPromise<P> = P extends Promise<infer T> ? T : never;
 
-/** Function resolving paths relative to global config file */
+/** Function resolving paths relative project root */
 export const resolveRoot = (...pathSegments: string[]): string =>
-    path.resolve(root, ...pathSegments);
+    path.resolve(__dirname, "../../", ...pathSegments);
 
 /** Transpose a nxm matrix to a mxn matrix
  *

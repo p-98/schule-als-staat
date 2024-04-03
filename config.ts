@@ -36,5 +36,3 @@ export default {
     },
     guestInitialBalance: 50,
 };
-
-export const root = __dirname;
