@@ -21,7 +21,7 @@ class MigrationSource implements _Knex.MigrationSource<INamedMigration> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Knex = _Knex<any, unknown[]>;
 
-const createKnex = async (filename: string): Promise<Knex> => {
+export const createKnex = async (filename: string): Promise<Knex> => {
     const knex = _knex({
         client: "sqlite3",
         connection: {

@@ -13,6 +13,7 @@
         "build-server": "cd ./server && rm -r -f dist && webpack --mode=production",
         "start-server": "cd ./server && node dist/server.js",
         "test-server": "cd ./server && jest",
+        "init-database": "bun ./server/src/database/init.ts",
         "graphql-codegen": "graphql-codegen",
         "eslint": "eslint .",
         "storybook": "start-storybook -p 6006",
