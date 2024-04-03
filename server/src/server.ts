@@ -164,6 +164,7 @@ const resolvers: TResolvers = {
     },
     CitizenUser: {
         transactions: (parent, _, ctx) => getTransactionsByUser(ctx, parent),
+        name: (parent) => `${parent.firstName} ${parent.lastName}`,
         employment: async (parent, _, ctx) =>
             (await getEmployments(ctx, parent))[0],
         employmentOffers: async (parent, args, ctx) =>
@@ -313,6 +314,8 @@ const resolvers: TResolvers = {
             return ctx.session.$user as Promise<ICompanyUserModel>;
         },
         /* eslint-enable no-param-reassign */
+
+        user: (_, args, ctx) => getUser(ctx, args.user),
 
         votes: (_, __, ctx) => getAllVotes(ctx),
 

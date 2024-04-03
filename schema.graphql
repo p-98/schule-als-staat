@@ -142,6 +142,7 @@ type CitizenUser implements User {
     transactions: [Transaction!]!
     firstName: String!
     lastName: String!
+    name: String!
     image: String!
     employment: Employment
     employmentOffers(
@@ -430,6 +431,8 @@ type Query {
     meGuest: GuestUser! @auth(role: [GUEST])
     meCitizen: CitizenUser! @auth(role: [CITIZEN])
     meCompany: CompanyUser! @auth(role: [COMPANY])
+
+    user(user: UserSignatureInput!): User!
 
     " Information on all votes. Authorized: citizen, political admin "
     votes: [Vote!]!
