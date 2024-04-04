@@ -1,37 +1,37 @@
 // local
-import { selectLoggedIn } from "Utility/redux/slices/companyAdminSlice";
-import { store } from "Utility/redux/store";
-import {
-    Top as CompanyAdminTop,
-    Bottom as CompanyAdminBottom,
-} from "./companyAdministration";
+// import { selectLoggedIn } from "Utility/redux/slices/companyAdminSlice";
+// import { store } from "Utility/redux/store";
+// import {
+//     Top as CompanyAdminTop,
+//     Bottom as CompanyAdminBottom,
+// } from "./companyAdministration";
 
 export default [
-    () => <CompanyAdminTop key="CompanyAdminTop" />,
+    // () => <CompanyAdminTop key="CompanyAdminTop" />,
     () => ({
         href: "/products",
         label: "Produktverwaltung",
         icon: "category",
-        disabled: !selectLoggedIn(store.getState()),
+        // disabled: !selectLoggedIn(store.getState()),
     }),
     () => ({
         href: "/employees",
         label: "Mitarbeiterverwaltung",
         icon: "badge",
-        disabled: !selectLoggedIn(store.getState()),
+        // disabled: !selectLoggedIn(store.getState()),
     }),
     () => ({
         href: "/finances",
         label: "Finanzen",
         icon: "attach_money",
-        disabled: !selectLoggedIn(store.getState()),
+        // disabled: !selectLoggedIn(store.getState()),
     }),
-    ({ forceUpdate }) => (
-        <CompanyAdminBottom
-            key="CompanyAdminBottom"
-            forceNavUpdate={forceUpdate}
-        />
-    ),
+    // ({ forceUpdate }) => (
+    //     <CompanyAdminBottom
+    //         key="CompanyAdminBottom"
+    //         forceNavUpdate={forceUpdate}
+    //     />
+    // ),
     () => ({
         href: "/test1",
         label: "Test 1",

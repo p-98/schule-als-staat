@@ -3,7 +3,7 @@ import { GridCell } from "Components/material/grid";
 // local
 import { GridPage } from "Components/page/page";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
-import { useCompanyAdminRedirect } from "Utility/hooks/useRedirect";
+// import { useCompanyAdminRedirect } from "Utility/hooks/useRedirect";
 import { GridScrollColumn } from "Components/gridScrollColumn/gridScrollCell";
 import { TopRevenue, TopSales } from "./components/topProducts";
 import { Chart } from "./components/chart";
@@ -12,7 +12,7 @@ import { BonusPayout } from "./components/bonusPayout";
 import styles from "./finances.module.scss";
 
 export const Finances: React.FC = () => {
-    useCompanyAdminRedirect();
+    // useCompanyAdminRedirect();
 
     const TopSalesElement = <TopSales />;
     const TopRevenueElement = <TopRevenue />;

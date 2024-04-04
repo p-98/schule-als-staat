@@ -14,7 +14,7 @@ import {
 // local
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { GridPage } from "Components/page/page";
-import { useCompanyAdminRedirect } from "Utility/hooks/useRedirect";
+// import { useCompanyAdminRedirect } from "Utility/hooks/useRedirect";
 import { IProduct } from "Utility/types";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import {
@@ -117,7 +117,7 @@ const Product: React.FC<IProductProps> = ({ product }) => {
 
 export const Products: React.FC = () => {
     try {
-        useCompanyAdminRedirect();
+        // useCompanyAdminRedirect();
     } catch (e) {
         return <div>Redirect failed</div>;
     }
