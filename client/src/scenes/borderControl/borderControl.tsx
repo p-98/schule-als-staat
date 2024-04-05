@@ -21,10 +21,9 @@ export const BorderControl: React.FC = () => {
             <GridCell>
                 <Card>
                     <GetUser
-                        confirmButtonLabel="Bestätigen"
-                        header="Grenzkontrolle"
-                        qrInfoText="Scanne den QR-Code auf dem Ausweis, um einen Grenzübergang oder eine Wareneinführung zu registrieren."
-                        onGetUser={() => !user && setUser(pickRandom(users))}
+                        title="Grenzkontrolle"
+                        confirmButton={{ label: "Bestätigen" }}
+                        onSuccess={() => !user && setUser(pickRandom(users))}
                     />
                 </Card>
                 <CrossingDialog

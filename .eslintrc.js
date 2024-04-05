@@ -60,11 +60,13 @@ module.exports = {
                 "@typescript-eslint/switch-exhaustiveness-check": "error",
                 "no-underscore-dangle": ["error", { allow: ["__typename"] }],
                 "@typescript-eslint/naming-convention": [
-                    //adjusted from airbnb-typescript
+                    // adjusted from airbnb-typescript
                     "error",
                     {
                         selector: "variable",
                         format: ["camelCase", "PascalCase", "UPPER_CASE"],
+                        // indicates shadowing local variable
+                        leadingUnderscore: "allow",
                         filter: {
                             match: false,
                             regex: regexFragment,

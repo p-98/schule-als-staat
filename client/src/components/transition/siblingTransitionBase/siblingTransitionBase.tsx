@@ -189,11 +189,11 @@ export const SiblingTransitionBase = forwardRef<
         return useMemo(
             () => (
                 <div
+                    {...restProps}
                     className={cn(
                         styles["sibling-transition-base"],
                         restProps.className
                     )}
-                    {...restProps}
                     ref={initRefsFactory(refProp, containerRef)}
                 >
                     {checkedChildren}

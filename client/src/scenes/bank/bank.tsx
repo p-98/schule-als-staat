@@ -3,6 +3,7 @@ import { useState } from "react";
 import { cardClassNames } from "Components/material/card";
 
 // local
+import { FragmentType } from "Utility/graphql";
 import {
     FullscreenContainerTransform,
     FullscreenContainerTransformElement,
@@ -14,22 +15,22 @@ import {
     FullscreenAppBarHandle,
 } from "Components/dynamicAppBar/presets";
 import usePredictionObserver from "Utility/hooks/predictionObserver/predictionObserver";
-import { GetUser } from "Components/login/getUser";
+import { GetUser, Signature_UserFragment } from "Components/login/getUser";
 import { onAfterCloneHandle } from "Utility/adapters/GetUser-FullscreenContainerTransform";
-import type { TUser } from "Utility/types";
 import { UserDashboard } from "./components/userDashboard";
 import { ChangeCurrencies } from "./components/changeCurrencies";
-import { BankUserContext } from "./util/context";
+import { BankUserContext, fragmentData } from "./util/context";
 
 import styles from "./bank.module.css";
 
 export const Bank: React.FC = () => {
-    const [user, setUser] = useState<TUser | null>(null);
+    const [user, setUser] =
+        useState<FragmentType<typeof Signature_UserFragment>>();
     const [expectCloseInteraction, predictionListeners] =
         usePredictionObserver();
 
     return (
-        <BankUserContext.Provider value={user}>
+        <BankUserContext.Provider value={fragmentData}>
             <DrawerAppBarHandle title="Bank" />
             <GridPage>
                 <GridCell desktop={4} tablet={2} phone={0} />
@@ -43,10 +44,9 @@ export const Bank: React.FC = () => {
                     >
                         <FullscreenContainerTransformHandle>
                             <GetUser
-                                header="Konto wählen"
-                                confirmButtonLabel="Bestätigen"
-                                qrInfoText="Scanne den QR-Code auf dem Ausweis, um Informationen über das Konto zu erhalten."
-                                onGetUser={(_user) => setUser(_user)}
+                                title="Konto wählen"
+                                confirmButton={{ label: "Bestätigen" }}
+                                onSuccess={(_user) => setUser(_user)}
                             />
                         </FullscreenContainerTransformHandle>
                         <FullscreenContainerTransformElement>
@@ -54,7 +54,7 @@ export const Bank: React.FC = () => {
                                 <FullscreenAppBarHandle
                                     // eslint-disable-next-line react/jsx-props-no-spreading
                                     {...predictionListeners}
-                                    onClose={() => setUser(null)}
+                                    onClose={() => setUser(undefined)}
                                     render={!!user}
                                 />
                                 <UserDashboard />

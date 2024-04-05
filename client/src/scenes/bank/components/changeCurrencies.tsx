@@ -9,21 +9,25 @@ import {
     CardActions,
     CardActionButton,
 } from "Components/material/card";
+import { FragmentType } from "Utility/graphql";
 
 // local
-import { AuthUser } from "Components/login/authUser";
+import {
+    AuthUser,
+    AuthUser_UserFragment,
+    defaultMutation,
+} from "Components/login/authUser";
 import config from "Config";
-import { TOnAuthUser } from "Components/login/types";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import { BankUserContext } from "../util/context";
 import { CheckoutSummary } from "./checkoutSummary";
 import type { IChangeCurrenciesInfo } from "../types";
 
 interface IAuthExchangeDialogProps {
-    onAuthUser: TOnAuthUser;
+    onAuthUser: () => void;
     onClose: () => void;
     open: boolean;
-    user: string | null;
+    user: FragmentType<typeof AuthUser_UserFragment>;
     changeCurrenciesInfo: IChangeCurrenciesInfo;
     id: string;
 }
@@ -37,14 +41,13 @@ const AuthExchangeDialog: React.FC<IAuthExchangeDialogProps> = ({
 }) => (
     <Dialog open={open} onClose={onClose} renderToPortal>
         <AuthUser
-            header="Geldwechsel"
+            mutation={defaultMutation}
+            title="Geldwechsel"
             user={user}
-            userBannerLabel="Identität bestätigen"
-            onAuthUser={onAuthUser}
-            cancelButton={{
-                label: "Abbrechen",
-                onClick: onClose,
-            }}
+            userBanner={{ label: "Identität bestätigen" }}
+            onSuccess={onAuthUser}
+            cancelButton={{ label: "Abbrechen" }}
+            onCancel={onClose}
             confirmButton={{
                 label: "Wechseln",
                 danger: true,

@@ -6,13 +6,18 @@ import { Button } from "Components/material/button";
 import { SimpleDialog } from "Components/material/dialog";
 
 // local
-import { AuthUser } from "Components/login/authUser";
+import {
+    AuthUser,
+    AuthUser_UserFragment,
+    defaultMutation,
+} from "Components/login/authUser";
 import { useDispatch } from "Utility/hooks/redux";
 import {
     login,
     logout,
     selectLoggedIn,
 } from "Utility/redux/slices/companyAdminSlice";
+import { makeFragmentData } from "Utility/graphql";
 
 import styles from "./routing.module.css";
 
@@ -57,19 +62,26 @@ export const Bottom: React.FC<IBottomProps> = ({ forceNavUpdate }) => {
                 onClose={() => setShowDialog(false)}
             >
                 <AuthUser
+                    mutation={defaultMutation}
+                    cancelButton={{ label: "Abbrechen" }}
+                    onCancel={() => setShowDialog(false)}
                     confirmButton={{ label: "Entsperren" }}
-                    cancelButton={{
-                        label: "Abbrechen",
-                        onClick: () => setShowDialog(false),
-                    }}
-                    onAuthUser={() => {
+                    onSuccess={() => {
                         setShowDialog(false);
                         dispatch(login());
                         forceNavUpdate();
                     }}
-                    user="Max Mustermann"
-                    header="Passwort eingeben"
-                    userBannerLabel="Für Unternehmer"
+                    user={makeFragmentData(
+                        {
+                            __typename: "CitizenUser",
+                            type: "CITIZEN",
+                            id: "m.mustermann",
+                        },
+                        AuthUser_UserFragment
+                    )}
+                    title="Passwort eingeben"
+                    userBanner={{ label: "Für Unternehmer" }}
+                    id="companyAdmin__password"
                 />
             </SimpleDialog>
         </>

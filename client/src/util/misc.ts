@@ -92,3 +92,10 @@ export function isValidNode(v: unknown): v is React.ReactNode {
         (_v) => isArray(_v) && all(isValidNode, _v)
     )(v);
 }
+
+/** Handle Promise by catching potential error */
+export const dispatch = (promise: Promise<void>): void => {
+    promise.catch((err) => {
+        throw err;
+    });
+};

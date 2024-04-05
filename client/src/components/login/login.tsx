@@ -1,6 +1,5 @@
-import { useRef, useState } from "react";
+import { useCallback, useState } from "react";
 
-// local
 import {
     ContainerTransform,
     ContainerTransformElement,
@@ -10,111 +9,130 @@ import {
     SiblingTransitionBaseElement,
     Modes,
 } from "Components/transition/siblingTransitionBase/siblingTransitionBase";
-import type { TUser } from "Utility/types";
-import { useFocusTrap } from "Utility/hooks/focusTrap";
-import { QR } from "./components/qr";
-import { TOnAuthUser } from "./types";
-import { Password } from "./components/password";
-import { Manual } from "./components/manual";
+import { FragmentType, graphql } from "Utility/graphql";
+import { useCache } from "Utility/hooks/useCache";
+import { InputQr } from "./components/inputQr";
+import {
+    InputPassword,
+    type InputPassword_UserFragment,
+} from "./components/inputPassword";
+import { InputUser } from "./components/inputUser";
 
-function getActiveElement(useQR: boolean, user: TUser | null) {
-    if (!useQR) {
-        return user ? "manual-password" : "manual-input";
+const Signature_UserFragment = graphql(/* GraphQL */ `
+    fragment Signature_UserFragment on User {
+        type
+        id
     }
+`);
 
-    return user ? "qr-password" : "qr-scanner";
+const qrQuery = graphql(/* GraphQL */ `
+    query Qr_LoginQuery($id: ID!) {
+        readCard(id: $id) {
+            ...InputPassword_UserFragment
+        }
+    }
+`);
+const keyboardQuery = graphql(/* GraphQL */ `
+    query Keyboard_LoginQuery($type: UserType!, $id: String!) {
+        user(user: { type: $type, id: $id }) {
+            ...InputPassword_UserFragment
+        }
+    }
+`);
+const passwordMutation = graphql(/* GraphQL */ `
+    mutation LoginMutation($type: UserType!, $id: ID!, $password: String) {
+        login(credentials: { type: $type, id: $id, password: $password }) {
+            ...Signature_UserFragment
+        }
+    }
+`);
+
+enum Input {
+    Qr = "QR",
+    Keyboard = "KEYBOARD",
 }
-function getActiveContainerTransformElement(
-    useQR: boolean,
-    user: TUser | null
-) {
-    const activeElement = getActiveElement(useQR, user);
-
-    return activeElement.startsWith("manual")
-        ? "manual"
-        : (activeElement as "qr-password" | "qr-scanner");
-}
-
 interface ILoginProps extends React.HTMLAttributes<HTMLDivElement> {
-    header: string;
-    qrInfoText: string;
+    title: string;
+    userBanner: { label: string };
+    cancelButton?: { label: string };
+    onCancel?: () => void;
     confirmButton: { label: string; danger?: boolean };
-    cancelButton?: { label: string; handler: () => void };
-    userBannerLabel: string;
-    onLogin: TOnAuthUser;
+    onSuccess: (user: FragmentType<typeof Signature_UserFragment>) => void;
 }
 export const Login: React.FC<ILoginProps> = ({
-    header,
-    qrInfoText,
-    confirmButton,
+    title,
+    userBanner,
     cancelButton,
-    userBannerLabel,
-    onLogin,
-    ...restProps
+    onCancel,
+    confirmButton,
+    onSuccess,
 }) => {
-    const [useQR, setUseQR] = useState(true);
-    const [user, setUser] = useState<TUser | null>(null);
-    const loginRef = useRef<HTMLDivElement>(null);
+    const [input, setInput] = useState(Input.Qr);
+    const [user, setUser] =
+        useState<FragmentType<typeof InputPassword_UserFragment>>();
+    const cachedUser = useCache(user);
 
-    // focusTrap init
-    const activeElement = getActiveElement(useQR, user);
-    let trapFocus = useFocusTrap(loginRef, undefined, [activeElement]);
+    const renderInputPassword = (modifier: string) =>
+        cachedUser && (
+            <InputPassword
+                mutation={passwordMutation}
+                cancelButton={{ label: "Zurück" }}
+                onCancel={() => setUser(undefined)}
+                confirmButton={confirmButton}
+                onSuccess={onSuccess}
+                user={cachedUser}
+                userBanner={userBanner}
+                title={title}
+                id={`login__password--${modifier}`}
+            />
+        );
 
-    // focus should not be trapped in initial state
-    if (activeElement === "qr-scanner") trapFocus = () => undefined;
-
-    const createPasswordElement = (id: string) => (
-        <Password
-            id={id}
-            confirmButton={confirmButton}
-            user={user}
-            userBannerLabel={userBannerLabel}
-            header={header}
-            onAuthUser={onLogin}
-            cancelButton={{ label: "Zurück", onClick: () => setUser(null) }}
-        />
+    const handleUseKeyboard = useCallback(
+        () => setInput(Input.Keyboard),
+        [setInput]
     );
+    const handleUseQr = useCallback(() => setInput(Input.Qr), [setInput]);
 
     return (
-        <ContainerTransform
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...restProps}
-            activeElement={getActiveContainerTransformElement(useQR, user)}
-            onTransformFinish={trapFocus}
-            ref={loginRef}
-        >
-            <ContainerTransformElement elementKey="qr-scanner">
-                <QR
-                    header={header}
-                    infoText={qrInfoText}
-                    toManual={() => setUseQR(false)}
-                    onGetUser={(_user) => setUser(_user)}
-                    cancel={cancelButton}
-                />
+        <ContainerTransform activeElement={input}>
+            <ContainerTransformElement elementKey={Input.Qr}>
+                {/* Qr input */}
+                <ContainerTransform activeElement={user ? "PASSWORD" : "USER"}>
+                    <ContainerTransformElement elementKey="USER">
+                        <InputQr
+                            query={qrQuery}
+                            onUseKeyboard={handleUseKeyboard}
+                            cancelButton={cancelButton}
+                            onCancel={onCancel}
+                            onSuccess={setUser}
+                            title={title}
+                        />
+                    </ContainerTransformElement>
+                    <ContainerTransformElement elementKey="PASSWORD">
+                        <div>{renderInputPassword("qr")}</div>
+                    </ContainerTransformElement>
+                </ContainerTransform>
             </ContainerTransformElement>
-            <ContainerTransformElement elementKey="qr-password">
-                {createPasswordElement("qr")}
-            </ContainerTransformElement>
-            <ContainerTransformElement elementKey="manual">
-                <div>
-                    <SiblingTransitionBase
-                        activeElement={user === null ? 0 : 1}
-                        mode={Modes.xAxis}
-                        onTransitionFinish={trapFocus}
-                    >
-                        <SiblingTransitionBaseElement index={0}>
-                            <Manual
-                                toQR={() => setUseQR(true)}
-                                onGetUser={(_user) => setUser(_user)}
-                                confirmButtonLabel="Weiter"
-                                header={header}
-                            />
-                        </SiblingTransitionBaseElement>
-                        <SiblingTransitionBaseElement index={1}>
-                            {createPasswordElement("manual")}
-                        </SiblingTransitionBaseElement>
-                    </SiblingTransitionBase>
-                </div>
+            <ContainerTransformElement elementKey={Input.Keyboard}>
+                {/* Keyboard input */}
+                <SiblingTransitionBase
+                    mode={Modes.xAxis}
+                    activeElement={user ? 1 : 0}
+                >
+                    <SiblingTransitionBaseElement index={0}>
+                        <InputUser
+                            query={keyboardQuery}
+                            cancelButton={{ label: "QR-Scanner" }}
+                            onCancel={handleUseQr}
+                            confirmButton={{ label: "Weiter" }}
+                            onSuccess={setUser}
+                            title={title}
+                        />
+                    </SiblingTransitionBaseElement>
+                    <SiblingTransitionBaseElement index={1}>
+                        <div>{renderInputPassword("keyboard")}</div>
+                    </SiblingTransitionBaseElement>
+                </SiblingTransitionBase>
             </ContainerTransformElement>
         </ContainerTransform>
     );

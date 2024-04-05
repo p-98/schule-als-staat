@@ -42,10 +42,9 @@ export const AccountInfo: React.FC = () => {
                 >
                     <FullscreenContainerTransformHandle>
                         <GetUser
-                            header="Konto wählen"
-                            confirmButtonLabel="Bestätigen"
-                            qrInfoText="Scanne den QR-Code auf dem Ausweis, um Informationen über das Konto zu erhalten."
-                            onGetUser={(_user) => setUser(_user)}
+                            title="Konto wählen"
+                            confirmButton={{ label: "Bestätigen" }}
+                            onSuccess={() => setUser("Max Mustermann")}
                             // eslint-disable-next-line react/jsx-props-no-spreading
                             {...predictionListeners}
                         />

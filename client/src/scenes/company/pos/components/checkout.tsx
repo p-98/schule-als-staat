@@ -32,12 +32,12 @@ export const Checkout: React.FC<ICheckoutProps> = ({
         <>
             <Dialog open={open && !client}>
                 <Login
-                    header="Anmelden"
-                    qrInfoText="QR-Code auf dem Ausweis scannen, um fortzufahren."
+                    title="Anmelden"
                     confirmButton={{ label: "Bestätigen" }}
-                    userBannerLabel="Weiter als"
-                    onLogin={(user) => setClient(user)}
-                    cancelButton={{ label: "Zurück", handler: onGoBack }}
+                    userBanner={{ label: "Weiter als" }}
+                    onSuccess={() => setClient("Max Mustermann")}
+                    cancelButton={{ label: "Zurück" }}
+                    onCancel={onGoBack}
                     className={styles["pos__checkout-login"]}
                     key={loginKey}
                 />

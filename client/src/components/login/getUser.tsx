@@ -6,26 +6,50 @@ import {
     ContainerTransform,
     ContainerTransformElement,
 } from "Components/transition/containerTransform/containerTransform";
-import type { TUser } from "Utility/types";
-import { QR } from "./components/qr";
-import { Manual } from "./components/manual";
+import { type FragmentType, graphql } from "Utility/graphql";
+import { InputQr } from "./components/inputQr";
+import { InputUser } from "./components/inputUser";
 
 import styles from "./login.module.css";
 
+export const Signature_UserFragment = graphql(/* GraphQL */ `
+    fragment Signature_UserFragment on User {
+        type
+        id
+    }
+`);
+
+const keyboardQuery = graphql(/* GraphQL */ `
+    query Keyboard__GetUserQuery($type: UserType!, $id: String!) {
+        user(user: { type: $type, id: $id }) {
+            ...Signature_UserFragment
+        }
+    }
+`);
+const qrQuery = graphql(/* GraphQL */ `
+    query Qr__GetUserQuery($id: ID!) {
+        readCard(id: $id) {
+            ...Signature_UserFragment
+        }
+    }
+`);
+
+enum Input {
+    Qr = "QR",
+    Keyboard = "KEYBOARD",
+}
 interface IGetUserProps extends React.HTMLAttributes<HTMLDivElement> {
-    confirmButtonLabel?: string;
-    onGetUser: (user: TUser) => void;
-    header: string;
-    qrInfoText: string;
+    confirmButton: { label: string };
+    onSuccess: (user: FragmentType<typeof Signature_UserFragment>) => void;
+    title: string;
 }
 export const GetUser: React.FC<IGetUserProps> = ({
-    confirmButtonLabel,
-    onGetUser,
-    header,
-    qrInfoText,
+    confirmButton,
+    onSuccess,
+    title,
     ...restProps
 }) => {
-    const [useQR, setUseQR] = useState(true);
+    const [input, setInput] = useState(Input.Qr);
 
     return (
         <ContainerTransform
@@ -35,22 +59,24 @@ export const GetUser: React.FC<IGetUserProps> = ({
                 restProps.className,
                 styles["login__transform-container"]
             )}
-            activeElement={useQR ? "qr" : "manual"}
+            activeElement={input}
         >
-            <ContainerTransformElement elementKey="qr">
-                <QR
-                    header={header}
-                    infoText={qrInfoText}
-                    onGetUser={onGetUser}
-                    toManual={() => setUseQR(false)}
+            <ContainerTransformElement elementKey={Input.Qr}>
+                <InputQr
+                    query={qrQuery}
+                    title={title}
+                    onUseKeyboard={() => setInput(Input.Keyboard)}
+                    onSuccess={onSuccess}
                 />
             </ContainerTransformElement>
-            <ContainerTransformElement elementKey="manual">
-                <Manual
-                    header={header}
-                    confirmButtonLabel={confirmButtonLabel ?? "Bestätigen"}
-                    onGetUser={onGetUser}
-                    toQR={() => setUseQR(true)}
+            <ContainerTransformElement elementKey={Input.Keyboard}>
+                <InputUser
+                    query={keyboardQuery}
+                    title={title}
+                    cancelButton={{ label: "QR-Scanner" }}
+                    onCancel={() => setInput(Input.Qr)}
+                    confirmButton={confirmButton}
+                    onSuccess={onSuccess}
                 />
             </ContainerTransformElement>
         </ContainerTransform>

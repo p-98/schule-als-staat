@@ -13,11 +13,10 @@ export const Login: React.FC = () => (
         <GridCell span={4}>
             <Card>
                 <LoginComponent
-                    onLogin={() => null}
-                    header="Anmelden"
-                    qrInfoText="Scanne den QR-Code auf dem Ausweis um dich anzumelden."
+                    onSuccess={() => console.log("logged in!")}
+                    title="Anmelden"
                     confirmButton={{ label: "Anmelden" }}
-                    userBannerLabel="Anmelden als"
+                    userBanner={{ label: "Anmelden als" }}
                 />
             </Card>
         </GridCell>
