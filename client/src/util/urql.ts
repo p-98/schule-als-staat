@@ -19,6 +19,10 @@ export const safeData = <T extends { data?: unknown; error?: unknown }>(
     if (result.error) return { ...result, data: undefined };
     return result;
 };
+/** Make data and error mutually exclusive */
+export const useSafeData = <T extends { data?: unknown; error?: unknown }>(
+    result: T
+): T => useMemo(() => safeData(result), [result]);
 
 export type TGraphQLError<Ext> = GraphQLError & { extensions: Ext };
 

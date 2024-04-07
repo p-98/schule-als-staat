@@ -20,7 +20,7 @@ import { TextField } from "Components/material/textfield";
 
 // local
 import { FragmentType, graphql, useFragment } from "Utility/graphql";
-import { byCode, safeData, useCategorizeError } from "Utility/urql";
+import { byCode, useCategorizeError, useSafeData } from "Utility/urql";
 import { UserBanner } from "./userBanner";
 
 export const InputPassword_UserFragment = graphql(/* GraphQL */ `
@@ -73,7 +73,7 @@ export const InputPassword = <TMutation extends typeof m>({
     const [password, setPassword] = useState("");
     const [result, login] = useMutation(mutation);
 
-    const { data, fetching, error } = safeData(result);
+    const { data, fetching, error } = useSafeData(result);
     useEffect(() => data && onSuccess(data.login), [data, onSuccess]);
     const [wrongPassword] = useCategorizeError(error, [
         byCode("WRONG_PASSWORD"),
