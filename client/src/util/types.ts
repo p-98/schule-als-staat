@@ -5,6 +5,9 @@ export type TUser = string;
 
 // helpter types
 
+/** Opposite of NonNullable */
+export type Nullable<T> = T | null | undefined;
+
 // this type resolves to unknwon, if T = any, and never otherwise
 type TValidToNever<T> = T extends string
     ? T extends number

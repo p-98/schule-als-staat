@@ -1,31 +1,35 @@
 import { Avatar } from "Components/material/avatar";
 import { Typography } from "Components/material/typography";
 import { ThemePropT } from "Components/material/types";
+import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { name } from "Utility/data";
 
-// local
 import styles from "./drawerHeader.module.css";
 
+/* Badge component
+ */
+
 const badgeStyles = {
-    company: {
+    COMPANY: {
         background: "#2962ff",
         theme: "textPrimaryOnDark",
         text: "Unternehmen",
     },
-    citizen: {
+    CITIZEN: {
         background: "#00c853",
         theme: "textPrimaryOnLight",
         text: "Bürger",
     },
-    guest: {
+    GUEST: {
         background: "#ffab00",
         theme: "textPrimaryOnLight",
         text: "Gast",
     },
-    admin: {
-        background: "#d50000",
-        theme: "textPrimaryOnDark",
-        text: "Administrator",
-    },
+    // admin: {
+    //     background: "#d50000",
+    //     theme: "textPrimaryOnDark",
+    //     text: "Administrator",
+    // },
 };
 
 interface IBadgeProps {
@@ -46,16 +50,33 @@ const Badge: React.FC<IBadgeProps> = ({ type }) => {
     );
 };
 
-export const DrawerHeader: React.FC = () => (
-    <div className={styles["drawer-header"]}>
-        <Avatar
-            className={styles["drawer-header__avatar"]}
-            src="/profile.jpg"
-            name="Max Mustermann"
-        />
-        <Typography use="headline6" theme="textPrimaryOnLight">
-            Max Mustermann
-        </Typography>
-        <Badge type="guest" />
-    </div>
-);
+/* AccountHeader component
+ */
+
+const DrawerHeader_UserFragment = graphql(/* GraphQL */ `
+    fragment DrawerHeader_UserFragment on User {
+        ...Name_UserFragment
+        type
+    }
+`);
+
+interface IDrawerHeaderProps {
+    user: FragmentType<typeof DrawerHeader_UserFragment>;
+}
+
+export const DrawerHeader: React.FC<IDrawerHeaderProps> = ({ user: _user }) => {
+    const user = useFragment(DrawerHeader_UserFragment, _user);
+    return (
+        <div className={styles["drawer-header"]}>
+            <Avatar
+                className={styles["drawer-header__avatar"]}
+                src="/profile.jpg"
+                name="Max Mustermann"
+            />
+            <Typography use="headline6" theme="textPrimaryOnLight">
+                {name(user)}
+            </Typography>
+            <Badge type={user.type} />
+        </div>
+    );
+};

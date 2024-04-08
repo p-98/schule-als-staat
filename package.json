@@ -36,6 +36,7 @@
         "@rmwc/fab": "^14.1.2",
         "@rmwc/grid": "^14.1.2",
         "@rmwc/icon": "^14.1.2",
+        "@rmwc/linear-progress": "^14.1.4",
         "@rmwc/list": "^14.1.2",
         "@rmwc/menu": "^14.1.2",
         "@rmwc/radio": "^14.1.2",

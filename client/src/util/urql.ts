@@ -10,6 +10,9 @@ import { notifyUnexpectedError } from "Utility/notifications";
 export const client = new Client({
     url: config.server.url,
     exchanges: [cacheExchange, fetchExchange],
+    fetchOptions: {
+        credentials: "include",
+    },
 });
 
 /** Make data and error mutually exclusive */

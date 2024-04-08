@@ -4,9 +4,9 @@ import { createServer } from "http";
 
 import { yogaFactory } from "Server";
 import { loadKnex } from "Database";
+import config from "Config";
 
-const host = "127.0.0.1";
-const port = 4000;
+const { port, host } = config.server;
 
 const knex = await loadKnex();
 const yoga = yogaFactory(knex);

@@ -17,6 +17,8 @@ export default {
     },
     server: {
         url: "http://127.0.0.1:4000/graphql",
+        host: "127.0.0.1",
+        port: 4000,
 
         stateBankAccountId: "STATE",
         warehouseCompanyId: "WAREH",
