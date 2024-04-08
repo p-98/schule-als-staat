@@ -37,7 +37,7 @@ import {
     addBook,
 } from "Modules/library";
 import { login, logout } from "Modules/sessions";
-import { getUser } from "Modules/users";
+import { getRoles, getUser } from "Modules/users";
 import {
     getTransactionsByUser,
     payBonus,
@@ -157,12 +157,15 @@ const resolvers: TResolvers = {
 
     User: {
         __resolveType: (parent) => EUserTypes[parent.type],
+        roles: (parent, _, ctx) => getRoles(ctx, parent),
         transactions: (parent, _, ctx) => getTransactionsByUser(ctx, parent),
     },
     GuestUser: {
+        roles: (parent, _, ctx) => getRoles(ctx, parent),
         transactions: (parent, _, ctx) => getTransactionsByUser(ctx, parent),
     },
     CitizenUser: {
+        roles: (parent, _, ctx) => getRoles(ctx, parent),
         transactions: (parent, _, ctx) => getTransactionsByUser(ctx, parent),
         name: (parent) => `${parent.firstName} ${parent.lastName}`,
         employment: async (parent, _, ctx) =>
@@ -171,6 +174,7 @@ const resolvers: TResolvers = {
             getEmploymentOffers(ctx, parent, args.state),
     },
     CompanyUser: {
+        roles: (parent, _, ctx) => getRoles(ctx, parent),
         transactions: (parent, _, ctx) => getTransactionsByUser(ctx, parent),
         drafts: (parent, _, ctx) => getDraftsByUser(ctx, parent.id),
         products: (parent, _, ctx) => getProducts(ctx, parent.id),

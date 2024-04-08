@@ -1,6 +1,6 @@
 import type { TNullable } from "Types";
 import type { IUserSignature, TUserModel } from "Types/models";
-import type { TAuthRole, TCredentialsInput } from "Types/schema";
+import type { TUserRole, TCredentialsInput } from "Types/schema";
 
 import bcrypt from "bcrypt";
 import { isNil } from "lodash/fp";
@@ -70,12 +70,12 @@ export function checkRole(
 ): user is IUserSignature & { type: "COMPANY" };
 export function checkRole(
     user: TNullable<IUserSignature>,
-    role: TAuthRole,
+    role: TUserRole,
     opts?: { allowAdmin?: boolean }
 ): boolean;
 export function checkRole(
     user: TNullable<IUserSignature>,
-    role: TAuthRole,
+    role: TUserRole,
     opts?: { allowAdmin?: boolean }
 ): boolean {
     if (user === null) return false;
@@ -160,12 +160,12 @@ export function assertRole(
 ): asserts user is IUserSignature & { type: "COMPANY" };
 export function assertRole(
     user: TNullable<IUserSignature>,
-    role: TAuthRole,
+    role: TUserRole,
     opts?: { message?: string; code?: string; allowAdmin?: boolean }
 ): void;
 export function assertRole(
     user: TNullable<IUserSignature>,
-    role: TAuthRole,
+    role: TUserRole,
     opts?: { message?: string; code?: string; allowAdmin?: boolean }
 ): void {
     assert(

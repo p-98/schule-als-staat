@@ -5,15 +5,12 @@ scalar Void
 " For RFC 3339 datetime strings, handled by graphql-scalars "
 scalar DateTimeISO
 
-" requires ONE of the roles provided to be present on the current loged in user "
-directive @auth(role: [AuthRole!] = [ADMIN]) on FIELD_DEFINITION | OBJECT
-
 #            #
 # Enum types #
 #            #
 
 " Roles used for authorization "
-enum AuthRole {
+enum UserRole {
     ADMIN
     USER
     CITIZEN
@@ -98,6 +95,7 @@ type Session {
 interface User {
     type: UserType!
     id: ID!
+    roles: [UserRole!]!
 
     balance: Float!
     " amount of virtual money that can be changed back to real money "
@@ -119,6 +117,7 @@ input CredentialsInput {
 type GuestUser implements User {
     type: UserType!
     id: ID!
+    roles: [UserRole!]!
     balance: Float!
     " amount of virtual money that can be changed back to real money "
     redemptionBalance: Float!
@@ -136,6 +135,7 @@ input GuestUserInput {
 type CitizenUser implements User {
     type: UserType!
     id: ID!
+    roles: [UserRole!]!
     balance: Float!
     " amount of virtual money that can be changed back to real money "
     redemptionBalance: Float!
@@ -153,6 +153,7 @@ type CitizenUser implements User {
 type CompanyUser implements User {
     type: UserType!
     id: ID!
+    roles: [UserRole!]!
     balance: Float!
     " amount of virtual money that can be changed back to real money "
     redemptionBalance: Float!
@@ -425,12 +426,16 @@ type Query {
     authors: [Author!]!
     author(name: String!): Author
 
-    " for debugging only "
-    session: Session! @auth(role: [ADMIN])
-    me: User! @auth(role: [USER])
-    meGuest: GuestUser! @auth(role: [GUEST])
-    meCitizen: CitizenUser! @auth(role: [CITIZEN])
-    meCompany: CompanyUser! @auth(role: [COMPANY])
+    " Current session information. "
+    session: Session!
+    " Currently logged in user. Authorized: user "
+    me: User!
+    " Currently logged in guest. Authorized: guest "
+    meGuest: GuestUser!
+    " Currently logged in citizen. Authorized: citizen "
+    meCitizen: CitizenUser!
+    " Currently logged in company. Authorized: company "
+    meCompany: CompanyUser!
 
     user(user: UserSignatureInput!): User!
 
