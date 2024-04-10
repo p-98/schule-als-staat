@@ -4,11 +4,9 @@ This project's intention is to provide an all-in-one digital system for the proj
 
 ## Status
 
-Server: Finished and tested
-Client: Code mockup. Linking to server in progress.
+Server: Finished and tested. Only tested on node lts/hydrogen.
 
-Server only tested on node lts/hydrogen.
-Client only tested on Chrome.
+Client: Code mockup, linking to server in progress. Only tested on Chrome.
 
 ## Installation
 
