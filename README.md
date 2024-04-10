@@ -1,28 +1,39 @@
 # schule-als-staat
 
-This project's intention is to provide an all-in-one digital system with features such as a digital currency, voting, warehouse management and more.
+This project's intention is to provide an all-in-one digital system for the project "Schule als Staat" with features such as a digital currency, voting, warehouse management and more.
+
+## Status
+
+Server: Finished and tested
+Client: Code mockup. Linking to server in progress.
+
+Server only tested on node lts/hydrogen.
+Client only tested on Chrome.
 
 ## Installation
 
-```console
+Prerequisites: [bun](https://bun.sh/), node lts/hydrogen (e.g. via [nvm](https://github.com/nvm-sh/nvm))
+
+```shell
 $ git clone https://github.com/p-98/schule-als-staat
+$ cd schule-als-staat
+$ bun install
 ```
 
-### Client
+## Usage
 
-To start the mockup, Node v12 for x86 is currently needed.
+To start the preview:
 
-On apple silicon run the following before proceeding:
-
-```console
-    $env /usr/bin/arch -x86_64 /bin/zsh ---login
-```
-
-Then on all platforms do:
-
-```console
-    nvm install lts/erbium
-    nvm use lts/erbium
-    npm install
-    npm run dev-client
-```
+1. Initialize database with test-data:
+    ```shell
+    $ bun examples/create-test-db.ts
+    ```
+2. Start development server:
+    ```shell
+    $ bun run dev-server
+    ```
+3. In another terminal, start development client:
+    ```shell
+    $ bun run dev-client
+    ```
+4. Open [`127.0.0.1:3000`](127.0.0.1:3000) in your browser. (Opening `localhost:3000` won't work!)
