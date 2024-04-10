@@ -1,4 +1,4 @@
-.bank-account-info__transactions {
+.bank-account-info__transactions-card {
     margin: 0 -16px -16px -16px;
 }
 
@@ -6,12 +6,20 @@
     border-radius: 0px;
 }
 
-.bank-account-info__transaction-list-item.bank-account-info__transaction-list-item--positive
+.bank-account-info__transaction-summary.bank-account-info__transaction-summary--positive
     > div {
     color: var(--mdc-theme-custom-balance-positive, #018786);
 }
 
-.bank-account-info__transaction-list-item.bank-account-info__transaction-list-item--negative
+.bank-account-info__transaction-summary.bank-account-info__transaction-summary--negative
     > div {
     color: var(--mdc-theme-custom-balance-negative, #b00020);
+}
+
+.nothing-to-show {
+    display: flex;
+    padding: 16px;
+    justify-content:center;
+    align-items: center;
+    gap: 16px;
 }

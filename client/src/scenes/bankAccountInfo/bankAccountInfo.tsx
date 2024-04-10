@@ -1,70 +1,28 @@
+import { useQuery } from "urql";
 import { GridCell } from "Components/material/grid";
-import { List } from "Components/material/list";
-import { useState } from "react";
-import {
-    CardInner,
-    CardContent,
-    CardHeader,
-    CardActions,
-    CardActionButtons,
-    CardActionButton,
-    cardClassNames,
-} from "Components/material/card";
-
-// local
 import { GridPage } from "Components/page/page";
 import { BankAccountInfo as BasicBankAccountInfo } from "Components/dashboard/dashboard";
-import {
-    FullscreenContainerTransform,
-    FullscreenContainerTransformHandle,
-    FullscreenContainerTransformElement,
-} from "Components/transition/containerTransform/fullscreen/fullscreenContainerTransform";
 import { GridScrollColumn } from "Components/gridScrollColumn/gridScrollCell";
-import {
-    DrawerAppBarHandle,
-    FullscreenAppBarHandle,
-} from "Components/dynamicAppBar/presets";
-import transactions from "./transactions.data";
-import { TransactionListItem } from "./components/transactions";
-import { AllTransactionsPage } from "./transactions";
+import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
+import { graphql } from "Utility/graphql";
+import { useCategorizeError, useSafeData, useStable } from "Utility/urql";
+import { Transactions } from "./components/transactions";
 
-import styles from "./bankAccountInfo.module.css";
-
-interface ITransactionsCardProps extends React.HTMLAttributes<HTMLDivElement> {
-    onShowAll: () => void;
-}
-const TransactionsCard: React.FC<ITransactionsCardProps> = ({
-    onShowAll,
-    ...restProps
-}) => (
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    <CardInner {...restProps}>
-        <CardHeader>Transaktionen</CardHeader>
-        <CardContent>
-            <List twoLine className={styles["bank-account-info__transactions"]}>
-                {transactions
-                    .slice(-5)
-                    .reverse()
-                    .map((transaction) => (
-                        <TransactionListItem
-                            transaction={transaction}
-                            key={transaction.id}
-                        />
-                    ))}
-            </List>
-        </CardContent>
-        <CardActions>
-            <CardActionButtons>
-                <CardActionButton onClick={onShowAll}>
-                    Alle anzeigen
-                </CardActionButton>
-            </CardActionButtons>
-        </CardActions>
-    </CardInner>
-);
+const query = graphql(/* GraohQL */ `
+    query BankAccountInfoQuery {
+        me {
+            ...BankAccountInfo_UserFragment
+            ...Transactions_UserFragment
+        }
+    }
+`);
 
 export const BankAccountInfo: React.FC = () => {
-    const [showAllTransactions, setShowAllTransactions] = useState(false);
+    const [result] = useQuery({ query });
+    const { data, fetching, error } = useSafeData(result);
+    useCategorizeError(error, []);
+    if (useStable(fetching)) return <div>Loading...</div>;
+    if (!data) return <></>;
 
     return (
         <GridPage>
@@ -72,40 +30,14 @@ export const BankAccountInfo: React.FC = () => {
             <GridCell desktop={1} tablet={1} phone={0} />
             <GridCell span={4} tablet={6}>
                 <GridScrollColumn desktop>
-                    <BasicBankAccountInfo />
+                    <BasicBankAccountInfo user={data.me} />
                 </GridScrollColumn>
             </GridCell>
             <GridCell desktop={0} tablet={1} phone={0} />
             <GridCell desktop={0} tablet={1} phone={0} />
             <GridCell desktop={6} tablet={6} phone={4}>
                 <GridScrollColumn desktop>
-                    <FullscreenContainerTransform
-                        open={showAllTransactions}
-                        expectTransformation={false}
-                        className={cardClassNames}
-                        openClassName={
-                            styles[
-                                "bank-account-info__fullscreen-container--open"
-                            ]
-                        }
-                    >
-                        <FullscreenContainerTransformHandle>
-                            <TransactionsCard
-                                onShowAll={() => setShowAllTransactions(true)}
-                            />
-                        </FullscreenContainerTransformHandle>
-                        <FullscreenContainerTransformElement>
-                            <GridPage>
-                                <FullscreenAppBarHandle
-                                    onClose={() =>
-                                        setShowAllTransactions(false)
-                                    }
-                                    render={showAllTransactions}
-                                />
-                                <AllTransactionsPage />
-                            </GridPage>
-                        </FullscreenContainerTransformElement>
-                    </FullscreenContainerTransform>
+                    <Transactions user={data.me} />
                 </GridScrollColumn>
             </GridCell>
         </GridPage>
