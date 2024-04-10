@@ -1,7 +1,7 @@
 import { Client, cacheExchange, fetchExchange, type CombinedError } from "urql";
 import { type GraphQLError } from "graphql";
 import { all, constant, curry, isUndefined, map } from "lodash/fp";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { inOperator } from "Utility/types";
 import config from "Config";
@@ -26,6 +26,27 @@ export const safeData = <T extends { data?: unknown; error?: unknown }>(
 export const useSafeData = <T extends { data?: unknown; error?: unknown }>(
     result: T
 ): T => useMemo(() => safeData(result), [result]);
+
+/** Stabilize fetching state
+ *
+ * Only returns true when fetching has been set for a noticable amount of time.
+ * Prevents flashing of loading ui.
+ *
+ * @example
+ * if (useStable(fetching)) return <Loading />
+ */
+export const useStable = (fetching: boolean) => {
+    const [stable, setStable] = useState(false);
+    useEffect(() => {
+        if (fetching !== true) {
+            setStable(false);
+            return;
+        }
+        const timer = setTimeout(() => setStable(true), 200);
+        return () => clearTimeout(timer);
+    }, [fetching]);
+    return stable;
+};
 
 export type TGraphQLError<Ext> = GraphQLError & { extensions: Ext };
 

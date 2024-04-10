@@ -94,7 +94,7 @@ export function isValidNode(v: unknown): v is React.ReactNode {
 }
 
 /** Handle Promise by catching potential error */
-export const dispatch = (promise: Promise<void>): void => {
+export const dispatch = (promise: Promise<unknown>): void => {
     promise.catch((err) => {
         throw err;
     });

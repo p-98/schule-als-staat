@@ -3,7 +3,6 @@
 import type { AppProps } from "next/app";
 import { Provider as ReduxProvider } from "react-redux";
 import { Provider as UrqlProvider, useQuery } from "urql";
-import { useEffect, useState } from "react";
 import { ThemeProvider } from "Components/material/theme";
 import { SnackbarQueue } from "Components/material/snackbar";
 
@@ -16,7 +15,12 @@ import {
     useDispatch,
     close,
 } from "Utility/hooks/redux/drawer";
-import { categorizeError, client, useSafeData } from "Utility/urql";
+import {
+    client,
+    useCategorizeError,
+    useSafeData,
+    useStable,
+} from "Utility/urql";
 import { graphql } from "Utility/graphql";
 import { DynamicAppBarDisplay } from "Components/dynamicAppBar/dynamicAppBar";
 import { messages as notifications } from "Utility/notifications";
@@ -25,28 +29,16 @@ import { Drawer } from "./components/drawer";
 import { AppFallback } from "./components/fallback";
 
 import styles from "./_app.module.scss";
+import { useCheckAuth } from "./util/routing";
 
 const query = graphql(/* GraphQL */ `
     query AppQuery {
         session {
             ...Drawer_SessionFragment
+            ...Routing_UserFragment
         }
     }
 `);
-
-/** Prevent short flashing of fallback. */
-export const useNoFlash = (b: boolean) => {
-    const [noFlash, setNoFlash] = useState(false);
-    useEffect(() => {
-        if (b !== true) {
-            setNoFlash(false);
-            return;
-        }
-        const timer = setTimeout(() => setNoFlash(true), 200);
-        return () => clearTimeout(timer);
-    }, [b]);
-    return noFlash;
-};
 
 const App: React.FC<AppProps> = ({ Component, pageProps }) => {
     const drawerOpen = useSelector(selectDrawerOpen);
@@ -54,9 +46,10 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
 
     const [result] = useQuery({ query });
     const { data, fetching, error } = useSafeData(result);
-    categorizeError(error, []);
-    if (useNoFlash(fetching)) return <AppFallback />;
-    if (!data) return <></>;
+    useCategorizeError(error, []);
+    const authorized = useCheckAuth(data?.session);
+    if (useStable(fetching)) return <AppFallback />;
+    if (!data || !authorized) return <></>;
 
     return (
         <DrawerToggle
