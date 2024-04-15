@@ -18,6 +18,9 @@ import React, { forwardRef } from "react";
 // card imports
 import "@material/card/dist/mdc.card.css";
 import "@material/button/dist/mdc.button.css";
+import "@rmwc/icon/icon.css";
+import "@material/ripple/dist/mdc.ripple.css";
+import "@rmwc/ripple/ripple.css";
 import "@material/icon-button/dist/mdc.icon-button.css";
 
 // typography imports
@@ -25,8 +28,6 @@ import "@material/typography/dist/mdc.typography.css";
 
 // list imports
 import "@material/list/dist/mdc.list.css";
-import "@material/ripple/dist/mdc.ripple.css";
-import "@rmwc/icon/icon.css";
 
 // local
 import { TWithThemeProp } from "Utility/types";

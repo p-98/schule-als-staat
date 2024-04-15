@@ -6,6 +6,7 @@ import cn from "classnames";
 import "@material/fab/dist/mdc.fab.css";
 import "@rmwc/icon/icon.css";
 import "@material/ripple/dist/mdc.ripple.css";
+import "@rmwc/ripple/ripple.css";
 
 // local
 import styles from "./fab.module.css";

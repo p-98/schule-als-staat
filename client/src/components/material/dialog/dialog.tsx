@@ -13,6 +13,8 @@ import { MDCDialogFoundation } from "@material/dialog";
 // dialog imports
 import "@material/dialog/dist/mdc.dialog.css";
 import "@material/button/dist/mdc.button.css";
+import "@rmwc/icon/icon.css";
+import "@rmwc/ripple/ripple.css";
 import "@material/ripple/dist/mdc.ripple.css";
 
 // typography imports
