@@ -15,6 +15,23 @@ import { compute } from "Util/misc";
 import { getUser } from "Modules/users";
 import { getCitizen } from "./registryOffice";
 
+export async function getIsInState(
+    ctx: IAppContext,
+    citizenId: string
+): Promise<boolean> {
+    const { knex } = ctx;
+    await getCitizen(ctx, citizenId); // check citizen exists
+    const lastBorderCrossing = await knex("stays")
+        .select("id", "leftAt")
+        .where({ citizenId })
+        .orderBy("id", "desc")
+        .first();
+    return compute(() => {
+        if (isUndefined(lastBorderCrossing)) return false;
+        return !lastBorderCrossing.leftAt;
+    });
+}
+
 export async function chargeCustoms(
     ctx: IAppContext,
     user: IUserSignature,
@@ -74,18 +91,13 @@ export async function registerBorderCrossing(
 ): Promise<IBorderCrossingModel> {
     const { knex, session } = ctx;
     assertRole(session.userSignature, "BORDER_CONTROL");
-    await getCitizen(ctx, citizenId); // check citizen exists
 
     return knex.transaction(async (trx) => {
-        const lastBorderCrossing = await trx("stays")
-            .select("id", "leftAt")
-            .where({ citizenId })
-            .orderBy("id", "desc")
-            .first();
-        const isEntering = compute(() => {
-            if (isUndefined(lastBorderCrossing)) return true;
-            return !!lastBorderCrossing.leftAt;
-        });
+        // Side effect: checks whether citizen exists
+        const isEntering = !(await getIsInState(
+            { ...ctx, knex: trx },
+            citizenId
+        ));
 
         const returnQuery: Promise<IStay[]> = isEntering
             ? trx.raw(

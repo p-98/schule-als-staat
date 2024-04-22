@@ -84,7 +84,11 @@ import {
     deleteVote,
     getAllVotes,
 } from "Modules/electoralOffice";
-import { chargeCustoms, registerBorderCrossing } from "Modules/borderControl";
+import {
+    chargeCustoms,
+    getIsInState,
+    registerBorderCrossing,
+} from "Modules/borderControl";
 import { createGuest, getGuest, leaveGuest } from "Modules/foreignOffice";
 import { assertRole, checkRole } from "Util/auth";
 import {
@@ -172,6 +176,7 @@ const resolvers: TResolvers = {
             (await getEmployments(ctx, parent))[0],
         employmentOffers: async (parent, args, ctx) =>
             getEmploymentOffers(ctx, parent, args.state),
+        isInState: (parent, _, ctx) => getIsInState(ctx, parent.id),
     },
     CompanyUser: {
         roles: (parent, _, ctx) => getRoles(ctx, parent),

@@ -148,6 +148,7 @@ type CitizenUser implements User {
     employmentOffers(
         state: EmploymentOfferStateCitizenInput! = PENDING
     ): [EmploymentOffer!]!
+    isInState: Boolean!
 }
 " A company user "
 type CompanyUser implements User {
