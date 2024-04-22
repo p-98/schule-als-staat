@@ -101,27 +101,40 @@ const q = graphql(/* GraphQL */ `
         }
     }
 `);
+export { q as defaultQuery };
 
-export interface IInputQrProps<TQuery extends typeof q>
-    extends React.HTMLAttributes<HTMLDivElement> {
+export interface IInputQrProps<
+    TQuery extends typeof q,
+    TAllowEmpty extends boolean = false
+> extends React.HTMLAttributes<HTMLDivElement> {
     query: TQuery;
+    allowEmpty?: TAllowEmpty;
     cancelButton?: { label: string };
     onCancel?: () => void;
     onUseKeyboard: () => void;
-    onSuccess: (user: NonNullable<ResultOf<TQuery>["readCard"]>) => void;
+    onSuccess: (
+        user: TAllowEmpty extends true
+            ? ResultOf<TQuery>["readCard"]
+            : NonNullable<ResultOf<TQuery>["readCard"]>,
+        cardId: string
+    ) => void;
 
     // display props
     title: string;
 }
-export const InputQr = <TQuery extends typeof q>({
+export const InputQr = <
+    TQuery extends typeof q,
+    TAllowEmpty extends boolean = false
+>({
     query,
+    allowEmpty = false as TAllowEmpty,
     cancelButton,
     onCancel,
     onUseKeyboard,
     onSuccess,
     title,
     ...restProps
-}: IInputQrProps<TQuery>): ReactElement => {
+}: IInputQrProps<TQuery, TAllowEmpty>): ReactElement => {
     if (!onCancel && cancelButton) throw Error("onCancel undefined");
     const [fetching, setFetching] = useState(false);
 
@@ -129,24 +142,31 @@ export const InputQr = <TQuery extends typeof q>({
         async (id: string) => {
             if (fetching) return;
             setFetching(true);
-            const result = await client.query(query, { id });
+            const result = await client.query(
+                query,
+                { id },
+                { requestPolicy: "network-only" }
+            );
             setFetching(false);
 
             const { data, error } = safeData(result);
-            if (data) {
-                const { readCard } = data;
-                if (!readCard) notify({ body: `Card with id ${id} is empty.` });
-                else
-                    onSuccess(
-                        readCard as NonNullable<ResultOf<TQuery>["readCard"]>
-                    );
-            }
             const [invalidId] = categorizeError(error, [
                 byCode(endsWith("NOT_FOUND")),
             ]);
             if (invalidId) notify({ body: invalidId.message });
+            if (!data) return;
+
+            const { readCard } = data;
+            if (!allowEmpty && !readCard) {
+                notify({ body: `Card with id ${id} is empty.` });
+                return;
+            }
+            onSuccess(
+                readCard as NonNullable<ResultOf<TQuery>["readCard"]>,
+                id
+            );
         },
-        [fetching, setFetching, query, onSuccess]
+        [fetching, setFetching, query, allowEmpty, onSuccess]
     );
     const handleError = useCallback(
         (err: Error) => {

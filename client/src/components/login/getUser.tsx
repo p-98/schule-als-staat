@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { type ReactElement, useState } from "react";
+import { ResultOf } from "@graphql-typed-document-node/core";
 import cn from "classnames";
 
 // local
@@ -6,9 +7,12 @@ import {
     ContainerTransform,
     ContainerTransformElement,
 } from "Components/transition/containerTransform/containerTransform";
-import { type FragmentType, graphql } from "Utility/graphql";
-import { InputQr } from "./components/inputQr";
-import { InputUser } from "./components/inputUser";
+import { graphql } from "Utility/graphql";
+import { InputQr, defaultQuery as defaultQrQuery } from "./components/inputQr";
+import {
+    InputUser,
+    defaultQuery as defaultUserQuery,
+} from "./components/inputUser";
 
 import styles from "./login.module.css";
 
@@ -33,22 +37,45 @@ const qrQuery = graphql(/* GraphQL */ `
         }
     }
 `);
+export const defaultQueries = {
+    qr: defaultQrQuery,
+    keyboard: defaultUserQuery,
+};
 
 enum Input {
     Qr = "QR",
     Keyboard = "KEYBOARD",
 }
-interface IGetUserProps extends React.HTMLAttributes<HTMLDivElement> {
+interface IGetUserProps<
+    TQrQuery extends typeof defaultQueries.qr,
+    TUserQuery extends typeof defaultQueries.keyboard,
+    TAllowEmpty extends boolean = false
+> extends React.HTMLAttributes<HTMLDivElement> {
+    queries: { qr: TQrQuery; keyboard: TUserQuery };
+    allowEmpty?: TAllowEmpty;
     confirmButton: { label: string };
-    onSuccess: (user: FragmentType<typeof Signature_UserFragment>) => void;
+    onSuccess: (
+        user:
+            | (TAllowEmpty extends true
+                  ? ResultOf<TQrQuery>["readCard"]
+                  : NonNullable<ResultOf<TQrQuery>["readCard"]>)
+            | ResultOf<TUserQuery>["user"],
+        cardId?: string
+    ) => void;
     title: string;
 }
-export const GetUser: React.FC<IGetUserProps> = ({
+export const GetUser = <
+    TQrQuery extends typeof defaultQueries.qr,
+    TUserQuery extends typeof defaultQueries.keyboard,
+    TAllowEmpty extends boolean = false
+>({
+    queries,
+    allowEmpty = false as TAllowEmpty,
     confirmButton,
     onSuccess,
     title,
     ...restProps
-}) => {
+}: IGetUserProps<TQrQuery, TUserQuery, TAllowEmpty>): ReactElement => {
     const [input, setInput] = useState(Input.Qr);
 
     return (
@@ -63,7 +90,8 @@ export const GetUser: React.FC<IGetUserProps> = ({
         >
             <ContainerTransformElement elementKey={Input.Qr}>
                 <InputQr
-                    query={qrQuery}
+                    query={queries.qr}
+                    allowEmpty={allowEmpty}
                     title={title}
                     onUseKeyboard={() => setInput(Input.Keyboard)}
                     onSuccess={onSuccess}
@@ -71,7 +99,7 @@ export const GetUser: React.FC<IGetUserProps> = ({
             </ContainerTransformElement>
             <ContainerTransformElement elementKey={Input.Keyboard}>
                 <InputUser
-                    query={keyboardQuery}
+                    query={queries.keyboard}
                     title={title}
                     cancelButton={{ label: "QR-Scanner" }}
                     onCancel={() => setInput(Input.Qr)}

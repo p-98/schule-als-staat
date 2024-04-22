@@ -12,7 +12,7 @@ import {
     FullscreenContainerTransformHandle,
 } from "Components/transition/containerTransform/fullscreen/fullscreenContainerTransform";
 import { onAfterCloneHandle } from "Utility/adapters/GetUser-FullscreenContainerTransform";
-import { GetUser } from "Components/login/getUser";
+import { defaultQueries, GetUser } from "Components/login/getUser";
 import {
     DrawerAppBarHandle,
     FullscreenAppBarHandle,
@@ -42,6 +42,7 @@ export const AccountInfo: React.FC = () => {
                 >
                     <FullscreenContainerTransformHandle>
                         <GetUser
+                            queries={defaultQueries}
                             title="Konto wählen"
                             confirmButton={{ label: "Bestätigen" }}
                             onSuccess={() => setUser("Max Mustermann")}

@@ -22,6 +22,7 @@ const q = graphql(/* GraphQL */ `
         }
     }
 `);
+export { q as defaultQuery };
 
 interface IInputUserProps<TQuery extends typeof q>
     extends React.HTMLAttributes<HTMLDivElement> {
@@ -52,7 +53,11 @@ export const InputUser = <TQuery extends typeof q>({
             setFetching(true);
             setInvalidId(undefined);
 
-            const result = await client.query(query, { id: _id, type: _type });
+            const result = await client.query(
+                query,
+                { id: _id, type: _type },
+                { requestPolicy: "network-only" }
+            );
             setFetching(false);
 
             const { data, error } = safeData(result);

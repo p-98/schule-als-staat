@@ -3,7 +3,6 @@ import { useState } from "react";
 import { cardClassNames } from "Components/material/card";
 
 // local
-import { FragmentType } from "Utility/graphql";
 import {
     FullscreenContainerTransform,
     FullscreenContainerTransformElement,
@@ -15,7 +14,7 @@ import {
     FullscreenAppBarHandle,
 } from "Components/dynamicAppBar/presets";
 import usePredictionObserver from "Utility/hooks/predictionObserver/predictionObserver";
-import { GetUser, Signature_UserFragment } from "Components/login/getUser";
+import { defaultQueries, GetUser } from "Components/login/getUser";
 import { onAfterCloneHandle } from "Utility/adapters/GetUser-FullscreenContainerTransform";
 import { UserDashboard } from "./components/userDashboard";
 import { ChangeCurrencies } from "./components/changeCurrencies";
@@ -24,8 +23,7 @@ import { BankUserContext, fragmentData } from "./util/context";
 import styles from "./bank.module.css";
 
 export const Bank: React.FC = () => {
-    const [user, setUser] =
-        useState<FragmentType<typeof Signature_UserFragment>>();
+    const [user, setUser] = useState<object>();
     const [expectCloseInteraction, predictionListeners] =
         usePredictionObserver();
 
@@ -44,6 +42,7 @@ export const Bank: React.FC = () => {
                     >
                         <FullscreenContainerTransformHandle>
                             <GetUser
+                                queries={defaultQueries}
                                 title="Konto wählen"
                                 confirmButton={{ label: "Bestätigen" }}
                                 onSuccess={(_user) => setUser(_user)}
