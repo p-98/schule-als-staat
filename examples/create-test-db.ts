@@ -20,6 +20,10 @@ await knex.migrate.up({ name: "init-schema" });
 const keller = await seedUser(knex, { type: "CITIZEN", id: "j.keller" });
 const neben = await seedUser(knex, { type: "CITIZEN", id: "m.neben" });
 const donutsLtd = await seedUser(knex, { type: "COMPANY", id: "donuts.ltd" });
+const borderControl = await seedUser(knex, {
+    type: "COMPANY",
+    id: config.server.borderControlCompanyId,
+});
 const donut = {
     id: "productId",
     revision: "productRevision",
@@ -106,11 +110,19 @@ await knex("salaryTransactions").insert({
     tax: 1,
     worktimeId: null,
 });
-await knex("cards").insert({ id: "emptyCardId", blocked: false });
-await knex("cards").insert({
-    id: "userCardId",
-    blocked: false,
-    // @ts-expect-error debug insert
-    userSignature: stringifyUserSignature(keller),
-});
+await knex("cards").insert([
+    { id: "emptyCardId", blocked: false },
+    {
+        id: "kellerCardId",
+        blocked: false,
+        // @ts-expect-error debug insert
+        userSignature: stringifyUserSignature(keller),
+    },
+    {
+        id: "donutsCardId",
+        blocked: false,
+        // @ts-expect-error debug insert
+        userSignature: stringifyUserSignature(donutsLtd),
+    },
+]);
 await knex.destroy();

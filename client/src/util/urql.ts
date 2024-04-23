@@ -83,6 +83,8 @@ export const byCode = curry(
         return gqlError as TGraphQLError<{ code: string }>;
     }
 );
+/** Match any graphql error */
+export const any = constant(true);
 
 export type TErrorFilter = (
     error: CombinedError | undefined

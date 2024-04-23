@@ -1,12 +1,23 @@
-import React from "react";
+import { constant } from "lodash/fp";
+import React, {
+    forwardRef,
+    useCallback,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import {
     Dialog as RMWCDialog,
+    DialogContent as RMWCDialogContent,
+    DialogContentProps as RMWCDialogContentProps,
     DialogOnClosedEventT,
     DialogOnCloseEventT,
     DialogOnOpenedEventT,
     DialogOnOpenEventT,
+    DialogProps,
 } from "@rmwc/dialog";
 import { PortalPropT } from "@rmwc/base";
+import RMWC from "@rmwc/types";
 import { Typography } from "@rmwc/typography";
 import { MDCDialogFoundation } from "@material/dialog";
 
@@ -32,6 +43,69 @@ import {
 import styles from "./dialog.module.css";
 
 export * from "@rmwc/dialog";
+
+/** Hook to control dialog imperatively.
+ *
+ * Dialog is open by default, and can be closed only once. Needs remount to be reused.
+ *
+ * Useful e.g. to close after data load and call event handler afterwards.
+ * @example <caption>Full usage pattern:</caption>
+ *  const [impProps, close] = useImperativeDialog()
+ *
+ *  const handleClick = () => useCallback(() => {
+ *      // perform mutation and show error states if required.
+ *      await close()
+ *      onSuccess()
+ *  }, [close, onSuccess])
+ *
+ *  return (
+ *      <Dialog {impProps}>
+ *          <Button onClick={() => dispatch(handleClick)} />
+ *      </Dialog>
+ *  )
+ * */
+export const useImperativeDialog = (): [
+    Partial<DialogProps>,
+    () => Promise<void>
+] => {
+    const foundationRef = useRef<MDCDialogFoundation>(null);
+    const [open, setOpen] = useState(true);
+    const [onClosed, setOnClosed] = useState<() => void>();
+
+    useEffect(() => {
+        const foundation = foundationRef.current;
+        if (!foundation) throw Error("imperative dialog: no foundation");
+
+        const closeMDC = foundation.close.bind(foundation);
+        foundation.close = function close(action?: string | undefined): void {
+            if (action) return;
+            closeMDC(action);
+        };
+    }, []);
+
+    const close = useCallback(
+        (): Promise<void> =>
+            new Promise((resolve) => {
+                if (!open) throw new Error("imperative dialog: already closed");
+                setOnClosed(constant(resolve));
+                setOpen(false);
+            }),
+        [open, setOnClosed, setOpen]
+    );
+
+    return [
+        {
+            foundationRef,
+            open,
+            onClosed: () => {
+                if (!onClosed)
+                    throw new Error("imperative dialog: onClosed undefined");
+                onClosed();
+            },
+        },
+        close,
+    ];
+};
 
 // ignore type naming convention to imitate RMWC
 /* eslint-disable react/no-unused-prop-types */
@@ -138,4 +212,20 @@ export const SimpleDialog = React.memo(
             );
         }
     )
+);
+
+// ignore type naming convention to imitate RMWC
+export type DialogContentProps = RMWC.ComponentProps<
+    RMWCDialogContentProps,
+    React.HTMLProps<HTMLElement>,
+    "div"
+> & {
+    layout?: "dialog" | "card";
+};
+export const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
+    ({ layout = "dialog", ...restProps }, ref) => {
+        const Tag = layout === "card" ? CardContent : RMWCDialogContent;
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        return <Tag {...restProps} ref={ref} />;
+    }
 );

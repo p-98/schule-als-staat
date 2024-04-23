@@ -99,3 +99,19 @@ export const dispatch = (promise: Promise<unknown>): void => {
         throw err;
     });
 };
+
+/** Log a value and return it */
+export function logId<T>(arg: T): T {
+    // eslint-disable-next-line no-console
+    console.log(arg);
+    return arg;
+}
+
+/** Log a value with a message and return it */
+export const logWith =
+    (msg: string) =>
+    <T>(arg: T): T => {
+        // eslint-disable-next-line no-console
+        console.log(msg, arg);
+        return arg;
+    };

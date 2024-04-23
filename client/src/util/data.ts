@@ -16,16 +16,27 @@ const Name_UserFragment = graphql(/* GraphQL */ `
     }
 `);
 
+interface INameOpt {
+    /** Fallback when guests provide no name */
+    fallback: string;
+}
+const defaultNameOpt: INameOpt = {
+    fallback: "Anonym",
+};
 /** Name of a user */
-export const name = (_user: FragmentType<typeof Name_UserFragment>): string => {
+export const name = (
+    _user: FragmentType<typeof Name_UserFragment>,
+    _options?: INameOpt
+): string => {
     const user = getFragment(Name_UserFragment, _user);
+    const options = { ...defaultNameOpt, ..._options };
     switch (user.__typename) {
         case "CitizenUser":
             return `${user.firstName} ${user.lastName}`;
         case "CompanyUser":
             return user.name;
         case "GuestUser":
-            return user.guestName ?? "Anonym";
+            return user.guestName ?? options.fallback;
     }
 };
 

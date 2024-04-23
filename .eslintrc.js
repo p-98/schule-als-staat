@@ -58,7 +58,8 @@ module.exports = {
                 "@typescript-eslint/no-non-null-assertion": "off",
                 "default-case": "off",
                 "@typescript-eslint/switch-exhaustiveness-check": "error",
-                "no-underscore-dangle": ["error", { allow: ["__typename"] }],
+                // covered by @typescript-eslint/naming-convention
+                "no-underscore-dangle": ["off"],
                 "@typescript-eslint/naming-convention": [
                     // adjusted from airbnb-typescript
                     "error",
