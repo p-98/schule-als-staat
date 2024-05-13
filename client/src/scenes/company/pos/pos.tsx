@@ -103,6 +103,7 @@ export const Pos: React.FC = () => {
     const [draft, setDraft] = useState<TDraft>();
     const cachedDraft = useCache(draft);
     const [posKey, remountPos] = useForceRemount();
+    const [checkoutKey, remountCheckout] = useForceRemount();
 
     const [result] = useQuery({ query: productsQuery });
     const { data, fetching, error } = useSafeData(result);
@@ -112,6 +113,7 @@ export const Pos: React.FC = () => {
 
     const handleSuccess = () => {
         remountPos();
+        remountCheckout();
         setDraft(undefined);
     };
 
@@ -126,7 +128,7 @@ export const Pos: React.FC = () => {
                 onProceeded={setDraft}
             />
             {cachedDraft && (
-                <Dialog open={!!draft} preventOutsideDismiss>
+                <Dialog key={checkoutKey} open={!!draft} preventOutsideDismiss>
                     <InputCredentials
                         action={payAction(cachedDraft)}
                         cancelButton={{ label: "Zurück" }}
