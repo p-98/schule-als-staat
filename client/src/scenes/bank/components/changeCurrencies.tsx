@@ -9,14 +9,9 @@ import {
     CardActions,
     CardActionButton,
 } from "Components/material/card";
-import { FragmentType } from "Utility/graphql";
 
 // local
-import {
-    AuthUser,
-    AuthUser_UserFragment,
-    defaultMutation,
-} from "Components/login/authUser";
+import { InputPassword } from "Components/credentials/inputPassword";
 import config from "Config";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import { BankUserContext } from "../util/context";
@@ -27,7 +22,7 @@ interface IAuthExchangeDialogProps {
     onAuthUser: () => void;
     onClose: () => void;
     open: boolean;
-    user: FragmentType<typeof AuthUser_UserFragment>;
+    user: object;
     changeCurrenciesInfo: IChangeCurrenciesInfo;
     id: string;
 }
@@ -35,16 +30,15 @@ const AuthExchangeDialog: React.FC<IAuthExchangeDialogProps> = ({
     onAuthUser,
     onClose,
     open,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     user,
     changeCurrenciesInfo,
     id,
 }) => (
     <Dialog open={open} onClose={onClose} renderToPortal>
-        <AuthUser
-            mutation={defaultMutation}
+        <InputPassword
+            action={() => Promise.resolve({ data: [] })}
             title="Geldwechsel"
-            user={user}
-            userBanner={{ label: "Identität bestätigen" }}
             onSuccess={onAuthUser}
             cancelButton={{ label: "Abbrechen" }}
             onCancel={onClose}

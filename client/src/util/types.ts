@@ -1,3 +1,4 @@
+import React from "react";
 import { ThemePropT } from "Components/material/types";
 import { IChangeCurrenciesInfo } from "Scenes/bank/types";
 
@@ -15,6 +16,18 @@ type TValidToNever<T> = T extends string
         : never
     : never;
 export type TIsAny<T> = [TValidToNever<T>] extends [never] ? false : true;
+
+export type LengthArray<
+    T,
+    N extends number,
+    R extends T[] = []
+> = number extends N
+    ? T[]
+    : R["length"] extends N
+    ? R
+    : LengthArray<T, N, [T, ...R]>;
+
+export type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
 // types for rmwc wrappers
 export type TWithThemeProp<T = unknown> = T & { theme?: ThemePropT };

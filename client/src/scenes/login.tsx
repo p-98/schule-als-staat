@@ -4,9 +4,36 @@ import { Card } from "Components/material/card";
 
 // local
 import { GridPage } from "Components/page/page";
-import { Login as LoginComponent } from "Components/login/login";
+import {
+    InputCredentials,
+    TAction as TCredentialsAction,
+} from "Components/credentials/inputCredentials";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { dispatch } from "Utility/misc";
+import { byCode, categorizeError, client, safeData } from "Utility/urql";
+import { graphql } from "Utility/graphql";
+import { UserBanner } from "Components/userBanner/userBanner";
+
+const passwordMutation = graphql(/* GraphQL */ `
+    mutation LoginMutation($type: UserType!, $id: ID!, $password: String) {
+        login(credentials: { type: $type, id: $id, password: $password }) {
+            __typename
+        }
+    }
+`);
+
+const loginAction: TCredentialsAction<[]> = async (type, id, password) => {
+    const result = await client.mutation(passwordMutation, {
+        type,
+        id,
+        password,
+    });
+    const { data, error } = safeData(result);
+    const [passwordError, unexpectedError] = categorizeError(error, [
+        byCode("WRONG_PASSWORD"),
+    ]);
+    return { data: data ? [] : undefined, passwordError, unexpectedError };
+};
 
 export const Login: React.FC = () => {
     const router = useRouter();
@@ -16,13 +43,16 @@ export const Login: React.FC = () => {
             <GridCell desktop={4} tablet={2} phone={0} />
             <GridCell span={4}>
                 <Card>
-                    <LoginComponent
+                    <InputCredentials
+                        action={loginAction}
+                        confirmButton={{ label: "Anmelden" }}
                         onSuccess={() =>
                             dispatch(router.push("/bankAccountInfo"))
                         }
                         title="Anmelden"
-                        confirmButton={{ label: "Anmelden" }}
-                        userBanner={{ label: "Anmelden als" }}
+                        actionSummary={(user) => (
+                            <UserBanner label="Anmelden als" user={user} />
+                        )}
                     />
                 </Card>
             </GridCell>

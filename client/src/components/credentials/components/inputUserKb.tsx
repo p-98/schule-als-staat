@@ -1,5 +1,9 @@
-import { useCallback, useState } from "react";
-import { endsWith } from "lodash/fp";
+import {
+    ComponentPropsWithoutRef,
+    FormEvent,
+    useCallback,
+    useState,
+} from "react";
 import {
     CardActions,
     CardActionButton,
@@ -9,65 +13,58 @@ import {
 } from "Components/material/card";
 import { TextField } from "Components/material/textfield";
 import { Select } from "Components/material/select";
-import { graphql } from "Utility/graphql";
 import { type UserType } from "Utility/graphql/graphql";
-import { byCode, categorizeError, client, safeData } from "Utility/urql";
 import { dispatch } from "Utility/misc";
-import { ResultOf } from "@graphql-typed-document-node/core";
+import { ChangeEvent } from "Utility/types";
+import { Theme } from "Components/material/theme";
 
-const q = graphql(/* GraphQL */ `
-    query InputUserQuery($type: UserType!, $id: String!) {
-        user(user: { type: $type, id: $id }) {
-            __typename
-        }
-    }
-`);
-export { q as defaultQuery };
+/** Exactly one of resulting fields must be set. */
+export type TAction<TData> = (
+    type: UserType,
+    id: string
+) => Promise<{
+    data?: TData;
+    idError?: Error;
+    unexpectedError?: Error;
+}>;
 
-interface IInputUserProps<TQuery extends typeof q>
-    extends React.HTMLAttributes<HTMLDivElement> {
-    query: TQuery;
+interface IInputUserKbProps<TData> extends ComponentPropsWithoutRef<"div"> {
+    action: TAction<TData>;
     cancelButton: { label: string };
     onCancel: () => void;
     confirmButton: { label: string };
-    onSuccess: (user: ResultOf<TQuery>["user"]) => void;
+    onSuccess: (data: TData) => void;
     title: string;
 }
-export const InputUser = <TQuery extends typeof q>({
-    query,
+export const InputUserKb = <TData,>({
+    action,
     cancelButton,
     onCancel,
     confirmButton,
     onSuccess,
     title,
     ...restProps
-}: IInputUserProps<TQuery>) => {
+}: IInputUserKbProps<TData>) => {
     const [type, setType] = useState<UserType>("CITIZEN");
     const [id, setId] = useState("");
     const [fetching, setFetching] = useState(false);
-    const [invalidId, setInvalidId] = useState<Error>();
+    const [idError, setIdError] = useState<Error>();
+    const [unexpectedError, setUnexpectedError] = useState<Error>();
 
     const handleConfirm = useCallback(
         async (_type: UserType, _id: string) => {
             if (fetching) return;
             setFetching(true);
-            setInvalidId(undefined);
-
-            const result = await client.query(
-                query,
-                { id: _id, type: _type },
-                { requestPolicy: "network-only" }
-            );
+            setIdError(undefined);
+            setUnexpectedError(undefined);
+            const { data, ...errors } = await action(_type, _id);
+            setIdError(errors.idError);
+            setUnexpectedError(errors.unexpectedError);
             setFetching(false);
 
-            const { data, error } = safeData(result);
-            if (data) onSuccess(data.user);
-            const [_invalidId] = categorizeError(error, [
-                byCode(endsWith("NOT_FOUND")),
-            ]);
-            if (_invalidId) setInvalidId(_invalidId);
+            if (data) onSuccess(data);
         },
-        [fetching, setFetching, query, onSuccess]
+        [fetching, action, onSuccess]
     );
 
     const handleCancel = useCallback(() => {
@@ -76,13 +73,14 @@ export const InputUser = <TQuery extends typeof q>({
         onCancel();
     }, [onCancel]);
 
+    const helpMsg = idError?.message ?? unexpectedError?.message ?? "";
     return (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <CardInner {...restProps}>
             <CardHeader>{title}</CardHeader>
             <CardContent>
                 <Select
-                    id="login__user-type"
+                    id="input-user-kb__user-type"
                     options={[
                         { label: "Unternehmen", value: "COMPANY" },
                         { label: "Bürger", value: "CITIZEN" },
@@ -90,18 +88,22 @@ export const InputUser = <TQuery extends typeof q>({
                     ]}
                     label="Benutzerklasse"
                     value={type}
-                    onChange={(e) => setType(e.currentTarget.value as UserType)}
+                    onChange={(e: FormEvent<HTMLSelectElement>) =>
+                        setType(e.currentTarget.value as UserType)
+                    }
                 />
                 <TextField
-                    id="login__user-id"
+                    id="input-user-kb__user-id"
                     label="Benutzername"
                     value={id}
-                    invalid={!!invalidId}
+                    onChange={(e: ChangeEvent) => setId(e.currentTarget.value)}
+                    invalid={!!idError}
                     helpText={{
                         validationMsg: true,
-                        children: invalidId?.message ?? "",
+                        persistent: true,
+                        // Themee for when crossFailed is set
+                        children: <Theme use="error">{helpMsg}</Theme>,
                     }}
-                    onChange={(e) => setId(e.currentTarget.value)}
                 />
             </CardContent>
             <CardActions dialogLayout>

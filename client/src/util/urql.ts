@@ -1,6 +1,6 @@
-import { Client, cacheExchange, fetchExchange, type CombinedError } from "urql";
+import { Client, cacheExchange, fetchExchange, CombinedError } from "urql";
 import { type GraphQLError } from "graphql";
-import { all, constant, curry, isUndefined, map } from "lodash/fp";
+import { constant, identity, map } from "lodash/fp";
 import { useEffect, useMemo, useState } from "react";
 
 import { inOperator } from "Utility/types";
@@ -49,24 +49,24 @@ export const useStable = (fetching: boolean) => {
 };
 
 export type TGraphQLError<Ext> = GraphQLError & { extensions: Ext };
+export type TCustomGraphQLError = TGraphQLError<{ code: string }>;
 
 /** Determine whether an urql error is an graphql error with specific code
+ *
+ * Mainly for use with categorizeError
  *
  * @example
  * const [{ data, fetching, error }, ...] = useMutation(...)
  * // has type TGraphQLError<{code: string}> | undefined
- * const wrongPassword = byCode("WRONG_PASSWORD", error)
+ * const wrongPassword = byCode("WRONG_PASSWORD")(error)
  *
  * @param error the error obtained by urql
  * @param code the code by which to filter, can also be a function
  * @returns
  */
-export const byCode = curry(
-    (
-        code: string | ((_: string) => boolean),
-        error: CombinedError | undefined
-    ): TGraphQLError<{ code: string }> | undefined => {
-        if (!error) return undefined;
+export const byCode =
+    (code: string | ((_: string) => boolean)): TCategory<TCustomGraphQLError> =>
+    (error: CombinedError): TGraphQLError<{ code: string }> | undefined => {
         const gqlError = error.graphQLErrors[0];
         if (!gqlError) return undefined;
         const { extensions } = gqlError;
@@ -81,41 +81,72 @@ export const byCode = curry(
         } else if (extensions.code !== code) return undefined;
 
         return gqlError as TGraphQLError<{ code: string }>;
-    }
-);
-/** Match any graphql error */
-export const any = constant(true);
+    };
+/** Match any graphql error
+ *
+ * Mainly for use with categorizeError.
+ * Note that passing this category prevents the user being notified of an unexpected error!
+ */
+export const any: TCategory<CombinedError> = identity;
 
-export type TErrorFilter = (
-    error: CombinedError | undefined
-) => TGraphQLError<{ code: string }> | undefined;
-/** Categorize an unknown error and notify user if unexpected
+type TCategory<T> = (error: CombinedError) => T | undefined;
+type TCategorised<Categories> = Categories extends [
+    TCategory<infer T>,
+    ...infer Tail
+]
+    ? readonly [T | undefined, ...TCategorised<Tail>]
+    : [CombinedError | undefined];
+/** Categorize an unknown error and notify user if none is matched
+ *
+ * Only the first match is respected, resulting in a 1-hot array
  *
  * @param error the error to categorize
  * @param categories the functions matched against.
+ * @return array where the first matched category is set to the result. If none matched the error is passed as last element.
  */
-export const categorizeError = (
+export const categorizeError = <Categories extends TCategory<unknown>[]>(
     error: CombinedError | undefined,
-    categories: TErrorFilter[]
-): (TGraphQLError<{ code: string }> | undefined)[] => {
-    if (!error) return map(constant(undefined), categories);
+    categories: [...Categories]
+): TCategorised<Categories> => {
+    if (!error)
+        return map(constant(undefined), categories) as TCategorised<Categories>;
 
-    const categorized = map((f) => f(error), categories);
-    if (all(isUndefined, categorized)) {
+    const [categorized, found] = categories.reduce<[unknown[], boolean]>(
+        ([cum, _found], f) => [
+            [_found ? undefined : f(error), ...cum],
+            _found || !!f(error),
+        ],
+        [[], false]
+    );
+    if (!found) {
         // eslint-disable-next-line no-console
         console.error("Unexpected error: ", error);
         notifyUnexpectedError();
     }
-    return categorized;
+    return [
+        ...categorized,
+        found ? undefined : error,
+    ] as TCategorised<Categories>;
 };
+
+// /** Categorize an unknown error and notify user if unexpected
+//  *
+//  * @param error the error to categorize
+//  * @param categories the functions matched against.
+//  */
+// export const categorizeError = (
+//     error: CombinedError | undefined,
+//     categories: TErrorFilter[]
+// )
+
 /** Categorize an unknown error and notify user if unexpected
  *
  * @param error the error to categorize
  * @param categories the functions matched against. Must not change, since it doesn't rerender the compoenent!
  */
-export const useCategorizeError = (
+export const useCategorizeError = <Categories extends TCategory<unknown>[]>(
     error: CombinedError | undefined,
-    categories: TErrorFilter[]
-): (TGraphQLError<{ code: string }> | undefined)[] =>
+    categories: [...Categories]
+): TCategorised<Categories> =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
     useMemo(() => categorizeError(error, categories), [error]);

@@ -1,4 +1,3 @@
-import { type ResultOf } from "@graphql-typed-document-node/core";
 import {
     type ReactElement,
     useCallback,
@@ -6,8 +5,8 @@ import {
     useMemo,
     useRef,
     useState,
+    ComponentPropsWithoutRef,
 } from "react";
-import { endsWith } from "lodash/fp";
 import { Html5Qrcode } from "html5-qrcode";
 import {
     CardActionButton,
@@ -18,12 +17,13 @@ import {
     CardInner,
 } from "Components/material/card";
 import { Typography } from "Components/material/typography";
-import { graphql } from "Utility/graphql";
-import { byCode, categorizeError, client, safeData } from "Utility/urql";
 import { dispatch } from "Utility/misc";
 import { notify } from "Utility/notifications";
 
-import styles from "../login.module.css";
+import styles from "../credentials.module.css";
+
+/* Qr scanner component
+ */
 
 /** Stabilize onSuccess calls
  *
@@ -94,47 +94,35 @@ const Qr: React.FC<IQrProps> = ({
     return <div {...restProps} id={id} />;
 };
 
-const q = graphql(/* GraphQL */ `
-    query InputQrQuery($id: ID!) {
-        readCard(id: $id) {
-            __typename
-        }
-    }
-`);
-export { q as defaultQuery };
+/* Qr card reader component
+ */
 
-export interface IInputQrProps<
-    TQuery extends typeof q,
-    TAllowEmpty extends boolean = false
-> extends React.HTMLAttributes<HTMLDivElement> {
-    query: TQuery;
-    allowEmpty?: TAllowEmpty;
+/** Exactly one of resulting fields must be set. */
+export type TAction<TData> = (id: string) => Promise<{
+    data?: TData;
+    idError?: Error;
+    emptyError?: boolean;
+    unexpectedError?: Error;
+}>;
+
+export interface IInputUserQrProps<TData>
+    extends ComponentPropsWithoutRef<"div"> {
+    action: TAction<TData>;
     cancelButton?: { label: string };
     onCancel?: () => void;
     onUseKeyboard: () => void;
-    onSuccess: (
-        user: TAllowEmpty extends true
-            ? ResultOf<TQuery>["readCard"]
-            : NonNullable<ResultOf<TQuery>["readCard"]>,
-        cardId: string
-    ) => void;
-
-    // display props
+    onSuccess: (data: TData) => void;
     title: string;
 }
-export const InputQr = <
-    TQuery extends typeof q,
-    TAllowEmpty extends boolean = false
->({
-    query,
-    allowEmpty = false as TAllowEmpty,
+export const InputUserQr = <TData,>({
+    action,
     cancelButton,
     onCancel,
     onUseKeyboard,
     onSuccess,
     title,
     ...restProps
-}: IInputQrProps<TQuery, TAllowEmpty>): ReactElement => {
+}: IInputUserQrProps<TData>): ReactElement => {
     if (!onCancel && cancelButton) throw Error("onCancel undefined");
     const [fetching, setFetching] = useState(false);
 
@@ -142,31 +130,15 @@ export const InputQr = <
         async (id: string) => {
             if (fetching) return;
             setFetching(true);
-            const result = await client.query(
-                query,
-                { id },
-                { requestPolicy: "network-only" }
-            );
-            setFetching(false);
-
-            const { data, error } = safeData(result);
-            const [invalidId] = categorizeError(error, [
-                byCode(endsWith("NOT_FOUND")),
-            ]);
-            if (invalidId) notify({ body: invalidId.message });
-            if (!data) return;
-
-            const { readCard } = data;
-            if (!allowEmpty && !readCard) {
+            const { data, ...errors } = await action(id);
+            if (errors.idError) notify({ body: errors.idError.message });
+            if (errors.emptyError) {
                 notify({ body: `Card with id ${id} is empty.` });
-                return;
             }
-            onSuccess(
-                readCard as NonNullable<ResultOf<TQuery>["readCard"]>,
-                id
-            );
+            setFetching(false);
+            if (data) onSuccess(data);
         },
-        [fetching, setFetching, query, allowEmpty, onSuccess]
+        [fetching, action, onSuccess]
     );
     const handleError = useCallback(
         (err: Error) => {
@@ -185,12 +157,13 @@ export const InputQr = <
                 <Qr
                     onSuccess={(_) => dispatch(handleResult(_))}
                     onFailure={handleError}
-                    className={styles["login__qr-video"]}
+                    className={styles["input-user-qr__video"]}
                 />
             </CardMedia>
             <CardHeader>{title}</CardHeader>
             <CardContent>
                 <Typography use="body1" theme="textSecondaryOnBackground">
+                    {/* Kurzer Text */}
                     Halte den QR-Code auf deinem Ausweis vor die Kamera.
                 </Typography>
             </CardContent>

@@ -75,6 +75,12 @@ export const andP =
     (v) =>
         all((p) => p(v), ps);
 
+/** Map over the first element of a tuple */
+export const mapFst =
+    <T, U, Ts extends unknown[]>(f: (fst: T) => U) =>
+    ([fst, ...rest]: [T, ...Ts]): [U, ...Ts] =>
+        [f(fst), ...rest];
+
 /** Returns whether a value is a valid react node
  *
  * A react node is defined here: https://reactnative.dev/docs/react-node

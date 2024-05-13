@@ -14,8 +14,8 @@ import {
     FullscreenAppBarHandle,
 } from "Components/dynamicAppBar/presets";
 import usePredictionObserver from "Utility/hooks/predictionObserver/predictionObserver";
-import { defaultQueries, GetUser } from "Components/login/getUser";
-import { onAfterCloneHandle } from "Utility/adapters/GetUser-FullscreenContainerTransform";
+import { InputUser } from "Components/credentials/inputUser";
+import { onAfterCloneHandle } from "Utility/adapters/InputUser-FullscreenContainerTransform";
 import { UserDashboard } from "./components/userDashboard";
 import { ChangeCurrencies } from "./components/changeCurrencies";
 import { BankUserContext, fragmentData } from "./util/context";
@@ -41,8 +41,9 @@ export const Bank: React.FC = () => {
                         expectTransformation={expectCloseInteraction || !user}
                     >
                         <FullscreenContainerTransformHandle>
-                            <GetUser
-                                queries={defaultQueries}
+                            <InputUser
+                                qrAction={() => Promise.resolve({ data: [] })}
+                                kbAction={() => Promise.resolve({ data: [] })}
                                 title="Konto wählen"
                                 confirmButton={{ label: "Bestätigen" }}
                                 onSuccess={(_user) => setUser(_user)}
