@@ -31,11 +31,19 @@
 .mdc-list-item__meta {
     white-space: nowrap;
 }
-
-// make activated data-table row look more decent
-.rmwc-data-table__row--activated {
-    background-color: unset !important;
+.mdc-list-item__meta {
+    white-space: nowrap;
 }
+
+// make activated data-table rows adhere to border-radius
+.mdc-data-table {
+    overflow: hidden
+}
+
+// // make activated data-table row look more decent
+// .rmwc-data-table__row--activated {
+//     background-color: unset !important;
+// }
 
 .rmwc-select__default-width {
     width: 100% !important;

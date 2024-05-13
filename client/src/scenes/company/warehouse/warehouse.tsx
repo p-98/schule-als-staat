@@ -1,6 +1,6 @@
 // local
 import { useCart } from "Components/pos/util/useCart";
-import { POS } from "Components/pos/pos";
+import { Pos } from "Components/pos/pos";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import products from "./warehouse.data";
 
@@ -10,7 +10,7 @@ export const Warehouse: React.FC = () => {
     return (
         <>
             <DrawerAppBarHandle title="Warenlager" />
-            <POS
+            <Pos
                 cart={cart}
                 cartActions={cartActions}
                 products={products}

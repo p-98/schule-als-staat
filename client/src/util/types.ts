@@ -98,14 +98,6 @@ export type TWithVoteProp<Vote extends IVote = IVote, T = unknown> = T & {
     vote: Vote;
 };
 
-// pos types
-export interface IProduct {
-    id: string;
-    name: string;
-    price: number;
-}
-export type TFilteredCart = (IProduct & { quantity: number })[];
-
 // helper functions
 export const isNumberArray = (arr: unknown): arr is number[] =>
     Array.isArray(arr) && arr.every((item) => typeof item === "number");

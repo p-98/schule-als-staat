@@ -1,4 +1,4 @@
-import React from "react";
+import React, { type MouseEvent } from "react";
 import { Typography } from "Components/material/typography";
 import { TextField } from "Components/material/textfield";
 import {
@@ -9,29 +9,41 @@ import {
 } from "Components/material/card";
 
 // local
-import { IProduct } from "Utility/types";
+import type { ChangeEvent } from "Utility/types";
 import { parseCurrency } from "Utility/parseCurrency";
+import { FragmentType, graphql, useFragment } from "Utility/graphql";
 import { HightlightStates } from "Components/highlightStates/highlightStates";
-import { TWithCartProps } from "../util/types";
 
 import styles from "../pos.module.css";
 
-type TTypedMouseEvent = React.MouseEvent<HTMLButtonElement, MouseEvent>;
+const Card_ProductFragment = graphql(/* GraphQL */ `
+    fragment Card_ProductFragment on Product {
+        id
+        name
+        price
+    }
+`);
 
 interface IProductCardProps {
-    product: IProduct;
+    product: FragmentType<typeof Card_ProductFragment>;
+    quantity: number;
+    setQuantity: (value: number) => void;
 }
-export const ProductCard = React.memo<TWithCartProps<IProductCardProps>>(
-    ({ product, cart, cartActions }) => {
-        const quantity = cart[product.id] || 0;
+export const ProductCard = React.memo<IProductCardProps>(
+    ({ product: _product, quantity, setQuantity }) => {
+        const product = useFragment(Card_ProductFragment, _product);
+
+        const increment = () => setQuantity(quantity + 1);
+        const reset = () => setQuantity(0);
+        const set = (to: number) => setQuantity(to);
 
         return (
             <Card>
                 <HightlightStates selected={quantity !== 0}>
                     <CardPrimaryAction
-                        onClick={(e: TTypedMouseEvent) => {
+                        onClick={(e: MouseEvent) => {
                             e.stopPropagation();
-                            cartActions.increment(product.id);
+                            increment();
                         }}
                     >
                         <CardHeader
@@ -51,23 +63,23 @@ export const ProductCard = React.memo<TWithCartProps<IProductCardProps>>(
                                 value={quantity}
                                 type="number"
                                 label="Menge"
-                                id={`count-product#${product.id}`}
-                                onChange={(
-                                    e: React.ChangeEvent<HTMLInputElement>
-                                ) => {
+                                id={`pos__proudct-count#${product.id}`}
+                                onChange={(e: ChangeEvent) => {
                                     e.stopPropagation();
-                                    cartActions.set(
-                                        product.id,
-                                        parseInt(e.currentTarget.value, 10)
+                                    const newQuantity = parseInt(
+                                        e.currentTarget.value,
+                                        10
                                     );
+                                    if (Number.isNaN(newQuantity)) return;
+                                    set(newQuantity);
                                 }}
                                 outlined
                                 onClick={(e) => e.stopPropagation()}
                                 trailingIcon={{
                                     icon: "clear",
-                                    onClick: (e: TTypedMouseEvent) => {
+                                    onClick: (e: MouseEvent) => {
                                         e.stopPropagation();
-                                        cartActions.clear(product.id);
+                                        reset();
                                     },
                                 }}
                             />
