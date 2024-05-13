@@ -29,10 +29,8 @@ const loginAction: TCredentialsAction<[]> = async (type, id, password) => {
         password,
     });
     const { data, error } = safeData(result);
-    const [passwordError, unexpectedError] = categorizeError(error, [
-        byCode("WRONG_PASSWORD"),
-    ]);
-    return { data: data ? [] : undefined, passwordError, unexpectedError };
+    const [passwordError] = categorizeError(error, [byCode("WRONG_PASSWORD")]);
+    return { data: data ? [] : undefined, passwordError };
 };
 
 export const Login: React.FC = () => {

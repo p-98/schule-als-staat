@@ -32,7 +32,7 @@ export const InputPassword_UserFragment = graphql(/* GraphQL */ `
 export type TAction<TData> = (password: string | undefined) => Promise<{
     data?: TData;
     passwordError?: Error;
-    unexpectedError?: Error;
+    unspecificError?: Error;
 }>;
 
 export interface IInputPasswordProps<TData>
@@ -62,19 +62,19 @@ export const InputPassword = <TData,>({
     const [password, setPassword] = useState("");
     const [fetching, setFetching] = useState(false);
     const [passwordError, setPasswordError] = useState<Error>();
-    const [unexpectedError, setUnexpectedError] = useState<Error>();
+    const [unspecificError, setUnspecificError] = useState<Error>();
 
     const handleConfirm = useCallback(
         async (_password: string) => {
             if (fetching) return;
             setFetching(true);
             setPasswordError(undefined);
-            setUnexpectedError(undefined);
+            setUnspecificError(undefined);
             const { data, ...errors } = await action(
                 noPassword ? undefined : _password
             );
             setPasswordError(errors.passwordError);
-            setUnexpectedError(errors.unexpectedError);
+            setUnspecificError(errors.unspecificError);
             setFetching(false);
 
             if (data) onSuccess(data);
@@ -86,7 +86,7 @@ export const InputPassword = <TData,>({
         onCancel();
     }, [onCancel]);
 
-    const helpMsg = passwordError?.message ?? unexpectedError?.message ?? "";
+    const helpMsg = passwordError?.message ?? unspecificError?.message ?? "";
     return (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <CardInner {...restProps}>

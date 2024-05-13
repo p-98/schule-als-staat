@@ -102,7 +102,7 @@ export type TAction<TData> = (id: string) => Promise<{
     data?: TData;
     idError?: Error;
     emptyError?: boolean;
-    unexpectedError?: Error;
+    unspecificError?: Error;
 }>;
 
 export interface IInputUserQrProps<TData>
@@ -132,9 +132,10 @@ export const InputUserQr = <TData,>({
             setFetching(true);
             const { data, ...errors } = await action(id);
             if (errors.idError) notify({ body: errors.idError.message });
-            if (errors.emptyError) {
+            if (errors.emptyError)
                 notify({ body: `Card with id ${id} is empty.` });
-            }
+            if (errors.unspecificError)
+                notify({ body: errors.unspecificError.message });
             setFetching(false);
             if (data) onSuccess(data);
         },

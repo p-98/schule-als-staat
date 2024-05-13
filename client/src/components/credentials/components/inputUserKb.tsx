@@ -25,7 +25,7 @@ export type TAction<TData> = (
 ) => Promise<{
     data?: TData;
     idError?: Error;
-    unexpectedError?: Error;
+    unspecificError?: Error;
 }>;
 
 interface IInputUserKbProps<TData> extends ComponentPropsWithoutRef<"div"> {
@@ -49,17 +49,17 @@ export const InputUserKb = <TData,>({
     const [id, setId] = useState("");
     const [fetching, setFetching] = useState(false);
     const [idError, setIdError] = useState<Error>();
-    const [unexpectedError, setUnexpectedError] = useState<Error>();
+    const [unspecificError, setUnspecificError] = useState<Error>();
 
     const handleConfirm = useCallback(
         async (_type: UserType, _id: string) => {
             if (fetching) return;
             setFetching(true);
             setIdError(undefined);
-            setUnexpectedError(undefined);
+            setUnspecificError(undefined);
             const { data, ...errors } = await action(_type, _id);
             setIdError(errors.idError);
-            setUnexpectedError(errors.unexpectedError);
+            setUnspecificError(errors.unspecificError);
             setFetching(false);
 
             if (data) onSuccess(data);
@@ -73,7 +73,7 @@ export const InputUserKb = <TData,>({
         onCancel();
     }, [onCancel]);
 
-    const helpMsg = idError?.message ?? unexpectedError?.message ?? "";
+    const helpMsg = idError?.message ?? unspecificError?.message ?? "";
     return (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <CardInner {...restProps}>

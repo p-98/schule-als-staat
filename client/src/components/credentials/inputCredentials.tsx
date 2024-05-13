@@ -50,14 +50,11 @@ const qrAction: TQrAction<FragmentType<typeof Login_UserFragment>> = async (
         { requestPolicy: "network-only" }
     );
     const { data, error } = safeData(result);
-    const [idError, unexpectedError] = categorizeError(error, [
-        byCode(endsWith("NOT_FOUND")),
-    ]);
+    const [idError] = categorizeError(error, [byCode(endsWith("NOT_FOUND"))]);
     return {
         data: data?.readCard ?? undefined, // prevent null
         emptyError: !error && !data?.readCard,
         idError,
-        unexpectedError,
     };
 };
 const kbAction: TKbAction<FragmentType<typeof Login_UserFragment>> = async (
@@ -70,10 +67,8 @@ const kbAction: TKbAction<FragmentType<typeof Login_UserFragment>> = async (
         { requestPolicy: "network-only" }
     );
     const { data, error } = safeData(result);
-    const [idError, unexpectedError] = categorizeError(error, [
-        byCode(endsWith("NOT_FOUND")),
-    ]);
-    return { data: data?.user, idError, unexpectedError };
+    const [idError] = categorizeError(error, [byCode(endsWith("NOT_FOUND"))]);
+    return { data: data?.user, idError };
 };
 
 /** Exactly one of resulting fields must be set. */
@@ -84,7 +79,7 @@ export type TAction<Data> = (
 ) => Promise<{
     data?: Data;
     passwordError?: Error;
-    unexpectedError?: Error;
+    unspecificError?: Error;
 }>;
 
 enum Input {

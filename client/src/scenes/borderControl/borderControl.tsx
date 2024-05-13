@@ -57,13 +57,10 @@ const qrAction: TQrAction<TCardAndUser> = async (id) => {
         { requestPolicy: "network-only" }
     );
     const { data, error } = safeData(result);
-    const [idError, unexpectedError] = categorizeError(error, [
-        byCode("CARD_NOT_FOUND"),
-    ]);
+    const [idError] = categorizeError(error, [byCode("CARD_NOT_FOUND")]);
     return {
         data: data ? { user: data.readCard, cardId: id } : undefined,
         idError,
-        unexpectedError,
     };
 };
 
@@ -81,13 +78,10 @@ const kbAction: TKbAction<TCardAndUser> = async (type, id) => {
         { requestPolicy: "network-only" }
     );
     const { data, error } = safeData(result);
-    const [idError, unexpectedError] = categorizeError(error, [
-        byCode(endsWith("NOT_FOUND")),
-    ]);
+    const [idError] = categorizeError(error, [byCode(endsWith("NOT_FOUND"))]);
     return {
         data: data ? { user: data.user, cardId: undefined } : undefined,
         idError,
-        unexpectedError,
     };
 };
 
