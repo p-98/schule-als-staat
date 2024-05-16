@@ -7,10 +7,11 @@ import {
     assertInvalid,
     seedUser,
     TYogaExecutor,
+    createTestServer,
 } from "Util/test";
 
-import { type TYogaServerInstance, yogaFactory } from "Server";
-import { emptyKnex, type Knex } from "Database";
+import { type TYogaServerInstance } from "Server";
+import { type Knex } from "Database";
 import type { TCredentialsInput } from "Types/schema";
 import { omit } from "lodash/fp";
 import { EUserTypes } from "Types/models";
@@ -52,8 +53,7 @@ let yoga: TYogaServerInstance;
 let client: TYogaExecutor;
 let otherClient: TYogaExecutor;
 beforeEach(async () => {
-    knex = await emptyKnex();
-    yoga = yogaFactory(knex);
+    [knex, yoga] = await createTestServer();
     /* eslint-disable @typescript-eslint/unbound-method */
     client = buildHTTPCookieExecutor({ fetch: yoga.fetch });
     otherClient = buildHTTPCookieExecutor({ fetch: yoga.fetch });

@@ -6,12 +6,13 @@ import {
     buildHTTPUserExecutor,
     assertInvalid,
     type TUserExecutor,
+    createTestServer,
 } from "Util/test";
 
 import { omit, set } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
-import { type TYogaServerInstance, yogaFactory } from "Server";
-import { type Knex, emptyKnex } from "Database";
+import { type TYogaServerInstance } from "Server";
+import { type Knex } from "Database";
 import { type TNullable } from "Types";
 import { graphql } from "./graphql";
 
@@ -68,8 +69,7 @@ let receiver: TUserExecutor;
 let company: TUserExecutor;
 let guest: TUserExecutor;
 beforeEach(async () => {
-    knex = await emptyKnex();
-    yoga = yogaFactory(knex);
+    [knex, yoga] = await createTestServer();
     sender = await buildHTTPUserExecutor(knex, yoga, { type: "CITIZEN" });
     receiver = await buildHTTPUserExecutor(knex, yoga, { type: "CITIZEN" });
     company = await buildHTTPUserExecutor(knex, yoga, { type: "COMPANY" });

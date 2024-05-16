@@ -189,7 +189,7 @@ export async function castVote(
                 vote: stringifyVoteVote(votingPaper),
             })
             .catch((err: Error & { code?: string }) => {
-                if (err.code === "SQLITE_CONSTRAINT")
+                if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY")
                     throw new GraphQLYogaError(
                         `Vote for id ${voteId} already casted`,
                         { code: "VOTE_ALREADY_CASTED" }

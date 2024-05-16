@@ -82,7 +82,7 @@ export function checkRole(
 
     const isAdmin =
         user.type === "CITIZEN" &&
-        config.server.adminCitizenIds.includes(user.id);
+        config.roles.adminCitizenIds.includes(user.id);
     if (opts?.allowAdmin && isAdmin) return true;
 
     switch (role) {
@@ -97,22 +97,22 @@ export function checkRole(
         case "POLICE":
             return (
                 user.type === "COMPANY" &&
-                user.id === config.server.policeCompanyId
+                user.id === config.roles.policeCompanyId
             );
         case "BANK":
             return (
                 user.type === "COMPANY" &&
-                user.id === config.server.bankCompanyId
+                user.id === config.roles.bankCompanyId
             );
         case "BORDER_CONTROL":
             return (
                 user.type === "COMPANY" &&
-                user.id === config.server.borderControlCompanyId
+                user.id === config.roles.borderControlCompanyId
             );
         case "POLITICS":
             return (
                 user.type === "COMPANY" &&
-                user.id === config.server.policiticsCompanyId
+                user.id === config.roles.policiticsCompanyId
             );
     }
 }

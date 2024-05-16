@@ -62,7 +62,7 @@ export async function chargeCustoms(
             where companies.bankAccountId = bankAccounts.id
                   and companies.id = :companyId
         `,
-            { customs, companyId: config.server.borderControlCompanyId }
+            { customs, companyId: config.roles.borderControlCompanyId }
         );
 
         const [raw] = await trx("customsTransactions")

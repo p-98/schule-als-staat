@@ -16,8 +16,13 @@ import type {
     ExecutionRequest,
 } from "@graphql-tools/utils";
 
-import type { Knex } from "Database";
-import type { IAppContext, TYogaServerInstance } from "Server";
+import { emptyKnex, Knex } from "Database";
+import {
+    type IAppContext,
+    type IDynamicConfig,
+    type TYogaServerInstance,
+    yogaFactory,
+} from "Server";
 import type { IUserSignature } from "Types/models";
 
 import { assert, AssertionError } from "chai";
@@ -39,11 +44,12 @@ import { parse as parseSetCookie } from "set-cookie-parser";
 import { serialize as serializeCookie } from "cookie";
 import { ValueOrPromise } from "value-or-promise";
 import bcrypt from "bcrypt";
+import { jest } from "@jest/globals";
 
-import config from "Config";
 import { formatDateTimeZ } from "Util/date";
 import { graphql } from "__test__/graphql";
 import { pipe1, UnPromise } from "Util/misc";
+import { type Config } from "Root/types/config";
 
 /* Seeding helper functions for unit testing
  */
@@ -83,6 +89,62 @@ export const withSpecific = <SeedName extends string>(
     specific: isEmpty(seeds) ? undefined : (seeds as unknown as string),
 });
 
+const _config: Config = {
+    currencies: {
+        real: {
+            name: "Euro",
+            short: "EUR",
+            symbol: "€",
+        },
+        virtual: {
+            name: "πCoin",
+            short: "PC",
+            symbol: "π",
+        },
+    },
+    currencyExchange: {
+        virtualPerReal: 3.141 / 1,
+        realPerVirtual: 1 / 3.141,
+    },
+    roles: {
+        stateBankAccountId: "STATE",
+        warehouseCompanyId: "WAREH",
+
+        adminCitizenIds: ["ADMIN"],
+        bankCompanyId: "SBANK",
+        borderControlCompanyId: "BCTRL",
+        policeCompanyId: "POLICE",
+        policiticsCompanyId: "POLITICS",
+    },
+    openingHours: {
+        dates: ["2020-07-23", "2020-07-24", "2020-07-27", "2020-07-28"],
+        open: "09:00:00+02:00",
+        close: "16:00:00+02:00",
+        timezone: "+02:00",
+    },
+    guestInitialBalance: 50,
+    server: {
+        url: "http://127.0.0.1:4000/graphql",
+        host: "127.0.0.1",
+        port: 4000,
+    },
+    database: {
+        file: ":memory:",
+        backup: {
+            dir: "database",
+            file: () => `database-backup-${new Date().toISOString()}`,
+            interval: Number.MAX_SAFE_INTEGER,
+        },
+    },
+};
+const config: IDynamicConfig = {
+    async get() {
+        return _config;
+    },
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    async reload() {},
+};
+
 const setNotImplemented = <
     K extends PropertyKey,
     O extends Record<PropertyKey, unknown>
@@ -108,8 +170,8 @@ const setNotImplemented = <
 };
 
 export const mockAppContext = (knex: Knex): IAppContext =>
-    setNotImplemented(["session", "pubsub"], {
-        config,
+    setNotImplemented(["session", "pubsub", "database"], {
+        config: { ..._config, reload: () => Promise.resolve() },
         knex,
     });
 
@@ -359,3 +421,11 @@ export async function buildHTTPUserExecutor(
     });
 }
 export type TUserExecutor = UnPromise<ReturnType<typeof buildHTTPUserExecutor>>;
+
+export async function createTestServer(): Promise<[Knex, TYogaServerInstance]> {
+    const [db, knex] = await emptyKnex();
+    // disable backups
+    db.backup = jest.fn(async () => ({ totalPages: 10, remainingPages: 0 }));
+    const yoga = yogaFactory(db, knex, config);
+    return [knex, yoga];
+}

@@ -80,7 +80,7 @@ export async function registerCard(
             .returning("*");
         return cardDbToModel(card!);
     } catch (err) {
-        if (hasCode(err) && err.code === "SQLITE_CONSTRAINT")
+        if (hasCode(err) && err.code === "SQLITE_CONSTRAINT_PRIMARYKEY")
             fail("Card id already exists.", "CARD_ALREADY_REGISTERED");
 
         throw err;

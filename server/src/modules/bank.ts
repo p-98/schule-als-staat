@@ -397,7 +397,7 @@ export async function payChangeDraft(
             FROM companies
             WHERE companies.bankAccountId = bankAccounts.id AND companies.id = :bankCompanyId
         `,
-            { cost, bankCompanyId: config.server.bankCompanyId }
+            { cost, bankCompanyId: config.roles.bankCompanyId }
         );
 
         const user = await getUser({ ...ctx, knex: trx }, userSignature);
@@ -718,12 +718,7 @@ export async function warehousePurchase(
     const { session, knex, config } = ctx;
     assertRole(session.userSignature, "COMPANY");
 
-    const draft = await sell(
-        ctx,
-        config.server.warehouseCompanyId,
-        items,
-        null
-    );
+    const draft = await sell(ctx, config.roles.warehouseCompanyId, items, null);
     const transaction = await payPurchaseDraft(ctx, draft.id, null);
     await knex("warehouseOrders").insert({ purchaseId: transaction.id });
 

@@ -41,7 +41,7 @@ const seedSource = seedSourceFactory({
 let knex: Knex;
 let ctx: IAppContext;
 beforeEach(async () => {
-    knex = await emptyKnex();
+    [, knex] = await emptyKnex();
     ctx = mockAppContext(knex);
     // prevent inserting users and bankAccounts, because function never deals with them
     await knex.raw("PRAGMA foreign_keys = OFF");

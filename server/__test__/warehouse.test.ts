@@ -6,12 +6,13 @@ import {
     buildHTTPUserExecutor,
     type TUserExecutor,
     assertInvalid,
+    createTestServer,
 } from "Util/test";
 
 import { omit } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
-import { type TYogaServerInstance, yogaFactory } from "Server";
-import { type Knex, emptyKnex } from "Database";
+import { type TYogaServerInstance } from "Server";
+import { type Knex } from "Database";
 import { EUserTypes } from "Types/models";
 import config from "Config";
 import { graphql } from "./graphql";
@@ -84,8 +85,7 @@ const products = {
     otherCompany: { id: "otherCompanyProduct", revision: "orig" },
 };
 beforeEach(async () => {
-    knex = await emptyKnex();
-    yoga = yogaFactory(knex);
+    [knex, yoga] = await createTestServer();
 
     citizen = await buildHTTPUserExecutor(knex, yoga, { type: "CITIZEN" });
     company = await buildHTTPUserExecutor(knex, yoga, { type: "COMPANY" });
@@ -95,7 +95,7 @@ beforeEach(async () => {
     otherCompany = await buildHTTPUserExecutor(knex, yoga, { type: "COMPANY" });
     warehouse = await buildHTTPUserExecutor(knex, yoga, {
         type: "COMPANY",
-        id: config.server.warehouseCompanyId,
+        id: config.roles.warehouseCompanyId,
     });
 
     await knex("products").insert([

@@ -419,7 +419,7 @@ export async function createEmploymentOffer(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return inserted[0]!;
     } catch (err) {
-        if (hasCode(err) && err.code === "SQLITE_CONSTRAINT")
+        if (hasCode(err) && err.code === "SQLITE_CONSTRAINT_FOREIGNKEY")
             throw new GraphQLYogaError(
                 `Citizen with id ${offer.citizenId} does not exist`,
                 { code: "CITIZEN_NOT_FOUND" }

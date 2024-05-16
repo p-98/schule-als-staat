@@ -20,7 +20,7 @@ describe("database functionality", () => {
     let knex: Knex;
 
     beforeEach(async () => {
-        knex = await emptyKnex();
+        [, knex] = await emptyKnex();
     });
     afterEach(async () => {
         await knex.destroy();

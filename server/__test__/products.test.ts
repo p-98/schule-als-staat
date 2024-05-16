@@ -7,12 +7,13 @@ import {
     buildHTTPUserExecutor,
     type TUserExecutor,
     assertInvalid,
+    createTestServer,
 } from "Util/test";
 
 import { omit, negate, set, pick } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
-import { type TYogaServerInstance, yogaFactory } from "Server";
-import { type Knex, emptyKnex } from "Database";
+import { type TYogaServerInstance } from "Server";
+import { type Knex } from "Database";
 import { EUserTypes } from "Types/models";
 import { graphql } from "./graphql";
 import { ProductRevisionInput } from "./graphql/graphql";
@@ -168,8 +169,7 @@ let citizenWithIdOfSeller: TUserExecutor;
 let company: TUserExecutor;
 let guest: TUserExecutor;
 beforeEach(async () => {
-    knex = await emptyKnex();
-    yoga = yogaFactory(knex);
+    [knex, yoga] = await createTestServer();
     citizen = await buildHTTPUserExecutor(knex, yoga, { type: "CITIZEN" });
     seller = await buildHTTPUserExecutor(knex, yoga, { type: "COMPANY" });
     citizenWithIdOfSeller = await buildHTTPUserExecutor(knex, yoga, {

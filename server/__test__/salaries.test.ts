@@ -6,12 +6,13 @@ import {
     buildHTTPUserExecutor,
     assertInvalid,
     type TUserExecutor,
+    createTestServer,
 } from "Util/test";
 
 import { keyBy, map, omit, pipe } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
-import { type TYogaServerInstance, yogaFactory } from "Server";
-import { type Knex, emptyKnex } from "Database";
+import { type TYogaServerInstance } from "Server";
+import { type Knex } from "Database";
 import { type IEmployment as IKnexEmployment } from "Types/knex";
 import { graphql } from "./graphql";
 
@@ -84,8 +85,7 @@ let citizen2: TUserExecutor & { employment: IEmployment };
 let company: TUserExecutor;
 let differentCompany: TUserExecutor;
 beforeEach(async () => {
-    knex = await emptyKnex();
-    yoga = yogaFactory(knex);
+    [knex, yoga] = await createTestServer();
     const _citizen1 = await buildHTTPUserExecutor(knex, yoga, {
         type: "CITIZEN",
     });

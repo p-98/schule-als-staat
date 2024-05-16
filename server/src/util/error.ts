@@ -24,4 +24,6 @@ export function assert(
 ): asserts condition {
     if (!condition) throw new GraphQLError(message, { extensions: { code } });
 }
-export const fail = curry(assert)(false);
+export function fail(message: string, code: string): never {
+    assert(false, message, code);
+}

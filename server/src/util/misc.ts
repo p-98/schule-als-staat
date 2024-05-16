@@ -125,3 +125,26 @@ export function log<T>(msg: unknown, x: T): T {
 export function logId<T>(x: T): T {
     return log(x, x);
 }
+
+/** Make Promise sync
+ *
+ * PROMISE EXECUTION STILL HAPPENS ASYNCRONOUSELY!
+ * But potential errors are catched.
+ */
+export const syncify = (promise: Promise<unknown>): void => {
+    promise.catch((err) => {
+        throw err;
+    });
+};
+
+/** "Make async funciton sync"
+ *
+ * FUNCTION CALL STILL HAPPENS ASYNCRONOUSELY!
+ * But potential errors are catched.
+ */
+export const syncifyF =
+    <Args extends unknown[]>(
+        f: (...args: Args) => Promise<void>
+    ): ((...args: Args) => void) =>
+    (...args) =>
+        syncify(f(...args));

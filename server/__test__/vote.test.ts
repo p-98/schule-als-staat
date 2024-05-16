@@ -6,14 +6,15 @@ import {
     buildHTTPUserExecutor,
     assertInvalid,
     type TUserExecutor,
+    createTestServer,
 } from "Util/test";
 
 import { omit } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import { fetch, File } from "@whatwg-node/fetch";
 import { type TVoteType } from "Types/schema";
-import { type Knex, emptyKnex } from "Database";
-import { type TYogaServerInstance, yogaFactory } from "Server";
+import { type Knex } from "Database";
+import { type TYogaServerInstance } from "Server";
 import config from "Config";
 import { graphql } from "./graphql";
 
@@ -74,13 +75,12 @@ let company: TUserExecutor;
 let guest: TUserExecutor;
 beforeEach(async () => {
     jest.useFakeTimers({ advanceTimers: true, now: new Date(now) });
-    knex = await emptyKnex();
-    yoga = yogaFactory(knex);
+    [knex, yoga] = await createTestServer();
     citizen1 = await buildHTTPUserExecutor(knex, yoga, { type: "CITIZEN" });
     citizen2 = await buildHTTPUserExecutor(knex, yoga, { type: "CITIZEN" });
     politics = await buildHTTPUserExecutor(knex, yoga, {
         type: "COMPANY",
-        id: config.server.policiticsCompanyId,
+        id: config.roles.policiticsCompanyId,
     });
     citizenWithIdOfPolitics = await buildHTTPUserExecutor(knex, yoga, {
         type: "CITIZEN",

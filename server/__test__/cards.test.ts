@@ -6,11 +6,12 @@ import {
     buildHTTPUserExecutor,
     type TUserExecutor,
     assertInvalid,
+    createTestServer,
 } from "Util/test";
 
 import { type ResultOf } from "@graphql-typed-document-node/core";
-import { type TYogaServerInstance, yogaFactory } from "Server";
-import { type Knex, emptyKnex } from "Database";
+import { type TYogaServerInstance } from "Server";
+import { type Knex } from "Database";
 import { IUserSignature } from "Types/models";
 import config from "Config";
 import { graphql } from "./graphql";
@@ -90,17 +91,16 @@ let company: TUserExecutor;
 let borderControl: TUserExecutor;
 let admin: TUserExecutor;
 beforeEach(async () => {
-    knex = await emptyKnex();
-    yoga = yogaFactory(knex);
+    [knex, yoga] = await createTestServer();
 
     company = await buildHTTPUserExecutor(knex, yoga, { type: "COMPANY" });
     borderControl = await buildHTTPUserExecutor(knex, yoga, {
         type: "COMPANY",
-        id: config.server.borderControlCompanyId,
+        id: config.roles.borderControlCompanyId,
     });
     admin = await buildHTTPUserExecutor(knex, yoga, {
         type: "CITIZEN",
-        id: config.server.adminCitizenIds[0],
+        id: config.roles.adminCitizenIds[0],
     });
 });
 afterEach(async () => {

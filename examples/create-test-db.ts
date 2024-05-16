@@ -15,14 +15,16 @@ const dateFactory = () => {
 };
 
 const { nextDate } = dateFactory();
-const knex = await createKnex(config.database.file);
+const [db, knex] = await createKnex(config.database.file, {
+    client: "sqlite3",
+});
 await knex.migrate.up({ name: "init-schema" });
 const keller = await seedUser(knex, { type: "CITIZEN", id: "j.keller" });
 const neben = await seedUser(knex, { type: "CITIZEN", id: "m.neben" });
 const donutsLtd = await seedUser(knex, { type: "COMPANY", id: "donuts.ltd" });
 const borderControl = await seedUser(knex, {
     type: "COMPANY",
-    id: config.server.borderControlCompanyId,
+    id: config.roles.borderControlCompanyId,
 });
 const donut = {
     id: "productId",

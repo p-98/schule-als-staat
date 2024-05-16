@@ -4,12 +4,13 @@ import {
     assertNoErrors,
     assertSingleValue,
     buildHTTPUserExecutor,
+    createTestServer,
     type TUserExecutor,
 } from "Util/test";
 
 import { type ResultOf } from "@graphql-typed-document-node/core";
-import { type TYogaServerInstance, yogaFactory } from "Server";
-import { type Knex, emptyKnex } from "Database";
+import { type TYogaServerInstance } from "Server";
+import { type Knex } from "Database";
 import config from "Config";
 import { graphql } from "./graphql";
 
@@ -26,8 +27,7 @@ type TRolesState = ResultOf<typeof rolesQuery>["me"]["roles"];
 let knex: Knex;
 let yoga: TYogaServerInstance;
 beforeEach(async () => {
-    knex = await emptyKnex();
-    yoga = yogaFactory(knex);
+    [knex, yoga] = await createTestServer();
 });
 afterEach(async () => {
     await knex.destroy();
@@ -52,7 +52,7 @@ test("user roles", async () => {
         admin: [
             await buildHTTPUserExecutor(knex, yoga, {
                 type: "CITIZEN",
-                id: config.server.adminCitizenIds[0],
+                id: config.roles.adminCitizenIds[0],
             }),
             ["USER", "CITIZEN", "ADMIN"],
         ],
@@ -71,28 +71,28 @@ test("user roles", async () => {
         police: [
             await buildHTTPUserExecutor(knex, yoga, {
                 type: "COMPANY",
-                id: config.server.policeCompanyId,
+                id: config.roles.policeCompanyId,
             }),
             ["USER", "COMPANY", "POLICE"],
         ],
         bank: [
             await buildHTTPUserExecutor(knex, yoga, {
                 type: "COMPANY",
-                id: config.server.bankCompanyId,
+                id: config.roles.bankCompanyId,
             }),
             ["USER", "COMPANY", "BANK"],
         ],
         "border control": [
             await buildHTTPUserExecutor(knex, yoga, {
                 type: "COMPANY",
-                id: config.server.borderControlCompanyId,
+                id: config.roles.borderControlCompanyId,
             }),
             ["USER", "COMPANY", "BORDER_CONTROL"],
         ],
         politics: [
             await buildHTTPUserExecutor(knex, yoga, {
                 type: "COMPANY",
-                id: config.server.policiticsCompanyId,
+                id: config.roles.policiticsCompanyId,
             }),
             ["USER", "COMPANY", "POLITICS"],
         ],

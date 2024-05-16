@@ -15,5 +15,5 @@
             "Root/*": ["../*"]
         }
     },
-    "include": [".", "../types.ts"]
+    "include": [".", "../types.ts", "../types/*"]
 }
