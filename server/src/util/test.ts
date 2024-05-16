@@ -89,6 +89,29 @@ export const withSpecific = <SeedName extends string>(
     specific: isEmpty(seeds) ? undefined : (seeds as unknown as string),
 });
 
+const setNotImplemented = <
+    K extends PropertyKey,
+    O extends Record<PropertyKey, unknown>
+>(
+    keys: K[],
+    original: O
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Record<K, any> & O =>
+    keys.reduce(
+        (obj, key) =>
+            Object.defineProperty(obj, key, {
+                configurable: true,
+                enumerable: true,
+                get: () => {
+                    throw new Error("Not implemented");
+                },
+                set: () => {
+                    throw new Error("Not implemented");
+                },
+            }),
+        { ...original }
+    );
+
 const _config: Config = {
     currencies: {
         real: {
@@ -123,11 +146,7 @@ const _config: Config = {
         timezone: "+02:00",
     },
     guestInitialBalance: 50,
-    server: {
-        url: "http://127.0.0.1:4000/graphql",
-        host: "127.0.0.1",
-        port: 4000,
-    },
+    server: setNotImplemented(["url", "host", "port"], {}),
     database: {
         file: ":memory:",
         backup: {
@@ -143,30 +162,6 @@ const config: IDynamicConfig = {
     },
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     async reload() {},
-};
-
-const setNotImplemented = <
-    K extends PropertyKey,
-    O extends Record<PropertyKey, unknown>
->(
-    keys: K[],
-    obj: O
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Record<K, any> & O => {
-    const newObj = { ...obj };
-    keys.forEach((key) =>
-        Object.defineProperty(newObj, key, {
-            configurable: true,
-            enumerable: true,
-            get: () => {
-                throw new Error("Not implemented");
-            },
-            set: () => {
-                throw new Error("Not implemented");
-            },
-        })
-    );
-    return newObj;
 };
 
 export const mockAppContext = (knex: Knex): IAppContext =>
