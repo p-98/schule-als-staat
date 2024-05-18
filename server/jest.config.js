@@ -12,7 +12,7 @@ module.exports = {
     moduleNameMapper: hp.get("jest"),
     injectGlobals: false,
     transform: {
-        "^.+\\.ts$": ["esbuild-jest", { sourcemap: true }],
+        "^.+\\.ts$": ["@swc/jest"],
         "^.+\\.(gql|graphql)$": "@graphql-tools/jest-transform",
     },
 };

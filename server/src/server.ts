@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import type { YogaInitialContext, YogaServerInstance } from "graphql-yoga";
-import { backup, Db, Knex } from "Database";
+import { Db, Knex } from "Database";
 import type { TEvents } from "Types/models";
 import { WithCookieStore, UnPromise } from "Util/misc";
 
@@ -26,10 +26,9 @@ const createAppContext =
     async ({ request }: IInitialContext) => ({
         session: await sessionFactory(knex, request),
         knex,
+        db,
         // config reload only visible on newly created contexts
         config: { ...(await config.get()), reload: config.reload },
-        // backup always uses up to date config, even if changed in the same request
-        database: { backup: async () => backup(db, await config.get()) },
         pubsub,
     });
 export type IAppContext = UnPromise<

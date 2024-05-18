@@ -44,7 +44,6 @@ import { parse as parseSetCookie } from "set-cookie-parser";
 import { serialize as serializeCookie } from "cookie";
 import { ValueOrPromise } from "value-or-promise";
 import bcrypt from "bcrypt";
-import { jest } from "@jest/globals";
 
 import { formatDateTimeZ } from "Util/date";
 import { graphql } from "__test__/graphql";
@@ -89,6 +88,10 @@ export const withSpecific = <SeedName extends string>(
     specific: isEmpty(seeds) ? undefined : (seeds as unknown as string),
 });
 
+const throwFn = (e: unknown) => {
+    throw e;
+};
+const notImplementedFn = () => throwFn(new Error("Not implemented"));
 const setNotImplemented = <
     K extends PropertyKey,
     O extends Record<PropertyKey, unknown>
@@ -102,17 +105,14 @@ const setNotImplemented = <
             Object.defineProperty(obj, key, {
                 configurable: true,
                 enumerable: true,
-                get: () => {
-                    throw new Error("Not implemented");
-                },
-                set: () => {
-                    throw new Error("Not implemented");
-                },
+                get: notImplementedFn,
+                set: notImplementedFn,
             }),
         { ...original }
     );
 
-const _config: Config = {
+let backupNum = 0;
+export const config: Config = {
     currencies: {
         real: {
             name: "Euro",
@@ -148,25 +148,19 @@ const _config: Config = {
     guestInitialBalance: 50,
     server: setNotImplemented(["url", "host", "port"], {}),
     database: {
-        file: ":memory:",
+        file: "nonExistend.sqlite3",
         backup: {
-            dir: "database",
-            file: () => `database-backup-${new Date().toISOString()}`,
+            dir: "backup-dir",
+            // eslint-disable-next-line no-plusplus
+            file: () => `backup-file-${backupNum++}.sqlite3`,
             interval: Number.MAX_SAFE_INTEGER,
         },
     },
 };
-const config: IDynamicConfig = {
-    async get() {
-        return _config;
-    },
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    async reload() {},
-};
 
 export const mockAppContext = (knex: Knex): IAppContext =>
-    setNotImplemented(["session", "pubsub", "database"], {
-        config: { ..._config, reload: () => Promise.resolve() },
+    setNotImplemented(["session", "pubsub", "db"], {
+        config: { ...config, reload: () => Promise.resolve() },
         knex,
     });
 
@@ -420,7 +414,14 @@ export type TUserExecutor = UnPromise<ReturnType<typeof buildHTTPUserExecutor>>;
 export async function createTestServer(): Promise<[Knex, TYogaServerInstance]> {
     const [db, knex] = await emptyKnex();
     // disable backups
-    db.backup = jest.fn(async () => ({ totalPages: 10, remainingPages: 0 }));
-    const yoga = yogaFactory(db, knex, config);
+    db.backup = notImplementedFn;
+    const dconfig: IDynamicConfig = {
+        async get() {
+            return config;
+        },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        async reload() {},
+    };
+    const yoga = yogaFactory(db, knex, dconfig);
     return [knex, yoga];
 }

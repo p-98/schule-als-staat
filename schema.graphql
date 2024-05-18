@@ -525,6 +525,11 @@ type Mutation {
     blockCard(id: ID!): Card!
     " Unblock card reenabling it use. Authorized: admin "
     unblockCard(id: ID!): Card!
+
+    " Backup the database. Usually not needed because of automatic backups. Authorized: admin "
+    backupDatabase: Void
+    " Reload the server configuration. Backups the database before. Authorized: admin "
+    reloadConfig: Void
 }
 
 " Subscriptions "
