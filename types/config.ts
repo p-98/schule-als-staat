@@ -44,5 +44,6 @@ export type Config = {
             file: () => string;
             interval: number;
         };
+        allowRawSql: boolean;
     };
 };

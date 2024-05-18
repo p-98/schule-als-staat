@@ -10,6 +10,7 @@ const sharedConfig = {
         DateTimeISO: "string",
         Void: "void",
         File: "@whatwg-node/fetch#File",
+        JSON: "object",
     },
 };
 

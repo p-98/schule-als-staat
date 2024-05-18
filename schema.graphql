@@ -4,6 +4,8 @@ scalar File
 scalar Void
 " For RFC 3339 datetime strings, handled by graphql-scalars "
 scalar DateTimeISO
+" For JSON, handled by graphql-scalars "
+scalar JSON
 
 #            #
 # Enum types #
@@ -528,6 +530,8 @@ type Mutation {
 
     " Backup the database. Usually not needed because of automatic backups. Authorized: admin "
     backupDatabase: Void
+    " Execute sql query. Backups the database before. Requires config `database.allowRawSql`. Authorized: admin "
+    execDatabase(sql: String!): JSON!
     " Reload the server configuration. Backups the database before. Authorized: admin "
     reloadConfig: Void
 }

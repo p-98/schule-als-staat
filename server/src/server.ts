@@ -6,7 +6,11 @@ import { WithCookieStore, UnPromise } from "Util/misc";
 
 import { createPubSub, createSchema, createYoga } from "graphql-yoga";
 import { useCookies } from "@whatwg-node/server-plugin-cookies";
-import { VoidTypeDefinition, DateTimeTypeDefinition } from "graphql-scalars";
+import {
+    VoidTypeDefinition,
+    DateTimeTypeDefinition,
+    JSONDefinition,
+} from "graphql-scalars";
 import { type Config } from "Root/types/config";
 
 import * as typeDefs from "Root/schema.graphql";
@@ -53,7 +57,12 @@ export const yogaFactory = (
 ): TYogaServerInstance =>
     createYoga({
         schema: createSchema({
-            typeDefs: [typeDefs, VoidTypeDefinition, DateTimeTypeDefinition],
+            typeDefs: [
+                typeDefs,
+                VoidTypeDefinition,
+                DateTimeTypeDefinition,
+                JSONDefinition,
+            ],
             resolvers,
         }),
         context: createAppContext(db, knex, config),

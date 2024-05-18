@@ -1,5 +1,4 @@
 import { GraphQLError, GraphQLErrorExtensions } from "graphql";
-import { curry } from "lodash/fp";
 import { inOperator } from "Types";
 
 /** Conveniently represents flow's "Maybe" type https://flow.org/en/docs/types/maybe/ */

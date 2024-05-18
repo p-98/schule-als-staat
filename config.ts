@@ -49,5 +49,6 @@ export default {
             file: () => `database-backup-${new Date().toISOString()}.sqlite3`,
             interval: minutes(1),
         },
+        allowRawSql: false,
     },
 } satisfies Config;

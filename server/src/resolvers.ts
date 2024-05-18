@@ -85,7 +85,7 @@ import {
     unassignCard,
     unblockCard,
 } from "Modules/cards";
-import { backupDatabase, reloadConfig } from "Modules/admin";
+import { backupDatabase, execDatabase, reloadConfig } from "Modules/admin";
 import { formatDateZ } from "Util/date";
 import { GraphQLYogaError } from "Util/error";
 import { EUserTypes, ETransactionTypes, EDraftTypes } from "Types/models";
@@ -421,6 +421,7 @@ export const resolvers: TResolvers = {
         unblockCard: (_, args, ctx) => unblockCard(ctx, args.id),
 
         backupDatabase: (_, __, ctx) => backupDatabase(ctx),
+        execDatabase: (_, args, ctx) => execDatabase(ctx, args.sql),
         reloadConfig: (_, __, ctx) => reloadConfig(ctx),
     },
     Subscription: {

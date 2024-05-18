@@ -9,10 +9,13 @@ import {
     buildHTTPUserExecutor,
     type TUserExecutor,
     assertInvalid,
-    config,
+    config as _config,
+    assertSingleError,
 } from "Util/test";
 
 import { constant } from "lodash/fp";
+import { type Config } from "Root/types/config";
+import { type IEmployment } from "Types/knex";
 import { yogaFactory, type TYogaServerInstance } from "Server";
 import { emptyKnex, type Db, type Knex } from "Database";
 import { graphql } from "./graphql";
@@ -24,14 +27,20 @@ const backupDatabaseMutation = graphql(/* GraphQL */ `
         backupDatabase
     }
 `);
+const execDatabaseMutation = graphql(/* GraphQL */ `
+    mutation ExecDatabaseMutation($sql: String!) {
+        execDatabase(sql: $sql)
+    }
+`);
 const reloadConfigMutation = graphql(/* GraphQL */ `
     mutation ReloadConfigMutation {
         reloadConfig
     }
 `);
 
+let config: Config;
 const dconfig = {
-    get: jest.fn(constant(Promise.resolve(config))),
+    get: jest.fn(() => Promise.resolve(config)),
     reload: jest.fn(constant(Promise.resolve())),
 };
 let db: TSet<Db, "backup", Mock<Db["backup"]>>;
@@ -42,6 +51,7 @@ let citizen: TUserExecutor;
 let company: TUserExecutor;
 let guest: TUserExecutor;
 beforeEach(async () => {
+    config = _config;
     const [_db, _knex] = await emptyKnex();
     db = Object.defineProperty(_db, "backup", {
         value: jest.fn(() =>
@@ -99,6 +109,73 @@ async function testBackupDatabase() {
     ]);
 }
 
+async function testExecDatabase() {
+    const data = [
+        {
+            id: 1,
+            companyId: company.id,
+            citizenId: citizen.id,
+            employer: 0,
+            minWorktime: 12,
+            salary: 34,
+            cancelled: 0,
+        },
+        {
+            id: 2,
+            companyId: company.id,
+            citizenId: admin.id,
+            employer: 0,
+            minWorktime: 56,
+            salary: 78,
+            cancelled: 0,
+        },
+    ] as unknown as IEmployment[];
+    await knex("employments").insert(data);
+    const sql = "select * from employments";
+
+    // invalid requests
+    await forEachUserType(async (user) => {
+        const noAdmin = await user({
+            document: execDatabaseMutation,
+            variables: { sql },
+        });
+        assertInvalid(noAdmin, "PERMISSION_DENIED");
+    });
+    config.database.allowRawSql = false;
+    const restricted = await admin({
+        document: execDatabaseMutation,
+        variables: { sql },
+    });
+    assertInvalid(restricted, "RESTRICTION_ALLOW_RAW_SQL");
+    config.database.allowRawSql = true;
+
+    // valid failing request
+    const fail = await admin({
+        document: execDatabaseMutation,
+        variables: { sql: "select * from missing_table" },
+    });
+    assertSingleValue(fail);
+    assertSingleError(fail);
+    const [err] = fail.errors;
+    assert(err.message.endsWith("no such table: missing_table"));
+    assert.strictEqual(err.extensions.code, "SQLITE_ERROR");
+
+    // valid successfull request
+    const exec = await admin({
+        document: execDatabaseMutation,
+        variables: { sql },
+    });
+    assertSingleValue(exec);
+    assertNoErrors(exec);
+    assert.deepStrictEqual(exec.data.execDatabase, data);
+
+    assertTimesCalled(db.backup, 2);
+    assert.deepStrictEqual(db.backup.mock.calls, [
+        ["backup-dir/backup-file-1.sqlite3"],
+        ["backup-dir/backup-file-2.sqlite3"],
+    ]);
+}
+
 async function testReloadConfig() {
     // invalid requests
     await forEachUserType(async (user) => {
@@ -114,10 +191,11 @@ async function testReloadConfig() {
 
     assertTimesCalled(db.backup, 1);
     assert.deepStrictEqual(db.backup.mock.calls, [
-        ["backup-dir/backup-file-1.sqlite3"],
+        ["backup-dir/backup-file-3.sqlite3"],
     ]);
     assertTimesCalled(dconfig.reload, 1);
 }
 
 test("backup database", () => testBackupDatabase());
+test("exec database", () => testExecDatabase());
 test("reload config", () => testReloadConfig());

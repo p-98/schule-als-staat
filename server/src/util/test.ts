@@ -155,6 +155,7 @@ export const config: Config = {
             file: () => `backup-file-${backupNum++}.sqlite3`,
             interval: Number.MAX_SAFE_INTEGER,
         },
+        allowRawSql: true,
     },
 };
 

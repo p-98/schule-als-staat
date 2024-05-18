@@ -82,6 +82,7 @@ module.exports = {
                         format: ["PascalCase"],
                     },
                 ],
+                "@typescript-eslint/explicit-module-boundary-types": "error",
             },
             globals: {
                 React: "writable",
