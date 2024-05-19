@@ -6,12 +6,12 @@ import {
     buildHTTPUserExecutor,
     createTestServer,
     type TUserExecutor,
+    config,
 } from "Util/test";
 
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
-import config from "Config";
 import { graphql } from "./graphql";
 
 const rolesQuery = graphql(/* GraphQL */ `

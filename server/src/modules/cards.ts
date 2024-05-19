@@ -40,10 +40,13 @@ const cardDbToModel = (card: ICard): ICardModel => ({
 /* * Query functions * */
 
 export async function getCard(
-    { knex, session }: IAppContext,
+    ctx: IAppContext,
     id: string
 ): Promise<ICardModel> {
-    assertRole(session.userSignature, "BORDER_CONTROL", { allowAdmin: true });
+    const { knex, session } = ctx;
+    assertRole(ctx, session.userSignature, "BORDER_CONTROL", {
+        allowAdmin: true,
+    });
 
     const card = await knex("cards").where({ id }).first();
     assertCardFound(id, card);
@@ -69,10 +72,11 @@ export async function readCard(
 /* * Mutation functions * */
 
 export async function registerCard(
-    { knex, session }: IAppContext,
+    ctx: IAppContext,
     id: string
 ): Promise<ICardModel> {
-    assertRole(session.userSignature, "ADMIN");
+    const { knex, session } = ctx;
+    assertRole(ctx, session.userSignature, "ADMIN");
 
     try {
         const [card] = await knex("cards")
@@ -116,7 +120,9 @@ export async function assignCard(
     userSignature: TUserSignatureInput
 ): Promise<ICardModel> {
     const { session } = ctx;
-    assertRole(session.userSignature, "BORDER_CONTROL", { allowAdmin: true });
+    assertRole(ctx, session.userSignature, "BORDER_CONTROL", {
+        allowAdmin: true,
+    });
     await getUser(ctx, userSignature); // check user exists
 
     return updateCard(ctx, id, (card) => {
@@ -135,7 +141,9 @@ export async function unassignCard(
     id: string
 ): Promise<ICardModel> {
     const { session } = ctx;
-    assertRole(session.userSignature, "BORDER_CONTROL", { allowAdmin: true });
+    assertRole(ctx, session.userSignature, "BORDER_CONTROL", {
+        allowAdmin: true,
+    });
 
     return updateCard(ctx, id, (card) => {
         assertCardUnblocked(card);
@@ -153,7 +161,7 @@ export async function blockCard(
     id: string
 ): Promise<ICardModel> {
     const { session } = ctx;
-    assertRole(session.userSignature, "ADMIN");
+    assertRole(ctx, session.userSignature, "ADMIN");
 
     return updateCard(ctx, id, (card) => {
         assert(
@@ -170,7 +178,7 @@ export async function unblockCard(
     id: string
 ): Promise<ICardModel> {
     const { session } = ctx;
-    assertRole(session.userSignature, "ADMIN");
+    assertRole(ctx, session.userSignature, "ADMIN");
 
     return updateCard(ctx, id, (card) => {
         assert(

@@ -1,4 +1,4 @@
-import type Config from "Config";
+import { type Config } from "Root/types/config";
 import { filter, map, negate, pipe, zip } from "lodash/fp";
 import { eachHourOfInterval, endOfHour, isEqual } from "date-fns/fp";
 
@@ -32,10 +32,7 @@ export const formatDateZ = (date: Date): string =>
 export const formatTimeZ = (date: Date): string => date.toISOString().slice(11);
 
 /** For a given day, returns the array of start and end of hours the state is open */
-export function openingHours(
-    config: typeof Config,
-    date: string
-): [string, string][] {
+export function openingHours(config: Config, date: string): [string, string][] {
     const openInterval = {
         start: parseDateAndTime(date, config.openingHours.open),
         end: parseDateAndTime(date, config.openingHours.close),

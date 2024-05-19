@@ -7,6 +7,7 @@ import {
     type TUserExecutor,
     assertInvalid,
     createTestServer,
+    config,
 } from "Util/test";
 
 import { omit } from "lodash/fp";
@@ -14,7 +15,6 @@ import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
 import { EUserTypes } from "Types/models";
-import config from "Config";
 import { graphql } from "./graphql";
 
 const purchaseFragment = graphql(/* GraphQL */ `

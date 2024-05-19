@@ -31,7 +31,7 @@ const createAppContext =
         session: await sessionFactory(knex, request),
         knex,
         db,
-        // config reload only visible on newly created contexts
+        // config reload only takes effect for future requests
         config: { ...(await config.get()), reload: () => config.reload() },
         pubsub,
     });

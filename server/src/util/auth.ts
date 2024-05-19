@@ -1,13 +1,12 @@
 import type { TNullable } from "Types";
 import type { IUserSignature, TUserModel } from "Types/models";
 import type { TUserRole, TCredentialsInput } from "Types/schema";
+import type { IAppContext } from "Server";
 
 import bcrypt from "bcrypt";
 import { isNil } from "lodash/fp";
 import { assert } from "Util/error";
 import { getUser } from "Modules/users";
-import config from "Config";
-import { IAppContext } from "Server";
 
 export async function assertCredentials(
     ctx: IAppContext,
@@ -39,41 +38,49 @@ export async function assertCredentials(
 
 // function for checking privileges
 export function checkRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: "ADMIN",
     opts?: { allowAdmin?: false }
 ): user is IUserSignature & { type: "CITIZEN" };
 export function checkRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: "USER",
     opts?: { allowAdmin?: false }
 ): user is IUserSignature;
 export function checkRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: "CITIZEN",
     opts?: { allowAdmin?: false }
 ): user is IUserSignature & { type: "CITIZEN" };
 export function checkRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: "COMPANY",
     opts?: { allowAdmin?: false }
 ): user is IUserSignature & { type: "COMPANY" };
 export function checkRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: "GUEST",
     opts?: { allowAdmin?: false }
 ): user is IUserSignature & { type: "GUEST" };
 export function checkRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: "POLICE" | "BANK" | "BORDER_CONTROL" | "POLITICS",
     opts?: { allowAdmin?: false }
 ): user is IUserSignature & { type: "COMPANY" };
 export function checkRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: TUserRole,
     opts?: { allowAdmin?: boolean }
 ): boolean;
 export function checkRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: TUserRole,
     opts?: { allowAdmin?: boolean }
@@ -82,7 +89,7 @@ export function checkRole(
 
     const isAdmin =
         user.type === "CITIZEN" &&
-        config.roles.adminCitizenIds.includes(user.id);
+        ctx.config.roles.adminCitizenIds.includes(user.id);
     if (opts?.allowAdmin && isAdmin) return true;
 
     switch (role) {
@@ -97,22 +104,22 @@ export function checkRole(
         case "POLICE":
             return (
                 user.type === "COMPANY" &&
-                user.id === config.roles.policeCompanyId
+                user.id === ctx.config.roles.policeCompanyId
             );
         case "BANK":
             return (
                 user.type === "COMPANY" &&
-                user.id === config.roles.bankCompanyId
+                user.id === ctx.config.roles.bankCompanyId
             );
         case "BORDER_CONTROL":
             return (
                 user.type === "COMPANY" &&
-                user.id === config.roles.borderControlCompanyId
+                user.id === ctx.config.roles.borderControlCompanyId
             );
         case "POLITICS":
             return (
                 user.type === "COMPANY" &&
-                user.id === config.roles.policiticsCompanyId
+                user.id === ctx.config.roles.policiticsCompanyId
             );
     }
 }
@@ -129,47 +136,55 @@ const assertRoleMessages = {
     USER: "Not logged in",
 };
 export function assertRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: "ADMIN",
     opts?: { message?: string; code?: string; allowAdmin?: false }
 ): asserts user is IUserSignature & { type: "CITIZEN" };
 export function assertRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: "USER",
     opts?: { message?: string; code?: string; allowAdmin?: false }
 ): asserts user is IUserSignature;
 export function assertRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: "CITIZEN",
     opts?: { message?: string; code?: string; allowAdmin?: false }
 ): asserts user is IUserSignature & { type: "CITIZEN" };
 export function assertRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: "COMPANY",
     opts?: { message?: string; code?: string; allowAdmin?: false }
 ): asserts user is IUserSignature & { type: "COMPANY" };
 export function assertRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: "GUEST",
     opts?: { message?: string; code?: string; allowAdmin?: false }
 ): asserts user is IUserSignature & { type: "GUEST" };
 export function assertRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: "POLICE" | "BANK" | "BORDER_CONTROL" | "POLITICS",
     opts?: { message?: string; code?: string; allowAdmin?: false }
 ): asserts user is IUserSignature & { type: "COMPANY" };
 export function assertRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: TUserRole,
     opts?: { message?: string; code?: string; allowAdmin?: boolean }
 ): void;
 export function assertRole(
+    ctx: IAppContext,
     user: TNullable<IUserSignature>,
     role: TUserRole,
     opts?: { message?: string; code?: string; allowAdmin?: boolean }
 ): void {
     assert(
-        checkRole(user, role, opts),
+        checkRole(ctx, user, role, opts),
         opts?.message ?? assertRoleMessages[role],
         opts?.code ?? "PERMISSION_DENIED"
     );

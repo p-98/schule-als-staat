@@ -261,7 +261,7 @@ export const resolvers: TResolvers = {
         },
         meGuest: (_, __, ctx) => {
             const { userSignature } = ctx.session;
-            assertRole(userSignature, "GUEST");
+            assertRole(ctx, userSignature, "GUEST");
 
             if (!ctx.session.$user)
                 ctx.session.$user = getGuest(ctx, userSignature.id);
@@ -270,7 +270,7 @@ export const resolvers: TResolvers = {
         },
         meCitizen: (_, __, ctx) => {
             const { userSignature } = ctx.session;
-            assertRole(userSignature, "CITIZEN");
+            assertRole(ctx, userSignature, "CITIZEN");
 
             if (!ctx.session.$user)
                 ctx.session.$user = getCitizen(ctx, userSignature.id);
@@ -279,7 +279,7 @@ export const resolvers: TResolvers = {
         },
         meCompany: (_, __, ctx) => {
             const { userSignature } = ctx.session;
-            assertRole(userSignature, "COMPANY");
+            assertRole(ctx, userSignature, "COMPANY");
 
             if (!ctx.session.$user)
                 ctx.session.$user = getCompany(ctx, userSignature.id);
@@ -306,7 +306,7 @@ export const resolvers: TResolvers = {
         logout: (_, __, ctx) => logout(ctx, ctx.session.id),
 
         createEmploymentOffer: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "COMPANY");
+            assertRole(ctx, ctx.session.userSignature, "COMPANY");
 
             return createEmploymentOffer(
                 ctx,
@@ -315,7 +315,7 @@ export const resolvers: TResolvers = {
             );
         },
         acceptEmploymentOffer: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "CITIZEN");
+            assertRole(ctx, ctx.session.userSignature, "CITIZEN");
 
             return acceptEmploymentOffer(
                 ctx,
@@ -324,7 +324,7 @@ export const resolvers: TResolvers = {
             );
         },
         rejectEmploymentOffer: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "CITIZEN");
+            assertRole(ctx, ctx.session.userSignature, "CITIZEN");
 
             return rejectEmploymentOffer(
                 ctx,
@@ -334,7 +334,7 @@ export const resolvers: TResolvers = {
             );
         },
         deleteEmploymentOffer: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "COMPANY");
+            assertRole(ctx, ctx.session.userSignature, "COMPANY");
 
             return deleteEmploymentOffer(
                 ctx,
@@ -345,8 +345,8 @@ export const resolvers: TResolvers = {
         cancelEmployment: async (_, args, ctx) => {
             if (
                 !(
-                    checkRole(ctx.session.userSignature, "COMPANY") ||
-                    checkRole(ctx.session.userSignature, "CITIZEN")
+                    checkRole(ctx, ctx.session.userSignature, "COMPANY") ||
+                    checkRole(ctx, ctx.session.userSignature, "CITIZEN")
                 )
             )
                 throw new GraphQLYogaError(
@@ -360,17 +360,17 @@ export const resolvers: TResolvers = {
         payBonus: (_, args, ctx) =>
             payBonus(ctx, args.value, args.employmentIds),
         changeCurrencies: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "BANK");
+            assertRole(ctx, ctx.session.userSignature, "BANK");
 
             return changeCurrencies(ctx, args.change);
         },
         payChangeDraft: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "USER");
+            assertRole(ctx, ctx.session.userSignature, "USER");
 
             return payChangeDraft(ctx, args.credentials ?? null, args.id);
         },
         deleteChangeDraft: async (_, args, ctx) => {
-            assertRole(ctx.session.userSignature, "BANK");
+            assertRole(ctx, ctx.session.userSignature, "BANK");
 
             return deleteChangeDraft(ctx, args.id);
         },
@@ -383,7 +383,7 @@ export const resolvers: TResolvers = {
             ),
         sell: (_, args, ctx) => {
             // check role here, so function can be reused for warehouse purchase
-            assertRole(ctx.session.userSignature, "COMPANY");
+            assertRole(ctx, ctx.session.userSignature, "COMPANY");
             return sell(
                 ctx,
                 ctx.session.userSignature.id,

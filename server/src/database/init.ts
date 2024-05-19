@@ -1,4 +1,4 @@
-import config from "Config";
+import config from "Root/config";
 import { createKnex } from "Database";
 
 const knex = await createKnex(config.database.file);

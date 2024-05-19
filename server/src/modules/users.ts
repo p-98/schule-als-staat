@@ -63,8 +63,5 @@ export async function getRoles(
     ctx: IAppContext,
     user: IUserSignature
 ): Promise<TUserRole[]> {
-    return roles.reduce<TUserRole[]>((acc, role) => {
-        if (checkRole(user, role)) acc.push(role);
-        return acc;
-    }, []);
+    return roles.filter((role) => checkRole(ctx, user, role));
 }

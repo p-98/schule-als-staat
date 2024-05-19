@@ -50,9 +50,10 @@ async function getTransferTransactions(
 }
 
 async function getChangeTransactions(
-    { knex }: IAppContext,
+    ctx: IAppContext,
     user: IUserSignature
 ): Promise<IChangeTransactionModel[]> {
+    const { knex } = ctx;
     const signatureString = stringifyUserSignature(user);
 
     const query = knex("changeTransactions")
@@ -60,7 +61,7 @@ async function getChangeTransactions(
         .whereNotNull("userSignature")
         .andWhere(
             (builder) =>
-                !checkRole(user, "BANK") &&
+                !checkRole(ctx, user, "BANK") &&
                 // eslint-disable-next-line no-void
                 void builder.where({ userSignature: signatureString })
         )
@@ -103,14 +104,15 @@ async function getPurchaseTransactions(
 }
 
 async function getCustomsTransactions(
-    { knex }: IAppContext,
+    ctx: IAppContext,
     user: IUserSignature
 ): Promise<ICustomsTransactionModel[]> {
+    const { knex } = ctx;
     const signatureString = stringifyUserSignature(user);
 
     const query = knex("customsTransactions")
         .where((builder) => {
-            if (!checkRole(user, "BORDER_CONTROL")) {
+            if (!checkRole(ctx, user, "BORDER_CONTROL")) {
                 // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 builder.where({ userSignature: signatureString });
             }
@@ -170,12 +172,13 @@ export async function getTransactionsByUser(
 }
 
 export async function getChangeDrafts(
-    { knex }: IAppContext,
+    ctx: IAppContext,
     companyId: string
 ): Promise<IChangeDraftModel[]> {
+    const { knex } = ctx;
     const user: IUserSignature = { type: "COMPANY", id: companyId };
 
-    if (!checkRole(user, "BANK")) return [];
+    if (!checkRole(ctx, user, "BANK")) return [];
 
     const result = await knex("changeTransactions")
         .select("*")
@@ -222,10 +225,11 @@ export async function getDraftsByUser(
 }
 
 export async function payBonus(
-    { knex, session }: IAppContext,
+    ctx: IAppContext,
     value: number,
     employmentIds: number[]
 ): Promise<ISalaryTransactionModel[]> {
+    const { knex, session } = ctx;
     return knex.transaction(async (trx) => {
         const date = formatDateTimeZ(new Date());
 
@@ -236,7 +240,7 @@ export async function payBonus(
         const netValue = value - tax;
         const cost = grossValue * employmentIds.length;
 
-        assertRole(session.userSignature, "COMPANY");
+        assertRole(ctx, session.userSignature, "COMPANY");
         const company = session.userSignature;
         const [updatedCompany]: { balance: number }[] = await trx.raw(
             `UPDATE bankAccounts
@@ -351,7 +355,7 @@ export async function payChangeDraft(
     const { knex, session, config } = ctx;
     return knex.transaction(async (trx) => {
         const userSignature: IUserSignature = await (async () => {
-            if (checkRole(session.userSignature, "BANK")) {
+            if (checkRole(ctx, session.userSignature, "BANK")) {
                 assert(
                     !isNull(credentials),
                     "Must specify credentials",
@@ -366,7 +370,7 @@ export async function payChangeDraft(
                 "Must not specify credentials",
                 "BAD_USER_INPUT"
             );
-            assertRole(session.userSignature, "USER");
+            assertRole(ctx, session.userSignature, "USER");
             return session.userSignature;
         })();
 
@@ -425,10 +429,11 @@ export async function payChangeDraft(
  * Authorized calls: The bank.
  */
 export async function deleteChangeDraft(
-    { knex, session }: IAppContext,
+    ctx: IAppContext,
     id: number
 ): Promise<void> {
-    assertRole(session.userSignature, "BANK");
+    const { knex, session } = ctx;
+    assertRole(ctx, session.userSignature, "BANK");
     const draft = await knex("changeTransactions")
         .select("*")
         .where({ id })
@@ -458,11 +463,11 @@ export async function transferMoney(
     const date = formatDateTimeZ(new Date());
 
     return knex.transaction(async (trx) => {
-        assertRole(sender, "CITIZEN", {
+        assertRole(ctx, sender, "CITIZEN", {
             message: "Only citizens can send money",
             code: "TRANSFER_SENDER_RESTRICTED",
         });
-        assertRole(receiver, "CITIZEN", {
+        assertRole(ctx, receiver, "CITIZEN", {
             message: "Only citizens can receive money",
             code: "TRANSFER_RECEIVER_RESTRICTED",
         });
@@ -622,7 +627,7 @@ export async function payPurchaseDraft(
 
         const customerUserSignature: IUserSignature = await (async () => {
             if (
-                checkRole(session.userSignature, "COMPANY") &&
+                checkRole(ctx, session.userSignature, "COMPANY") &&
                 session.userSignature.id === draft.companyId
             ) {
                 assert(
@@ -639,7 +644,7 @@ export async function payPurchaseDraft(
                 "Must no specify credentials",
                 "BAD_USER_INPUT"
             );
-            assertRole(session.userSignature, "USER");
+            assertRole(ctx, session.userSignature, "USER");
             return session.userSignature;
         })();
 
@@ -682,9 +687,10 @@ export async function payPurchaseDraft(
     });
 }
 export async function deletePurchaseDraft(
-    { knex, session }: IAppContext,
+    ctx: IAppContext,
     id: number
 ): Promise<void> {
+    const { knex, session } = ctx;
     return knex.transaction(async (trx) => {
         const [draft] = await trx("purchaseTransactions")
             .select("*")
@@ -700,7 +706,7 @@ export async function deletePurchaseDraft(
             "PURCHASE_TRANSACTION_ALREADY_PAID"
         );
 
-        assertRole(session.userSignature, "COMPANY");
+        assertRole(ctx, session.userSignature, "COMPANY");
         assert(
             session.userSignature.id === draft.companyId,
             "Not logged in as correct user",
@@ -716,7 +722,7 @@ export async function warehousePurchase(
     items: { product: { id: string; revision: string }; amount: number }[]
 ): Promise<IPurchaseTransactionModel> {
     const { session, knex, config } = ctx;
-    assertRole(session.userSignature, "COMPANY");
+    assertRole(ctx, session.userSignature, "COMPANY");
 
     const draft = await sell(ctx, config.roles.warehouseCompanyId, items, null);
     const transaction = await payPurchaseDraft(ctx, draft.id, null);

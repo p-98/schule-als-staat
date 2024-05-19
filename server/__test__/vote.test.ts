@@ -7,6 +7,7 @@ import {
     assertInvalid,
     type TUserExecutor,
     createTestServer,
+    config,
 } from "Util/test";
 
 import { omit } from "lodash/fp";
@@ -15,7 +16,6 @@ import { fetch, File } from "@whatwg-node/fetch";
 import { type TVoteType } from "Types/schema";
 import { type Knex } from "Database";
 import { type TYogaServerInstance } from "Server";
-import config from "Config";
 import { graphql } from "./graphql";
 
 const AllVoteFragment = graphql(/* GraphQL */ `

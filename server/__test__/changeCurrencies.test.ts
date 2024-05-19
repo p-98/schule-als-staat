@@ -7,6 +7,7 @@ import {
     type TUserExecutor,
     assertInvalid,
     createTestServer,
+    config,
 } from "Util/test";
 
 import { omit } from "lodash/fp";
@@ -15,7 +16,6 @@ import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
 import type { TChangeTransactionAction } from "Types/schema";
 import { EUserTypes } from "Types/models";
-import config from "Config";
 import { graphql } from "./graphql";
 
 graphql(/* GraphQL */ `

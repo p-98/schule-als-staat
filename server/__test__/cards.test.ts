@@ -7,13 +7,13 @@ import {
     type TUserExecutor,
     assertInvalid,
     createTestServer,
+    config,
 } from "Util/test";
 
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
 import { IUserSignature } from "Types/models";
-import config from "Config";
 import { graphql } from "./graphql";
 
 graphql(/* GraphQL */ `

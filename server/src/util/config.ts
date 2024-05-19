@@ -1,11 +1,13 @@
 import { TypedEventTarget } from "typescript-event-target";
-import jiti from "jiti";
+import createJITI from "jiti";
 
 import { type Config } from "Root/types/config";
 import { type IDynamicConfig } from "Server";
 import { inOperator } from "Types";
 import { fail } from "Util/error";
 import { resolveRoot, CustomEvent } from "Util/misc";
+
+const jiti = createJITI(__filename, { requireCache: false });
 
 function isError(err: unknown): err is { message: string } {
     return (
@@ -17,7 +19,7 @@ function isError(err: unknown): err is { message: string } {
 
 async function loadFile(path: string): Promise<object> {
     try {
-        return jiti(__filename).import(path, {}) as object;
+        return jiti.import(path, {}) as object;
     } catch (err) {
         if (isError(err) && err.message.startsWith("Cannot find module"))
             fail("File config.ts not found.", "CONFIG_NOT_FOUND");

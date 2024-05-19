@@ -7,13 +7,13 @@ import {
     type TUserExecutor,
     assertInvalid,
     createTestServer,
+    config,
 } from "Util/test";
 
 import { isNil, omit } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
-import config from "Config";
 import { TNullable } from "Types";
 import { TOmit } from "Types/knex";
 import { graphql } from "./graphql";

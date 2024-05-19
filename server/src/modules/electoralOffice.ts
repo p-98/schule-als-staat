@@ -65,13 +65,13 @@ const ensureResult = async <T extends IVote>(
 export async function getAllVotes(ctx: IAppContext): Promise<IVoteModel[]> {
     const { knex, session } = ctx;
     assert(
-        checkRole(session.userSignature, "CITIZEN") ||
-            checkRole(session.userSignature, "POLITICS"),
+        checkRole(ctx, session.userSignature, "CITIZEN") ||
+            checkRole(ctx, session.userSignature, "POLITICS"),
         "Not logged in as citizen or political admin",
         "PERMISSION_DENIED"
     );
 
-    const isPolitics = checkRole(session.userSignature, "POLITICS");
+    const isPolitics = checkRole(ctx, session.userSignature, "POLITICS");
     const votes: (IVote & Pick<IVotingPaper, "vote">)[] = isPolitics
         ? await knex.raw(
               `SELECT votes.*
@@ -98,10 +98,11 @@ export async function getAllVotes(ctx: IAppContext): Promise<IVoteModel[]> {
 }
 
 export async function createVote(
-    { knex, session }: IAppContext,
+    ctx: IAppContext,
     { type, title, description, image, endAt, choices }: TVoteInput
 ): Promise<IVoteModel> {
-    assertRole(session.userSignature, "POLITICS");
+    const { knex, session } = ctx;
+    assertRole(ctx, session.userSignature, "POLITICS");
     assert(title.trim() !== "", "Title must not be empty", "BAD_USER_INPUT");
     assert(
         isFuture(new Date(endAt)),
@@ -136,8 +137,9 @@ export async function createVote(
     });
 }
 
-export async function deleteVote({ knex, session }: IAppContext, id: string) {
-    assertRole(session.userSignature, "POLITICS");
+export async function deleteVote(ctx: IAppContext, id: string) {
+    const { knex, session } = ctx;
+    assertRole(ctx, session.userSignature, "POLITICS");
     return knex.transaction(async (trx) => {
         await trx("votingPapers").delete().where({ voteId: id });
         const deleted = await trx("votes").delete().where({ id });
@@ -146,12 +148,13 @@ export async function deleteVote({ knex, session }: IAppContext, id: string) {
 }
 
 export async function castVote(
-    { knex, session }: IAppContext,
+    ctx: IAppContext,
     voteId: string,
     votingPaper: number[]
 ): Promise<IVoteModel> {
+    const { knex, session } = ctx;
     return knex.transaction(async (trx) => {
-        assertRole(session.userSignature, "CITIZEN");
+        assertRole(ctx, session.userSignature, "CITIZEN");
 
         const vote = await trx("votes").where({ id: voteId }).first();
         assert(

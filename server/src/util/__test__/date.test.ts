@@ -7,7 +7,7 @@ import {
     formatTimeZ,
     openingHours,
 } from "Util/date";
-import type config from "Config";
+import { type Config } from "Root/types/config";
 
 const date = new Date("2023-04-18T18:24:07.177Z");
 
@@ -25,7 +25,7 @@ test("openingHours full hours", () => {
             open: "12:00:00.000+02:00",
             close: "14:00:00.000+02:00",
         },
-    } as typeof config;
+    } as Config;
 
     const result = openingHours(conf, "2023-10-07");
     assert.deepStrictEqual(result, [
@@ -40,7 +40,7 @@ test("openingHours half hours", () => {
             open: "12:30:00.000+02:00",
             close: "14:30:00.000+02:00",
         },
-    } as typeof config;
+    } as Config;
 
     const result = openingHours(conf, "2023-10-07");
     assert.deepStrictEqual(result, [

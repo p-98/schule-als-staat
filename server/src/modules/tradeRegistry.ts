@@ -576,11 +576,9 @@ const assertProductInput = ({ name, price }: TProductInput) => {
     assert(name.trim() !== "", "Name must not be empty", "BAD_USER_INPUT");
     assert(price > 0, "Price must be positive", "BAD_USER_INPUT");
 };
-const assertProductOwnership = (
-    { session }: IAppContext,
-    product: IProductModel
-) => {
-    assertRole(session.userSignature, "COMPANY");
+const assertProductOwnership = (ctx: IAppContext, product: IProductModel) => {
+    const { session } = ctx;
+    assertRole(ctx, session.userSignature, "COMPANY");
     assert(
         product.companyId === session.userSignature.id,
         "You don't own this product",
@@ -588,10 +586,11 @@ const assertProductOwnership = (
     );
 };
 export async function addProduct(
-    { knex, session }: IAppContext,
+    ctx: IAppContext,
     productInput: TProductInput
 ): Promise<IProductModel> {
-    assertRole(session.userSignature, "COMPANY");
+    const { knex, session } = ctx;
+    assertRole(ctx, session.userSignature, "COMPANY");
     assertProductInput(productInput);
 
     const [product] = await knex("products")

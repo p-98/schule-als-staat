@@ -38,7 +38,7 @@ export async function chargeCustoms(
     customs: number
 ): Promise<ICustomsTransactionModel> {
     const { knex, config, session } = ctx;
-    assertRole(session.userSignature, "BORDER_CONTROL");
+    assertRole(ctx, session.userSignature, "BORDER_CONTROL");
     assert(customs > 0, "Customs must be positive", "BAD_USER_INPUT");
 
     const date = formatDateTimeZ(new Date());
@@ -90,7 +90,7 @@ export async function registerBorderCrossing(
     citizenId: string
 ): Promise<IBorderCrossingModel> {
     const { knex, session } = ctx;
-    assertRole(session.userSignature, "BORDER_CONTROL");
+    assertRole(ctx, session.userSignature, "BORDER_CONTROL");
 
     return knex.transaction(async (trx) => {
         // Side effect: checks whether citizen exists
