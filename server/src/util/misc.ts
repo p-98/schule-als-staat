@@ -148,3 +148,12 @@ export const syncifyF =
     ): ((...args: Args) => void) =>
     (...args) =>
         syncify(f(...args));
+
+export class CustomEvent<T> extends Event {
+    detail: T;
+
+    constructor(type: string, options: { detail: T } & EventInit) {
+        super(type, options);
+        this.detail = options.detail;
+    }
+}

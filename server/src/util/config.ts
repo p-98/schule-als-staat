@@ -5,7 +5,7 @@ import { type Config } from "Root/types/config";
 import { type IDynamicConfig } from "Server";
 import { inOperator } from "Types";
 import { fail } from "Util/error";
-import { resolveRoot } from "Util/misc";
+import { resolveRoot, CustomEvent } from "Util/misc";
 
 function isError(err: unknown): err is { message: string } {
     return (
@@ -58,11 +58,11 @@ export class FileConfig
         this.config = loadConfigFile();
     }
 
-    async get() {
+    async get(): Promise<Config> {
         return this.config;
     }
 
-    async reload() {
+    async reload(): Promise<void> {
         this.config = loadConfigFile();
         this.dispatchTypedEvent(
             "reload",

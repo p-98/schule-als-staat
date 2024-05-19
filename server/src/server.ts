@@ -32,7 +32,7 @@ const createAppContext =
         knex,
         db,
         // config reload only visible on newly created contexts
-        config: { ...(await config.get()), reload: config.reload },
+        config: { ...(await config.get()), reload: () => config.reload() },
         pubsub,
     });
 export type IAppContext = UnPromise<

@@ -47,6 +47,12 @@ export const routes: IRoute[] = [
         authorized: always,
     },
     {
+        href: "/admin",
+        label: "Administration",
+        icon: "key",
+        authorized: role("ADMIN"),
+    },
+    {
         href: "/products",
         label: "Produktverwaltung",
         icon: "category",
