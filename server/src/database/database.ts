@@ -53,7 +53,9 @@ export const createKnex = async (
         },
         pool: {
             afterCreate: async (_db: Db, done: () => void) => {
+                // use exec to support sqlite3 adapter used by create-xxx-db.ts scripts
                 _db.exec("PRAGMA foreign_keys = ON;");
+                _db.exec("PRAGMA journal_mode = WAL;");
                 resolveDb(_db);
                 done();
             },
@@ -77,7 +79,7 @@ export const emptyKnex = async (): Promise<[Db, Knex]> => {
 
 export async function backup(db: Db, config: Config): Promise<void> {
     const { dir, file } = config.database.backup;
-    // create directy if not exists
+    // create directory if not exists
     await mkdir(resolveRoot(dir), { recursive: true });
     await db.backup(resolveRoot(dir, file()));
 }
