@@ -298,6 +298,14 @@ export type TYogaExecutor = AsyncExecutor<
     HTTPExecutorOptions,
     ExecutionResultAdditions
 >;
+export function buildHTTPAnonymousExecutor(
+    yoga: TYogaServerInstance
+): TYogaExecutor {
+    // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    return buildHTTPCookieExecutor({ fetch: yoga.fetch });
+}
+
 export interface ICredentials extends IUserSignature {
     password: undefined | string;
 }

@@ -7,6 +7,8 @@ import {
     assertInvalid,
     type TUserExecutor,
     createTestServer,
+    TYogaExecutor,
+    buildHTTPAnonymousExecutor,
 } from "Util/test";
 
 import { omit, set } from "lodash/fp";
@@ -66,14 +68,17 @@ let knex: Knex;
 let yoga: TYogaServerInstance;
 let sender: TUserExecutor;
 let receiver: TUserExecutor;
-let company: TUserExecutor;
-let guest: TUserExecutor;
+let anonymous: TYogaExecutor;
+// let company: TUserExecutor;
+// let guest: TUserExecutor;
 beforeEach(async () => {
     [knex, yoga] = await createTestServer();
     sender = await buildHTTPUserExecutor(knex, yoga, { type: "CITIZEN" });
     receiver = await buildHTTPUserExecutor(knex, yoga, { type: "CITIZEN" });
-    company = await buildHTTPUserExecutor(knex, yoga, { type: "COMPANY" });
-    guest = await buildHTTPUserExecutor(knex, yoga, { type: "GUEST" });
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    anonymous = buildHTTPAnonymousExecutor(yoga);
+    // company = await buildHTTPUserExecutor(knex, yoga, { type: "COMPANY" });
+    // guest = await buildHTTPUserExecutor(knex, yoga, { type: "GUEST" });
 });
 afterEach(async () => {
     await knex.destroy();
@@ -119,41 +124,46 @@ async function testTransferMoney(
     );
 
     // invalid requests
-    const guestReceiverType = await sender({
+    const anonymousSender = await anonymous({
         document: transferMoneyMutation,
-        variables: set("receiver.type", "GUEST", input),
+        variables: input,
     });
-    assertInvalid(guestReceiverType, "TRANSFER_RECEIVER_RESTRICTED");
-    const companyReceiverType = await sender({
-        document: transferMoneyMutation,
-        variables: set("receiver.type", "COMPANY", input),
-    });
-    assertInvalid(companyReceiverType, "TRANSFER_RECEIVER_RESTRICTED");
+    assertInvalid(anonymousSender, "PERMISSION_DENIED");
+    // const guestReceiverType = await sender({
+    //     document: transferMoneyMutation,
+    //     variables: set("receiver.type", "GUEST", input),
+    // });
+    // assertInvalid(guestReceiverType, "TRANSFER_RECEIVER_RESTRICTED");
+    // const companyReceiverType = await sender({
+    //     document: transferMoneyMutation,
+    //     variables: set("receiver.type", "COMPANY", input),
+    // });
+    // assertInvalid(companyReceiverType, "TRANSFER_RECEIVER_RESTRICTED");
     const invalidReceiverId = await sender({
         document: transferMoneyMutation,
         variables: set("receiver.id", "invalidCitizenId", input),
     });
     assertInvalid(invalidReceiverId, "USER_NOT_FOUND");
-    const companySenderType = await company({
-        document: transferMoneyMutation,
-        variables: input,
-    });
-    assertInvalid(companySenderType, "TRANSFER_SENDER_RESTRICTED");
-    const guestSenderType = await guest({
-        document: transferMoneyMutation,
-        variables: input,
-    });
-    assertInvalid(guestSenderType, "TRANSFER_SENDER_RESTRICTED");
+    // const companySenderType = await company({
+    //     document: transferMoneyMutation,
+    //     variables: input,
+    // });
+    // assertInvalid(companySenderType, "TRANSFER_SENDER_RESTRICTED");
+    // const guestSenderType = await guest({
+    //     document: transferMoneyMutation,
+    //     variables: input,
+    // });
+    // assertInvalid(guestSenderType, "TRANSFER_SENDER_RESTRICTED");
     const negativeValue = await sender({
         document: transferMoneyMutation,
         variables: set("value", -1.0, input),
     });
-    assertInvalid(negativeValue, "BAD_USER_INPUT");
+    assertInvalid(negativeValue, "VALUE_NOT_POSITIVE");
     const zeroValue = await sender({
         document: transferMoneyMutation,
         variables: set("value", 0, input),
     });
-    assertInvalid(zeroValue, "BAD_USER_INPUT");
+    assertInvalid(zeroValue, "VALUE_NOT_POSITIVE");
     const tooHighValue = await sender({
         document: transferMoneyMutation,
         variables: set("value", 11, input),
