@@ -102,7 +102,7 @@ type TCategorised<Categories> = Categories extends [
  *
  * @param error the error to categorize
  * @param categories the functions matched against.
- * @return array where the first matched category is set to the result. If none matched the error is passed as last element.
+ * @return array where the first matched category is set to the result. If none matched, the error is passed as last element.
  */
 export const categorizeError = <Categories extends TCategory<unknown>[]>(
     error: CombinedError | undefined,
@@ -113,7 +113,7 @@ export const categorizeError = <Categories extends TCategory<unknown>[]>(
 
     const [categorized, found] = categories.reduce<[unknown[], boolean]>(
         ([cum, _found], f) => [
-            [_found ? undefined : f(error), ...cum],
+            [...cum, _found ? undefined : f(error)],
             _found || !!f(error),
         ],
         [[], false]
