@@ -83,6 +83,7 @@ module.exports = {
                     },
                 ],
                 "@typescript-eslint/explicit-module-boundary-types": "error",
+                "max-classes-per-file": "off",
             },
             globals: {
                 React: "writable",

@@ -24,7 +24,7 @@ export default {
         stateBankAccountId: "STATE",
         warehouseCompanyId: "WAREH",
 
-        adminCitizenIds: ["ADMIN"],
+        adminCitizenIds: ["ADMIN", "j.keller"],
         bankCompanyId: "SBANK",
         borderControlCompanyId: "BCTRL",
         policeCompanyId: "POLICE",

@@ -7,6 +7,7 @@ import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { graphql } from "Utility/graphql";
 import { useCategorizeError, useSafeData, useStable } from "Utility/urql";
 import { Transactions } from "./components/transactions";
+import { TransferMoney } from "./components/transferMoney";
 
 const query = graphql(/* GraohQL */ `
     query BankAccountInfoQuery {
@@ -31,6 +32,7 @@ export const BankAccountInfo: React.FC = () => {
             <GridCell span={4} tablet={6}>
                 <GridScrollColumn desktop>
                     <BasicBankAccountInfo user={data.me} />
+                    <TransferMoney />
                 </GridScrollColumn>
             </GridCell>
             <GridCell desktop={0} tablet={1} phone={0} />

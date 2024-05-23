@@ -1,6 +1,9 @@
 import config from "Config";
 import { FragmentType, graphql, useFragment as getFragment } from "./graphql";
 
+export class InvalidInput {}
+export class NoInput {}
+
 const Name_UserFragment = graphql(/* GraphQL */ `
     fragment Name_UserFragment on User {
         ... on CitizenUser {
@@ -71,11 +74,12 @@ export function currency(
 
     const decimals = (() => {
         if (omitDecimals) return 0;
-        return _currency === "real" ? 2 : 3;
+        return _currency === "real" ? 2 : 0;
     })();
-    const valueStr = value.toLocaleString(undefined, {
-        minimumFractionDigits: decimals,
-    });
+    // const valueStr = value.toLocaleString(undefined, {
+    //     minimumFractionDigits: decimals,
+    // });
+    const valueStr = value.toFixed(decimals);
 
     /** Whether to insert space between value and unit */
     const space = (() => {
@@ -88,6 +92,15 @@ export function currency(
     const unitStr = unit === "none" ? "" : config.currencies[_currency][unit];
 
     return `${valueStr}${space ? " " : ""}${unitStr}`;
+}
+
+/** Parse a currency value */
+export function parseCurrency(string: string): number | InvalidInput {
+    if (string === "") return 0;
+
+    const value = parseInt(string, 10);
+    if (Number.isNaN(value)) return new InvalidInput();
+    return value;
 }
 
 export const Eq_UserFragment = graphql(/* GraohQL */ `
