@@ -1,6 +1,7 @@
-import { Avatar } from "Components/material/avatar";
 import { Typography } from "Components/material/typography";
 import { ThemePropT } from "Components/material/types";
+
+import { Avatar } from "Components/avatar/avatar";
 import { FragmentType, graphql, useFragment } from "Utility/graphql";
 import { name } from "Utility/data";
 
@@ -55,6 +56,7 @@ const Badge: React.FC<IBadgeProps> = ({ type }) => {
 
 const DrawerHeader_UserFragment = graphql(/* GraphQL */ `
     fragment DrawerHeader_UserFragment on User {
+        ...Avatar_UserFragment
         ...Name_UserFragment
         type
     }
@@ -68,11 +70,7 @@ export const DrawerHeader: React.FC<IDrawerHeaderProps> = ({ user: _user }) => {
     const user = useFragment(DrawerHeader_UserFragment, _user);
     return (
         <div className={styles["drawer-header"]}>
-            <Avatar
-                className={styles["drawer-header__avatar"]}
-                src="/profile.jpg"
-                name="Max Mustermann"
-            />
+            <Avatar user={user} className={styles["drawer-header__avatar"]} />
             <Typography use="headline6" theme="textPrimaryOnLight">
                 {name(user)}
             </Typography>

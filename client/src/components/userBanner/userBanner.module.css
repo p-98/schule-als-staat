@@ -19,7 +19,11 @@
 }
 
 .user-banner__avatar {
-    font-size: 36px;
+    /* TODO: change to font-size when rmwc avatar is working
+    /* font-size: 36px; */
+    width: 36px;
+    height: 36px;
+    background: white;
     place-self: center;
 }
 
