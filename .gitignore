@@ -12,4 +12,4 @@ server/__test__/graphql/
 client/src/util/graphql/
 
 # database file
-*.sqlite3
+*.sqlite3*
