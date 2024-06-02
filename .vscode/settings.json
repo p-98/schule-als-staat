@@ -1,5 +1,8 @@
 {
     "editor.tabSize": 4,
     "prettier.prettierPath": "./node_modules/prettier",
-    "typescript.tsdk": "node_modules/typescript/lib"
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "never"
+    }
 }
