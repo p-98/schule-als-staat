@@ -8,6 +8,7 @@ import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { graphql } from "Utility/graphql";
 import { categorizeError, client, safeData } from "Utility/urql";
 import { ActionButton, TAction } from "./components/actionButton";
+import { ResetPassword } from "./components/resetPassword";
 
 import styles from "./admin.module.css";
 
@@ -47,9 +48,12 @@ const ActionButtons = memo(() => (
 export const Admin: React.FC = () => (
     <GridPage>
         <DrawerAppBarHandle title="Administration" />
-        <GridCell desktop={4} tablet={2} phone={0} />
+        <GridCell desktop={2} tablet={0} phone={0} />
         <GridCell span={4}>
             <ActionButtons />
+        </GridCell>
+        <GridCell span={4}>
+            <ResetPassword />
         </GridCell>
     </GridPage>
 );
