@@ -8,6 +8,21 @@ import { isNil } from "lodash/fp";
 import { assert } from "Util/error";
 import { getUser } from "Modules/users";
 
+export function encryptPassword(password: string): Promise<string> {
+    return bcrypt.hash(password, 10);
+}
+/** Compare cleartext password against a hash
+ *
+ * @param actual the cleartext password provided
+ * @param expected the hash of reference password
+ */
+export function comparePassword(
+    actual: string,
+    expected: string
+): Promise<boolean> {
+    return bcrypt.compare(actual, expected);
+}
+
 export async function assertCredentials(
     ctx: IAppContext,
     credentials: TCredentialsInput

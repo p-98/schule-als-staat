@@ -6,6 +6,7 @@ import { assert } from "chai";
 import {
     assertNoErrors,
     assertSingleValue,
+    buildHTTPAnonymousExecutor,
     buildHTTPUserExecutor,
     type TUserExecutor,
     assertInvalid,
@@ -22,6 +23,13 @@ import { graphql } from "./graphql";
 
 type TSet<T, K extends keyof T, KT> = Omit<T, K> & Record<K, KT>;
 
+graphql(/* GraphQL */ `
+    fragment Signature_UserFragment on User {
+        type
+        id
+    }
+`);
+
 const backupDatabaseMutation = graphql(/* GraphQL */ `
     mutation BackupDatabaseMutation {
         backupDatabase
@@ -35,6 +43,31 @@ const execDatabaseMutation = graphql(/* GraphQL */ `
 const reloadConfigMutation = graphql(/* GraphQL */ `
     mutation ReloadConfigMutation {
         reloadConfig
+    }
+`);
+const resetPasswordMutation = graphql(/* GraphQL */ `
+    mutation ResetPasswordMutation(
+        $type: UserType!
+        $id: String!
+        $password: String!
+    ) {
+        resetPassword(user: { type: $type, id: $id }, password: $password) {
+            ...Signature_UserFragment
+        }
+    }
+`);
+const loginMutation = graphql(/* GraphQL */ `
+    mutation LoginMutation($type: UserType!, $id: ID!, $password: String) {
+        login(credentials: { type: $type, id: $id, password: $password }) {
+            ...Signature_UserFragment
+        }
+    }
+`);
+const userQuery = graphql(/* GraphQL */ `
+    query UserQuery {
+        me {
+            ...Signature_UserFragment
+        }
     }
 `);
 
@@ -196,6 +229,53 @@ async function testReloadConfig() {
     assertTimesCalled(dconfig.reload, 1);
 }
 
+async function testResetPassword() {
+    const password = "newPassword";
+
+    // invalid requests
+    await forEachUserType(async (user) => {
+        const noAdmin = await user({ document: reloadConfigMutation });
+        assertInvalid(noAdmin, "PERMISSION_DENIED");
+    });
+    const guestUserType = await admin({
+        document: resetPasswordMutation,
+        variables: { ...guest.signature, password },
+    });
+    assertInvalid(guestUserType, "USER_IS_GUEST");
+    const invalidUserId = await admin({
+        document: resetPasswordMutation,
+        variables: { type: "CITIZEN", id: "invalidCitizenId", password },
+    });
+    assertInvalid(invalidUserId, "USER_NOT_FOUND");
+
+    // valid request
+    const reset = await admin({
+        document: resetPasswordMutation,
+        variables: { ...citizen.signature, password },
+    });
+    assertSingleValue(reset);
+    assertNoErrors(reset);
+    assert.deepStrictEqual(reset.data.resetPassword, citizen.signature);
+
+    const relogin = await buildHTTPAnonymousExecutor(yoga)({
+        document: loginMutation,
+        variables: { ...citizen.signature, password },
+    });
+    assertSingleValue(relogin);
+    assertNoErrors(relogin);
+    assert.deepStrictEqual(relogin.data.login, citizen.signature);
+
+    // invalid after reset
+    const loggedOut = await citizen({ document: userQuery });
+    assertInvalid(loggedOut, "PERMISSION_DENIED");
+    const oldPassword = await buildHTTPAnonymousExecutor(yoga)({
+        document: loginMutation,
+        variables: citizen.credentials,
+    });
+    assertInvalid(oldPassword, "WRONG_PASSWORD");
+}
+
 test("backup database", () => testBackupDatabase());
 test("exec database", () => testExecDatabase());
 test("reload config", () => testReloadConfig());
+test("reset password", () => testResetPassword());

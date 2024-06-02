@@ -534,6 +534,8 @@ type Mutation {
     execDatabase(sql: String!): JSON!
     " Reload the server configuration. Backups the database before. Authorized: admin "
     reloadConfig: Void
+    " Reset the password of an citizen or company. Authorized: admin "
+    resetPassword(user: UserSignatureInput!, password: String!): User!
 }
 
 " Subscriptions "

@@ -85,7 +85,12 @@ import {
     unassignCard,
     unblockCard,
 } from "Modules/cards";
-import { backupDatabase, execDatabase, reloadConfig } from "Modules/admin";
+import {
+    backupDatabase,
+    execDatabase,
+    reloadConfig,
+    resetPassword,
+} from "Modules/admin";
 import { formatDateZ } from "Util/date";
 import { GraphQLYogaError } from "Util/error";
 import { EUserTypes, ETransactionTypes, EDraftTypes } from "Types/models";
@@ -423,6 +428,8 @@ export const resolvers: TResolvers = {
         backupDatabase: (_, __, ctx) => backupDatabase(ctx),
         execDatabase: (_, args, ctx) => execDatabase(ctx, args.sql),
         reloadConfig: (_, __, ctx) => reloadConfig(ctx),
+        resetPassword: (_, args, ctx) =>
+            resetPassword(ctx, args.user, args.password),
     },
     Subscription: {
         addedBook: {

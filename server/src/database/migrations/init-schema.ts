@@ -6,6 +6,7 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.createTable("sessions", (table) => {
         table.uuid("id").primary();
         table.json("userSignature");
+        table.index("userSignature");
     });
 
     await knex.schema.createTable("bankAccounts", (table) => {
