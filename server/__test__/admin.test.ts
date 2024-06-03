@@ -257,13 +257,21 @@ async function testResetPassword() {
     assertNoErrors(reset);
     assert.deepStrictEqual(reset.data.resetPassword, citizen.signature);
 
-    const relogin = await buildHTTPAnonymousExecutor(yoga)({
+    const newCitizen = buildHTTPAnonymousExecutor(yoga);
+    const relogin = await newCitizen({
         document: loginMutation,
         variables: { ...citizen.signature, password },
     });
     assertSingleValue(relogin);
     assertNoErrors(relogin);
     assert.deepStrictEqual(relogin.data.login, citizen.signature);
+
+    const reloggedIn = await newCitizen({
+        document: userQuery,
+    });
+    assertSingleValue(reloggedIn);
+    assertNoErrors(reloggedIn);
+    assert.deepStrictEqual(reloggedIn.data.me, citizen.signature);
 
     // invalid after reset
     const loggedOut = await citizen({ document: userQuery });
