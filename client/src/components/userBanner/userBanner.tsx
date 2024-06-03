@@ -4,10 +4,10 @@ import { Icon } from "Components/material/icon";
 
 import { Avatar } from "Components/avatar/avatar";
 import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { name } from "Utility/data";
 
 // local
 import styles from "./userBanner.module.css";
-import { name } from "Utility/data";
 
 export const UserBanner_UserFragment = graphql(/* GraphQL */ `
     fragment UserBanner_UserFragment on User {
@@ -31,15 +31,18 @@ export const UserBanner: React.FC<UserBannerProps> = memo(
                     className={styles["user-banner__avatar"]}
                     size="large"
                 />
-                <div className={styles["user-banner__label"]}>
-                    <Typography
-                        use="caption"
-                        className={styles["user-banner__caption"]}
-                    >
-                        {label}
-                    </Typography>
-                    <Typography use="subtitle1">{name(user)}</Typography>
-                </div>
+                <Typography
+                    use="caption"
+                    className={styles["user-banner__caption"]}
+                >
+                    {label}
+                </Typography>
+                <Typography
+                    use="subtitle1"
+                    className={styles["user-banner__name"]}
+                >
+                    {name(user)}
+                </Typography>
             </div>
         );
     }

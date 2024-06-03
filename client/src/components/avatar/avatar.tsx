@@ -1,11 +1,14 @@
 import { minidenticon } from "minidenticons";
 import { pick } from "lodash/fp";
+import cn from "classnames";
 import { memo, useMemo } from "react";
 import { IconSizeT } from "@rmwc/types";
 // import { Avatar as RmwcAvatar } from "Components/material/avatar";
 
 import { graphql, useFragment, type FragmentType } from "Utility/graphql";
 // import { name } from "Utility/data";
+
+import styles from "./avatar.module.css";
 
 const Avatar_UserFragment = graphql(/* GraphQL */ `
     fragment Avatar_UserFragment on User {
@@ -38,10 +41,10 @@ export const Avatar = memo<IAvatarProps>(
 
         return (
             <div
-                className={className}
+                className={cn(className, styles["avatar"])}
                 style={{
                     backgroundSize: "cover",
-                    background: `url('${url}'), #fff`,
+                    background: `url('${url}')`,
                 }}
             />
         );

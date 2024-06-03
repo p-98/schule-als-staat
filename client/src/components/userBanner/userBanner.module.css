@@ -1,38 +1,54 @@
 .user-banner {
-    height: 56px;
     position: relative;
-    border-radius: 4px;
+    /* create new stacking context*/
+    isolation: isolate;
+
+    box-sizing: border-box;
+    height: 56px;
     overflow: hidden;
+    border-radius: 4px;
 
     display: grid;
-    grid-template-columns: 56px auto;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    gap: 0px 16px;
+    padding: 0 16px;
+
 }
 .user-banner::before {
-    background-color: var(--mdc-theme-primary, #6200ee);
-    opacity: 0.12;
     content: "";
     position: absolute;
     top: 0;
     left: 0;
     height: 100%;
     width: 100%;
+    background-color: var(--mdc-theme-primary, #6200ee);
+    opacity: 0.12;
+    z-index: -1;
 }
 
 .user-banner__avatar {
+    --size: 36px;
     /* TODO: change to font-size when rmwc avatar is working
-    /* font-size: 36px; */
-    width: 36px;
-    height: 36px;
-    background: white;
-    place-self: center;
-}
+    /* font-size: var(--size); */
+    margin: 0 calc((24px - var(--size)) / 2);
+    width: var(--size);
+    height: var(--size);
+    align-self: center;
 
-.user-banner__label {
-    padding-left: 8px;
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: center;
+    grid-row-end: span 2;
 }
 .user-banner__caption {
-    margin: 3px 0 -6px 0;
+    align-self: end;
+}
+.user-banner__name {
+    display: inline-block;
+    width: 100%;
+    line-height: unset;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    align-self: start;
+    padding-bottom: 6px;
 }

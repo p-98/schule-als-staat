@@ -71,7 +71,11 @@ export const DrawerHeader: React.FC<IDrawerHeaderProps> = ({ user: _user }) => {
     return (
         <div className={styles["drawer-header"]}>
             <Avatar user={user} className={styles["drawer-header__avatar"]} />
-            <Typography use="headline6" theme="textPrimaryOnLight">
+            <Typography
+                className={styles["drawer-header__name"]}
+                use="headline6"
+                theme="textPrimaryOnLight"
+            >
                 {name(user)}
             </Typography>
             <Badge type={user.type} />

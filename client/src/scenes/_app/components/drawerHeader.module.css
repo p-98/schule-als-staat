@@ -10,12 +10,19 @@
 .drawer-header__avatar {
     /* TODO: change to font-size when rmwc avatar is working again */
     /* font-size: 56px; */
-    box-sizing: border-box;
     height: 56px;
     width: 56px;
-    border-radius: 50%;
-    border: 1px solid rgba(0, 0, 0, 0.12);
     margin-bottom: 4px;
+}
+
+.drawer-header__name {
+    display: block;
+    box-sizing: border-box;
+    width: calc(100%);
+    padding: 0 8px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .badge {
