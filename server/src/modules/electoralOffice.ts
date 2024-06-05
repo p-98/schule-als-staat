@@ -137,7 +137,7 @@ export async function createVote(
     });
 }
 
-export async function deleteVote(ctx: IAppContext, id: string) {
+export async function deleteVote(ctx: IAppContext, id: string): Promise<void> {
     const { knex, session } = ctx;
     assertRole(ctx, session.userSignature, "POLITICS");
     return knex.transaction(async (trx) => {

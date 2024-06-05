@@ -213,7 +213,7 @@ export function inOperator<K extends PropertyKey, O>(
     key: K,
     obj: O
 ): obj is O & Record<K, unknown> {
-    return key in obj;
+    return typeof obj === "object" && obj !== null && key in obj;
 }
 
 export function checkPropertyType<K extends PropertyKey, O, T>(

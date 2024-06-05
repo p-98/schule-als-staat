@@ -109,7 +109,7 @@ export const compute = <T>(f: () => T): T => f();
 /** Apply a function if value is not null */
 export const mapNullableC =
     <T, U>(f: (_x: T) => U) =>
-    (x: TNullable<T>) =>
+    (x: TNullable<T>): TNullable<U> =>
         isNull(x) ? null : f(x);
 
 /* * Haskell-style logging functions * */
