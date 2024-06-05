@@ -59,7 +59,9 @@ const resetPasswordMutation = graphql(/* GraphQL */ `
 const loginMutation = graphql(/* GraphQL */ `
     mutation LoginMutation($type: UserType!, $id: ID!, $password: String) {
         login(credentials: { type: $type, id: $id, password: $password }) {
-            ...Signature_UserFragment
+            user {
+                ...Signature_UserFragment
+            }
         }
     }
 `);
@@ -264,7 +266,7 @@ async function testResetPassword() {
     });
     assertSingleValue(relogin);
     assertNoErrors(relogin);
-    assert.deepStrictEqual(relogin.data.login, citizen.signature);
+    assert.deepStrictEqual(relogin.data.login.user, citizen.signature);
 
     const reloggedIn = await newCitizen({
         document: userQuery,

@@ -17,7 +17,10 @@ import { UserBanner } from "Components/userBanner/userBanner";
 const passwordMutation = graphql(/* GraphQL */ `
     mutation LoginMutation($type: UserType!, $id: ID!, $password: String) {
         login(credentials: { type: $type, id: $id, password: $password }) {
-            __typename
+            id
+            user {
+                id
+            }
         }
     }
 `);

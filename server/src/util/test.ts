@@ -38,6 +38,7 @@ import {
     map,
     join,
     pick,
+    isNil,
 } from "lodash/fp";
 import { buildHTTPExecutor } from "@graphql-tools/executor-http";
 import { parse as parseSetCookie } from "set-cookie-parser";
@@ -49,6 +50,13 @@ import { formatDateTimeZ } from "Util/date";
 import { graphql } from "__test__/graphql";
 import { pipe1, UnPromise } from "Util/misc";
 import { type Config } from "Root/types/config";
+
+export function assertIsNotNil<T>(
+    actual: T,
+    message?: string
+): asserts actual is Exclude<T, null | undefined> {
+    assert(!isNil(actual), message);
+}
 
 /* Seeding helper functions for unit testing
  */
@@ -377,7 +385,9 @@ graphql(/* GraphQL */ `
 const loginMutation = graphql(/* GraphQL */ `
     mutation Login($type: UserType!, $id: ID!, $password: String) {
         login(credentials: { type: $type, id: $id, password: $password }) {
-            ...UserSignature_UserFragment
+            user {
+                ...UserSignature_UserFragment
+            }
         }
     }
 `);
@@ -412,6 +422,7 @@ export async function buildHTTPUserExecutor(
 
     assertSingleValue(login);
     assertNoErrors(login);
+    assertIsNotNil(login.data.login.user);
 
     return Object.assign(executor, credentials, {
         signature: pick(["type", "id"], credentials),

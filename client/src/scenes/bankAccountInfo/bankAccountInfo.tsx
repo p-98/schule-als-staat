@@ -12,6 +12,7 @@ import { TransferMoney } from "./components/transferMoney";
 const query = graphql(/* GraohQL */ `
     query BankAccountInfoQuery {
         me {
+            id
             ...BankAccountInfo_UserFragment
             ...Transactions_UserFragment
         }

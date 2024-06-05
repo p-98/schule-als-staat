@@ -1,10 +1,10 @@
 import type { IAppContext } from "Server";
 
 import { assert } from "Util/error";
-import type { TUserModel } from "Types/models";
+import type { ISessionModel, TUserModel } from "Types/models";
 import bcrypt from "bcrypt";
 import { TNullable } from "Types";
-import { stringifyUserSignature } from "Util/parse";
+import { parseUserSignature, stringifyUserSignature } from "Util/parse";
 import { TCredentialsInput } from "Types/schema";
 import { assertCredentials } from "Util/auth";
 import { omit } from "lodash/fp";
@@ -22,37 +22,44 @@ export async function checkPassword(
 export async function login(
     ctx: IAppContext,
     credentials: TCredentialsInput
-): Promise<TUserModel> {
+): Promise<ISessionModel> {
     const { knex, session } = ctx;
-    const user = await assertCredentials(ctx, credentials);
+    await assertCredentials(ctx, credentials);
 
-    const success = await knex("sessions")
+    const [success] = await knex("sessions")
         .update({
             userSignature: stringifyUserSignature(credentials),
         })
-        .where({ id: session.id });
+        .where({ id: session.id })
+        .returning("*");
     assert(
-        success === 1,
+        !!success,
         `Session with id ${session.id} not found`,
         "SESSION_NOT_FOUND"
     );
     session.userSignature = omit("password", credentials);
 
-    return user;
+    return {
+        ...success,
+        userSignature: parseUserSignature(success.userSignature!),
+    };
 }
 
 export async function logout(
-    { knex, session }: IAppContext,
+    ctx: IAppContext,
     id: string
-): Promise<void> {
-    const success = await knex("sessions")
+): Promise<ISessionModel> {
+    const { knex, session } = ctx;
+
+    const [success] = await knex("sessions")
         .update({ userSignature: null })
-        .where({ id });
-    assert(
-        success === 1,
-        `Session with id ${id} not found`,
-        "SESSION_NOT_FOUND"
-    );
-    // eslint-disable-next-line no-param-reassign
+        .where({ id })
+        .returning("*");
+    assert(!!success, `Session with id ${id} not found`, "SESSION_NOT_FOUND");
     session.userSignature = null;
+
+    return {
+        ...success,
+        userSignature: null,
+    };
 }

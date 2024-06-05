@@ -34,7 +34,7 @@ const createGuestMutation = graphql(/* GraphQL */ `
 const assignGuestMutation = graphql(/* GraohQL */ `
     mutation AssignGuestMutation($id: ID!, $guestId: String!) {
         assignCard(id: $id, user: { type: GUEST, id: $guestId }) {
-            __typename
+            id
         }
     }
 `);
@@ -158,14 +158,14 @@ const BorderControl_GuestUserFragment = graphql(/* GraphQL */ `
 const leaveGuestMutation = graphql(/* GraphQL */ `
     mutation LeaveGuestMutation($id: ID!) {
         leaveGuest(id: $id) {
-            __typename
+            id
         }
     }
 `);
 const unassignGuestMutation = graphql(/* GraphQL */ `
     mutation UnassignGuestMutation($cardId: ID!) {
         unassignCard(id: $cardId) {
-            __typename
+            id
         }
     }
 `);

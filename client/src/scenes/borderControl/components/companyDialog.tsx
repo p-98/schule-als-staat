@@ -35,7 +35,7 @@ export const mutation = graphql(/* GraphQL */ `
         chargeCustoms(
             customs: { customs: $customs, user: { type: COMPANY, id: $id } }
         ) {
-            __typename
+            id
         }
     }
 `);

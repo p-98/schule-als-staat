@@ -14,9 +14,11 @@ export const Details_TransactionFragment = graphql(/* GraohQL */ `
         date
         ... on TransferTransaction {
             sender {
+                id
                 ...Name_UserFragment
             }
             receiver {
+                id
                 ...Name_UserFragment
             }
             value
@@ -24,6 +26,7 @@ export const Details_TransactionFragment = graphql(/* GraohQL */ `
         }
         ... on ChangeTransaction {
             user {
+                id
                 ...Name_UserFragment
             }
             action
@@ -32,9 +35,11 @@ export const Details_TransactionFragment = graphql(/* GraohQL */ `
         }
         ... on PurchaseTransaction {
             customer {
+                id
                 ...Name_UserFragment
             }
             company {
+                id
                 ...Name_UserFragment
             }
             grossPrice
@@ -43,6 +48,7 @@ export const Details_TransactionFragment = graphql(/* GraohQL */ `
             items {
                 amount
                 product {
+                    id
                     name
                 }
             }
@@ -50,16 +56,20 @@ export const Details_TransactionFragment = graphql(/* GraohQL */ `
         }
         ... on CustomsTransaction {
             user {
+                id
                 ...Name_UserFragment
             }
             customs
         }
         ... on SalaryTransaction {
             employment {
+                id
                 company {
+                    id
                     ...Name_UserFragment
                 }
                 citizen {
+                    id
                     ...Name_UserFragment
                 }
             }
@@ -67,6 +77,7 @@ export const Details_TransactionFragment = graphql(/* GraohQL */ `
             netValue
             tax
             worktime {
+                id
                 start
                 end
             }

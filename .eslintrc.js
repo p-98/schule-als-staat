@@ -18,6 +18,7 @@ module.exports = {
         ".eslintrc.js",
         "webpack.config.js",
         "codegen.ts",
+        "client/src/util/graphql/urql-introspection-plugin.js",
         "next-env.d.ts",
         "./types/**/*.d.ts",
         "examples/*",

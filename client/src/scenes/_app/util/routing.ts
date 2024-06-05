@@ -11,6 +11,7 @@ import { dispatch } from "Utility/misc";
 export const Routing_UserFragment = graphql(/* GraphQL */ `
     fragment Routing_UserFragment on Session {
         user {
+            id
             roles
         }
     }

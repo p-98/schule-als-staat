@@ -37,6 +37,9 @@ const config: CodegenConfig = {
     schema: "schema.graphql",
     ignoreNoDocuments: true,
     generates: {
+        "./client/src/util/graphql/introspection.json": {
+            plugins: ["client/src/util/graphql/urql-introspection-plugin.js"],
+        },
         "./client/src/util/graphql/": mainConfig,
         "./server/__test__/graphql/": {
             documents: ["server/__test__/*.test.ts", "server/src/util/test.ts"],

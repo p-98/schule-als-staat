@@ -1,19 +1,106 @@
-import { Client, cacheExchange, fetchExchange, CombinedError } from "urql";
+import { type DeepPartial } from "@reduxjs/toolkit";
+import { constant, identity, isEmpty, map } from "lodash/fp";
 import { type GraphQLError } from "graphql";
-import { constant, identity, map } from "lodash/fp";
+import { Client, fetchExchange, CombinedError } from "urql";
+import {
+    cacheExchange,
+    type Entity,
+    type Resolver,
+    type Variables,
+    type FieldArgs,
+    type Cache,
+} from "@urql/exchange-graphcache";
 import { useEffect, useMemo, useState } from "react";
 
 import { inOperator } from "Utility/types";
-import config from "Config";
 import { notifyUnexpectedError } from "Utility/notifications";
+import schema from "Utility/graphql/introspection.json";
+import { type Session } from "Utility/graphql/graphql";
+import config from "Config";
+
+/* Normalized Caching
+ *
+ * The first query of the application is always the session user.
+ * Therefore me and me<UserType> queries just use the Session object as cache location
+ */
+
+/** Convert {} to undefined
+ * Makes the cache look for "<field>" instead of "<field>({})"
+ */
+const cacheArgs = (args: Variables | undefined | null): Variables | undefined =>
+    isEmpty(args) ? undefined : args;
+/** Try the given resolver. If it returns a cache miss, fall back to default cache location */
+const trying =
+    (f: Resolver): Resolver =>
+    (parent, args, cache, info) => {
+        const cacheResult = f(parent, args, cache, info);
+        if (cacheResult !== undefined) return cacheResult;
+
+        return cache.resolve(parent as Entity, info.fieldName, cacheArgs(args));
+    };
+let sessionId: undefined | string;
+const resolveSessionUser =
+    (type?: "CitizenUser" | "CompanyUser" | "GuestUser"): Resolver =>
+    (_, __, cache) => {
+        if (!sessionId) return undefined;
+        const user = cache.resolve(
+            { __typename: "Session", id: sessionId },
+            "user"
+        );
+        if (!user) return undefined;
+        if (type && cache.resolve(user as Entity, "__typename") !== type)
+            return undefined;
+        return user;
+    };
+const invalidateIfMissing =
+    (cache: Cache) => (entity: Entity, field: string, args?: FieldArgs) => {
+        const uncheckedObjEntity = entity as unknown as Record<string, unknown>;
+        if (!(field in uncheckedObjEntity))
+            cache.invalidate(entity, field, cacheArgs(args));
+    };
+
+const cacheInstance = cacheExchange({
+    keys: {
+        BorderCrossing: () => null,
+        PurchaseItem: () => null,
+    },
+    resolvers: {
+        Query: {
+            me: trying(resolveSessionUser()),
+            meCitizen: trying(resolveSessionUser("CitizenUser")),
+            meCompany: trying(resolveSessionUser("CompanyUser")),
+            meGuest: trying(resolveSessionUser("GuestUser")),
+        },
+    },
+    updates: {
+        Query: {
+            session: (parent) => {
+                const session = parent.session as DeepPartial<Session>;
+                if (session.id) sessionId = session.id;
+            },
+        },
+        Mutation: {
+            login: (parent, __, cache) => {
+                invalidateIfMissing(cache)(parent.login as Entity, "user");
+            },
+        },
+    },
+    schema,
+});
+
+/* Configure Client
+ */
 
 export const client = new Client({
     url: config.server.url,
-    exchanges: [cacheExchange, fetchExchange],
+    exchanges: [cacheInstance, fetchExchange],
     fetchOptions: {
         credentials: "include",
     },
 });
+
+/* Handle results
+ */
 
 /** Make data and error mutually exclusive */
 export const safeData = <T extends { data?: unknown; error?: unknown }>(

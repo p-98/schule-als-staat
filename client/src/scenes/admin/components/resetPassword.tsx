@@ -13,7 +13,7 @@ const resetMutation = graphql(/* GraphQL */ `
         $password: String!
     ) {
         resetPassword(user: { type: $type, id: $id }, password: $password) {
-            __typename
+            id
         }
     }
 `);

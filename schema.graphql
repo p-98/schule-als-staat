@@ -456,9 +456,9 @@ type Mutation {
     addBook(book: BookInput!): Book!
 
     " Login as user, successive calls are possible. Guests must no specify a password "
-    login(credentials: CredentialsInput!): User!
-    " Logout as user, succeessive calls are possible "
-    logout: Void
+    login(credentials: CredentialsInput!): Session!
+    " Logout as user, succeessive calls are possible. Autorized: user "
+    logout: Session!
 
     " Create employment offer. Authorized: company "
     createEmploymentOffer(offer: EmploymentOfferInput!): EmploymentOffer!

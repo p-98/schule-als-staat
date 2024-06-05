@@ -30,6 +30,7 @@ const Login_UserFragment = graphql(/* GraohQL */ `
 const qrQuery = graphql(/* GraphQL */ `
     query Qr_LoginQuery($id: ID!) {
         readCard(id: $id) {
+            id
             ...Login_UserFragment
         }
     }
@@ -37,6 +38,7 @@ const qrQuery = graphql(/* GraphQL */ `
 const keyboardQuery = graphql(/* GraphQL */ `
     query Keyboard_LoginQuery($type: UserType!, $id: String!) {
         user(user: { type: $type, id: $id }) {
+            id
             ...Login_UserFragment
         }
     }

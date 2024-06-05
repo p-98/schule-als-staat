@@ -29,7 +29,9 @@ import styles from "./pos.module.css";
 const productsQuery = graphql(/* GraohQL */ `
     query Products_PosQuery {
         meCompany {
+            id
             products {
+                id
                 ...Pos_ProductFragment
             }
         }
@@ -44,6 +46,7 @@ const sellMutation = graphql(/* GraphQL */ `
             items {
                 amount
                 product {
+                    id
                     ...Cart_ProductFragment
                 }
             }
@@ -65,7 +68,7 @@ const sellAction: TPosAction<TDraft> = async (cart) => {
 const PayMutation = graphql(/* GraphQL */ `
     mutation PayPurchaseMutation($id: Int!, $credentials: CredentialsInput!) {
         payPurchaseDraft(id: $id, credentials: $credentials) {
-            __typename
+            id
         }
     }
 `);

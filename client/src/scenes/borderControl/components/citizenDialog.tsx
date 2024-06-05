@@ -37,7 +37,7 @@ const customsMutation = graphql(/* GraphQL */ `
         chargeCustoms(
             customs: { customs: $customs, user: { type: CITIZEN, id: $id } }
         ) {
-            __typename
+            id
         }
     }
 `);

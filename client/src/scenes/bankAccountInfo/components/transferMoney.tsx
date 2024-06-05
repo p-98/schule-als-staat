@@ -22,7 +22,7 @@ const transferMoneyMutation = graphql(/* GraphQL */ `
                 purpose: $purpose
             }
         ) {
-            __typename
+            id
         }
     }
 `);

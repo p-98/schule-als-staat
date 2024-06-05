@@ -13,6 +13,7 @@ import styles from "../_app.module.scss";
 const Drawer_SessionFragment = graphql(/* GraphQL */ `
     fragment Drawer_SessionFragment on Session {
         user {
+            id
             ...DrawerHeader_UserFragment
         }
         ...Routing_UserFragment

@@ -34,6 +34,7 @@ import { useCheckAuth } from "./util/routing";
 const query = graphql(/* GraphQL */ `
     query AppQuery {
         session {
+            id
             ...Drawer_SessionFragment
             ...Routing_UserFragment
         }

@@ -10,6 +10,7 @@ client/.next
 server/src/types/schema.ts
 server/__test__/graphql/
 client/src/util/graphql/
+!client/src/util/graphql/urql-introspection-plugin.js
 
 # database file
 *.sqlite3*

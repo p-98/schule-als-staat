@@ -46,6 +46,7 @@ type TCardAndUser = {
 const qrQuery = graphql(/* GraohQL */ `
     query Qr__BorderControlQuery($id: ID!) {
         readCard(id: $id) {
+            id
             ...BorderControl_UserFragment
         }
     }
@@ -67,6 +68,7 @@ const qrAction: TQrAction<TCardAndUser> = async (id) => {
 const kbQuery = graphql(/* GraphQL */ `
     query Keyboard__BorderControlQuery($type: UserType!, $id: String!) {
         user(user: { type: $type, id: $id }) {
+            id
             ...BorderControl_UserFragment
         }
     }

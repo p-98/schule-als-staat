@@ -38,13 +38,19 @@ const sessionQuery = graphql(/* GraphQL */ `
 const loginMutation = graphql(/* GraphQL */ `
     mutation Login($type: UserType!, $id: ID!, $password: String) {
         login(credentials: { type: $type, id: $id, password: $password }) {
-            ...UserSignature_UserFragment
+            user {
+                ...UserSignature_UserFragment
+            }
         }
     }
 `);
 const logoutMutation = graphql(/* GraphQL */ `
     mutation Logout {
-        logout
+        logout {
+            user {
+                ...UserSignature_UserFragment
+            }
+        }
     }
 `);
 
@@ -122,7 +128,7 @@ async function testLogin(
     });
     assertSingleValue(login);
     assertNoErrors(login);
-    const userSignature = login.data.login;
+    const userSignature = login.data.login.user;
     assert.deepStrictEqual(userSignature, {
         id: credentials.id,
         __typename: EUserTypes[credentials.type],
@@ -139,7 +145,7 @@ async function testLogout(_client: TYogaExecutor) {
     });
     assertSingleValue(logout);
     assertNoErrors(logout);
-    assert.isNull(logout.data.logout);
+    assert.isNull(logout.data.logout.user);
 
     // no invalid requests after logout possible
 }
