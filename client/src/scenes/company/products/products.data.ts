@@ -1,5 +1,4 @@
-import { reassignIDs, repeatArr } from "Utility/dataMockup";
-import { IProduct } from "Utility/types";
+import { reassignIDs, repeatArr, IProduct } from "Utility/dataMockup";
 
 const products: IProduct[] = [
     {

@@ -15,7 +15,7 @@ import {
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { GridPage } from "Components/page/page";
 // import { useCompanyAdminRedirect } from "Utility/hooks/useRedirect";
-import { IProduct } from "Utility/types";
+import { IProduct } from "Utility/dataMockup";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import {
     SiblingTransitionBase,

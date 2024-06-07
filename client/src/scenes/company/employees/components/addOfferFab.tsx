@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, type ChangeEvent } from "react";
 import { TextField } from "Components/material/textfield";
 import { MenuSurfaceAnchor, MenuSurface } from "Components/material/menu";
 import { List, ListItem } from "Components/material/list";
@@ -63,7 +63,9 @@ const EmployeeInput: React.FC = () => {
                 label="Arbeitnehmer"
                 type="text"
                 value={value}
-                onChange={(e) => setValue(e.currentTarget.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setValue(e.currentTarget.value)
+                }
                 ref={textFieldRef}
             />
         </MenuSurfaceAnchor>

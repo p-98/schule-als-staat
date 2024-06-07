@@ -35,7 +35,7 @@ const useRerenderEffect: typeof useEffect = (effect, deps) => {
 
 export { type TAction };
 
-const Pos_ProductFragment = graphql(/* GraphQL */ `
+export const Pos_ProductFragment = graphql(/* GraphQL */ `
     fragment Pos_ProductFragment on Product {
         id
         ...Card_ProductFragment

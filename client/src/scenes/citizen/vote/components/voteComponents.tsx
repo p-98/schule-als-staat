@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Radio } from "Components/material/radio";
 import { Typography } from "Components/material/typography";
-import { Slider } from "Components/material/slider";
+import { type SliderOnInputEventT, Slider } from "Components/material/slider";
 
 // local
 import { IVoteRadio, IVoteConsensus, TWithVoteProp } from "Utility/types";
@@ -68,7 +68,7 @@ const VoteConsensus = React.memo<
                         discrete
                         displayMarkers
                         step={1}
-                        onInput={(e) => {
+                        onInput={(e: SliderOnInputEventT) => {
                             const newVote = [...vote];
                             newVote[index] = e.detail.value;
                             setVote(newVote);

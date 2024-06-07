@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { type MouseEvent, useState } from "react";
 import { triggerWindowResize } from "Components/material/base";
 import { SimpleListItem, ListItemText } from "Components/material/list";
 import { Theme } from "Components/material/theme";
@@ -75,7 +75,7 @@ export const VoteListItem: React.FC<TWithVoteProp> = ({ vote }) => {
                                       day: "2-digit",
                                   })
                         }
-                        onMouseDown={(e) => {
+                        onMouseDown={(e: MouseEvent<HTMLDivElement>) => {
                             // eslint-disable-next-line no-param-reassign
                             e.currentTarget.dataset.clickTime = performance
                                 .now()

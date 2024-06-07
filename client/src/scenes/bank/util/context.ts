@@ -5,8 +5,6 @@ import { UserBanner_UserFragment } from "Components/userBanner/userBanner";
 export const fragmentData = makeFragmentData(
     {
         __typename: "CitizenUser",
-        name: "Hello",
-        image: "",
     },
     UserBanner_UserFragment
 );

@@ -44,7 +44,7 @@ export const name = (
 };
 
 /** Boolean value */
-export const bool = (_: boolean) => (_ ? "Ja" : "Nein");
+export const bool = (_: boolean): string => (_ ? "Ja" : "Nein");
 
 interface ICurrencyOptions {
     currency: keyof typeof config.currencies;

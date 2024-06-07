@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { type ChangeEvent, useCallback, useState } from "react";
 import { TextField } from "Components/material/textfield";
 import { Typography } from "Components/material/typography";
 import { Chip, ChipSet } from "Components/material/chip";
@@ -87,7 +87,7 @@ export const BonusPayout: React.FC = () => {
                     label={`Betrag in ${config.currencies.virtual.short}`}
                     value={value || ""}
                     type="number"
-                    onChange={(e) =>
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
                         setValue(parseInt(e.currentTarget.value, 10))
                     }
                 />

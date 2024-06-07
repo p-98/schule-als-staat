@@ -6,7 +6,7 @@ import { CardContent, CardInner, CardHeader } from "Components/material/card";
 
 // local
 import config from "Config";
-import { IProduct } from "Utility/types";
+import { IProduct } from "Utility/dataMockup";
 
 import styles from "../products.module.css";
 

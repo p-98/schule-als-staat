@@ -3,7 +3,7 @@ import { Card, CardHeader, CardContent } from "Components/material/card";
 import config from "Config";
 import { FragmentType, graphql, useFragment } from "Utility/graphql";
 
-const BankAccountInfo_UserFragment = graphql(/* GraohQL */ `
+export const BankAccountInfo_UserFragment = graphql(/* GraohQL */ `
     fragment BankAccountInfo_UserFragment on User {
         balance
         redemptionBalance

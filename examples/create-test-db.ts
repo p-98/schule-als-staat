@@ -22,6 +22,10 @@ await knex.migrate.up({ name: "init-schema" });
 const keller = await seedUser(knex, { type: "CITIZEN", id: "j.keller" });
 const neben = await seedUser(knex, { type: "CITIZEN", id: "m.neben" });
 const donutsLtd = await seedUser(knex, { type: "COMPANY", id: "donuts.ltd" });
+const bank = await seedUser(knex, {
+    type: "COMPANY",
+    id: config.roles.bankCompanyId,
+});
 const borderControl = await seedUser(knex, {
     type: "COMPANY",
     id: config.roles.borderControlCompanyId,

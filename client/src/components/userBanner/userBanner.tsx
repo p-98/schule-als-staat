@@ -1,6 +1,5 @@
 import { memo } from "react";
 import { Typography } from "Components/material/typography";
-import { Icon } from "Components/material/icon";
 
 import { Avatar } from "Components/avatar/avatar";
 import { FragmentType, graphql, useFragment } from "Utility/graphql";

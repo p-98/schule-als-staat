@@ -122,7 +122,7 @@ export const useSafeData = <T extends { data?: unknown; error?: unknown }>(
  * @example
  * if (useStable(fetching)) return <Loading />
  */
-export const useStable = (fetching: boolean) => {
+export const useStable = (fetching: boolean): boolean => {
     const [stable, setStable] = useState(false);
     useEffect(() => {
         if (fetching !== true) {

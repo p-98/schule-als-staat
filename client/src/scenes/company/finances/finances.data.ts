@@ -1,5 +1,4 @@
-import { reassignIDs } from "Utility/dataMockup";
-import { IProduct } from "Utility/types";
+import { IProduct, reassignIDs } from "Utility/dataMockup";
 
 export const products = reassignIDs<
     IProduct & { revenue: number; sales: number }

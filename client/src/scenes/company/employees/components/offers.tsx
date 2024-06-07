@@ -1,5 +1,5 @@
 import React, {
-    HTMLAttributes,
+    type HTMLAttributes,
     useCallback,
     useEffect,
     useRef,
@@ -21,7 +21,7 @@ import styles from "../employees.module.scss";
 
 const users = ["Max Mustermann", "Ute Keipl", "Jens van Diesel"];
 
-interface IDiscardListItemProps extends HTMLAttributes<HTMLLIElement> {
+interface IDiscardListItemProps extends HTMLAttributes<HTMLDivElement> {
     name: string;
     onDiscard: (event: { preventAnimation: () => void }) => void;
     /** only called if animation was not prevented */
@@ -64,8 +64,8 @@ const DiscardListItem: React.FC<IDiscardListItemProps> = ({
                     if (animate) setDiscard(true);
                 },
             }}
-            onTransitionEnd={(e) => {
-                onTransitionEnd?.(e as TransitionEvent<HTMLLIElement>);
+            onTransitionEnd={(e: TransitionEvent<HTMLDivElement>) => {
+                onTransitionEnd?.(e);
 
                 if (e.propertyName !== "height") return;
                 onDiscarded();

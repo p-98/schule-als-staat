@@ -1,3 +1,9 @@
+export interface IProduct {
+    id: string;
+    name: string;
+    price: number;
+}
+
 export function repeatArr<T>(arr: T[], times: number): T[] {
     if (times === 1) return arr;
 

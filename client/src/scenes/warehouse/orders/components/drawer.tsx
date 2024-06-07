@@ -6,7 +6,7 @@ import {
 } from "Components/material/drawer";
 import { TextField } from "Components/material/textfield";
 import { Select } from "Components/material/select";
-import { HTMLAttributes } from "react";
+import { type ChangeEvent, type HTMLAttributes } from "react";
 import { CardContent, CardInner } from "Components/material/card";
 
 // local
@@ -42,7 +42,7 @@ export const Drawer: React.FC<IDrawerProps> = ({
                             })),
                         ]}
                         value={filter.date}
-                        onChange={(e) =>
+                        onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                             dispatchFilter({
                                 filter: "date",
                                 value: e.currentTarget.value,
@@ -53,7 +53,7 @@ export const Drawer: React.FC<IDrawerProps> = ({
                         label="Unternehmen"
                         type="text"
                         value={filter.company}
-                        onChange={(e) =>
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
                             dispatchFilter({
                                 filter: "company",
                                 value: e.currentTarget.value,

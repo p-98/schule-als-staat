@@ -1,6 +1,7 @@
 import {
-    ComponentPropsWithoutRef,
-    FormEvent,
+    type ComponentPropsWithoutRef,
+    type FormEvent,
+    type ReactElement,
     useCallback,
     useState,
 } from "react";
@@ -44,7 +45,7 @@ export const InputUserKb = <TData,>({
     onSuccess,
     title,
     ...restProps
-}: IInputUserKbProps<TData>) => {
+}: IInputUserKbProps<TData>): ReactElement => {
     const [type, setType] = useState<UserType>("CITIZEN");
     const [id, setId] = useState("");
     const [fetching, setFetching] = useState(false);
