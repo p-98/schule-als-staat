@@ -14,6 +14,8 @@ import { byCode, categorizeError, client, safeData } from "Utility/urql";
 import { graphql } from "Utility/graphql";
 import { UserBanner } from "Components/userBanner/userBanner";
 
+import styles from "./login.module.css";
+
 const passwordMutation = graphql(/* GraphQL */ `
     mutation LoginMutation($type: UserType!, $id: ID!, $password: String) {
         login(credentials: { type: $type, id: $id, password: $password }) {
@@ -43,7 +45,7 @@ export const Login: React.FC = () => {
             <DrawerAppBarHandle title="Login" />
             <GridCell desktop={4} tablet={2} phone={0} />
             <GridCell span={4}>
-                <Card>
+                <Card className={styles["login__card"]}>
                     <InputCredentials
                         action={loginAction}
                         confirmButton={{ label: "Anmelden" }}
