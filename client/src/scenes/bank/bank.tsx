@@ -33,6 +33,7 @@ export const Bank: React.FC = () => {
                 <GridCell span={4}>
                     <FCT
                         open={!!user}
+                        openWillChange={!user || expectCloseInteraction}
                         className={cn(cardClassNames, styles["bank__fct"])}
                         handle={
                             <InputUser

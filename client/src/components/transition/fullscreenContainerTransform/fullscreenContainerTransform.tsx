@@ -1,15 +1,16 @@
 import { mapValues, pick } from "lodash/fp";
 import cn from "classnames";
 import { PortalChild } from "@rmwc/base";
-import { type ReactNode, type FC, useRef, useMemo } from "react";
+import { type ReactNode, type FC, useRef, useMemo, useCallback } from "react";
 
-import { useStableEdge } from "Utility/hooks/hooks";
+import { useDelayFall, useStableEdge } from "Utility/hooks/hooks";
 import {
     animationFrame,
     componentFactory,
     event,
     mutableAssign,
     pipe1,
+    time,
     unref,
 } from "Utility/misc";
 
@@ -26,13 +27,29 @@ const rectKeys: RectKeys[] = ["width", "height", "top", "left"];
 const getRect = (el: HTMLElement): Rect =>
     pipe1(el.getBoundingClientRect(), pick(rectKeys));
 
+/* eslint-disable no-param-reassign */
 const px = (_: number) => `${_}px`;
-const setRect = (dim: Rect, el: HTMLElement) =>
-    pipe1(dim, mapValues(px), mutableAssign(el.style));
+const setDim = (rect: Rect, el: HTMLElement) =>
+    pipe1(
+        rect,
+        pick(["width", "height"]),
+        mapValues(px),
+        mutableAssign(el.style)
+    );
+const setPos = (rect: Rect, el: HTMLElement) =>
+    (el.style.transform = `translate(${px(rect.left)}, ${px(rect.top)})`);
+const setRect = (rect: Rect, el: HTMLElement) => {
+    setDim(rect, el);
+    setPos(rect, el);
+};
 
-const _unsetRect = { height: "", width: "", top: "", left: "" };
+const _unsetRect = { height: "", width: "", transform: "" };
 const unsetRect = (el: HTMLElement) =>
     pipe1(_unsetRect, mutableAssign(el.style));
+
+const disableTransition = (el: HTMLElement) => (el.style.transition = "none");
+const enableTransition = (el: HTMLElement) => (el.style.transition = "");
+/* eslint-enable no-param-reassign */
 
 /* Auxiliary components
  */
@@ -48,6 +65,7 @@ const FCTSurface = componentFactory({ className: css["fct__surface"]! });
 interface FCTProps {
     /** Must be false at first */
     open: boolean;
+    openWillChange?: boolean;
     handle: ReactNode;
     fullscreen: ReactNode;
     /** non-portal-side and portal-side ancestor of handle */
@@ -70,7 +88,8 @@ interface FCTProps {
  * If open, applies class "fct--open" to an acestor of portal-side handle
  */
 export const FCT: FC<FCTProps> = (props) => {
-    const { open, handle, fullscreen, className } = props;
+    const { open, openWillChange = false } = props;
+    const { handle, fullscreen, className } = props;
     const handleRef = useRef<HTMLDivElement>(null);
     const fctRef = useRef<HTMLDivElement>(null);
     const surfaceRef = useRef<HTMLDivElement>(null);
@@ -83,16 +102,17 @@ export const FCT: FC<FCTProps> = (props) => {
 
     const onOpen = async () => {
         const rect = getRect(unref(handleRef));
+        disableTransition(unref(surfaceRef));
         setRect(rect, unref(surfaceRef));
         const handleCopy = unref(handleRef).cloneNode(true) as HTMLDivElement;
         unref(surfaceRef).prepend(handleCopy);
-        // does not have "position: absolute", so only dimensions apply
-        setRect(rect, handleCopy);
+        setDim(rect, handleCopy);
         cacheRef.current = { rect, handleCopy };
         props.onOpen?.(unref(handleRef), unref(surfaceRef));
 
         await animationFrame();
         await animationFrame();
+        enableTransition(unref(surfaceRef));
         unsetRect(unref(surfaceRef));
         unref(fctRef).classList.add(css["fct--open"]!, "fct--open");
 
@@ -101,21 +121,22 @@ export const FCT: FC<FCTProps> = (props) => {
     };
     const onClose = async () => {
         const { rect, handleCopy } = cacheRef.current!;
-        setRect(rect, unref(surfaceRef));
-
-        unref(fctRef).classList.remove(css["fct--open"]!, "fct--open");
         props.onClose?.(unref(handleRef), unref(surfaceRef));
+
+        setRect(rect, unref(surfaceRef));
+        unref(fctRef).classList.remove(css["fct--open"]!, "fct--open");
 
         await event("animationend", handleCopy);
         handleCopy.remove();
         unsetRect(unref(surfaceRef));
         props.onClosed?.(unref(handleRef));
     };
-    useStableEdge(open, onOpen, onClose);
 
-    /* Using a constant value prevents updates to the dom
-     * which prevents added classes from being dropped by hydration
-     */
+    const stableOpen = useStableEdge(open, onOpen, onClose);
+    const optimize = useDelayFall(openWillChange, () => time(300));
+
+    const openCN = cn(stableOpen && css["fct--open"]);
+    const optimizeCN = cn(optimize && css["fct--optimize"]);
     return useMemo(
         () => (
             <>
@@ -123,7 +144,7 @@ export const FCT: FC<FCTProps> = (props) => {
                     <FCTHandle ref={handleRef}>{handle}</FCTHandle>
                 </FCTSurface>
                 <PortalChild renderTo="#fullscreen">
-                    <FCTRoot ref={fctRef}>
+                    <FCTRoot ref={fctRef} className={cn(openCN, optimizeCN)}>
                         <FCTScrim />
                         <FCTSurface ref={surfaceRef} className={className}>
                             {/* <FCTHandle>{handle}</FCTHandle> copied here while open */}
@@ -133,6 +154,6 @@ export const FCT: FC<FCTProps> = (props) => {
                 </PortalChild>
             </>
         ),
-        [className, fullscreen, handle]
+        [handle, fullscreen, openCN, optimizeCN, className]
     );
 };

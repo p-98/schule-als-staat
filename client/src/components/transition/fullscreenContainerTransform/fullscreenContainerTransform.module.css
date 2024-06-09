@@ -4,10 +4,13 @@
 .fct {
     --mdc-standard-esasing: cubic-bezier(0.4, 0.0, 0.2, 1);
 
-    --transition-duration-open: 3000ms;
-    --transition-duration-close: 2500ms;
+    --transition-duration-open: 300ms;
+    --transition-duration-close: 250ms;
 
     --app-bar-height: 64px;
+}
+.fct:not(.fct--open).fct--optimize {
+    will-change: visiblity;
 }
 /* Set at the start opening and removed before closing
  * fct open transition */
@@ -33,6 +36,9 @@
 
     background-color: rgba(0, 0, 0, 0.32);
 }
+.fct.fct--optimize >.fct__scrim {
+    will-change: opacitiy;
+}
 /* fct__scrim open transition */
 .fct.fct--open > .fct__scrim {
     opacity: 1;
@@ -51,12 +57,17 @@
  */
 .fct > .fct__surface {
     position: fixed;
+    left: 0;
+    top: 0;
+
     overflow: hidden;
+}
+.fct.fct--optimize >.fct__surface {
+    will-change: transform, width, height;
 }
 /* fct_surface open transition */
 .fct.fct--open > .fct__surface {
-    left: 0;
-    top: var(--app-bar-height);
+    transform: translate(0, var(--app-bar-height));
     width: 100vw;
     height: calc(100vh - var(--app-bar-height));
 
@@ -79,6 +90,9 @@
 /* fct element mainly visible while closed
  */
 .fct__handle {}
+.fct.fct--optimize .fct__handle {
+    will-change: opacity;
+}
  /* fct_handle open transition */
 .fct.fct--open .fct__handle {
     animation: fade-out var(--transition-duration-open) var(--mdc-standard-esasing) forwards;
@@ -98,6 +112,9 @@
     /* imitate App component */
     display: grid;
     overflow: hidden;
+}
+.fct.fct--optimize .fct__fullscreen {
+    will-change: opacity;
 }
 /* fct__fullscreen open transition */
 .fct.fct--open .fct__fullscreen {
