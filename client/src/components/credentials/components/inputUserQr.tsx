@@ -1,3 +1,4 @@
+import cn from "classnames";
 import {
     type ReactElement,
     useCallback,
@@ -58,11 +59,15 @@ interface IQrProps extends React.HTMLAttributes<HTMLDivElement> {
     onFailure: (err: Error) => void;
     scan?: boolean;
 }
+/** Qr reader
+ *
+ * Applies id `id` or `"qr"` to the container element
+ */
 const Qr: React.FC<IQrProps> = ({
     onSuccess,
     onFailure,
     scan = true,
-    id = "qr__video",
+    id = "qr",
     ...restProps
 }) => {
     const onSuccessRef = useRef(onSuccess);
@@ -114,6 +119,10 @@ export interface IInputUserQrProps<TData>
     onSuccess: (data: TData) => void;
     title: string;
 }
+/** User input method using a qr reader
+ *
+ * Applies "input-user-qr__qr" to the qr reader
+ */
 export const InputUserQr = <TData,>({
     action,
     cancelButton,
@@ -158,7 +167,10 @@ export const InputUserQr = <TData,>({
                 <Qr
                     onSuccess={(_) => dispatch(handleResult(_))}
                     onFailure={handleError}
-                    className={styles["input-user-qr__video"]}
+                    className={cn(
+                        styles["input-user-qr__qr"],
+                        "input-user-qr__qr"
+                    )}
                 />
             </CardMedia>
             <CardHeader>{title}</CardHeader>

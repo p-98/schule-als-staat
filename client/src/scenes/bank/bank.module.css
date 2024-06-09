@@ -1,4 +1,7 @@
-.bank__fullscreen-wrapper--open {
+.bank__fct {
+    overflow: hidden;
+}
+[class~="fct"][class~="fct--open"] .bank__fct {
     border-radius: 0px;
 }
 

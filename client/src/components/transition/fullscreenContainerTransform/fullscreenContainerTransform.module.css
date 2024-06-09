@@ -1,0 +1,120 @@
+/* Main fct element in portal
+ * Only contains meta information and is not visible
+ */
+.fct {
+    --mdc-standard-esasing: cubic-bezier(0.4, 0.0, 0.2, 1);
+
+    --transition-duration-open: 3000ms;
+    --transition-duration-close: 2500ms;
+
+    --app-bar-height: 64px;
+}
+/* Set at the start opening and removed before closing
+ * fct open transition */
+.fct.fct--open {
+    visibility: visible;
+    transition: visibility var(--transition-duration-open);
+}
+/* fct close transition */
+/* .fct:not(.fct--open), .fct:not(.fct--open) .fct__surface { */
+.fct:not(.fct--open) {
+    visibility: hidden;
+    transition: visibility var(--transition-duration-close);
+}
+
+/* fct backdrop to shift focus to fullscreen element
+ */
+.fct > .fct__scrim {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background-color: rgba(0, 0, 0, 0.32);
+}
+/* fct__scrim open transition */
+.fct.fct--open > .fct__scrim {
+    opacity: 1;
+    /* close transition: linear over first third of time */
+    transition: opacity calc(var(--transition-duration-open) * 0.3) linear;
+}
+/* fct__scrim close transition */
+.fct:not(.fct--open) > .fct__scrim {
+    opacity: 0;
+    /* open transition: standard easing over whole time */
+    transition: opacity var(--transition-duration-close) var(--mdc-standard-esasing);
+}
+
+/* fct container of handle and fullscreen
+ * Keeps visual consistency while content fades in and out
+ */
+.fct > .fct__surface {
+    position: fixed;
+    overflow: hidden;
+}
+/* fct_surface open transition */
+.fct.fct--open > .fct__surface {
+    left: 0;
+    top: var(--app-bar-height);
+    width: 100vw;
+    height: calc(100vh - var(--app-bar-height));
+
+    /* mimic .mdc-elevation--z8 */
+    box-shadow: 0 5px 5px -3px #0003,
+        0 8px 10px 1px #00000024,
+        0 3px 14px 2px #0000001f;
+    /* open transition: standard easing over whole time */
+    transition: all var(--transition-duration-open) var(--mdc-standard-esasing);
+}
+/* fct_surface close transition */
+.fct:not(.fct--open) > .fct__surface {
+    /* Must be set explicitly due to inheritance chaining delay */
+    visibility: hidden;
+    /* left, top, width, height are set as element styles */
+    /* open transition: standard easing over whole time */
+    transition: all var(--transition-duration-close) var(--mdc-standard-esasing);
+}
+
+/* fct element mainly visible while closed
+ */
+.fct__handle {}
+ /* fct_handle open transition */
+.fct.fct--open .fct__handle {
+    animation: fade-out var(--transition-duration-open) var(--mdc-standard-esasing) forwards;
+}
+ /* fct_handle close transition */
+.fct:not(.fct--open) .fct__handle {
+    animation: fade-in var(--transition-duration-close) var(--mdc-standard-esasing) forwards;
+}
+
+/* fct element mainly visible while open
+ */
+.fct__fullscreen {
+    position: absolute;
+    width: 100vw;
+    height: calc(100vh - var(--app-bar-height));
+
+    /* imitate App component */
+    display: grid;
+    overflow: hidden;
+}
+/* fct__fullscreen open transition */
+.fct.fct--open .fct__fullscreen {
+    animation: fade-in var(--transition-duration-open) var(--mdc-standard-esasing) forwards;
+}
+/* fct__fullscreen close transition */
+.fct:not(.fct--open) .fct__fullscreen {
+    animation: fade-out var(--transition-duration-close) var(--mdc-standard-esasing) forwards;
+}
+
+@keyframes fade-out {
+    0% {opacity: 1;}
+    30% {opacity: 0;}
+    100% {opacity: 0;}
+}
+@keyframes fade-in {
+    0% {opacity: 0;}
+    30% {opacity: 0;}
+    100% {opacity: 1;}
+}
