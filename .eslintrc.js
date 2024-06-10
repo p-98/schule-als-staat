@@ -21,6 +21,7 @@ module.exports = {
         "client/src/util/graphql/urql-introspection-plugin.js",
         "next-env.d.ts",
         "./types/**/*.d.ts",
+        "@types/*",
         "scripts/*",
     ],
     overrides: [

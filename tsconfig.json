@@ -8,10 +8,12 @@
         "target": "ESNext",
         "module": "ESNext",
         "moduleResolution": "node",
+        "types": ["bun-types"],
         "strict": true,
         "allowJs": false,
         // "noPropertyAccessFromIndexSignature": true,
         "noUncheckedIndexedAccess": true,
-        "useDefineForClassFields": true
+        "useDefineForClassFields": true,
+        "typeRoots": ["./node_module/@types/", "./@types/"]
     }
 }
