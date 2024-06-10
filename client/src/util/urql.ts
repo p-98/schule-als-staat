@@ -10,6 +10,7 @@ import {
     type FieldArgs,
     type Cache,
 } from "@urql/exchange-graphcache";
+import { persistedExchange } from "@urql/exchange-persisted";
 import { useEffect, useMemo, useState } from "react";
 
 import { inOperator } from "Utility/types";
@@ -91,9 +92,22 @@ const cacheInstance = cacheExchange({
 /* Configure Client
  */
 
+type PersistedDocument = { __meta__: { hash: string } };
 export const client = new Client({
     url: config.server.url,
-    exchanges: [cacheInstance, fetchExchange],
+    exchanges: [
+        cacheInstance,
+        persistedExchange({
+            preferGetForPersistedQueries: "within-url-limit",
+            enforcePersistedQueries: true,
+            enableForMutation: true,
+            generateHash: (_, _document) => {
+                const document = _document as unknown as PersistedDocument;
+                return Promise.resolve(document["__meta__"]["hash"]);
+            },
+        }),
+        fetchExchange,
+    ],
     fetchOptions: {
         credentials: "include",
     },

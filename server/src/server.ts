@@ -1,10 +1,13 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import type { YogaInitialContext, YogaServerInstance } from "graphql-yoga";
-import { Db, Knex } from "Database";
+import type { Db, Knex } from "Database";
 import type { TEvents } from "Types/models";
-import { WithCookieStore, UnPromise } from "Util/misc";
+import { WithCookieStore, UnPromise, pipe1 } from "Util/misc";
 
+import { entries, mapValues } from "lodash/fp";
+import { DocumentNode, parse } from "graphql";
 import { createPubSub, createSchema, createYoga } from "graphql-yoga";
+import { usePersistedOperations } from "@graphql-yoga/plugin-persisted-operations";
 import { useCookies } from "@whatwg-node/server-plugin-cookies";
 import {
     VoidTypeDefinition,
@@ -14,8 +17,16 @@ import {
 import { type Config } from "Root/types/config";
 
 import * as typeDefs from "Root/schema.graphql";
+import persistedDocumentsJson from "Util/graphql/persisted-documents.json";
 import sessionFactory from "./sessionFactory";
 import { resolvers } from "./resolvers";
+
+const persistedDocuments = pipe1(
+    persistedDocumentsJson,
+    mapValues(parse),
+    entries<DocumentNode>,
+    (e) => new Map(e)
+);
 
 export interface IDynamicConfig {
     get: () => Promise<Config>;
@@ -66,5 +77,13 @@ export const yogaFactory = (
             resolvers,
         }),
         context: createAppContext(db, knex, config),
-        plugins: [useCookies()],
+        plugins: [
+            useCookies(),
+            usePersistedOperations({
+                getPersistedOperation: (hash) =>
+                    persistedDocuments.get(hash) ?? null,
+                skipDocumentValidation: true,
+                allowArbitraryOperations: process.env.NODE_ENV === "test",
+            }),
+        ],
     });

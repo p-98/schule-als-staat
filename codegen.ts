@@ -41,6 +41,7 @@ const config: CodegenConfig = {
             plugins: ["client/src/util/graphql/urql-introspection-plugin.js"],
         },
         "./client/src/util/graphql/": mainConfig,
+        "./server/src/util/graphql/": mainConfig,
         "./server/__test__/graphql/": {
             documents: ["server/__test__/*.test.ts", "server/src/util/test.ts"],
             preset: "client-preset",
