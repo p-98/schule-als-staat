@@ -25,7 +25,7 @@ import type { TCart } from "../pos";
 /* CartTable component
  */
 
-const Cart_ProductFragment = graphql(/* GraphQL */ `
+export const Cart_ProductFragment = graphql(/* GraphQL */ `
     fragment Cart_ProductFragment on Product {
         id
         revision

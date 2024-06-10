@@ -10,7 +10,7 @@ import { graphql, useFragment, type FragmentType } from "Utility/graphql";
 
 import styles from "./avatar.module.css";
 
-const Avatar_UserFragment = graphql(/* GraphQL */ `
+export const Avatar_UserFragment = graphql(/* GraphQL */ `
     fragment Avatar_UserFragment on User {
         type
         id

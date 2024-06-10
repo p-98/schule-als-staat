@@ -16,7 +16,7 @@ import { HightlightStates } from "Components/highlightStates/highlightStates";
 
 import styles from "../pos.module.css";
 
-const Card_ProductFragment = graphql(/* GraphQL */ `
+export const Card_ProductFragment = graphql(/* GraphQL */ `
     fragment Card_ProductFragment on Product {
         id
         name

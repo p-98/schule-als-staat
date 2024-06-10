@@ -22,7 +22,7 @@ import { CreateGuest, RemoveGuest } from "./components/guestDialog";
 import { ChargeCitizen } from "./components/citizenDialog";
 import { ChargeCompany } from "./components/companyDialog";
 
-const BorderControl_UserFragment = graphql(/* GraphQL */ `
+export const BorderControl_UserFragment = graphql(/* GraphQL */ `
     fragment BorderControl_UserFragment on User {
         ... on GuestUser {
             ...BorderControl_GuestUserFragment

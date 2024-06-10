@@ -8,7 +8,7 @@ import { currency, Eq_UserFragment, name, userEq } from "Utility/data";
 
 import styles from "../bankAccountInfo.module.css";
 
-const Summary_TransactionFragment = graphql(/* GraohQL */ `
+export const Summary_TransactionFragment = graphql(/* GraohQL */ `
     fragment Summary_TransactionFragment on Transaction {
         ... on TransferTransaction {
             sender {

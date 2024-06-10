@@ -37,7 +37,7 @@ const NothingToShow: React.FC = () => (
     </Typography>
 );
 
-const Transaction_TransactionFragment = graphql(/* GraohQL */ `
+export const Transaction_TransactionFragment = graphql(/* GraohQL */ `
     fragment Transaction_TransactionFragment on Transaction {
         ...Summary_TransactionFragment
         ...Details_TransactionFragment
@@ -69,7 +69,7 @@ const Transaction: React.FC<ITransactionProps> = ({
     );
 };
 
-const Transactions_UserFragment = graphql(/* GraohQL */ `
+export const Transactions_UserFragment = graphql(/* GraohQL */ `
     fragment Transactions_UserFragment on User {
         transactions {
             id

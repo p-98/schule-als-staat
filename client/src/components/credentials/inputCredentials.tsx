@@ -19,7 +19,7 @@ import { InputUserQr, TAction as TQrAction } from "./components/inputUserQr";
 import { InputUserKb, TAction as TKbAction } from "./components/inputUserKb";
 import { InputPassword } from "./inputPassword";
 
-const Login_UserFragment = graphql(/* GraohQL */ `
+export const Login_UserFragment = graphql(/* GraohQL */ `
     fragment Login_UserFragment on User {
         type
         id

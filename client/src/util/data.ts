@@ -4,7 +4,7 @@ import { FragmentType, graphql, useFragment as getFragment } from "./graphql";
 export class InvalidInput {}
 export class NoInput {}
 
-const Name_UserFragment = graphql(/* GraphQL */ `
+export const Name_UserFragment = graphql(/* GraphQL */ `
     fragment Name_UserFragment on User {
         ... on CitizenUser {
             firstName

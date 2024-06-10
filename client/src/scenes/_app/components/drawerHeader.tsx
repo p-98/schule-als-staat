@@ -54,7 +54,7 @@ const Badge: React.FC<IBadgeProps> = ({ type }) => {
 /* AccountHeader component
  */
 
-const DrawerHeader_UserFragment = graphql(/* GraphQL */ `
+export const DrawerHeader_UserFragment = graphql(/* GraphQL */ `
     fragment DrawerHeader_UserFragment on User {
         ...Avatar_UserFragment
         ...Name_UserFragment

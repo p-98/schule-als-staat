@@ -10,7 +10,7 @@ import { DrawerHeader } from "./drawerHeader";
 
 import styles from "../_app.module.scss";
 
-const Drawer_SessionFragment = graphql(/* GraphQL */ `
+export const Drawer_SessionFragment = graphql(/* GraphQL */ `
     fragment Drawer_SessionFragment on Session {
         user {
             id

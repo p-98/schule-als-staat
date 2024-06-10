@@ -148,7 +148,7 @@ export const CreateGuest: React.FC<ICreateGuestProps> = ({
     );
 };
 
-const BorderControl_GuestUserFragment = graphql(/* GraphQL */ `
+export const BorderControl_GuestUserFragment = graphql(/* GraphQL */ `
     fragment BorderControl_GuestUserFragment on GuestUser {
         id
         ...Name_UserFragment
