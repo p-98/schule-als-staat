@@ -24,7 +24,7 @@ To start the preview:
 
 1. Initialize database with test-data:
     ```shell
-    $ bun examples/create-test-db.ts
+    $ bun scripts/create-test-db.ts
     ```
 2. Start development server:
     ```shell
