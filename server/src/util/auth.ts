@@ -9,7 +9,7 @@ import { assert } from "Util/error";
 import { getUser } from "Modules/users";
 
 export function encryptPassword(password: string): Promise<string> {
-    return bcrypt.hash(password, 10);
+    return bcrypt.hash(password, 8);
 }
 /** Compare cleartext password against a hash
  *
