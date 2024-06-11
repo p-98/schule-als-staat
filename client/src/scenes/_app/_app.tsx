@@ -1,10 +1,13 @@
 /* eslint-disable react/jsx-props-no-spreading */
 
 import type { AppProps } from "next/app";
+import { useRouter } from "next/router";
 import { Provider as ReduxProvider } from "react-redux";
+import { type FC } from "react";
 import { Provider as UrqlProvider, useQuery } from "urql";
 import { ThemeProvider } from "Components/material/theme";
 import { SnackbarQueue } from "Components/material/snackbar";
+import { SimpleDialog } from "Components/material/dialog/dialog";
 
 // local
 import { store } from "Utility/redux/store";
@@ -15,21 +18,16 @@ import {
     useDispatch,
     close,
 } from "Utility/hooks/redux/drawer";
-import {
-    client,
-    useCategorizeError,
-    useSafeData,
-    useStable,
-} from "Utility/urql";
+import { client, useSafeData, useStable } from "Utility/urql";
 import { graphql } from "Utility/graphql";
 import { DynamicAppBarDisplay } from "Components/dynamicAppBar/dynamicAppBar";
 import { messages as notifications } from "Utility/notifications";
 import theme from "../../util/theme";
 import { Drawer } from "./components/drawer";
 import { AppFallback } from "./components/fallback";
+import { useCheckRouteAndAuth } from "./util/routing";
 
 import styles from "./_app.module.scss";
-import { useCheckRouteAndAuth } from "./util/routing";
 
 const query = graphql(/* GraphQL */ `
     query AppQuery {
@@ -41,15 +39,32 @@ const query = graphql(/* GraphQL */ `
     }
 `);
 
+const Error: FC = () => {
+    const router = useRouter();
+    return (
+        <SimpleDialog
+            open
+            preventOutsideDismiss
+            renderToPortal={false}
+            title="Nope."
+            content="Leider kann im Moment keine Verbindung hergestellt werdern. Bitte versuche es später erneut."
+            accept={{
+                label: "Erneut versuchen",
+                onAccept: () => router.reload(),
+            }}
+        />
+    );
+};
+
 const App: React.FC<AppProps> = ({ Component, pageProps }) => {
     const drawerOpen = useSelector(selectDrawerOpen);
     const drawerDispatch = useDispatch();
 
     const [result] = useQuery({ query });
     const { data, fetching, error } = useSafeData(result);
-    useCategorizeError(error, []);
     const authorized = useCheckRouteAndAuth({ data: data?.session, fetching });
     if (useStable(fetching)) return <AppFallback />;
+    if (error) return <Error />;
     if (!data || !authorized) return <></>;
 
     return (
