@@ -3,7 +3,15 @@ import { basename, dirname, extname, join } from "path";
 import { parse, stringify } from "csv/sync";
 import niceware from "niceware";
 import { pick } from "lodash/fp";
-import { binary, command, positional, run, string } from "cmd-ts";
+import {
+    binary,
+    boolean,
+    command,
+    flag,
+    positional,
+    run,
+    string,
+} from "cmd-ts";
 import { File } from "cmd-ts/batteries/fs";
 
 import { createKnex, type Knex } from "../server/src/database/database";
@@ -13,6 +21,10 @@ import { encryptPassword } from "../server/src/util/auth";
 import config from "../config";
 
 const INITIAL_BANLANCE = 50;
+const CSV_OPTIONS = {
+    columns: ["firstName", "lastName", "id", "course"],
+    delimiter: ";",
+};
 
 /* Parse arguments
  */
@@ -20,6 +32,13 @@ const INITIAL_BANLANCE = 50;
 const cmd = command({
     name: "import-citizens",
     args: {
+        withPasswords: flag({
+            type: boolean,
+            long: "import-passwords",
+            short: "p",
+            description:
+                "Whether the passwords are included as the last column of the provided dataset.",
+        }),
         csvPath: positional({
             type: File,
             displayName: "csv path",
@@ -28,7 +47,7 @@ const cmd = command({
     },
     handler: (_) => _,
 });
-const { csvPath } = await run(binary(cmd), Bun.argv);
+const { withPasswords, csvPath } = await run(binary(cmd), Bun.argv);
 
 /* Type definitions
  */
@@ -52,12 +71,17 @@ const mapFilename = (f: (name: string) => string, path: string) => {
     return join(dir, `${f(name)}${ext}`);
 };
 
-const parseCitizens = (string: string): Citizen[] =>
+const parseCitizens = (string: string): Citizen[] => parse(string, CSV_OPTIONS);
+const parseCitizensWithPw = (string: string): WithPassword<Citizen>[] =>
     parse(string, {
-        columns: ["course", "firstName", "lastName", "id"],
+        ...CSV_OPTIONS,
+        columns: [...CSV_OPTIONS.columns, "password"],
     });
 const stringifyCitizens = (citizens: WithPassword<Citizen>[]): string =>
-    stringify(citizens);
+    stringify(citizens, {
+        ...CSV_OPTIONS,
+        columns: [...CSV_OPTIONS.columns, "password"],
+    });
 
 const addPassword = (citizen: Citizen): WithPassword<Citizen> => ({
     ...citizen,
@@ -80,15 +104,20 @@ const importCitizen =
 
 // load data
 const csvString = fs.readFileSync(csvPath, { encoding: "utf-8" });
-const withoutPw = parseCitizens(csvString);
+const citizens = withPasswords
+    ? parseCitizensWithPw(csvString)
+    : parseCitizens(csvString).map(addPassword);
 
 // process data
-const withPw = withoutPw.map(addPassword);
 const [, knex] = await createKnex(config.database.file, { client: "sqlite3" });
-await Promise.all(withPw.map(importCitizen(knex)));
+for (const citizen of citizens) {
+    await importCitizen(knex)(citizen);
+}
 await knex.destroy();
 
 // export data
-const exportCsvString = stringifyCitizens(withPw);
-const exportCsvPath = mapFilename((_) => `${_}-with-passwords`, csvPath);
-fs.writeFileSync(exportCsvPath, exportCsvString);
+if (!withPasswords) {
+    const exportCsvString = stringifyCitizens(citizens);
+    const exportCsvPath = mapFilename((_) => `${_}-with-passwords`, csvPath);
+    fs.writeFileSync(exportCsvPath, exportCsvString);
+}
