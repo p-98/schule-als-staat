@@ -28,7 +28,7 @@ interface IRoute {
 }
 
 const always: IRoute["authorized"] = constant(true);
-const never: IRoute["authorized"] = constant(false);
+// const never: IRoute["authorized"] = constant(false);
 const role =
     (...roles: UserRole[]): IRoute["authorized"] =>
     (_session) => {
@@ -38,96 +38,96 @@ const role =
     };
 
 export const routes: IRoute[] = [
-    {
-        href: "/test1",
-        label: "Test 1",
-        icon: "build",
-        authorized: always,
-    },
-    {
-        href: "/test2",
-        label: "Test 2",
-        icon: "build",
-        authorized: always,
-    },
+    // {
+    //     href: "/test1",
+    //     label: "Test 1",
+    //     icon: "build",
+    //     authorized: always,
+    // },
+    // {
+    //     href: "/test2",
+    //     label: "Test 2",
+    //     icon: "build",
+    //     authorized: always,
+    // },
     {
         href: "/admin",
         label: "Administration",
         icon: "key",
         authorized: role("ADMIN"),
     },
-    {
-        href: "/products",
-        label: "Produktverwaltung",
-        icon: "category",
-        authorized: role("COMPANY"),
-    },
-    {
-        href: "/employees",
-        label: "Mitarbeiterverwaltung",
-        icon: "badge",
-        authorized: role("COMPANY"),
-    },
-    {
-        href: "/finances",
-        label: "Finanzen",
-        icon: "attach_money",
-        authorized: role("COMPANY"),
-    },
-    {
-        href: "/bank",
-        label: "Bank",
-        icon: "account_balance",
-        authorized: role("BANK"),
-    },
-    {
-        href: "/terminal/accountInfo",
-        label: "Kontoinformationen",
-        icon: "person",
-        authorized: role("BORDER_CONTROL", "POLICE", "ADMIN"),
-    },
+    // {
+    //     href: "/products",
+    //     label: "Produktverwaltung",
+    //     icon: "category",
+    //     authorized: role("COMPANY"),
+    // },
+    // {
+    //     href: "/employees",
+    //     label: "Mitarbeiterverwaltung",
+    //     icon: "badge",
+    //     authorized: role("COMPANY"),
+    // },
+    // {
+    //     href: "/finances",
+    //     label: "Finanzen",
+    //     icon: "attach_money",
+    //     authorized: role("COMPANY"),
+    // },
+    // {
+    //     href: "/bank",
+    //     label: "Bank",
+    //     icon: "account_balance",
+    //     authorized: role("BANK"),
+    // },
+    // {
+    //     href: "/terminal/accountInfo",
+    //     label: "Kontoinformationen",
+    //     icon: "person",
+    //     authorized: role("BORDER_CONTROL", "POLICE", "ADMIN"),
+    // },
     {
         href: "/bankAccountInfo",
         label: "Bankkonto",
         icon: "account_balance",
         authorized: role("USER"),
     },
-    {
-        href: "/vote",
-        label: "Abstimmungen",
-        icon: "ballot",
-        authorized: role("CITIZEN"),
-    },
-    {
-        href: "/pos",
-        label: "Kasse",
-        icon: "shopping_cart",
-        authorized: role("COMPANY"),
-    },
-    {
-        href: "/warehouse",
-        label: "Warenlager",
-        icon: "store",
-        authorized: role("COMPANY"),
-    },
-    {
-        href: "/borderControl",
-        label: "Grenzkontolle",
-        icon: "swap_horiz",
-        authorized: role("BORDER_CONTROL"),
-    },
-    {
-        href: "/orderSummary",
-        label: "Einkaufslisten",
-        icon: "add_shopping_cart",
-        authorized: never,
-    },
-    {
-        href: "/orders",
-        label: "Bestellungen",
-        icon: "store",
-        authorized: never,
-    },
+    // {
+    //     href: "/vote",
+    //     label: "Abstimmungen",
+    //     icon: "ballot",
+    //     authorized: role("CITIZEN"),
+    // },
+    // {
+    //     href: "/pos",
+    //     label: "Kasse",
+    //     icon: "shopping_cart",
+    //     authorized: role("COMPANY"),
+    // },
+    // {
+    //     href: "/warehouse",
+    //     label: "Warenlager",
+    //     icon: "store",
+    //     authorized: role("COMPANY"),
+    // },
+    // {
+    //     href: "/borderControl",
+    //     label: "Grenzkontolle",
+    //     icon: "swap_horiz",
+    //     authorized: role("BORDER_CONTROL"),
+    // },
+    // {
+    //     href: "/orderSummary",
+    //     label: "Einkaufslisten",
+    //     icon: "add_shopping_cart",
+    //     authorized: never,
+    // },
+    // {
+    //     href: "/orders",
+    //     label: "Bestellungen",
+    //     icon: "store",
+    //     authorized: never,
+    // },
     {
         href: "/login",
         label: "Login",
