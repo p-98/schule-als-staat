@@ -29,14 +29,14 @@ import { Drawer } from "./components/drawer";
 import { AppFallback } from "./components/fallback";
 
 import styles from "./_app.module.scss";
-import { useCheckAuth } from "./util/routing";
+import { useCheckRouteAndAuth } from "./util/routing";
 
 const query = graphql(/* GraphQL */ `
     query AppQuery {
         session {
             id
             ...Drawer_SessionFragment
-            ...Routing_UserFragment
+            ...Routing_SessionFragment
         }
     }
 `);
@@ -48,7 +48,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
     const [result] = useQuery({ query });
     const { data, fetching, error } = useSafeData(result);
     useCategorizeError(error, []);
-    const authorized = useCheckAuth(data?.session);
+    const authorized = useCheckRouteAndAuth({ data: data?.session, fetching });
     if (useStable(fetching)) return <AppFallback />;
     if (!data || !authorized) return <></>;
 

@@ -16,7 +16,7 @@ export const Drawer_SessionFragment = graphql(/* GraphQL */ `
             id
             ...DrawerHeader_UserFragment
         }
-        ...Routing_UserFragment
+        ...Routing_SessionFragment
     }
 `);
 

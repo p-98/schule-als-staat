@@ -3,12 +3,12 @@ import { List, SimpleListItem } from "Components/material/list";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FragmentType } from "Utility/graphql";
-import { routes, Routing_UserFragment } from "../util/routing";
+import { routes, Routing_SessionFragment } from "../util/routing";
 
 import styles from "../_app.module.scss";
 
 export interface INavigationProps {
-    session: FragmentType<typeof Routing_UserFragment>;
+    session: FragmentType<typeof Routing_SessionFragment>;
 }
 export const Navigation: React.FC<INavigationProps> = ({ session }) => {
     const { pathname } = useRouter();
