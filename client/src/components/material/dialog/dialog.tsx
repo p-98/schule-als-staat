@@ -60,7 +60,7 @@ export * from "@rmwc/dialog";
  *
  *  return (
  *      <Dialog {impProps}>
- *          <Button onClick={() => dispatch(handleClick)} />
+ *          <Button onClick={syncifyF(handleClick)} />
  *      </Dialog>
  *  )
  * */

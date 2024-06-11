@@ -18,7 +18,7 @@ import {
     useFragment as getFragment,
 } from "Utility/graphql";
 import { currency } from "Utility/data";
-import { dispatch, mapFst } from "Utility/misc";
+import { mapFst, syncifyF } from "Utility/misc";
 import { useStable } from "Utility/urql";
 import type { TCart } from "../pos";
 
@@ -151,12 +151,12 @@ export const Cart = <TData,>({
             <DialogActions>
                 <DialogButton
                     label="Zurück"
-                    onClick={() => dispatch(handleCancel())}
+                    onClick={syncifyF(handleCancel)}
                     disabled={useStable(fetching)}
                 />
                 <DialogButton
                     label="Weiter"
-                    onClick={() => dispatch(handleProceed())}
+                    onClick={syncifyF(handleProceed)}
                     disabled={useStable(fetching) || selectedCart.length === 0}
                     isDefaultAction
                     raised

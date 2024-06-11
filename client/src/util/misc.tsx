@@ -176,19 +176,16 @@ export const getByTag = <K extends keyof HTMLElementTagNameMap>(
 /* Async utilities
  */
 
-/** Handle Promise by catching potential error */
-export const dispatch = (promise: Promise<unknown>): void => {
-    promise.catch((err) => {
-        throw err;
-    });
-};
-
 /** Make Promise sync
  *
  * PROMISE EXECUTION STILL HAPPENS ASYNCRONOUSELY!
  * But potential errors are catched.
  */
-export const syncify = dispatch;
+export const syncify = (promise: Promise<unknown>): void => {
+    promise.catch((err) => {
+        throw err;
+    });
+};
 
 /** "Make async funciton sync"
  *

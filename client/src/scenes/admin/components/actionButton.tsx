@@ -2,7 +2,7 @@ import { useState, type FC } from "react";
 import { Button } from "Components/material/button";
 
 import { notify } from "Utility/notifications";
-import { dispatch } from "Utility/misc";
+import { syncifyF } from "Utility/misc";
 import { useStable } from "Utility/urql";
 
 const notifyActionError = (actionName: string, message: string) =>
@@ -47,7 +47,7 @@ export const ActionButton: FC<IActionButtonProps> = ({ action, label }) => {
     return (
         <Button
             label={label}
-            onClick={() => dispatch(handleAction())}
+            onClick={syncifyF(handleAction)}
             disabled={useStable(fetching)}
         />
     );

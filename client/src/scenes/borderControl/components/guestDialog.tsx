@@ -21,7 +21,7 @@ import {
     safeData,
     useStable,
 } from "Utility/urql";
-import { dispatch } from "Utility/misc";
+import { syncify, syncifyF } from "Utility/misc";
 import * as format from "Utility/data";
 
 const createGuestMutation = graphql(/* GraphQL */ `
@@ -134,13 +134,13 @@ export const CreateGuest: React.FC<ICreateGuestProps> = ({
             <DialogActions>
                 <DialogButton
                     label="Abbrechen"
-                    onClick={() => dispatch(handleCancel())}
+                    onClick={syncifyF(handleCancel)}
                     disabled={useStable(fetching)}
                 />
                 <DialogButton
                     label="Erstellen"
                     isDefaultAction
-                    onClick={() => dispatch(handleCreate(name, balance))}
+                    onClick={() => syncify(handleCreate(name, balance))}
                     disabled={useStable(fetching)}
                 />
             </DialogActions>
@@ -239,14 +239,14 @@ export const RemoveGuest: React.FC<IRemoveGuestProps> = ({
             <DialogActions>
                 <DialogButton
                     label="Abbrechen"
-                    onClick={() => dispatch(handleCancel())}
+                    onClick={syncifyF(handleCancel)}
                     disabled={useStable(fetching)}
                 />
                 <DialogButton
                     label="Bestätigen"
                     danger
                     isDefaultAction
-                    onClick={() => dispatch(handleRemove())}
+                    onClick={syncifyF(handleRemove)}
                     disabled={useStable(fetching)}
                 />
             </DialogActions>

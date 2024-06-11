@@ -12,7 +12,7 @@ import { Select } from "Components/material/select";
 import { TextField } from "Components/material/textfield";
 
 import { ChangeEvent } from "Utility/types";
-import { dispatch } from "Utility/misc";
+import { syncifyF } from "Utility/misc";
 import { useStable } from "Utility/urql";
 import { InvalidInput } from "Utility/data";
 
@@ -194,7 +194,7 @@ export const ActionCard = <TInputs extends unknown[]>({
             <CardActions fullBleed>
                 <CardActionButton
                     label={confirmButton.label}
-                    onClick={() => dispatch(handleConfirm())}
+                    onClick={syncifyF(handleConfirm)}
                     disabled={renderFetching}
                     danger={confirmButton.danger}
                 />

@@ -9,7 +9,7 @@ import {
     TAction as TCredentialsAction,
 } from "Components/credentials/inputCredentials";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
-import { dispatch } from "Utility/misc";
+import { syncify } from "Utility/misc";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";
 import { graphql } from "Utility/graphql";
 import { UserBanner } from "Components/userBanner/userBanner";
@@ -50,7 +50,7 @@ export const Login: React.FC = () => {
                         action={loginAction}
                         confirmButton={{ label: "Anmelden" }}
                         onSuccess={() =>
-                            dispatch(router.push("/bankAccountInfo"))
+                            syncify(router.push("/bankAccountInfo"))
                         }
                         title="Anmelden"
                         actionSummary={(user) => (

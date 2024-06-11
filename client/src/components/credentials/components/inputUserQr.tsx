@@ -18,7 +18,7 @@ import {
     CardInner,
 } from "Components/material/card";
 import { Typography } from "Components/material/typography";
-import { dispatch } from "Utility/misc";
+import { syncifyF } from "Utility/misc";
 import { notify } from "Utility/notifications";
 
 import styles from "../credentials.module.css";
@@ -165,7 +165,7 @@ export const InputUserQr = <TData,>({
         <CardInner {...restProps}>
             <CardMedia square>
                 <Qr
-                    onSuccess={(_) => dispatch(handleResult(_))}
+                    onSuccess={syncifyF(handleResult)}
                     onFailure={handleError}
                     className={cn(
                         styles["input-user-qr__qr"],

@@ -22,7 +22,7 @@ import {
     useStable,
 } from "Utility/urql";
 import { name } from "Utility/data";
-import { dispatch } from "Utility/misc";
+import { syncify, syncifyF } from "Utility/misc";
 import { useNumberInput } from "Utility/hooks/inputs";
 
 export const BorderControl_CitizenUserFragment = graphql(/* GraphQL */ `
@@ -158,13 +158,13 @@ export const ChargeCitizen: React.FC<IChargeCitizenProps> = ({
             <DialogActions>
                 <DialogButton
                     label="Abbrechen"
-                    onClick={() => dispatch(handleCancel())}
+                    onClick={syncifyF(handleCancel)}
                     disabled={useStable(fetching)}
                 />
                 <DialogButton
                     label="Bestätigen"
                     isDefaultAction
-                    onClick={() => dispatch(handleConfirm(customs))}
+                    onClick={() => syncify(handleConfirm(customs))}
                     disabled={useStable(fetching)}
                     danger={!isUndefined(customs)}
                 />

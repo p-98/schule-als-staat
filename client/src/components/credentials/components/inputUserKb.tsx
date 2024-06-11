@@ -15,7 +15,7 @@ import {
 import { TextField } from "Components/material/textfield";
 import { Select } from "Components/material/select";
 import { type UserType } from "Utility/graphql/graphql";
-import { dispatch } from "Utility/misc";
+import { syncify } from "Utility/misc";
 import { ChangeEvent } from "Utility/types";
 import { Theme } from "Components/material/theme";
 
@@ -114,7 +114,7 @@ export const InputUserKb = <TData,>({
                 <CardActionButton
                     raised
                     disabled={!id}
-                    onClick={() => dispatch(handleConfirm(type, id))}
+                    onClick={() => syncify(handleConfirm(type, id))}
                 >
                     {confirmButton.label}
                 </CardActionButton>
