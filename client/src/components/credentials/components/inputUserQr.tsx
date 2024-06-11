@@ -84,15 +84,21 @@ const Qr: React.FC<IQrProps> = ({
         if (!scan) return;
 
         const lib = new Html5Qrcode(id, { verbose: false });
-        lib.start(
-            { facingMode: "environment" },
-            { fps: 2, aspectRatio: 1.0 },
-            callOnSuccess,
-            resetOnSuccess
-        ).catch((_: Error) => onFailureRef.current(_));
+        const start = lib
+            .start(
+                { facingMode: "environment" },
+                { fps: 2, aspectRatio: 1.0 },
+                callOnSuccess,
+                resetOnSuccess
+            )
+            .catch((_: Error) => onFailureRef.current(_));
 
         return () => {
-            lib.stop().catch((_: Error) => onFailureRef.current(_));
+            // promise already catched above
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            start.then(() =>
+                lib.stop().catch((_: Error) => onFailureRef.current(_))
+            );
         };
     }, [scan, id, onFailureRef, callOnSuccess, resetOnSuccess]);
 
