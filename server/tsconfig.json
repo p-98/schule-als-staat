@@ -1,6 +1,7 @@
 {
     "extends": "../tsconfig.json",
     "compilerOptions": {
+        "types": [], // override bun-types from global tsconfig
         "outDir": "./dist",
         "noEmit": true,
         "baseUrl": ".",

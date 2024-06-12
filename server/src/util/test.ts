@@ -281,6 +281,9 @@ export function buildHTTPCookieExecutor(
     ) =>
         new ValueOrPromise(() => executor(request))
             .then((result) => {
+                // TODO: make `getSetCookie` type available
+                /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-argument */
+                // @ts-expect-error used ts version is missing `getSetCookie`
                 const setCookie = result?.headers?.getSetCookie?.();
                 if (setCookie)
                     cookies = {
@@ -288,6 +291,7 @@ export function buildHTTPCookieExecutor(
                         ...parseSetCookie(setCookie, { map: true }),
                     };
                 return result;
+                /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call */
             })
             .then((result) => {
                 const cleanResult = { ...result };
