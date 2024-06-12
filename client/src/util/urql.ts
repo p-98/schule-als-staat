@@ -84,6 +84,12 @@ const cacheInstance = cacheExchange({
             login: (parent, __, cache) => {
                 invalidateIfMissing(cache)(parent.login as Entity, "user");
             },
+            transferMoney: (parent, args, cache, info) => {
+                const resolveMe = resolveSessionUser();
+                const me = resolveMe(parent, args, cache, info);
+                if (!me) return;
+                cache.invalidate(me as Entity, "transactions");
+            },
         },
     },
     schema,
