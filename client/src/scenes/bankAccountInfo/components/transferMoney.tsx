@@ -27,7 +27,7 @@ const transferMoneyMutation = graphql(/* GraphQL */ `
     }
 `);
 const action: TAction<TInputs> = async ([type, id, value, purpose]) => {
-    const variables = { type, id, value, purpose };
+    const variables = { type, id, value, purpose: purpose || undefined };
     const result = await client.mutation(transferMoneyMutation, variables);
     const { data, error } = safeData(result);
     const [userNotFoundError, valueNotPositiveError, balanceTooLowError] =
