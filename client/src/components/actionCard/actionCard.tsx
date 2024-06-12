@@ -1,5 +1,5 @@
 import { constant } from "lodash/fp";
-import { type FormEvent, useReducer, useState, type ReactElement } from "react";
+import { type FormEvent, useState, type ReactElement } from "react";
 import {
     Card,
     CardActionButton,
@@ -117,14 +117,6 @@ export type TAction<TInputs extends unknown[]> = (inputs: TInputs) => Promise<{
     unspecificError?: Error;
 }>;
 
-const inputValuesReducer = (
-    prevState: unknown[],
-    action: { index: number; value: unknown }
-): unknown[] => {
-    const state = [...prevState];
-    state[action.index] = action.value;
-    return state;
-};
 const initInputErrors = (inputs: InputProp<unknown>[]): (Error | undefined)[] =>
     inputs.map(constant(undefined));
 const initInputValues = (inputs: InputProp<unknown>[]): unknown[] =>
@@ -150,11 +142,15 @@ export const ActionCard = <TInputs extends unknown[]>({
     confirmButton,
 }: IActionCardProps<TInputs>): ReactElement => {
     const [fetching, setFetching] = useState(false);
-    const [inputValues, setInputValue] = useReducer(
-        inputValuesReducer,
-        inputs,
-        initInputValues
+    const [inputValues, setInputValues] = useState(() =>
+        initInputValues(inputs)
     );
+    const setInputValue = (index: number, value: unknown) =>
+        setInputValues((prevState) => {
+            const state = [...prevState];
+            state[index] = value;
+            return state;
+        });
     const [inputErrors, setInputErrors] = useState(() =>
         initInputErrors(inputs)
     );
@@ -168,6 +164,7 @@ export const ActionCard = <TInputs extends unknown[]>({
         const { data, ...errors } = await action(inputValues as TInputs);
         setInputErrors(errors.inputErrors);
         if (errors.unspecificError) setUnspecificError(errors.unspecificError);
+        if (data) setInputValues(initInputValues(inputs));
         setFetching(false);
     };
 
@@ -181,9 +178,7 @@ export const ActionCard = <TInputs extends unknown[]>({
                         key={input.label}
                         input={input}
                         inputValue={inputValues[index]}
-                        setInputValue={(value) =>
-                            setInputValue({ index, value })
-                        }
+                        setInputValue={(value) => setInputValue(index, value)}
                         inputError={inputErrors[index]}
                         unspecificError={unspecificError}
                         lastInput={index === inputs.length - 1}
