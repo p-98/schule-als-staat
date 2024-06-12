@@ -38,8 +38,8 @@ export default {
     },
     guestInitialBalance: 50,
     server: {
-        url: "http://127.0.0.1:4000/graphql",
-        host: "127.0.0.1",
+        url: "http://172.21.2.54:4000/graphql",
+        host: "172.21.2.54",
         port: 4000,
     },
     database: {
