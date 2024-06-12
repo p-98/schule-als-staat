@@ -50,7 +50,8 @@ export default async function init(
 
     await request.cookieStore.set({
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        // secure: process.env.NODE_ENV === "production",
+        secure: false,
         expires: addMonths(new Date(), 6),
         name: "sessionID",
         value: session.id,
