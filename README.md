@@ -36,6 +36,30 @@ To start the preview:
     ```
 4. Open [`127.0.0.1:3000`](127.0.0.1:3000) in your browser. (Opening `localhost:3000` won't work!)
 
+To start a production environment:
+
+1. Remove the existing database (if present), create an empty database, import data:
+
+    ```shell
+    $ rm -f database.sqlite3* && bun scripts/create-empty-db.ts && bun run scripts/import-citizens.ts <dataset.csv>
+    ```
+
+    The last part can be repeated to import more data. If dataset already includes passwords, use the `-p` flag.
+
+2. Start the production server:
+
+    ```shell
+    $ bun run build-server
+    $ bun run start-server
+    ```
+
+3. In another terminal, start production client:
+    ```shell
+    $ bun run build-client
+    $ bun run start-client
+    ```
+4. Open [`127.0.0.1:3000`](127.0.0.1:3000) in your browser. (Opening `localhost:3000` won't work!)
+
 ### Manual sql queries
 
 With the server running, you can still run sql queries against the database. You should know what you are doing and create a backup before though!
