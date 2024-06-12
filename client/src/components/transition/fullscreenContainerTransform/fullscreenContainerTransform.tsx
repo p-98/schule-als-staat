@@ -1,7 +1,7 @@
 import { mapValues, pick } from "lodash/fp";
 import cn from "classnames";
 import { PortalChild } from "@rmwc/base";
-import { type ReactNode, type FC, useRef, useMemo, useCallback } from "react";
+import { type ReactNode, type FC, useRef, useMemo } from "react";
 
 import { useDelayFall, useStableEdge } from "Utility/hooks/hooks";
 import {
