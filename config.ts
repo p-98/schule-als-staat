@@ -11,9 +11,9 @@ export default {
             symbol: "€",
         },
         virtual: {
-            name: "πCoin",
-            short: "PC",
-            symbol: "π",
+            name: "Plancko",
+            short: "PCK",
+            symbol: "ᵽ",
         },
     },
     currencyExchange: {
