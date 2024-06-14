@@ -1,7 +1,9 @@
 import type { CookieStore } from "@whatwg-node/cookie-store";
 
 import path from "node:path";
-import { isNull, pipe, sum } from "lodash/fp";
+// eslint-disable-next-line lodash-fp/use-fp
+import lodash from "lodash";
+import { curry, isNull, keys, omit, pipe, sum, values } from "lodash/fp";
 import { TNullable } from "Types";
 
 export type WithCookieStore<T> = T & { cookieStore: CookieStore };
@@ -86,6 +88,82 @@ export function pipe1(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return pipe(...fs)(arg);
 }
+
+type MapFn<From, To> = (oldValue: From) => To;
+interface MapValues {
+    <
+        O extends Record<PropertyKey, unknown>,
+        FO extends { [_K in keyof Partial<O>]: MapFn<O[_K], unknown> }
+    >(
+        fs: FO,
+        o: O
+    ): { [_K in Exclude<keyof O, keyof FO>]: O[_K] } & {
+        // conveniently remove readonly, since often `as const` is used for type inference
+        -readonly [_K in keyof FO]: ReturnType<FO[_K]>;
+    };
+    <
+        O extends Record<PropertyKey, unknown>,
+        FO extends { [_K in keyof Partial<O>]: MapFn<O[_K], unknown> }
+    >(
+        fs: FO
+    ): (o: O) => { [_K in Exclude<keyof O, keyof FO>]: O[_K] } & {
+        // conveniently remove readonly, since often `as const` is used for type inference
+        -readonly [_K in keyof FO]: ReturnType<FO[_K]>;
+    };
+}
+/** Map over values of an object by key
+ *
+ * Curried usage possible.
+ *
+ * @example
+ * // o has inferred type `{key: string}`
+ * const o = mapValues(
+ *    // val has inferred type `number`
+ *   { key: (val) => val.toString() },
+ *   { key: 1}
+ * )
+ */
+export const mapValues: MapValues = curry((fs: object, o: object): object => ({
+    ...omit(keys(fs), o),
+    // @ts-expect-error This is too much for ts
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    ...lodash.mapValues(fs, (f, k) => f(o[k])),
+}));
+
+interface MoveKeys {
+    <
+        O extends Record<PropertyKey, unknown>,
+        KO extends Partial<Record<PropertyKey, keyof O>>
+    >(
+        ks: KO,
+        o: O
+    ): { [_K in Exclude<keyof O, KO[keyof KO]>]: O[_K] } & {
+        // @ts-expect-error type `KO[_K]` can be used to index type `O`, because the values of KO are `keyof O`
+        // conveniently remove readonly, since often `as const` is used for type inference
+        -readonly [_K in keyof KO]: O[KO[_K]];
+    };
+    <
+        O extends Record<PropertyKey, unknown>,
+        KO extends Partial<Record<PropertyKey, keyof O>>
+    >(
+        ks: KO
+    ): (o: O) => { [_K in Exclude<keyof O, KO[keyof KO]>]: O[_K] } & {
+        // @ts-expect-error type `KO[_K]` can be used to index type `O`, because the values of KO are `keyof O`
+        -readonly [_K in keyof KO]: O[KO[_K]];
+    };
+}
+/** Rename keys of an object.
+ *
+ * Curried usage possible.
+ *
+ * @example
+ * // o has inferred type {neww: string}
+ * const o = moveKeys({neww: "old"}, {old: string})
+ */
+export const moveKeys: MoveKeys = curry((ks: object, o: object) => ({
+    ...omit(values(ks), o),
+    ...lodash.mapValues(ks, (k) => o[k]),
+}));
 
 export const forEachAsync = async <T, R>(
     arr: T[],

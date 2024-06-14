@@ -353,6 +353,14 @@ type BorderCrossing {
     date: DateTimeISO!
 }
 
+" Information about the entering and leaving of a citizen "
+type Stay {
+    id: Int!
+    citizen: CitizenUser!
+    enteredAt: DateTimeISO!
+    leftAt: DateTimeISO
+}
+
 " A product of an company "
 type Product {
     id: ID!
@@ -497,6 +505,8 @@ type Mutation {
 
     " Register citizens crossing the border to track compulsory attendance. Authorized: border control "
     registerBorderCrossing(citizenId: ID!): BorderCrossing!
+    " Register all citizens leaving the state. Used at the end of the opening ours. Authorized: admin "
+    leaveAllCitizens: [Stay!]!
 
     " Create a new guest account and register him entering. Authorized: border control, admin "
     createGuest(guest: GuestUserInput!): GuestUser!

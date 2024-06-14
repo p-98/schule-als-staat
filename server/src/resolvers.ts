@@ -72,6 +72,7 @@ import {
 import {
     chargeCustoms,
     getIsInState,
+    leaveAllCitizens,
     registerBorderCrossing,
 } from "Modules/borderControl";
 import { createGuest, getGuest, leaveGuest } from "Modules/foreignOffice";
@@ -225,6 +226,9 @@ export const resolvers: TResolvers = {
     },
 
     BorderCrossing: {
+        citizen: (parent, _, ctx) => getCitizen(ctx, parent.citizenId),
+    },
+    Stay: {
         citizen: (parent, _, ctx) => getCitizen(ctx, parent.citizenId),
     },
 
@@ -407,6 +411,7 @@ export const resolvers: TResolvers = {
 
         registerBorderCrossing: (_, args, ctx) =>
             registerBorderCrossing(ctx, args.citizenId),
+        leaveAllCitizens: (_, __, ctx) => leaveAllCitizens(ctx),
 
         createGuest: (_, args, ctx) => createGuest(ctx, args.guest),
         leaveGuest: (_, args, ctx) => leaveGuest(ctx, args.id),

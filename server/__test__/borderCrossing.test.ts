@@ -10,10 +10,14 @@ import {
     config,
 } from "Util/test";
 
-import { pick } from "lodash/fp";
+import { type Unarray } from "@envelop/types";
 import { type ResultOf } from "@graphql-typed-document-node/core";
+import { pick, pipe } from "lodash/fp";
+import { addHours } from "date-fns/fp";
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
+import { formatDateTimeZ } from "Util/date";
+import { mapValues, moveKeys } from "Util/misc";
 import { graphql } from "./graphql";
 
 graphql(/* GraphQL */ `
@@ -33,26 +37,48 @@ const registerCrossingMutation = graphql(/* GraphQL */ `
         }
     }
 `);
+const leaveAllCitizensMutation = graphql(/* GraphQL */ `
+    mutation LeaveAllCitizensMutation {
+        leaveAllCitizens {
+            citizen {
+                id
+            }
+            enteredAt
+            leftAt
+        }
+    }
+`);
 
 type TBorderCrossing = ResultOf<
     typeof registerCrossingMutation
 >["registerBorderCrossing"];
+type TStay = Unarray<
+    ResultOf<typeof leaveAllCitizensMutation>["leaveAllCitizens"]
+>;
 
 let knex: Knex;
 let yoga: TYogaServerInstance;
 let citizen: TUserExecutor;
 let otherCitizen: TUserExecutor;
+let company: TUserExecutor;
 let borderControl: TUserExecutor;
+let admin: TUserExecutor;
 beforeEach(async () => {
     [knex, yoga] = await createTestServer();
     citizen = await buildHTTPUserExecutor(knex, yoga, { type: "CITIZEN" });
     otherCitizen = await buildHTTPUserExecutor(knex, yoga, { type: "CITIZEN" });
+    company = await buildHTTPUserExecutor(knex, yoga, { type: "COMPANY" });
     borderControl = await buildHTTPUserExecutor(knex, yoga, {
         type: "COMPANY",
         id: config.roles.borderControlCompanyId,
     });
+    admin = await buildHTTPUserExecutor(knex, yoga, {
+        type: "CITIZEN",
+        id: config.roles.adminCitizenIds[0],
+    });
 });
 afterEach(async () => {
+    jest.useRealTimers();
     await knex.destroy();
 });
 
@@ -60,6 +86,11 @@ async function testRegisterCrossing(
     citizenId: string
 ): Promise<TBorderCrossing> {
     // invalid requests
+    const noBorderControl = await company({
+        document: registerCrossingMutation,
+        variables: { citizenId },
+    });
+    assertInvalid(noBorderControl, "PERMISSION_DENIED");
     const invalidCitizenId = await borderControl({
         document: registerCrossingMutation,
         variables: { citizenId: "invalidCitizenId" },
@@ -75,6 +106,17 @@ async function testRegisterCrossing(
     assertNoErrors(registerCrossing);
     const borderCrossing = registerCrossing.data.registerBorderCrossing;
     return borderCrossing;
+}
+async function tsetLeaveAllCitizens(): Promise<TStay[]> {
+    // invalid requests
+    const noAdmin = await borderControl({ document: leaveAllCitizensMutation });
+    assertInvalid(noAdmin, "PERMISSION_DENIED");
+
+    // valid request
+    const leaveAll = await admin({ document: leaveAllCitizensMutation });
+    assertSingleValue(leaveAll);
+    assertNoErrors(leaveAll);
+    return leaveAll.data.leaveAllCitizens;
 }
 
 test("successive enter & leave", async () => {
@@ -97,7 +139,7 @@ test("successive enter & leave", async () => {
     });
 
     const beforeSecond = "2024-03-10T10:30:00.000Z";
-    jest.useFakeTimers({ advanceTimers: false, now: new Date(beforeSecond) });
+    jest.setSystemTime(new Date(beforeSecond));
     const enter2 = await testRegisterCrossing(citizen.id);
     assert.deepStrictEqual(enter2, {
         citizen: pick("id", citizen),
@@ -135,7 +177,7 @@ test("parallel enter & leave", async () => {
     });
 
     const time2 = "2024-03-10T09:30:00.000Z";
-    jest.useFakeTimers({ advanceTimers: false, now: new Date(time2) });
+    jest.setSystemTime(new Date(time2));
     const leaveOther = await testRegisterCrossing(otherCitizen.id);
     assert.deepStrictEqual(leaveOther, {
         citizen: pick("id", otherCitizen),
@@ -151,4 +193,67 @@ test("parallel enter & leave", async () => {
         action: "LEAVE",
         date: time3,
     });
+});
+
+test("leave all citizens", async () => {
+    const citizen3 = await buildHTTPUserExecutor(knex, yoga, {
+        type: "CITIZEN",
+    });
+    const enteredAt = "2024-03-10T09:00:00.000Z";
+    const callAt = "2024-03-10T16:00:00.000Z";
+    const stays = [
+        {
+            // no completed stays
+            citizenId: citizen.id,
+            enteredAt,
+            leftAt: null,
+        },
+        {
+            // completed stays
+            citizenId: otherCitizen.id,
+            enteredAt,
+            leftAt: formatDateTimeZ(addHours(1, new Date(enteredAt))),
+        },
+        {
+            citizenId: otherCitizen.id,
+            enteredAt: formatDateTimeZ(addHours(2, new Date(enteredAt))),
+            leftAt: null,
+        },
+        {
+            // no uncompleted stays
+            citizenId: citizen3.id,
+            enteredAt,
+            leftAt: formatDateTimeZ(addHours(1, new Date(enteredAt))),
+        },
+        {
+            citizenId: citizen3.id,
+            enteredAt: formatDateTimeZ(addHours(2, new Date(enteredAt))),
+            leftAt: formatDateTimeZ(addHours(3, new Date(enteredAt))),
+        },
+    ];
+    await knex("stays").insert(stays);
+
+    jest.useFakeTimers({
+        advanceTimers: false,
+        now: new Date(callAt),
+    });
+    const response = await tsetLeaveAllCitizens();
+    const updatedStays = await knex("stays").select(
+        "citizenId",
+        "enteredAt",
+        "leftAt"
+    );
+    assert.deepStrictEqual(
+        updatedStays,
+        stays.map(mapValues({ leftAt: (_: string | null) => _ ?? callAt }))
+    );
+    assert.deepStrictEqual(
+        response,
+        [updatedStays[0]!, updatedStays[2]!].map(
+            pipe(
+                moveKeys({ citizen: "citizenId" } as const),
+                mapValues({ citizen: (_) => ({ id: _ }) })
+            )
+        )
+    );
 });

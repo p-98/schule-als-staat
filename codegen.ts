@@ -78,6 +78,7 @@ const config: CodegenConfig = {
                     CustomsTransaction: "./models#ICustomsTransactionModel",
                     SalaryTransaction: "./models#ISalaryTransactionModel",
                     BorderCrossing: "./models#IBorderCrossingModel",
+                    Stay: "./models#IStayModel",
                     Product: "./models#IProductModel",
                     ProductStatsFragment: "./models#IProductStatsFragmentModel",
                     Vote: "./models#IVoteModel",

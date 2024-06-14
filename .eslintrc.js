@@ -86,6 +86,7 @@ module.exports = {
                 ],
                 "@typescript-eslint/explicit-module-boundary-types": "error",
                 "max-classes-per-file": "off",
+                "lodash-fp/consistent-name": ["error", "lodash"],
             },
             globals: {
                 React: "writable",

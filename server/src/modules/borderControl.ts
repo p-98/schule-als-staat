@@ -8,6 +8,7 @@ import type { IStay } from "Types/knex";
 import type {
     IBorderCrossingModel,
     ICustomsTransactionModel,
+    IStayModel,
     IUserSignature,
 } from "Types/models";
 import { assertRole } from "Util/auth";
@@ -118,4 +119,15 @@ export async function registerBorderCrossing(
 
         return stay2BorderCrossing(stay);
     });
+}
+
+export function leaveAllCitizens(ctx: IAppContext): Promise<IStayModel[]> {
+    const { knex, session } = ctx;
+    assertRole(ctx, session.userSignature, "ADMIN");
+
+    const now = formatDateTimeZ(new Date());
+    return knex("stays")
+        .update({ leftAt: now })
+        .whereNull("leftAt")
+        .returning("*");
 }

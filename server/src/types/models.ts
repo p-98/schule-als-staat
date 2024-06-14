@@ -188,6 +188,13 @@ export interface IBorderCrossingModel {
     date: string;
 }
 
+export interface IStayModel {
+    id: number;
+    citizenId: string;
+    enteredAt: string;
+    leftAt: TNullable<string>;
+}
+
 export interface IProductModel {
     id: string;
     revision: string;
