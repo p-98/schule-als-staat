@@ -150,7 +150,10 @@ type CitizenUser implements User {
     employmentOffers(
         state: EmploymentOfferStateCitizenInput! = PENDING
     ): [EmploymentOffer!]!
+    " Whether the citizen is currently in the state "
     isInState: Boolean!
+    " The amount of time the citizen spent in the state today up until now "
+    timeInState: Int!
 }
 " A company user "
 type CompanyUser implements User {

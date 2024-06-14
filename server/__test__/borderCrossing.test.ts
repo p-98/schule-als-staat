@@ -12,13 +12,18 @@ import {
 
 import { type Unarray } from "@envelop/types";
 import { type ResultOf } from "@graphql-typed-document-node/core";
-import { pick, pipe } from "lodash/fp";
-import { addHours } from "date-fns/fp";
+import { multiply, pick, pipe } from "lodash/fp";
+import { addHours, subHours } from "date-fns/fp";
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
 import { formatDateTimeZ } from "Util/date";
 import { mapValues, moveKeys } from "Util/misc";
 import { graphql } from "./graphql";
+
+/* General helpers
+ */
+/** Hours to seconds */
+const hours = multiply(3600);
 
 graphql(/* GraphQL */ `
     fragment Id_CitizenFragment on CitizenUser {
@@ -48,6 +53,14 @@ const leaveAllCitizensMutation = graphql(/* GraphQL */ `
         }
     }
 `);
+const inStateQuery = graphql(/* GraphQL */ `
+    query InStateQuery {
+        meCitizen {
+            isInState
+            timeInState
+        }
+    }
+`);
 
 type TBorderCrossing = ResultOf<
     typeof registerCrossingMutation
@@ -55,6 +68,7 @@ type TBorderCrossing = ResultOf<
 type TStay = Unarray<
     ResultOf<typeof leaveAllCitizensMutation>["leaveAllCitizens"]
 >;
+type TInStateState = ResultOf<typeof inStateQuery>["meCitizen"];
 
 let knex: Knex;
 let yoga: TYogaServerInstance;
@@ -81,6 +95,13 @@ afterEach(async () => {
     jest.useRealTimers();
     await knex.destroy();
 });
+
+const assertInState = (user: TUserExecutor) => async (state: TInStateState) => {
+    const result = await user({ document: inStateQuery });
+    assertSingleValue(result);
+    assertNoErrors(result);
+    assert.deepStrictEqual(result.data.meCitizen, state);
+};
 
 async function testRegisterCrossing(
     citizenId: string
@@ -256,4 +277,67 @@ test("leave all citizens", async () => {
             )
         )
     );
+});
+
+test("isInState, timeInState", async () => {
+    const citizen2 = otherCitizen;
+    const citizen3 = await buildHTTPUserExecutor(knex, yoga, {
+        type: "CITIZEN",
+    });
+    const citizen4 = await buildHTTPUserExecutor(knex, yoga, {
+        type: "CITIZEN",
+    });
+    const enteredAt = "2024-03-10T09:00:00.000Z";
+    const callAt = "2024-03-10T15:00:00.000Z";
+    const stays = [
+        {
+            // no completed stays
+            citizenId: citizen.id,
+            enteredAt,
+            leftAt: null,
+        },
+        {
+            // completed stays
+            citizenId: citizen2.id,
+            enteredAt,
+            leftAt: formatDateTimeZ(addHours(1, new Date(enteredAt))),
+        },
+        {
+            citizenId: citizen2.id,
+            enteredAt: formatDateTimeZ(addHours(2, new Date(enteredAt))),
+            leftAt: null,
+        },
+        {
+            // no uncompleted stays
+            citizenId: citizen3.id,
+            enteredAt,
+            leftAt: formatDateTimeZ(addHours(1, new Date(enteredAt))),
+        },
+        {
+            citizenId: citizen3.id,
+            enteredAt: formatDateTimeZ(addHours(2, new Date(enteredAt))),
+            leftAt: formatDateTimeZ(addHours(3, new Date(enteredAt))),
+        },
+        {
+            // stays in past day, one not even ended
+            citizenId: citizen4.id,
+            enteredAt: formatDateTimeZ(subHours(24, new Date(enteredAt))),
+            leftAt: formatDateTimeZ(subHours(23, new Date(enteredAt))),
+        },
+        {
+            citizenId: citizen4.id,
+            enteredAt: formatDateTimeZ(subHours(22, new Date(enteredAt))),
+            leftAt: null,
+        },
+    ];
+    await knex("stays").insert(stays);
+
+    jest.useFakeTimers({
+        advanceTimers: false,
+        now: new Date(callAt),
+    });
+    await assertInState(citizen)({ isInState: true, timeInState: hours(6) });
+    await assertInState(citizen2)({ isInState: true, timeInState: hours(5) });
+    await assertInState(citizen3)({ isInState: false, timeInState: hours(2) });
+    await assertInState(citizen4)({ isInState: false, timeInState: hours(0) });
 });

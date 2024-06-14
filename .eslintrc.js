@@ -99,7 +99,7 @@ module.exports = {
             rules: {
                 "jest/expect-expect": [
                     "warn",
-                    { assertFunctionNames: ["assert.*", "test*"] },
+                    { assertFunctionNames: ["assert.*", "test*", "assert*"] },
                 ],
                 "@typescript-eslint/naming-convention": [
                     // adjusted from airbnb-typescript

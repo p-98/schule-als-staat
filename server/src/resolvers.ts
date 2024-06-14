@@ -72,6 +72,7 @@ import {
 import {
     chargeCustoms,
     getIsInState,
+    getTimeInState,
     leaveAllCitizens,
     registerBorderCrossing,
 } from "Modules/borderControl";
@@ -146,7 +147,8 @@ export const resolvers: TResolvers = {
             (await getEmployments(ctx, parent))[0],
         employmentOffers: async (parent, args, ctx) =>
             getEmploymentOffers(ctx, parent, args.state),
-        isInState: (parent, _, ctx) => getIsInState(ctx, parent.id),
+        isInState: (parent, _, ctx) => getIsInState(ctx, parent),
+        timeInState: (parent, _, ctx) => getTimeInState(ctx, parent),
     },
     CompanyUser: {
         roles: (parent, _, ctx) => getRoles(ctx, parent),

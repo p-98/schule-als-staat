@@ -1,36 +1,69 @@
 import type { IAppContext } from "Server";
 
 import { isUndefined } from "lodash/fp";
+import * as dateFns from "date-fns";
 import { assert } from "Util/error";
 import { parseUserSignature, stringifyUserSignature } from "Util/parse";
 import { formatDateTimeZ } from "Util/date";
 import type { IStay } from "Types/knex";
 import type {
     IBorderCrossingModel,
+    ICitizenUserModel,
     ICustomsTransactionModel,
     IStayModel,
     IUserSignature,
 } from "Types/models";
 import { assertRole } from "Util/auth";
-import { compute } from "Util/misc";
 import { getUser } from "Modules/users";
 import { getCitizen } from "./registryOffice";
 
+/** Whether the citizen is currently in the state
+ *
+ * Only respects todays' stays.
+ * 'Today' means only stays where enteredAt is in today are respected.
+ *
+ * @precondition The citizen exists.
+ */
 export async function getIsInState(
     ctx: IAppContext,
-    citizenId: string
+    citizen: ICitizenUserModel
 ): Promise<boolean> {
     const { knex } = ctx;
-    await getCitizen(ctx, citizenId); // check citizen exists
-    const lastBorderCrossing = await knex("stays")
-        .select("id", "leftAt")
-        .where({ citizenId })
+    const startOfToday = formatDateTimeZ(dateFns.startOfToday());
+    const lastStay = await knex("stays")
+        .select("leftAt")
+        .where({ citizenId: citizen.id })
+        .andWhere("enteredAt", ">=", startOfToday)
         .orderBy("id", "desc")
         .first();
-    return compute(() => {
-        if (isUndefined(lastBorderCrossing)) return false;
-        return !lastBorderCrossing.leftAt;
-    });
+
+    if (isUndefined(lastStay)) return false; // citizen not entered today
+    return !lastStay.leftAt;
+}
+
+/** The amount of time a citizen spent in the state today up until now
+ *
+ * 'Today' means only stays where enteredAt is in today are respected.
+ *
+ * @precondition The citizen exists.
+ */
+export async function getTimeInState(
+    ctx: IAppContext,
+    citizen: ICitizenUserModel
+): Promise<number> {
+    const { knex } = ctx;
+    const now = formatDateTimeZ(new Date());
+    const startOfToday = formatDateTimeZ(dateFns.startOfToday());
+    const [{ timeInState }] = (await knex.raw(
+        `select total(
+            unixepoch(coalesce(stays.leftAt, :now)) - unixepoch(stays.enteredAt)
+        ) as timeInState
+        from stays
+        where stays.citizenId = :citizenId
+          and stays.enteredAt >= :startOfToday`,
+        { now, startOfToday, citizenId: citizen.id }
+    )) as [{ timeInState: number }];
+    return timeInState;
 }
 
 export async function chargeCustoms(
@@ -94,26 +127,24 @@ export async function registerBorderCrossing(
     assertRole(ctx, session.userSignature, "BORDER_CONTROL");
 
     return knex.transaction(async (trx) => {
-        // Side effect: checks whether citizen exists
-        const isEntering = !(await getIsInState(
-            { ...ctx, knex: trx },
-            citizenId
-        ));
+        // check citizen exists
+        const citizen = await getCitizen({ ...ctx, knex: trx }, citizenId);
+        const isLeaving = await getIsInState({ ...ctx, knex: trx }, citizen);
 
-        const returnQuery: Promise<IStay[]> = isEntering
+        const returnQuery: Promise<IStay[]> = isLeaving
             ? trx.raw(
-                  `INSERT INTO stays (citizenId, enteredAt)
-                  VALUES (?, ?)
-                  RETURNING *
-                  `,
-                  [citizenId, formatDateTimeZ(new Date())]
-              )
-            : trx.raw(
                   `UPDATE stays
                   SET leftAt = ?
                   WHERE citizenId = ?
                   RETURNING *`,
                   [formatDateTimeZ(new Date()), citizenId]
+              )
+            : trx.raw(
+                  `INSERT INTO stays (citizenId, enteredAt)
+                  VALUES (?, ?)
+                  RETURNING *
+                  `,
+                  [citizenId, formatDateTimeZ(new Date())]
               );
         const stay = (await returnQuery)[0]!;
 
