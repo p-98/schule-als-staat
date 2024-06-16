@@ -1,0 +1,6 @@
+.attendance__citizen {
+    pointer-events: none;
+}
+.attendance__citizen [class~="mdc-deprecated-list-item__meta"] {
+    text-align: right;
+}

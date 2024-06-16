@@ -5,7 +5,7 @@ const minutes = (_: number) => _ * 60 * 1000;
 
 export default {
     school: {
-        classes: [],
+        classes: ["5a"],
     },
     currencies: {
         real: {
@@ -27,7 +27,7 @@ export default {
         stateBankAccountId: "STATE",
 
         adminCitizenIds: ["ADMIN", "j.keller"],
-        teacherCitizenIds: [],
+        teacherCitizenIds: ["TEACH", "m.koch"],
 
         warehouseCompanyId: "WAREH",
         bankCompanyId: "bank",

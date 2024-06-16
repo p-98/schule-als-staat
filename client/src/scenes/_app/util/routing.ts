@@ -57,6 +57,12 @@ export const routes: IRoute[] = [
         authorized: role("ADMIN"),
     },
     {
+        href: "/attendance",
+        label: "Anwesenheit",
+        icon: "location_on",
+        authorized: role("ADMIN", "TEACHER"),
+    },
+    {
         href: "/products",
         label: "Produktverwaltung",
         icon: "category",

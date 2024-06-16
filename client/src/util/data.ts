@@ -1,3 +1,5 @@
+import { formatDurationWithOptions, intervalToDuration } from "date-fns/fp";
+import { de } from "date-fns/locale";
 import config from "Config";
 import { FragmentType, graphql, useFragment as getFragment } from "./graphql";
 
@@ -45,6 +47,13 @@ export const name = (
 
 /** Boolean value */
 export const bool = (_: boolean): string => (_ ? "Ja" : "Nein");
+
+/** Duration in hours */
+export const hours = (seconds: number): string =>
+    formatDurationWithOptions(
+        { format: ["hours", "minutes"], zero: true, locale: de },
+        intervalToDuration({ start: 0, end: seconds * 1000 })
+    );
 
 interface ICurrencyOptions {
     currency: keyof typeof config.currencies;
