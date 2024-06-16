@@ -108,6 +108,10 @@ module.exports = {
                         selector: "variable",
                         format: ["camelCase", "PascalCase", "UPPER_CASE"],
                         leadingUnderscore: "allow",
+                        filter: {
+                            match: false,
+                            regex: regexFragment,
+                        },
                     },
                     {
                         selector: "function",

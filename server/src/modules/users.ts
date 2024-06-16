@@ -54,6 +54,7 @@ const roles: TUserRole[] = [
     "POLICE",
     "POLITICS",
     "USER",
+    "TEACHER",
 ];
 /** Get roles of user
  *

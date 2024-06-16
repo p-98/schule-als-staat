@@ -32,6 +32,7 @@ export async function up(knex: Knex): Promise<void> {
         table.text("lastName").notNullable();
         table.text("password").notNullable();
         table.text("image").notNullable();
+        table.text("class");
     });
 
     await knex.schema.createTable("companies", (table) => {

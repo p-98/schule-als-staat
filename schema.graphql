@@ -22,6 +22,7 @@ enum UserRole {
     BANK
     BORDER_CONTROL
     POLITICS
+    TEACHER
 }
 
 " type of user "
@@ -452,6 +453,8 @@ type Query {
     meCompany: CompanyUser!
 
     user(user: UserSignatureInput!): User!
+    " Citizens belonging to given class. Authorized: teacher, admin "
+    citizensByClass(class: String!): [CitizenUser!]!
 
     " Information on all votes. Authorized: citizen, political admin "
     votes: [Vote!]!

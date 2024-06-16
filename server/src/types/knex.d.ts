@@ -34,6 +34,8 @@ export interface ICitizen {
     lastName: string;
     password: string;
     image: string;
+    /** The class if the citizen is a student, null otherwise */
+    class: TNullable<string>;
 }
 
 export interface ICompany {

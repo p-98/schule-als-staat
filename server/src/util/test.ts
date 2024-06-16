@@ -48,8 +48,9 @@ import bcrypt from "bcrypt";
 
 import { formatDateTimeZ } from "Util/date";
 import { graphql } from "__test__/graphql";
-import { pipe1, UnPromise } from "Util/misc";
+import { UnPromise } from "Util/misc";
 import { type Config } from "Root/types/config";
+import { type TNullable } from "Types";
 
 export function assertIsNotNil<T>(
     actual: T,
@@ -121,6 +122,7 @@ const setNotImplemented = <
 
 let backupNum = 0;
 export const config: Config = {
+    school: setNotImplemented(["classes"], {}),
     currencies: {
         real: {
             name: "Euro",
@@ -139,9 +141,11 @@ export const config: Config = {
     },
     roles: {
         stateBankAccountId: "STATE",
-        warehouseCompanyId: "WAREH",
 
         adminCitizenIds: ["ADMIN"],
+        teacherCitizenIds: ["TEACH"],
+
+        warehouseCompanyId: "WAREH",
         bankCompanyId: "SBANK",
         borderControlCompanyId: "BCTRL",
         policeCompanyId: "POLICE",
@@ -317,62 +321,76 @@ export function buildHTTPAnonymousExecutor(
 export interface ICredentials extends IUserSignature {
     password: undefined | string;
 }
-type PartialProp<T extends Record<K, unknown>, K extends keyof T> = Omit<T, K> &
+export type PartialProp<T extends Record<K, unknown>, K extends keyof T> = Omit<
+    T,
+    K
+> &
     Partial<Pick<T, K>>;
 let usersCreated = 0;
 /** Use same password for all users, because hash is slow */
 const userPassword = "userPassword";
 const userPasswordHash = bcrypt.hash(userPassword, 1);
 
-export async function seedUser(
-    knex: Knex,
-    { type, id }: PartialProp<IUserSignature, "id">
-): Promise<ICredentials> {
+type ISeedGuest = {
+    type: "GUEST";
+    id?: string;
+};
+type ISeedCompany = {
+    type: "COMPANY";
+    id?: string;
+};
+type ISeedCitizen = {
+    type: "CITIZEN";
+    id?: string;
+    class?: TNullable<string>;
+};
+type TSeed = ISeedCitizen | ISeedCompany | ISeedGuest;
+export async function seedUser(knex: Knex, seed: TSeed): Promise<ICredentials> {
     usersCreated += 1;
     const userNum = usersCreated;
 
-    const defaultId = `${type.toLowerCase()}IdOfUser${userNum}`;
+    const defaultId = `${seed.type.toLowerCase()}IdOfUser${userNum}`;
     const credentials: ICredentials = {
-        id: id ?? defaultId,
-        type,
-        password: type === "GUEST" ? undefined : userPassword,
+        id: seed.id ?? defaultId,
+        type: seed.type,
+        password: seed.type === "GUEST" ? undefined : userPassword,
     };
-    const bankAccountId = `bankAccountIdFor${credentials.type}${credentials.id}`;
 
-    const seedSource = seedSourceFactory({
-        bankAccount: async (seedKnex) => {
-            await seedKnex("bankAccounts").insert({
-                id: bankAccountId,
-                balance: 10.0,
-                redemptionBalance: 0.0,
-            });
-        },
-        GUEST: async (seedKnex) =>
-            seedKnex("guests").insert({
-                id: credentials.id,
-                bankAccountId,
-                name: `guestNameOfGUEST${id}`,
-                enteredAt: formatDateTimeZ(new Date()),
-            }),
-        CITIZEN: async (seedKnex) =>
-            seedKnex("citizens").insert({
-                id: credentials.id,
-                firstName: `firstNameOfCITIZEN${id}`,
-                lastName: `lastNameOfCITIZEN${id}`,
-                bankAccountId,
-                image: "",
-                password: await userPasswordHash,
-            }),
-        COMPANY: async (seedKnex) =>
-            seedKnex("companies").insert({
-                id: credentials.id,
-                bankAccountId,
-                name: `companyNameOfCOMPANY${id}`,
-                password: await userPasswordHash,
-                image: "",
-            }),
+    const bankAccountId = `bankAccountIdFor${credentials.type}${credentials.id}`;
+    await knex("bankAccounts").insert({
+        id: bankAccountId,
+        balance: 10.0,
+        redemptionBalance: 0.0,
     });
-    await knex.seed.run(withSpecific({ seedSource }, "bankAccount", type));
+    switch (seed.type) {
+        case "CITIZEN":
+            await knex("citizens").insert({
+                id: credentials.id,
+                firstName: `firstNameOfCITIZEN${credentials.id}`,
+                lastName: `lastNameOfCITIZEN${credentials.id}`,
+                bankAccountId,
+                image: "",
+                password: await userPasswordHash,
+                class: seed.class ?? null,
+            });
+            break;
+        case "COMPANY":
+            await knex("companies").insert({
+                id: credentials.id,
+                bankAccountId,
+                name: `companyNameOfCOMPANY${credentials.id}`,
+                password: await userPasswordHash,
+                image: "",
+            });
+            break;
+        case "GUEST":
+            await knex("guests").insert({
+                id: credentials.id,
+                bankAccountId,
+                name: `guestNameOfGUEST${credentials.id}`,
+                enteredAt: formatDateTimeZ(new Date()),
+            });
+    }
     return credentials;
 }
 
@@ -394,7 +412,7 @@ const loginMutation = graphql(/* GraphQL */ `
 export async function buildHTTPUserExecutor(
     knex: Knex,
     yoga: TYogaServerInstance,
-    userSignature: PartialProp<ICredentials, "id" | "password">,
+    user: TSeed | ICredentials,
     options?: {
         // if set, assumes `userSignature` argument to be of type ICredentials
         noSeed?: boolean;
@@ -403,23 +421,15 @@ export async function buildHTTPUserExecutor(
     TYogaExecutor &
         ICredentials & { credentials: ICredentials; signature: IUserSignature }
 > {
-    const credentials = pipe1(
-        options?.noSeed
-            ? (userSignature as ICredentials)
-            : await seedUser(knex, userSignature),
-        pick(["id", "type", "password"])
-    );
+    const credentials = options?.noSeed
+        ? pick(["type", "id", "password"], user as ICredentials)
+        : await seedUser(knex, user as TSeed);
 
-    const executor = buildHTTPCookieExecutor({
-        // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        fetch: yoga.fetch,
-    });
+    const executor = buildHTTPAnonymousExecutor(yoga);
     const login = await executor({
         document: loginMutation,
         variables: credentials,
     });
-
     assertSingleValue(login);
     assertNoErrors(login);
     assertIsNotNil(login.data.login.user);

@@ -96,6 +96,13 @@ test("user roles", async () => {
             }),
             ["USER", "COMPANY", "POLITICS"],
         ],
+        teacher: [
+            await buildHTTPUserExecutor(knex, yoga, {
+                type: "CITIZEN",
+                id: config.roles.teacherCitizenIds[0],
+            }),
+            ["USER", "CITIZEN", "TEACHER"],
+        ],
     };
 
     await Promise.all(

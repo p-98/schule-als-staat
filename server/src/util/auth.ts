@@ -55,25 +55,19 @@ export async function assertCredentials(
 export function checkRole(
     ctx: IAppContext,
     user: TNullable<IUserSignature>,
-    role: "ADMIN",
-    opts?: { allowAdmin?: false }
-): user is IUserSignature & { type: "CITIZEN" };
-export function checkRole(
-    ctx: IAppContext,
-    user: TNullable<IUserSignature>,
     role: "USER",
     opts?: { allowAdmin?: false }
 ): user is IUserSignature;
 export function checkRole(
     ctx: IAppContext,
     user: TNullable<IUserSignature>,
-    role: "CITIZEN",
+    role: "CITIZEN" | "ADMIN" | "TEACHER",
     opts?: { allowAdmin?: false }
 ): user is IUserSignature & { type: "CITIZEN" };
 export function checkRole(
     ctx: IAppContext,
     user: TNullable<IUserSignature>,
-    role: "COMPANY",
+    role: "COMPANY" | "POLICE" | "BANK" | "BORDER_CONTROL" | "POLITICS",
     opts?: { allowAdmin?: false }
 ): user is IUserSignature & { type: "COMPANY" };
 export function checkRole(
@@ -82,12 +76,6 @@ export function checkRole(
     role: "GUEST",
     opts?: { allowAdmin?: false }
 ): user is IUserSignature & { type: "GUEST" };
-export function checkRole(
-    ctx: IAppContext,
-    user: TNullable<IUserSignature>,
-    role: "POLICE" | "BANK" | "BORDER_CONTROL" | "POLITICS",
-    opts?: { allowAdmin?: false }
-): user is IUserSignature & { type: "COMPANY" };
 export function checkRole(
     ctx: IAppContext,
     user: TNullable<IUserSignature>,
@@ -136,6 +124,11 @@ export function checkRole(
                 user.type === "COMPANY" &&
                 user.id === ctx.config.roles.policiticsCompanyId
             );
+        case "TEACHER":
+            return (
+                user.type === "CITIZEN" &&
+                ctx.config.roles.teacherCitizenIds.includes(user.id)
+            );
     }
 }
 
@@ -148,6 +141,7 @@ const assertRoleMessages = {
     GUEST: "Not logged in as guest",
     POLICE: "Not logged in as police",
     POLITICS: "Not logged in as political admin",
+    TEACHER: "Not logged in as teacher",
     USER: "Not logged in",
 };
 export function assertRole(

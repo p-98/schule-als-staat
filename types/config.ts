@@ -1,4 +1,7 @@
 export type Config = {
+    school: {
+        classes: string[];
+    };
     currencies: Record<
         "real" | "virtual",
         {
@@ -13,10 +16,12 @@ export type Config = {
     };
     roles: {
         stateBankAccountId: string;
-        warehouseCompanyId: string;
 
         adminCitizenIds: string[];
+        teacherCitizenIds: string[];
+
         bankCompanyId: string;
+        warehouseCompanyId: string;
         borderControlCompanyId: string;
         policeCompanyId: string;
         policiticsCompanyId: string;

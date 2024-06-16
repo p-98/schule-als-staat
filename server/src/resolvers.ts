@@ -36,7 +36,7 @@ import {
     payPurchaseDraft,
     deletePurchaseDraft,
 } from "Modules/bank";
-import { getCitizen } from "Modules/registryOffice";
+import { getCitizen, getCitizensByClass } from "Modules/registryOffice";
 import {
     getEmployments,
     getProducts,
@@ -300,6 +300,7 @@ export const resolvers: TResolvers = {
         /* eslint-enable no-param-reassign */
 
         user: (_, args, ctx) => getUser(ctx, args.user),
+        citizensByClass: (_, args, ctx) => getCitizensByClass(ctx, args.class),
 
         votes: (_, __, ctx) => getAllVotes(ctx),
 

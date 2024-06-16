@@ -4,6 +4,9 @@ import { Config } from "./types/config";
 const minutes = (_: number) => _ * 60 * 1000;
 
 export default {
+    school: {
+        classes: [],
+    },
     currencies: {
         real: {
             name: "Euro",
@@ -22,9 +25,11 @@ export default {
     },
     roles: {
         stateBankAccountId: "STATE",
-        warehouseCompanyId: "WAREH",
 
         adminCitizenIds: ["ADMIN", "j.keller"],
+        teacherCitizenIds: [],
+
+        warehouseCompanyId: "WAREH",
         bankCompanyId: "bank",
         borderControlCompanyId: "BCTRL",
         policeCompanyId: "POLICE",
