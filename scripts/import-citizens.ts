@@ -3,7 +3,16 @@ import { basename, dirname, extname, join } from "path";
 import { parse, stringify } from "csv/sync";
 import niceware from "niceware";
 import { pick } from "lodash/fp";
-import { binary, command, oneOf, option, positional, run } from "cmd-ts";
+import {
+    binary,
+    boolean,
+    command,
+    flag,
+    oneOf,
+    option,
+    positional,
+    run,
+} from "cmd-ts";
 import { File } from "cmd-ts/batteries/fs";
 
 import { createKnex, type Knex } from "../server/src/database/database";
@@ -14,7 +23,7 @@ import config from "../config";
 
 const INITIAL_BANLANCE = 50;
 const CSV_OPTIONS = {
-    columns: ["firstName", "lastName", "id", "course"],
+    columns: ["firstName", "lastName", "id", "class"],
     delimiter: ";",
 };
 
@@ -29,7 +38,13 @@ const cmd = command({
             long: "passwords",
             short: "p",
             description:
-                "Whether the passwords should be generated, are included as the last column of the dataset or should be the same as the `id` field.",
+                "Whether the password should be generated, is included as the last column of the dataset or should be the same as the `id` field.",
+        }),
+        importClass: flag({
+            type: boolean,
+            long: "class",
+            short: "c",
+            description: "Whether the class should be imported.",
         }),
         csvPath: positional({
             type: File,
@@ -39,7 +54,7 @@ const cmd = command({
     },
     handler: (_) => _,
 });
-const { passwordMode, csvPath } = await run(binary(cmd), Bun.argv);
+const { passwordMode, importClass, csvPath } = await run(binary(cmd), Bun.argv);
 
 /* Type definitions
  */
@@ -48,7 +63,7 @@ type Citizen = {
     id: string;
     firstName: string;
     lastName: string;
-    course: string;
+    class: string;
 };
 type WithPassword<T> = T & { password: string };
 
@@ -93,6 +108,7 @@ const importCitizen =
             password: await encryptPassword(citizen.password),
             bankAccountId: bankAccount.id,
             image: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>',
+            class: importClass ? citizen.class : null,
         });
     };
 
