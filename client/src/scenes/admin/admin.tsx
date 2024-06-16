@@ -2,6 +2,7 @@ import { memo } from "react";
 import { GridCell } from "Components/material/grid";
 import { Typography } from "Components/material/typography";
 import { Card, CardContent } from "Components/material/card/card";
+import { ListDivider } from "Components/material/list";
 
 import { GridPage } from "Components/page/page";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
@@ -34,6 +35,19 @@ const reloadAction: TAction = async () => {
     categorizeError(error, []);
     return { data: data ? true : undefined };
 };
+const leaveAllCitizensMutation = graphql(/* GraphQL */ `
+    mutation LeavelAllCitizensMutation {
+        leaveAllCitizens {
+            id
+        }
+    }
+`);
+const leaveAllAction: TAction = async () => {
+    const result = await client.mutation(leaveAllCitizensMutation, {});
+    const { data, error } = safeData(result);
+    categorizeError(error, []);
+    return { data: data ? true : undefined };
+};
 
 const ActionButtons = memo(() => (
     <Card>
@@ -41,6 +55,15 @@ const ActionButtons = memo(() => (
             <Typography use="headline6">Datenbank & Config</Typography>
             <ActionButton action={backupAction} label="Datenbank sichern" />
             <ActionButton action={reloadAction} label="Config neu laden" />
+        </CardContent>
+        <ListDivider />
+        <CardContent>
+            <Typography use="headline6">Sonstiges</Typography>
+            <ActionButton
+                action={leaveAllAction}
+                label="Alle Bürger ausweisen"
+                danger
+            />
         </CardContent>
     </Card>
 ));

@@ -30,8 +30,13 @@ export type TAction = () => Promise<{
 interface IActionButtonProps {
     action: TAction;
     label: string;
+    danger?: boolean;
 }
-export const ActionButton: FC<IActionButtonProps> = ({ action, label }) => {
+export const ActionButton: FC<IActionButtonProps> = ({
+    action,
+    label,
+    danger,
+}) => {
     const [fetching, setFetching] = useState(false);
 
     const handleAction = async () => {
@@ -49,6 +54,7 @@ export const ActionButton: FC<IActionButtonProps> = ({ action, label }) => {
             label={label}
             onClick={syncifyF(handleAction)}
             disabled={useStable(fetching)}
+            danger={danger}
         />
     );
 };
