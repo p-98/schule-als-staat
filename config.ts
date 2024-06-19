@@ -3,26 +3,33 @@ import { Config } from "./types/config";
 /** Minutes to milliseconds */
 const minutes = (_: number) => _ * 60 * 1000;
 
+const multiply = (factor: number) => (_: number) => factor * _;
+
 export default {
     school: {
         classes: ["5a"],
     },
     currencies: {
-        real: {
-            name: "Euro",
-            short: "EUR",
-            symbol: "€",
+        "plancko-digital": {
+            name: "Plancko Digital",
+            short: "PLDig",
+            symbol: "p̶",
+            decimals: 0,
+            conversion: {
+                "plancko-analog": multiply(2),
+            },
         },
-        virtual: {
-            name: "πCoin",
-            short: "PC",
-            symbol: "π",
+        "plancko-analog": {
+            name: "Plancko Papier",
+            short: "PLPap",
+            symbol: "p̶",
+            decimals: 0,
+            conversion: {
+                "plancko-digital": multiply(0.5),
+            },
         },
     },
-    currencyExchange: {
-        virtualPerReal: 3.141 / 1,
-        realPerVirtual: 1 / 3.141,
-    },
+    mainCurrency: "plancko-digital",
     roles: {
         stateBankAccountId: "STATE",
 
@@ -56,4 +63,4 @@ export default {
         },
         allowRawSql: false,
     },
-} satisfies Config;
+} satisfies Config<"plancko-digital" | "plancko-analog"> as Config<string>;

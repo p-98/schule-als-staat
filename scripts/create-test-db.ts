@@ -79,17 +79,21 @@ await knex("changeTransactions").insert([
         date: formatDateTimeZ(nextDate()),
         // @ts-expect-error debug insert
         userSignature: stringifyUserSignature(keller),
-        action: "VIRTUAL_TO_REAL",
-        valueVirtual: 6,
-        valueReal: 2,
+        fromCurrency: "plancko-digital",
+        fromValue: 2.0,
+        toCurrency: "plancko-analog",
+        toValue: 4.0,
+        clerkCitizenId: neben.id,
     },
     {
         date: formatDateTimeZ(nextDate()),
         // @ts-expect-error debug insert
         userSignature: stringifyUserSignature(keller),
-        action: "REAL_TO_VIRTUAL",
-        valueVirtual: 6,
-        valueReal: 2,
+        fromCurrency: "plancko-analog",
+        fromValue: 2.0,
+        toCurrency: "plancko-digital",
+        toValue: 1.0,
+        clerkCitizenId: neben.id,
     },
 ]);
 const [donutPurchase] = await knex("purchaseTransactions")

@@ -39,6 +39,7 @@ import {
     join,
     pick,
     isNil,
+    multiply,
 } from "lodash/fp";
 import { buildHTTPExecutor } from "@graphql-tools/executor-http";
 import { parse as parseSetCookie } from "set-cookie-parser";
@@ -121,24 +122,29 @@ const setNotImplemented = <
     );
 
 let backupNum = 0;
-export const config: Config = {
+export const config: Config<"plancko-digital" | "plancko-analog"> = {
     school: setNotImplemented(["classes"], {}),
     currencies: {
-        real: {
-            name: "Euro",
-            short: "EUR",
-            symbol: "€",
+        "plancko-digital": {
+            name: "Plancko Digital",
+            short: "PLDig",
+            symbol: "p̶",
+            decimals: 0,
+            conversion: {
+                "plancko-analog": multiply(2),
+            },
         },
-        virtual: {
-            name: "πCoin",
-            short: "PC",
-            symbol: "π",
+        "plancko-analog": {
+            name: "Plancko Papier",
+            short: "PLPap",
+            symbol: "p̶",
+            decimals: 0,
+            conversion: {
+                "plancko-digital": multiply(1 / 2),
+            },
         },
     },
-    currencyExchange: {
-        virtualPerReal: 3.141 / 1,
-        realPerVirtual: 1 / 3.141,
-    },
+    mainCurrency: "plancko-digital",
     roles: {
         stateBankAccountId: "STATE",
 

@@ -47,12 +47,6 @@ enum EmploymentOfferStateCompanyInput {
     REJECTED
 }
 
-" change action types "
-enum ChangeTransactionAction {
-    VIRTUAL_TO_REAL
-    REAL_TO_VIRTUAL
-}
-
 " action of BorderCrossing "
 enum BorderCrossingAction {
     ENTER
@@ -264,23 +258,29 @@ type ChangeTransaction implements Transaction {
     id: Int!
     date: DateTimeISO!
     user: User!
-    action: ChangeTransactionAction!
-    valueVirtual: Float!
-    valueReal: Float!
+    fromCurrency: String!
+    fromValue: Float!
+    toCurrency: String!
+    toValue: Float!
+    clerk: CitizenUser!
 }
 " The draft of a change transaction "
 type ChangeDraft implements Draft {
     id: Int!
     date: DateTimeISO!
-    action: ChangeTransactionAction!
-    valueVirtual: Float!
-    valueReal: Float!
+    fromCurrency: String!
+    fromValue: Float!
+    toCurrency: String!
+    toValue: Float!
+    clerk: CitizenUser!
 }
 " Input type of a change transaction "
 input ChangeInput {
-    action: ChangeTransactionAction!
-    " value in the currency from which is changed "
-    value: Float!
+    fromCurrency: String!
+    fromValue: Float!
+    toCurrency: String!
+    " citizen id of clerk "
+    clerk: ID!
 }
 " A purchase transaction "
 type PurchaseTransaction implements Transaction {
@@ -489,7 +489,7 @@ type Mutation {
     payBonus(value: Float!, employmentIds: [Int!]!): [SalaryTransaction!]!
     " Create change transaction draft. Authorized: bank "
     changeCurrencies(change: ChangeInput!): ChangeDraft!
-    " Pay a change transaction draft. Only bank must specify explicit user. "
+    " Pay a change transaction draft. Authorized: bank (with credentials), user (without credentials) "
     payChangeDraft(id: Int!, credentials: CredentialsInput): ChangeTransaction!
     " Delete a change transaction draft. Authorized: bank "
     deleteChangeDraft(id: Int!): Void

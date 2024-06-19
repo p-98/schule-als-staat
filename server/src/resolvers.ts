@@ -196,8 +196,11 @@ export const resolvers: TResolvers = {
     },
     ChangeTransaction: {
         user: (parent, _, ctx) => getUser(ctx, parent.userSignature),
+        clerk: (parent, _, ctx) => getCitizen(ctx, parent.clerkCitizenId),
     },
-    ChangeDraft: {},
+    ChangeDraft: {
+        clerk: (parent, _, ctx) => getCitizen(ctx, parent.clerkCitizenId),
+    },
     PurchaseItem: {
         product: (parent, _, ctx) =>
             getProduct(ctx, parent.productId, parent.productRevision),

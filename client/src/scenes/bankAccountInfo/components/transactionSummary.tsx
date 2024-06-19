@@ -4,7 +4,13 @@ import cn from "classnames";
 import config from "Config";
 import { SimpleListItem } from "Components/material/list";
 import { FragmentType, graphql, useFragment } from "Utility/graphql";
-import { currency, Eq_UserFragment, name, userEq } from "Utility/data";
+import {
+    currency,
+    currencyName,
+    Eq_UserFragment,
+    name,
+    userEq,
+} from "Utility/data";
 
 import styles from "../bankAccountInfo.module.css";
 
@@ -24,8 +30,10 @@ export const Summary_TransactionFragment = graphql(/* GraohQL */ `
             purpose
         }
         ... on ChangeTransaction {
-            action
-            valueVirtual
+            fromCurrency
+            fromValue
+            toCurrency
+            toValue
         }
         ... on PurchaseTransaction {
             customer {
@@ -100,18 +108,18 @@ const summaryFactories: {
         };
     },
     ChangeTransaction: (user, trx) => {
-        const { virtual, real } = config.currencies;
+        const fromCurrencyName = currencyName(trx.fromCurrency);
+        const toCurrencyName = currencyName(trx.toCurrency);
+        const value = (() => {
+            if (trx.fromCurrency === config.mainCurrency) return -trx.fromValue;
+            if (trx.toCurrency === config.mainCurrency) return trx.toValue;
+            return 0;
+        })();
         return {
             icon: "swap_horiz",
             type: "Wechsel",
-            summary:
-                trx.action === "REAL_TO_VIRTUAL"
-                    ? `${real.short} zu ${virtual.short}`
-                    : `${virtual.short} zu ${real.short}`,
-            value:
-                trx.action === "REAL_TO_VIRTUAL"
-                    ? +trx.valueVirtual
-                    : -trx.valueVirtual,
+            summary: `${fromCurrencyName} zu ${toCurrencyName}`,
+            value,
         };
     },
     PurchaseTransaction: (user, trx) => {

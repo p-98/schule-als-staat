@@ -16,7 +16,8 @@ const addType: (citizen: Omit<ICitizenUserModel, "type">) => ICitizenUserModel =
 
 export async function getCitizen(
     { knex }: IAppContext,
-    id: string
+    id: string,
+    options?: { code?: string }
 ): Promise<ICitizenUserModel> {
     const raw = await knex("citizens")
         // select order important, because both tables contain id field
@@ -24,7 +25,11 @@ export async function getCitizen(
         .where("citizens.id", id)
         .innerJoin("bankAccounts", "citizens.bankAccountId", "bankAccounts.id")
         .first();
-    assert(!!raw, `Citizen with id ${id} not found`, "CITIZEN_NOT_FOUND");
+    assert(
+        !!raw,
+        `Citizen with id ${id} not found`,
+        options?.code ?? "CITIZEN_NOT_FOUND"
+    );
     return addType(raw);
 }
 

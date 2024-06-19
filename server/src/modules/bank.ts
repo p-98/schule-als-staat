@@ -10,10 +10,15 @@ import type {
     TDraftModel,
     TTransactionModel,
 } from "Types/models";
-import type { IBankAccount, IEmployment, ISalaryTransaction } from "Types/knex";
+import type {
+    IBankAccount,
+    IChangeTransaction,
+    IEmployment,
+    ISalaryTransaction,
+} from "Types/knex";
 import type { IAppContext } from "Server";
 
-import { all, isEmpty, isNull, isUndefined, map } from "lodash/fp";
+import { all, assign, isEmpty, isNull, isUndefined, map } from "lodash/fp";
 import {
     EUserTypeTableMap,
     parseUserSignature,
@@ -21,13 +26,16 @@ import {
 } from "Util/parse";
 import { formatDateTimeZ } from "Util/date";
 import { v4 as uuidv4 } from "uuid";
-import { assert, GraphQLYogaError } from "Util/error";
+import { assert, GraphQLYogaError, hasCode } from "Util/error";
 import { TChangeInput, TCredentialsInput } from "Types/schema";
 import { TNullable } from "Types";
 import { assertCredentials, assertRole, checkRole } from "Util/auth";
 import { values } from "Util/sql";
-import { getUser } from "./users";
-import { getCompany } from "./tradeRegistry";
+import { getUser } from "Modules/users";
+import { getCompany } from "Modules/tradeRegistry";
+import { getCitizen } from "Modules/registryOffice";
+
+const addType = <T>(type: T) => assign({ type });
 
 async function getTransferTransactions(
     { knex }: IAppContext,
@@ -70,7 +78,6 @@ async function getChangeTransactions(
     return (await query).map((raw) => ({
         type: "CHANGE",
         ...raw,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         userSignature: parseUserSignature(raw.userSignature!),
     }));
 }
@@ -311,34 +318,47 @@ export async function payBonus(
 }
 
 export async function changeCurrencies(
-    { knex, config }: IAppContext,
-    change: TChangeInput
+    ctx: IAppContext,
+    { fromCurrency, fromValue, toCurrency, clerk }: TChangeInput
 ): Promise<IChangeDraftModel> {
+    const { knex, config } = ctx;
     const date = formatDateTimeZ(new Date());
 
-    assert(change.value > 0, "Value must be positive", "BAD_USER_INPUT");
-    const valueReal =
-        change.action === "VIRTUAL_TO_REAL"
-            ? config.currencyExchange.realPerVirtual * change.value
-            : change.value;
-    const valueVirtual =
-        change.action === "REAL_TO_VIRTUAL"
-            ? config.currencyExchange.virtualPerReal * change.value
-            : change.value;
+    assert(
+        fromCurrency in config.currencies,
+        "Uknown source currency",
+        "FROM_CURRENCY_UNKNOWN"
+    );
+    assert(fromValue > 0, "Value must be positive", "FROM_VALUE_NOT_POSITIVE");
+    assert(
+        toCurrency in config.currencies,
+        "Uknown target currency",
+        "TO_CURRENCY_UNKNOWN"
+    );
+    assert(
+        toCurrency !== fromCurrency,
+        "Same source and target currency",
+        "TO_CURRENCY_SAME_AS_FROM"
+    );
+    const toValue =
+        config.currencies[fromCurrency]!.conversion[toCurrency]!(fromValue);
 
     return knex.transaction(async (trx) => {
-        const inserted = await trx("changeTransactions")
+        // check clerk exists
+        await getCitizen({ ...ctx, knex: trx }, clerk, {
+            code: "CLERK_UNKNOWN",
+        });
+        const [raw] = await trx("changeTransactions")
             .insert({
                 date,
-                action: change.action,
-                valueVirtual,
-                valueReal,
+                fromCurrency,
+                fromValue,
+                toCurrency,
+                toValue,
+                clerkCitizenId: clerk,
             })
             .returning("*");
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const raw = inserted[0]!;
-
-        return { type: "CHANGE", ...raw };
+        return addType("CHANGE" as const)(raw!);
     });
 }
 /** Pay a change transaction draft
@@ -359,7 +379,7 @@ export async function payChangeDraft(
                 assert(
                     !isNull(credentials),
                     "Must specify credentials",
-                    "BAD_USER_INPUT"
+                    "CREDENTIALS_MISSING"
                 );
                 await assertCredentials({ ...ctx, knex: trx }, credentials);
                 return credentials;
@@ -368,7 +388,7 @@ export async function payChangeDraft(
             assert(
                 isNull(credentials),
                 "Must not specify credentials",
-                "BAD_USER_INPUT"
+                "CREDENTIALS_SET"
             );
             assertRole(ctx, session.userSignature, "USER");
             return session.userSignature;
@@ -389,11 +409,11 @@ export async function payChangeDraft(
             "CHANGE_TRANSACTION_ALREADY_PAID"
         );
 
-        const cost =
-            draft.action === "VIRTUAL_TO_REAL"
-                ? draft.valueVirtual
-                : -draft.valueVirtual;
-
+        const cost = (t: IChangeTransaction): number => {
+            if (t.fromCurrency === config.mainCurrency) return t.fromValue;
+            if (t.toCurrency === config.mainCurrency) return -t.toValue;
+            return 0;
+        };
         await trx.raw(
             `
             UPDATE bankAccounts
@@ -401,16 +421,16 @@ export async function payChangeDraft(
             FROM companies
             WHERE companies.bankAccountId = bankAccounts.id AND companies.id = :bankCompanyId
         `,
-            { cost, bankCompanyId: config.roles.bankCompanyId }
+            { cost: cost(draft), bankCompanyId: config.roles.bankCompanyId }
         );
 
         const user = await getUser({ ...ctx, knex: trx }, userSignature);
-        const updatedUser = await trx("bankAccounts")
-            .decrement("balance", cost)
+        const [updatedUser] = await trx("bankAccounts")
+            .decrement("balance", cost(draft))
             .where("id", user.bankAccountId)
             .returning("balance");
         assert(
-            updatedUser[0]!.balance >= 0,
+            updatedUser!.balance >= 0,
             "Not enough money to complete change.",
             "BALANCE_TOO_LOW"
         );

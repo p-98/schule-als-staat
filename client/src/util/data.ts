@@ -56,14 +56,12 @@ export const hours = (seconds: number): string =>
     );
 
 interface ICurrencyOptions {
-    currency: keyof typeof config.currencies;
-    unit:
-        | keyof (typeof config.currencies)[keyof typeof config.currencies]
-        | "none";
+    currency: string;
+    unit: "symbol" | "name" | "short" | "none";
     omitDecimals: boolean;
 }
 const defaultCurrencyOptions: ICurrencyOptions = {
-    currency: "virtual",
+    currency: config.mainCurrency,
     unit: "symbol",
     omitDecimals: false,
 };
@@ -72,35 +70,32 @@ export function currency(
     value: number,
     options?: Partial<ICurrencyOptions>
 ): string {
-    const {
-        currency: _currency,
-        unit,
-        omitDecimals,
-    } = {
+    const opts = {
         ...defaultCurrencyOptions,
         ...options,
     };
+    const currencyConf = config.currencies[opts.currency];
+    if (!currencyConf) return "(Währung unbekannt)";
 
-    const decimals = (() => {
-        if (omitDecimals) return 0;
-        return _currency === "real" ? 2 : 0;
-    })();
-    // const valueStr = value.toLocaleString(undefined, {
-    //     minimumFractionDigits: decimals,
-    // });
+    const decimals = opts.omitDecimals ? 0 : currencyConf.decimals;
     const valueStr = value.toFixed(decimals);
-
     /** Whether to insert space between value and unit */
     const space = (() => {
-        if (unit === "symbol") return false;
-        if (unit === "none") return false;
+        if (opts.unit === "symbol") return false;
+        if (opts.unit === "none") return false;
         return true;
     })();
-
-    // eslint-disable-next-line no-underscore-dangle
-    const unitStr = unit === "none" ? "" : config.currencies[_currency][unit];
+    const unitStr =
+        opts.unit === "none" ? "" : currencyConf[opts.unit] ?? "Unbekannt";
 
     return `${valueStr}${space ? " " : ""}${unitStr}`;
+}
+
+export function currencyName(_currency: string): string {
+    const currencyConf = config.currencies[_currency];
+    if (!currencyConf) return "(Währung unbekannt)";
+
+    return currencyConf.name;
 }
 
 /** Parse a currency value */

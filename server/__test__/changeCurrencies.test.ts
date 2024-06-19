@@ -10,11 +10,10 @@ import {
     config,
 } from "Util/test";
 
-import { omit } from "lodash/fp";
+import { omit, without } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
-import type { TChangeTransactionAction } from "Types/schema";
 import { EUserTypes } from "Types/models";
 import { graphql } from "./graphql";
 
@@ -22,9 +21,13 @@ graphql(/* GraphQL */ `
     fragment All_ChangeDraftFragment on ChangeDraft {
         id
         date
-        action
-        valueVirtual
-        valueReal
+        fromCurrency
+        fromValue
+        toCurrency
+        toValue
+        clerk {
+            id
+        }
     }
 `);
 graphql(/* GraphQL */ `
@@ -35,9 +38,13 @@ graphql(/* GraphQL */ `
             __typename
             id
         }
-        action
-        valueVirtual
-        valueReal
+        fromCurrency
+        fromValue
+        toCurrency
+        toValue
+        clerk {
+            id
+        }
     }
 `);
 
@@ -62,10 +69,19 @@ const balanceAndChangeTransactionsQuery = graphql(/* GraphQL */ `
 `);
 const changeCurrenciesMutation = graphql(/* GraphQL */ `
     mutation ChangeCurrencies(
-        $action: ChangeTransactionAction!
-        $value: Float!
+        $fromCurrency: String!
+        $fromValue: Float!
+        $toCurrency: String!
+        $clerk: ID!
     ) {
-        changeCurrencies(change: { action: $action, value: $value }) {
+        changeCurrencies(
+            change: {
+                fromCurrency: $fromCurrency
+                fromValue: $fromValue
+                toCurrency: $toCurrency
+                clerk: $clerk
+            }
+        ) {
             ...All_ChangeDraftFragment
         }
     }
@@ -118,6 +134,9 @@ afterEach(async () => {
 type IChangeDraft = ResultOf<
     typeof changeCurrenciesMutation
 >["changeCurrencies"];
+type IChangeTransaction = ResultOf<
+    typeof payDraftBankMutation
+>["payChangeDraft"];
 type IState = ResultOf<typeof balanceAndChangeTransactionsQuery>["me"];
 
 function forEachUserType<T>(
@@ -126,70 +145,40 @@ function forEachUserType<T>(
     return Promise.all([citizen, company, guest].map(fn));
 }
 
-const assertBankAndUserStates =
-    (bankExpected: IState, bankMessage?: string) =>
-    async (
-        activeUser?: TUserExecutor,
-        userExpected?: IState,
-        userMessage?: string
-    ) => {
-        const bankResult = await bank({
+const assertState =
+    (user: TUserExecutor) => async (expected: IState, message?: string) => {
+        const result = await user({
             document: balanceAndChangeTransactionsQuery,
         });
-        assertSingleValue(bankResult);
-        assertNoErrors(bankResult);
-        assert.deepStrictEqual(bankResult.data.me, bankExpected, bankMessage);
-
-        if (activeUser && userExpected) {
-            const activeResult = await activeUser({
-                document: balanceAndChangeTransactionsQuery,
-            });
-            assertSingleValue(activeResult);
-            assertNoErrors(activeResult);
-            assert.deepStrictEqual(
-                activeResult.data.me,
-                userExpected,
-                userMessage
-            );
-        }
-
-        await forEachUserType(async (inactiveUser) => {
-            if (inactiveUser === activeUser) return;
-
-            const inactiveResult = await inactiveUser({
-                document: balanceAndChangeTransactionsQuery,
-            });
-            assertSingleValue(inactiveResult);
-            assertNoErrors(inactiveResult);
-            assert.deepStrictEqual(
-                inactiveResult.data.me,
-                {
-                    balance: 10.0,
-                    transactions: [],
-                    ...(inactiveUser.type === "COMPANY" && { drafts: [] }),
-                },
-                "Unused user should have untouched state"
-            );
-        });
+        assertSingleValue(result);
+        assertNoErrors(result);
+        assert.deepStrictEqual(result.data.me, expected, message);
     };
+const assertUntouched = (user: TUserExecutor) =>
+    assertState(user)(
+        {
+            balance: 10.0,
+            transactions: [],
+            ...(user.type === "COMPANY" && { drafts: [] }),
+        },
+        "Unused user should have untouched state"
+    );
 
 const testChangeCurrencies = async (
-    action: TChangeTransactionAction
+    fromCurrency: "plancko-digital" | "plancko-analog",
+    fromValue: number
 ): Promise<IChangeDraft> => {
-    const value = 2.0;
-    const input = { action, value };
-
-    await assertBankAndUserStates(
-        { balance: 10.0, transactions: [], drafts: [] },
-        "Initially nothing should be changed"
-    )(undefined);
+    const input = {
+        fromCurrency,
+        fromValue,
+        toCurrency:
+            fromCurrency === "plancko-digital"
+                ? "plancko-analog"
+                : "plancko-digital",
+        clerk: citizen.id,
+    };
 
     // invalid requests
-    const invalidValue = await bank({
-        document: changeCurrenciesMutation,
-        variables: { action, value: -1.0 },
-    });
-    assertInvalid(invalidValue, "BAD_USER_INPUT");
     const wrongUserId = await company({
         document: changeCurrenciesMutation,
         variables: input,
@@ -200,6 +189,31 @@ const testChangeCurrencies = async (
         variables: input,
     });
     assertInvalid(wrongUserType, "PERMISSION_DENIED");
+    const unknownFromCurrency = await bank({
+        document: changeCurrenciesMutation,
+        variables: { ...input, fromCurrency: "unknown-currency" },
+    });
+    assertInvalid(unknownFromCurrency, "FROM_CURRENCY_UNKNOWN");
+    const negativeFromValue = await bank({
+        document: changeCurrenciesMutation,
+        variables: { ...input, fromValue: -1 },
+    });
+    assertInvalid(negativeFromValue, "FROM_VALUE_NOT_POSITIVE");
+    const zeroFromValue = await bank({
+        document: changeCurrenciesMutation,
+        variables: { ...input, fromValue: -0 },
+    });
+    assertInvalid(zeroFromValue, "FROM_VALUE_NOT_POSITIVE");
+    const unknownToCurrency = await bank({
+        document: changeCurrenciesMutation,
+        variables: { ...input, toCurrency: "unknown-currency" },
+    });
+    assertInvalid(unknownToCurrency, "TO_CURRENCY_UNKNOWN");
+    const unknownClerk = await bank({
+        document: changeCurrenciesMutation,
+        variables: { ...input, clerk: "unknownCitizenId" },
+    });
+    assertInvalid(unknownClerk, "CLERK_UNKNOWN");
 
     // valid request
     const before = new Date();
@@ -212,23 +226,15 @@ const testChangeCurrencies = async (
     assertNoErrors(changeCurrencies);
     const draft = changeCurrencies.data.changeCurrencies;
     assert.deepStrictEqual(omit(["date", "id"], draft), {
-        action,
-        valueVirtual:
-            action === "VIRTUAL_TO_REAL"
-                ? value
-                : config.currencyExchange.virtualPerReal * value,
-        valueReal:
-            action === "REAL_TO_VIRTUAL"
-                ? value
-                : config.currencyExchange.realPerVirtual * value,
+        ...input,
+        toValue:
+            fromCurrency === "plancko-digital"
+                ? 2 * fromValue
+                : 0.5 * fromValue,
+        clerk: { id: input.clerk },
     });
     assert.isAtLeast(new Date(draft.date).getTime(), before.getTime());
     assert.isAtMost(new Date(draft.date).getTime(), after.getTime());
-
-    await assertBankAndUserStates(
-        { balance: 10.0, transactions: [], drafts: [draft] },
-        "After draft creation draft should be present"
-    )(undefined);
 
     return draft;
 };
@@ -237,7 +243,7 @@ const testPayDraft = async (
     draft: IChangeDraft,
     user: TUserExecutor,
     useBank: boolean
-) => {
+): Promise<IChangeTransaction> => {
     // invalid requests
     const invalidIdBank = await bank({
         document: payDraftBankMutation,
@@ -248,7 +254,7 @@ const testPayDraft = async (
         document: payDraftUserMutation,
         variables: { id: draft.id },
     });
-    assertInvalid(missingCredentials, "BAD_USER_INPUT");
+    assertInvalid(missingCredentials, "CREDENTIALS_MISSING");
     // validation of credentials is tested in login tests
     await forEachUserType(async (_user) => {
         const invalidIdUser = await _user({
@@ -260,7 +266,7 @@ const testPayDraft = async (
             document: payDraftBankMutation,
             variables: { id: draft.id, credentials: user.credentials },
         });
-        assertInvalid(addedCredentials, "BAD_USER_INPUT");
+        assertInvalid(addedCredentials, "CREDENTIALS_SET");
     });
 
     // valid request
@@ -281,29 +287,6 @@ const testPayDraft = async (
         user: { __typename: EUserTypes[user.type], id: user.id },
     });
 
-    await assertBankAndUserStates(
-        {
-            balance:
-                draft.action === "REAL_TO_VIRTUAL"
-                    ? 10.0 - 2 * config.currencyExchange.virtualPerReal
-                    : 10.0 + 2,
-            transactions: [transaction],
-            drafts: [],
-        },
-        "After payment transaction should be registered"
-    )(
-        user,
-        {
-            balance:
-                draft.action === "REAL_TO_VIRTUAL"
-                    ? 10.0 + 2 * config.currencyExchange.virtualPerReal
-                    : 10.0 - 2,
-            transactions: [transaction],
-            ...(user.type === "COMPANY" && { drafts: [] }),
-        },
-        "After payment transaction should be registered"
-    );
-
     // invalid when paid
     const deleteDraft = await bank({
         document: deleteDraftMutation,
@@ -322,6 +305,8 @@ const testPayDraft = async (
         });
         assertInvalid(payDraftUser, "CHANGE_TRANSACTION_ALREADY_PAID");
     });
+
+    return transaction;
 };
 
 const testDeleteDraft = async (draft: IChangeDraft) => {
@@ -351,11 +336,6 @@ const testDeleteDraft = async (draft: IChangeDraft) => {
     assertNoErrors(deleteDraft);
     assert.strictEqual(deleteDraft.data.deleteChangeDraft, null);
 
-    await assertBankAndUserStates(
-        { balance: 10.0, transactions: [], drafts: [] },
-        "After draft deletion nothing should be changed"
-    )(undefined);
-
     // invalid when deleted
     const deleteAgain = await bank({
         document: deleteDraftMutation,
@@ -376,37 +356,64 @@ const testDeleteDraft = async (draft: IChangeDraft) => {
     });
 };
 
-test("create virtual->real, delete", async () => {
-    const draft = await testChangeCurrencies("VIRTUAL_TO_REAL");
+async function testCreateAndDelete(
+    fromCurrency: "plancko-digital" | "plancko-analog"
+) {
+    const draft = await testChangeCurrencies(fromCurrency, 2.0);
+    await assertState(bank)({ balance: 10, transactions: [], drafts: [draft] });
     await testDeleteDraft(draft);
-});
-test("create real->virtual, delete", async () => {
-    const draft = await testChangeCurrencies("REAL_TO_VIRTUAL");
-    await testDeleteDraft(draft);
+    await assertUntouched(bank);
+
+    await Promise.all([guest, company, citizen].map(assertUntouched));
+}
+async function testCreateAndPay(
+    fromCurrency: "plancko-digital" | "plancko-analog",
+    user: TUserExecutor,
+    mode: "PAY_BY_BANK" | "PAY_BY_USER"
+) {
+    const draft = await testChangeCurrencies(fromCurrency, 2.0);
+    await assertState(bank)({ balance: 10, transactions: [], drafts: [draft] });
+    const transaction = await testPayDraft(draft, user, mode === "PAY_BY_BANK");
+    await assertState(bank)({
+        balance: fromCurrency === "plancko-digital" ? 12.0 : 9.0,
+        transactions: [transaction],
+        drafts: [],
+    });
+    await assertState(user)({
+        balance: fromCurrency === "plancko-digital" ? 8.0 : 11.0,
+        transactions: [transaction],
+        ...(user.type === "COMPANY" && { drafts: [] }),
+    });
+
+    const otherUsers = without([user], [citizen, company, guest]);
+    await Promise.all(otherUsers.map(assertUntouched));
+}
+
+test("high fromValue", async () => {
+    const draft = await testChangeCurrencies("plancko-digital", 11);
+    const highFromValue = await citizen({
+        document: payDraftUserMutation,
+        variables: { id: draft.id },
+    });
+    assertInvalid(highFromValue, "BALANCE_TOO_LOW");
 });
 
-test("create virtual->real, pay by bank for citizen", async () => {
-    const draft = await testChangeCurrencies("VIRTUAL_TO_REAL");
-    await testPayDraft(draft, citizen, true);
-});
-test("create real->virtual, pay by bank for company", async () => {
-    const draft = await testChangeCurrencies("REAL_TO_VIRTUAL");
-    await testPayDraft(draft, company, true);
-});
-test("create virtual->real, pay by bank for guest", async () => {
-    const draft = await testChangeCurrencies("VIRTUAL_TO_REAL");
-    await testPayDraft(draft, guest, true);
-});
+test("create main->other, delete", () =>
+    testCreateAndDelete("plancko-digital"));
+test("create other->main, delete", () => testCreateAndDelete("plancko-analog"));
 
-test("create real->virtual, pay by citizen", async () => {
-    const draft = await testChangeCurrencies("REAL_TO_VIRTUAL");
-    await testPayDraft(draft, citizen, false);
-});
-test("create virtual->real, pay by company", async () => {
-    const draft = await testChangeCurrencies("VIRTUAL_TO_REAL");
-    await testPayDraft(draft, company, false);
-});
-test("create real->virtual, pay by guest", async () => {
-    const draft = await testChangeCurrencies("REAL_TO_VIRTUAL");
-    await testPayDraft(draft, guest, false);
+(["plancko-digital", "plancko-analog"] as const).forEach((fromCurrency) => {
+    (["citizen", "company", "guest"] as const).forEach((_user) => {
+        (["PAY_BY_BANK", "PAY_BY_USER"] as const).forEach((mode) => {
+            const dir =
+                fromCurrency === "plancko-digital"
+                    ? "main->other"
+                    : "other->main";
+            const paymentMethod = mode.toLowerCase().replace("_", " ");
+            test(`create ${dir}, ${paymentMethod} for ${_user}`, async () => {
+                const user = { citizen, company, guest }[_user];
+                await testCreateAndPay(fromCurrency, user, mode);
+            });
+        });
+    });
 });

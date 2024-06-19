@@ -1,6 +1,7 @@
-import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import { Card, CardHeader, CardContent } from "Components/material/card";
-import config from "Config";
+
+import { DisplayInfo } from "Components/displayInfo/displayInfo";
+import { currency } from "Utility/data";
 import { FragmentType, graphql, useFragment } from "Utility/graphql";
 
 export const BankAccountInfo_UserFragment = graphql(/* GraohQL */ `
@@ -22,10 +23,10 @@ export const BankAccountInfo: React.FC<IBankAccountInfoProps> = ({
             <CardHeader>Kontoinformationen</CardHeader>
             <CardContent>
                 <DisplayInfo icon="account_balance" label="Kontostand">
-                    {`${user.balance}${config.currencies.virtual.symbol}`}
+                    {currency(user.balance)}
                 </DisplayInfo>
                 <DisplayInfo icon="price_change" label="Rückwechselguthaben">
-                    {`${user.redemptionBalance}${config.currencies.real.symbol}`}
+                    {`${user.redemptionBalance}`}
                 </DisplayInfo>
             </CardContent>
         </Card>

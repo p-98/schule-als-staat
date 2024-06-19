@@ -85,10 +85,13 @@ export interface ITransferTransaction {
 export interface IChangeTransaction {
     id: number;
     date: string;
+    // null => draft (not paid); not null => transaction (paid)
     userSignature: TNullable<string>;
-    action: "VIRTUAL_TO_REAL" | "REAL_TO_VIRTUAL";
-    valueVirtual: number;
-    valueReal: number;
+    fromCurrency: string;
+    fromValue: number;
+    toCurrency: string;
+    toValue: number;
+    clerkCitizenId: string;
 }
 
 export interface IPurchaseTransaction {

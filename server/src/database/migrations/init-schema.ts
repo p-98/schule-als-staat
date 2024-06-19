@@ -93,12 +93,13 @@ export async function up(knex: Knex): Promise<void> {
         table.datetime("date").notNullable();
         // null => draft (not paid); not null => transaction (paid)
         table.json("userSignature");
-        table
-            .string("action")
-            .notNullable()
-            .checkIn(["VIRTUAL_TO_REAL", "REAL_TO_VIRTUAL"]);
-        table.double("valueVirtual").notNullable();
-        table.double("valueReal").notNullable();
+        table.text("fromCurrency").notNullable();
+        table.double("fromValue").notNullable();
+        table.text("toCurrency").notNullable();
+        table.double("toValue").notNullable();
+        table.text("clerkCitizenId").notNullable();
+        table.foreign("clerkCitizenId").references("id").inTable("citizens");
+        table.index("clerkCitizenId");
     });
 
     await knex.schema.createTable("purchaseTransactions", (table) => {

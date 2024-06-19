@@ -1,19 +1,25 @@
-export type Config = {
+type NeverTo<T, Fallback> = [T] extends [never] ? Fallback : T;
+export type ConversionFn = (fromValue: number) => number;
+export type Config<Currencies extends string> = {
     school: {
         classes: string[];
     };
-    currencies: Record<
-        "real" | "virtual",
-        {
+    currencies: {
+        [Currency in Currencies]: {
             name: string;
             short: string;
             symbol: string;
-        }
-    >;
-    currencyExchange: {
-        virtualPerReal: number;
-        realPerVirtual: number;
+            decimals: number;
+            conversion: {
+                // NeverTo prevents no conversion function allowed when Currencies is uknown (instanciated with string)
+                [OtherCurrency in NeverTo<
+                    Exclude<Currencies, Currency>,
+                    string
+                >]: ConversionFn;
+            };
+        };
     };
+    mainCurrency: Currencies;
     roles: {
         stateBankAccountId: string;
 

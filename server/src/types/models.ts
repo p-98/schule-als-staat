@@ -135,9 +135,11 @@ export interface ITransferTransactionModel extends ITransactionBaseModel {
 export interface IChangeTransactionModel extends ITransactionBaseModel {
     type: "CHANGE";
     userSignature: IUserSignature;
-    action: "VIRTUAL_TO_REAL" | "REAL_TO_VIRTUAL";
-    valueVirtual: number;
-    valueReal: number;
+    fromCurrency: string;
+    fromValue: number;
+    toCurrency: string;
+    toValue: number;
+    clerkCitizenId: string;
 }
 export type IChangeDraftModel = Omit<IChangeTransactionModel, "userSignature">;
 
