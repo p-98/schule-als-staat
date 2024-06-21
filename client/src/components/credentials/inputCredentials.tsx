@@ -1,5 +1,6 @@
 import { ResultOf } from "@graphql-typed-document-node/core";
 import { endsWith } from "lodash/fp";
+import cn from "classnames";
 import {
     ComponentPropsWithoutRef,
     ReactElement,
@@ -18,6 +19,8 @@ import { UserType } from "Utility/graphql/graphql";
 import { InputUserQr, TAction as TQrAction } from "./components/inputUserQr";
 import { InputUserKb, TAction as TKbAction } from "./components/inputUserKb";
 import { InputPassword } from "./inputPassword";
+
+import css from "./credentials.module.css";
 
 export const Login_UserFragment = graphql(/* GraohQL */ `
     fragment Login_UserFragment on User {
@@ -98,6 +101,8 @@ interface IInputCredentialsProps<Data> extends ComponentPropsWithoutRef<"div"> {
     actionSummary:
         | ReactNode
         | ((user: ResultOf<typeof Login_UserFragment>) => ReactNode);
+    /** Adapter flag whether inside a dialog */
+    dialog?: boolean;
 }
 export const InputCredentials = <Data,>({
     action,
@@ -107,6 +112,7 @@ export const InputCredentials = <Data,>({
     onSuccess,
     title,
     actionSummary,
+    dialog,
     ...restProps
 }: IInputCredentialsProps<Data>): ReactElement => {
     const [input, setInput] = useState(Input.Qr);
@@ -119,6 +125,10 @@ export const InputCredentials = <Data,>({
         <ContainerTransform
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...restProps}
+            className={cn(
+                restProps.className,
+                dialog && css["credentials--dialog"]
+            )}
             activeElement={_user ? "PASSWORD" : input}
         >
             <ContainerTransformElement elementKey={Input.Qr}>

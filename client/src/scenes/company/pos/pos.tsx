@@ -25,8 +25,6 @@ import {
 } from "Utility/urql";
 import { useCache } from "Utility/hooks/useCache";
 
-import styles from "./pos.module.css";
-
 const productsQuery = graphql(/* GraohQL */ `
     query Products_PosQuery {
         meCompany {
@@ -148,7 +146,7 @@ export const Pos: React.FC = () => {
                                 ])}
                             />
                         }
-                        className={styles["pos__credentials"]}
+                        dialog
                     />
                 </Dialog>
             )}
