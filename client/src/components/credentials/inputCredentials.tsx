@@ -93,6 +93,8 @@ enum Input {
 }
 interface IInputCredentialsProps<Data> extends ComponentPropsWithoutRef<"div"> {
     action: TAction<Data>;
+    /** Whether the qr scanner is active */
+    scanQr: boolean;
     cancelButton?: { label: string };
     onCancel?: () => void;
     confirmButton: { label: string; danger?: boolean };
@@ -106,6 +108,7 @@ interface IInputCredentialsProps<Data> extends ComponentPropsWithoutRef<"div"> {
 }
 export const InputCredentials = <Data,>({
     action,
+    scanQr,
     cancelButton,
     onCancel,
     confirmButton,
@@ -135,6 +138,7 @@ export const InputCredentials = <Data,>({
                 {/* Qr input */}
                 <InputUserQr
                     action={qrAction}
+                    scan={input === Input.Qr && !user && scanQr}
                     onUseKeyboard={() => setInput(Input.Keyboard)}
                     cancelButton={cancelButton}
                     onCancel={onCancel}

@@ -48,6 +48,7 @@ export const Login: React.FC = () => {
                 <Card className={styles["login__card"]}>
                     <InputCredentials
                         action={loginAction}
+                        scanQr
                         confirmButton={{ label: "Anmelden" }}
                         onSuccess={() =>
                             syncify(router.push("/bankAccountInfo"))

@@ -147,6 +147,7 @@ export const BorderControl: React.FC = () => {
                     <InputUser
                         qrAction={qrAction}
                         kbAction={kbAction}
+                        scanQr
                         title="Grenzkontrolle"
                         confirmButton={{ label: "Bestätigen" }}
                         onSuccess={setData}

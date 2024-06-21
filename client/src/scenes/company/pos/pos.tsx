@@ -133,6 +133,7 @@ export const Pos: React.FC = () => {
                 <Dialog key={checkoutKey} open={!!draft} preventOutsideDismiss>
                     <InputCredentials
                         action={payAction(cachedDraft)}
+                        scanQr={!!draft}
                         cancelButton={{ label: "Zurück" }}
                         onCancel={() => setDraft(undefined)}
                         confirmButton={{ label: "Bezahlen", danger: true }}

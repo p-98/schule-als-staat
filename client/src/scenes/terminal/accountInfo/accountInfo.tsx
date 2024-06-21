@@ -44,6 +44,7 @@ export const AccountInfo: React.FC = () => {
                         <InputUser
                             qrAction={() => Promise.resolve({ data: [] })}
                             kbAction={() => Promise.resolve({ data: [] })}
+                            scanQr={!user}
                             title="Konto wählen"
                             confirmButton={{ label: "Bestätigen" }}
                             onSuccess={() => setUser("Max Mustermann")}

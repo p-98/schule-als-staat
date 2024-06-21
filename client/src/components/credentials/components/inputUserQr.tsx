@@ -1,9 +1,9 @@
+import { noop } from "lodash/fp";
 import cn from "classnames";
 import {
     type ReactElement,
     useCallback,
     useEffect,
-    useMemo,
     useRef,
     useState,
     ComponentPropsWithoutRef,
@@ -55,18 +55,18 @@ export function stabilize<T>(
 }
 
 interface IQrProps extends React.HTMLAttributes<HTMLDivElement> {
+    scan: boolean;
     onSuccess: (text: string) => void;
     onFailure: (err: Error) => void;
-    scan?: boolean;
 }
 /** Qr reader
  *
  * Applies id `id` or `"qr"` to the container element
  */
 const Qr: React.FC<IQrProps> = ({
+    scan,
     onSuccess,
     onFailure,
-    scan = true,
     id = "qr",
     ...restProps
 }) => {
@@ -75,34 +75,64 @@ const Qr: React.FC<IQrProps> = ({
     const onFailureRef = useRef(onFailure);
     onFailureRef.current = onFailure;
 
-    const [callOnSuccess, resetOnSuccess] = useMemo(
-        () => stabilize((_: string) => onSuccessRef.current(_), 1),
-        [onSuccessRef]
-    );
+    const ref = useRef<HTMLDivElement>(null);
+    const createDummy = () => {
+        const video = ref.current?.getElementsByTagName("video")[0];
+        if (!video) return;
+        // create a video look-alike
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.className = styles["qr__dummy"]!;
+        canvas.getContext("2d")!.drawImage(video, 0, 0);
+        ref.current.prepend(canvas);
+    };
+    const removeDummy = () => {
+        const canvas = ref.current?.getElementsByTagName("canvas")[0];
+        if (!canvas) return;
+        canvas.remove();
+    };
 
     useEffect(() => {
         if (!scan) return;
+        removeDummy();
 
+        const callOnSuccess = (_: string) => onSuccessRef.current(_);
+        const [onRead, onNoRead] = stabilize(callOnSuccess, 1);
         const lib = new Html5Qrcode(id, { verbose: false });
-        const start = lib
-            .start(
+        const startPromise = new Promise((resolve, reject) => {
+            lib.start(
                 { facingMode: "environment" },
                 { fps: 2, aspectRatio: 1.0 },
-                callOnSuccess,
-                resetOnSuccess
+                onRead,
+                onNoRead
             )
-            .catch((_: Error) => onFailureRef.current(_));
+                .then(() => resolve(lib))
+                .catch((e: Error) => {
+                    onFailureRef.current(e);
+                    reject(e);
+                });
+        });
 
         return () => {
-            // promise already catched above
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            start.then(() =>
-                lib.stop().catch((_: Error) => onFailureRef.current(_))
-            );
+            createDummy();
+            startPromise
+                .then(() =>
+                    lib.stop().catch((e: Error) => onFailureRef.current(e))
+                )
+                // startPromise already catched above
+                .catch(noop);
         };
-    }, [scan, id, onFailureRef, callOnSuccess, resetOnSuccess]);
+    }, [scan, id]);
 
-    return <div {...restProps} id={id} />;
+    return (
+        <div
+            {...restProps}
+            className={cn(restProps.className, styles["qr"])}
+            id={id}
+            ref={ref}
+        />
+    );
 };
 
 /* Qr card reader component
@@ -119,6 +149,8 @@ export type TAction<TData> = (id: string) => Promise<{
 export interface IInputUserQrProps<TData>
     extends ComponentPropsWithoutRef<"div"> {
     action: TAction<TData>;
+    /** Whether the qr scanner is active */
+    scan: boolean;
     cancelButton?: { label: string };
     onCancel?: () => void;
     onUseKeyboard: () => void;
@@ -131,6 +163,7 @@ export interface IInputUserQrProps<TData>
  */
 export const InputUserQr = <TData,>({
     action,
+    scan,
     cancelButton,
     onCancel,
     onUseKeyboard,
@@ -171,6 +204,7 @@ export const InputUserQr = <TData,>({
         <CardInner {...restProps}>
             <CardMedia square>
                 <Qr
+                    scan={scan}
                     onSuccess={syncifyF(handleResult)}
                     onFailure={handleError}
                     className={cn(
