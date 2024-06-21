@@ -1,15 +1,10 @@
 import { constant } from "lodash/fp";
 import { type FormEvent, useState, type ReactElement } from "react";
-import {
-    Card,
-    CardActionButton,
-    CardActions,
-    CardContent,
-    CardHeader,
-} from "Components/material/card";
+import { Card, CardContent, CardHeader } from "Components/material/card";
 import { Theme } from "Components/material/theme";
 import { Select } from "Components/material/select";
 import { TextField } from "Components/material/textfield";
+import { Button } from "Components/material/button";
 
 import { ChangeEvent } from "Utility/types";
 import { syncifyF } from "Utility/misc";
@@ -185,15 +180,13 @@ export const ActionCard = <TInputs extends unknown[]>({
                         disabled={renderFetching}
                     />
                 ))}
-            </CardContent>
-            <CardActions fullBleed>
-                <CardActionButton
+                <Button
                     label={confirmButton.label}
                     onClick={syncifyF(handleConfirm)}
                     disabled={renderFetching}
                     danger={confirmButton.danger}
                 />
-            </CardActions>
+            </CardContent>
         </Card>
     );
 };
