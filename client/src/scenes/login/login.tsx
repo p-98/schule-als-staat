@@ -1,4 +1,5 @@
 import { useRouter } from "next/router";
+import { startsWith } from "lodash/fp";
 import { GridCell } from "Components/material/grid";
 import { Card } from "Components/material/card";
 
@@ -17,8 +18,8 @@ import { UserBanner } from "Components/userBanner/userBanner";
 import styles from "./login.module.css";
 
 const passwordMutation = graphql(/* GraphQL */ `
-    mutation LoginMutation($type: UserType!, $id: ID!, $password: String) {
-        login(credentials: { type: $type, id: $id, password: $password }) {
+    mutation LoginMutation($credentials: CredentialsInput!) {
+        login(credentials: $credentials) {
             id
             user {
                 id
@@ -28,13 +29,12 @@ const passwordMutation = graphql(/* GraphQL */ `
 `);
 
 const loginAction: TCredentialsAction<[]> = async (type, id, password) => {
-    const result = await client.mutation(passwordMutation, {
-        type,
-        id,
-        password,
-    });
+    const credentials = { type, id, password };
+    const result = await client.mutation(passwordMutation, { credentials });
     const { data, error } = safeData(result);
-    const [passwordError] = categorizeError(error, [byCode("WRONG_PASSWORD")]);
+    const [passwordError] = categorizeError(error, [
+        byCode(startsWith("PASSWORD")),
+    ]);
     return { data: data ? [] : undefined, passwordError };
 };
 

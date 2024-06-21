@@ -33,7 +33,7 @@ export async function assertCredentials(
         assert(
             isNil(credentials.password),
             "Must not specify password for guest",
-            "BAD_USER_INPUT"
+            "PASSWORD_SET"
         );
         return user;
     }
@@ -41,12 +41,12 @@ export async function assertCredentials(
     assert(
         !isNil(credentials.password),
         `Must specify password for ${user.type.toLowerCase()}`,
-        "BAD_USER_INPUT"
+        "PASSWORD_MISSING"
     );
     assert(
         await bcrypt.compare(credentials.password, user.password),
         "Wrong password",
-        "WRONG_PASSWORD"
+        "PASSWORD_WRONG"
     );
     return user;
 }

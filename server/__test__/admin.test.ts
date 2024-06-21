@@ -73,7 +73,7 @@ const userQuery = graphql(/* GraphQL */ `
     }
 `);
 
-let config: Config;
+let config: Config<string>;
 const dconfig = {
     get: jest.fn(() => Promise.resolve(config)),
     reload: jest.fn(constant(Promise.resolve())),
@@ -282,7 +282,7 @@ async function testResetPassword() {
         document: loginMutation,
         variables: citizen.credentials,
     });
-    assertInvalid(oldPassword, "WRONG_PASSWORD");
+    assertInvalid(oldPassword, "PASSWORD_WRONG");
 }
 
 test("backup database", () => testBackupDatabase());

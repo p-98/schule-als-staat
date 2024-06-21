@@ -107,18 +107,18 @@ async function testLogin(
             document: loginMutation,
             variables: { ...credentials, password: "password" },
         });
-        assertInvalid(unexpectedPassword, "BAD_USER_INPUT");
+        assertInvalid(unexpectedPassword, "PASSWORD_SET");
     } else {
         const missingPassword = await _client({
             document: loginMutation,
             variables: omit("password", credentials),
         });
-        assertInvalid(missingPassword, "BAD_USER_INPUT");
+        assertInvalid(missingPassword, "PASSWORD_MISSING");
         const wrongPassword = await _client({
             document: loginMutation,
             variables: { ...credentials, password: "wrongPassword" },
         });
-        assertInvalid(wrongPassword, "WRONG_PASSWORD");
+        assertInvalid(wrongPassword, "PASSWORD_WRONG");
     }
 
     // valid request

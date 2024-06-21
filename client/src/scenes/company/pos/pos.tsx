@@ -1,3 +1,4 @@
+import { startsWith } from "lodash/fp";
 import { ResultOf } from "@graphql-typed-document-node/core";
 import { useQuery } from "urql";
 import React, { useState } from "react";
@@ -81,7 +82,7 @@ const payAction =
         });
         const { data, error } = safeData(result);
         const [passwordError] = categorizeError(error, [
-            byCode("WRONG_PASSWORD"),
+            byCode(startsWith("PASSWORD")),
         ]);
         return { data: data ? [] : undefined, passwordError };
     };
