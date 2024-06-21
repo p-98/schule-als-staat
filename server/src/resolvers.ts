@@ -77,7 +77,7 @@ import {
     registerBorderCrossing,
 } from "Modules/borderControl";
 import { createGuest, getGuest, leaveGuest } from "Modules/foreignOffice";
-import { assertRole, checkRole } from "Util/auth";
+import { assertCredentials, assertRole, checkRole } from "Util/auth";
 import {
     assignCard,
     blockCard,
@@ -301,6 +301,9 @@ export const resolvers: TResolvers = {
             return ctx.session.$user as Promise<ICompanyUserModel>;
         },
         /* eslint-enable no-param-reassign */
+
+        checkCredentials: (_, args, ctx) =>
+            assertCredentials(ctx, args.credentials),
 
         user: (_, args, ctx) => getUser(ctx, args.user),
         citizensByClass: (_, args, ctx) => getCitizensByClass(ctx, args.class),

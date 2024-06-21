@@ -452,6 +452,9 @@ type Query {
     " Currently logged in company. Authorized: company "
     meCompany: CompanyUser!
 
+    " Check validity of credentials including password. "
+    checkCredentials(credentials: CredentialsInput!): User!
+
     user(user: UserSignatureInput!): User!
     " Citizens belonging to given class. Authorized: teacher, admin "
     citizensByClass(class: String!): [CitizenUser!]!
