@@ -20,7 +20,7 @@ const resetMutation = graphql(/* GraphQL */ `
 
 type Input = [UserType, string, string];
 
-const action: TAction<Input> = async ([type, id, password]) => {
+const action: TAction<[], Input> = async ([type, id, password]) => {
     const result = await client.mutation(resetMutation, { type, id, password });
     const { data, error } = safeData(result);
     const [userNotFoundError, userIsGuestError] = categorizeError(error, [
@@ -28,14 +28,14 @@ const action: TAction<Input> = async ([type, id, password]) => {
         byCode("USER_IS_GUEST"),
     ]);
     return {
-        data: data ? true : undefined,
+        data: data ? [] : undefined,
         inputErrors: [userIsGuestError, userNotFoundError, undefined],
         unspecificError: undefined,
     };
 };
 
 export const ResetPassword = memo(() => (
-    <ActionCard<Input>
+    <ActionCard<[], Input>
         inputs={[
             {
                 label: "Benutzerklasse",

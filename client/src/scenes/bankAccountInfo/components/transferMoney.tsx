@@ -26,7 +26,7 @@ const transferMoneyMutation = graphql(/* GraphQL */ `
         }
     }
 `);
-const action: TAction<TInputs> = async ([type, id, value, purpose]) => {
+const action: TAction<[], TInputs> = async ([type, id, value, purpose]) => {
     const variables = { type, id, value, purpose: purpose || undefined };
     const result = await client.mutation(transferMoneyMutation, variables);
     const { data, error } = safeData(result);
@@ -37,7 +37,7 @@ const action: TAction<TInputs> = async ([type, id, value, purpose]) => {
             byCode("BALANCE_TOO_LOW"),
         ]);
     return {
-        data: data ? true : undefined,
+        data: data ? [] : undefined,
         inputErrors: [
             undefined,
             userNotFoundError,
@@ -49,7 +49,7 @@ const action: TAction<TInputs> = async ([type, id, value, purpose]) => {
 };
 
 export const TransferMoney = memo(() => (
-    <ActionCard<TInputs>
+    <ActionCard<[], TInputs>
         inputs={[
             {
                 type: "select",

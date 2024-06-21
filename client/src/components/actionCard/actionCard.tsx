@@ -106,8 +106,10 @@ type MapInputProps<TInputs extends unknown[]> = TInputs extends [
     : [];
 
 /** Exactly most 1 property might be set */
-export type TAction<TInputs extends unknown[]> = (inputs: TInputs) => Promise<{
-    data?: true;
+export type TAction<TData, TInputs extends unknown[]> = (
+    inputs: TInputs
+) => Promise<{
+    data?: TData;
     inputErrors: MapInputErrors<TInputs>;
     unspecificError?: Error;
 }>;
@@ -117,9 +119,10 @@ const initInputErrors = (inputs: InputProp<unknown>[]): (Error | undefined)[] =>
 const initInputValues = (inputs: InputProp<unknown>[]): unknown[] =>
     inputs.map((_) => _.init);
 
-interface IActionCardProps<TInputs extends unknown[]> {
+interface IActionCardProps<TData, TInputs extends unknown[]> {
     inputs: MapInputProps<TInputs>;
-    action: TAction<TInputs>;
+    action: TAction<TData, TInputs>;
+    onSuccess?: (data: TData) => void;
     title: string;
     confirmButton: {
         label: string;
@@ -130,12 +133,13 @@ interface IActionCardProps<TInputs extends unknown[]> {
  *
  * inputs prop MUST NOT change.
  */
-export const ActionCard = <TInputs extends unknown[]>({
+export const ActionCard = <TData, TInputs extends unknown[]>({
     inputs,
     action,
+    onSuccess,
     title,
     confirmButton,
-}: IActionCardProps<TInputs>): ReactElement => {
+}: IActionCardProps<TData, TInputs>): ReactElement => {
     const [fetching, setFetching] = useState(false);
     const [inputValues, setInputValues] = useState(() =>
         initInputValues(inputs)
@@ -159,7 +163,10 @@ export const ActionCard = <TInputs extends unknown[]>({
         const { data, ...errors } = await action(inputValues as TInputs);
         setInputErrors(errors.inputErrors);
         if (errors.unspecificError) setUnspecificError(errors.unspecificError);
-        if (data) setInputValues(initInputValues(inputs));
+        if (data) {
+            setInputValues(initInputValues(inputs));
+            onSuccess?.(data);
+        }
         setFetching(false);
     };
 
