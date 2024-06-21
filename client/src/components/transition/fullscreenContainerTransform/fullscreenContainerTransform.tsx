@@ -135,7 +135,7 @@ export const FCT: FC<FCTProps> = (props) => {
     const stableOpen = useStableEdge(open, onOpen, onClose);
     const optimize = useDelayFall(openWillChange, () => time(300));
 
-    const openCN = cn(stableOpen && css["fct--open"]);
+    const openCN = cn(stableOpen && cn(css["fct--open"], "fct--open"));
     const optimizeCN = cn(optimize && css["fct--optimize"]);
     return useMemo(
         () => (
