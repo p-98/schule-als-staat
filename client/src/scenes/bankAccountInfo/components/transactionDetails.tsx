@@ -110,7 +110,7 @@ const detailFactories: {
             Zeitpunkt: trx.date,
             Transaktionsart: "Wechsel",
             [`Bezahlt in ${currencyName(trx.fromCurrency)}`]: from,
-            [`Bezhalt in ${currencyName(trx.toCurrency)}`]: to,
+            [`Erhalten in ${currencyName(trx.toCurrency)}`]: to,
         };
     },
     PurchaseTransaction: (trx) => ({
