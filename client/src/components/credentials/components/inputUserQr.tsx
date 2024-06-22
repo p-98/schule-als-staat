@@ -1,3 +1,4 @@
+import { v4 as uuid } from "uuid";
 import { noop } from "lodash/fp";
 import cn from "classnames";
 import {
@@ -7,6 +8,7 @@ import {
     useRef,
     useState,
     ComponentPropsWithoutRef,
+    useMemo,
 } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import {
@@ -67,13 +69,13 @@ const Qr: React.FC<IQrProps> = ({
     scan,
     onSuccess,
     onFailure,
-    id = "qr",
     ...restProps
 }) => {
     const onSuccessRef = useRef(onSuccess);
     onSuccessRef.current = onSuccess;
     const onFailureRef = useRef(onFailure);
     onFailureRef.current = onFailure;
+    const id = useMemo(() => `qr#${uuid()}`, []);
 
     const ref = useRef<HTMLDivElement>(null);
     const createDummy = () => {
