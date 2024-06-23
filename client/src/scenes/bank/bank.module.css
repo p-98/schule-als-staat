@@ -1,13 +1,3 @@
-.bank__fct {
-    overflow: hidden;
-}
 [class~="fct"][class~="fct--open"] .bank__fct {
     border-radius: 0px;
-}
-
-.bank-checkout-summary__value:first-child i {
-    color: var(--mdc-theme-error, #b00020) !important;
-}
-.bank-checkout-summary__value:last-child i {
-    color: var(--mdc-theme-seconary, #03dac4) !important;
 }

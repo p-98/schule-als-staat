@@ -1,5 +1,5 @@
-import { useEffect, useReducer, useState } from "react";
-import { syncify, syncifyF } from "Utility/misc";
+import { ComponentProps, useEffect, useReducer, useState } from "react";
+import { animationFrame, syncify, syncifyF } from "Utility/misc";
 
 type AsyncCallback = () => Promise<void>;
 /** Keep a flag constant while a handler is executed
@@ -50,3 +50,33 @@ export const useDelayFall = (flag: boolean, delay: AsyncCallback): boolean => {
 
 type Callback = () => void;
 export const useRerender = (): Callback => useReducer(() => [], [])[1];
+
+type WillClickListeners = Pick<
+    ComponentProps<"div">,
+    "onMouseEnter" | "onMouseLeave" | "onTouchStart" | "onTouchEnd"
+>;
+// TODO: check touch functionality (hover might be triggered after touch is released)
+/** Detects whether an element is expected to be interacted with
+ *
+ * Successor of `usePredictionObserver`
+ */
+export const useWillClick = (): [boolean, WillClickListeners] => {
+    const [hover, setHover] = useState(false);
+    const [touch, setTouch] = useState(false);
+    const expectInteraction = hover || touch;
+    return [
+        expectInteraction,
+        {
+            // `!touch` prevents default browser behaviour to simulate mouse
+            onMouseEnter: () => !touch && setHover(true),
+            onMouseLeave: () => setHover(false),
+
+            onTouchStart: () => setTouch(true),
+            onTouchEnd: syncifyF(async () => {
+                await animationFrame();
+                await animationFrame();
+                setTouch(false);
+            }),
+        },
+    ];
+};

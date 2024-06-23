@@ -1,3 +1,1 @@
-import { Bank } from "Scenes/bank/bank";
-
-export default Bank;
+export { Bank as default } from "Scenes/bank/bank";
