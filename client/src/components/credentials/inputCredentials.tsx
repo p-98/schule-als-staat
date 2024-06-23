@@ -12,10 +12,12 @@ import {
     ContainerTransform,
     ContainerTransformElement,
 } from "Components/transition/containerTransform/containerTransform";
+import { type FCT } from "Components/transition/fullscreenContainerTransform/fullscreenContainerTransform";
 import { FragmentType, graphql, useFragment } from "Utility/graphql";
 import { useCache } from "Utility/hooks/useCache";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";
 import { UserType } from "Utility/graphql/graphql";
+import { event, getByClass, syncifyF } from "Utility/misc";
 import { InputUserQr, TAction as TQrAction } from "./components/inputUserQr";
 import { InputUserKb, TAction as TKbAction } from "./components/inputUserKb";
 import { InputPassword } from "./inputPassword";
@@ -179,4 +181,25 @@ export const InputCredentials = <Data,>({
             </ContainerTransformElement>
         </ContainerTransform>
     );
+};
+
+/** Adapter for <FCT> when <InputCredentials> is used as handle
+ *
+ * Expects <InputCredentials> to be remounted between open and close.
+ */
+type AdapterFCT = Pick<
+    ComponentPropsWithoutRef<typeof FCT>,
+    "onClose" | "onClosed"
+>;
+export const adapterFCT: AdapterFCT = {
+    onClose: (ancestor, portalAncestor) => {
+        const portalQr = getByClass("input-user-qr__qr", portalAncestor);
+        portalQr.remove();
+    },
+    onClosed: syncifyF(async (ancestor) => {
+        const qr = getByClass("input-user-qr__qr", ancestor);
+        qr.classList.add(css["input-user__qr--fade-back"]!);
+        await event("animationend", qr);
+        qr.classList.remove(css["input-user__qr--fade-back"]!);
+    }),
 };

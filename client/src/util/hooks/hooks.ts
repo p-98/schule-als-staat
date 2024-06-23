@@ -1,3 +1,4 @@
+import { add } from "lodash/fp";
 import { ComponentProps, useEffect, useReducer, useState } from "react";
 import { animationFrame, syncify, syncifyF } from "Utility/misc";
 
@@ -50,6 +51,7 @@ export const useDelayFall = (flag: boolean, delay: AsyncCallback): boolean => {
 
 type Callback = () => void;
 export const useRerender = (): Callback => useReducer(() => [], [])[1];
+export const useRemount = (): [number, Callback] => useReducer(add(1), 0);
 
 type WillClickListeners = Pick<
     ComponentProps<"div">,

@@ -250,3 +250,19 @@ export const logWith =
         console.log(msg, arg);
         return arg;
     };
+
+/* DOM utilities
+ */
+
+/** Create a video look-alike based on the current frame
+ *
+ * Transfers the className.
+ */
+export function videoToCanvas(video: HTMLVideoElement): HTMLCanvasElement {
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.className = video.className;
+    canvas.getContext("2d")!.drawImage(video, 0, 0);
+    return canvas;
+}

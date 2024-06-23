@@ -11,6 +11,7 @@ import {
     type TAction as TActionCa,
 } from "Components/actionCard/actionCard";
 import {
+    adapterFCT,
     InputCredentials,
     type TAction as TActionCr,
 } from "Components/credentials/inputCredentials";
@@ -22,7 +23,7 @@ import { FCT } from "Components/transition/fullscreenContainerTransform/fullscre
 import { UserBanner } from "Components/userBanner/userBanner";
 import { currency, currencyName, parseCurrency } from "Utility/data";
 import { graphql } from "Utility/graphql";
-import { useWillClick } from "Utility/hooks/hooks";
+import { useRemount, useWillClick } from "Utility/hooks/hooks";
 import { useCache } from "Utility/hooks/useCache";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";
 import config from "Config";
@@ -188,6 +189,7 @@ const clerkAction: TActionCr<CitizenId> = async (type, id, password) => {
 export const Bank: FC = () => {
     const [clerk, setClerk] = useState<CitizenId>();
     const cachedClerk = useCache(clerk);
+    const [clerkInputKey, remountClerkInput] = useRemount();
 
     const [willClose, willCloseListeners] = useWillClick();
     const willOpen = !clerk;
@@ -200,8 +202,12 @@ export const Bank: FC = () => {
                     className={cn(cardClassNames, css["bank__fct"])}
                     open={!!clerk}
                     openWillChange={willOpen || willClose}
+                    onOpened={remountClerkInput}
+                    onClose={adapterFCT.onClose}
+                    onClosed={adapterFCT.onClosed}
                     handle={
                         <InputCredentials
+                            key={clerkInputKey}
                             action={clerkAction}
                             scanQr={!clerk}
                             onSuccess={setClerk}

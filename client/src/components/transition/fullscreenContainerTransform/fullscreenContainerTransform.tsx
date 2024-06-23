@@ -95,19 +95,16 @@ export const FCT: FC<FCTProps> = (props) => {
     const surfaceRef = useRef<HTMLDivElement>(null);
 
     /** Store state between open and close call */
-    const cacheRef = useRef<{
-        rect: Rect;
-        handleCopy: HTMLDivElement;
-    }>();
+    const cacheRef = useRef<{ handleCopy: HTMLDivElement }>();
 
     const onOpen = async () => {
         const rect = getRect(unref(handleRef));
         disableTransition(unref(surfaceRef));
         setRect(rect, unref(surfaceRef));
         const handleCopy = unref(handleRef).cloneNode(true) as HTMLDivElement;
-        unref(surfaceRef).prepend(handleCopy);
         setDim(rect, handleCopy);
-        cacheRef.current = { rect, handleCopy };
+        unref(surfaceRef).prepend(handleCopy);
+        cacheRef.current = { handleCopy };
         props.onOpen?.(unref(handleRef), unref(surfaceRef));
 
         await animationFrame();
@@ -120,7 +117,10 @@ export const FCT: FC<FCTProps> = (props) => {
         props.onOpened?.(unref(handleRef), unref(surfaceRef));
     };
     const onClose = async () => {
-        const { rect, handleCopy } = cacheRef.current!;
+        const rect = getRect(unref(handleRef));
+        const handleCopy = unref(handleRef).cloneNode(true) as HTMLDivElement;
+        setDim(rect, handleCopy);
+        cacheRef.current!.handleCopy.replaceWith(handleCopy);
         props.onClose?.(unref(handleRef), unref(surfaceRef));
 
         setRect(rect, unref(surfaceRef));
