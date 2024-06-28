@@ -265,11 +265,12 @@ export async function getSalesToday(
     productId: string
 ): Promise<number> {
     const query: { salesToday: number }[] = await knex.raw(
-        `SELECT total(amount) as salesToday
+        `SELECT total(productSales.amount) as salesToday
         FROM productSales
-        WHERE productSales.productId = :productId
         INNER JOIN purchaseTransactions
-        ON productSales.purchaseId = purchaseTransactions.id AND date >= :startOfToday`,
+            ON productSales.purchaseId = purchaseTransactions.id
+            AND date >= :startOfToday
+        WHERE productSales.productId = :productId`,
         { productId, startOfToday: formatDateTimeZ(startOfDay(new Date())) }
     );
     return query[0]!.salesToday;
@@ -314,10 +315,10 @@ export async function getSalesPerDay(
     if (isFirstDay) return getSalesToday(ctx, productId);
 
     const query: { salesPastDays: number }[] = await knex.raw(
-        `SELECT total(amount) as salesPastDays
+        `SELECT total(productSales.amount) as salesPastDays
         FROM productSales
-        WHERE purchaseTransactions.date < :startOfToday
-        INNER JOIN purchaseTransactions ON purchaseTransactions.id = productSales.purchaseId`,
+        INNER JOIN purchaseTransactions ON purchaseTransactions.id = productSales.purchaseId
+        WHERE purchaseTransactions.date < :startOfToday`,
         { startOfToday: formatDateTimeZ(startOfT0day) }
     );
     return query[0]!.salesPastDays / pastDays.length;
@@ -573,8 +574,8 @@ export async function cancelEmployment(
 }
 
 const assertProductInput = ({ name, price }: TProductInput) => {
-    assert(name.trim() !== "", "Name must not be empty", "BAD_USER_INPUT");
-    assert(price > 0, "Price must be positive", "BAD_USER_INPUT");
+    assert(name.trim() !== "", "Name must not be empty", "NAME_EMPTY");
+    assert(price >= 0, "Price must not be negative", "PRICE_NEGATIVE");
 };
 const assertProductOwnership = (ctx: IAppContext, product: IProductModel) => {
     const { session } = ctx;

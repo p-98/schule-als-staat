@@ -1,32 +1,15 @@
-.product__stats-card-header {
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 2px;
-}
-.product__header-text {
-    margin-left: 40px;
-}
+.view-product__stats {
+    height: 56px;
 
-.product__back-icon {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-}
-
-.product__stats {
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
     align-items: center;
-    gap: 16px;
 }
-
-.product__chart-card-content {
-    height: 100%;
+.view-product__stats > * {
+    flex-shrink: 0;
 }
-
-.add-fab__edit-product {
-    width: 360px;
+.view-product__stats > .view-product__stats-gap {
+    width: 16px;
+    flex-shrink: 1;
 }

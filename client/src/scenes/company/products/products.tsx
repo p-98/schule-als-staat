@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { identity, startsWith } from "lodash/fp";
+import { type ResultOf } from "@graphql-typed-document-node/core";
+import { type FC, memo, useState } from "react";
+import { useQuery } from "urql";
 import { GridCell } from "Components/material/grid";
 import { Typography } from "Components/material/typography";
 import {
@@ -10,129 +13,242 @@ import {
     CardInner,
     CardHeader,
 } from "Components/material/card";
+import { Dialog } from "Components/material/dialog";
 
 // local
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { GridPage } from "Components/page/page";
-// import { useCompanyAdminRedirect } from "Utility/hooks/useRedirect";
-import { IProduct } from "Utility/dataMockup";
+import { FallbackText } from "Components/fallbackText/fallbackText";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
-import {
-    SiblingTransitionBase,
-    SiblingTransitionBaseElement,
-    Modes,
-} from "Components/transition/siblingTransitionBase/siblingTransitionBase";
 import { Dot } from "Components/dot/dot";
-import { parseCurrency } from "Utility/parseCurrency";
-import { AddFab } from "./components/addFab";
-import products from "./products.data";
-import { Stats } from "./components/stats";
-import { EditProduct } from "./components/editProduct";
+import { ActionCard, TAction } from "Components/actionCard/actionCard";
+import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import {
+    byCode,
+    categorizeError,
+    client,
+    safeData,
+    useCategorizeError,
+    useSafeData,
+    useStable,
+} from "Utility/urql";
+import { currency, parseCurrency } from "Utility/data";
+import { componentFactory, compareBy } from "Utility/misc";
+import { useRemount } from "Utility/hooks/hooks";
+import { AddProduct } from "./components/addProduct";
 
-import styles from "./products.module.css";
+import css from "./products.module.css";
 
-// const chunkSplit = <T, >(arr: T[], chunkSize): T[][] =>
-//     Array(Math.ceil(arr.length / chunkSize))
-//         .fill(0)
-//         .map(() => arr.splice(0, chunkSize));
+/* Product component
+ */
 
-enum EDisplay {
-    Default,
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    Stats,
-    Edit,
+const StatsGap = componentFactory({
+    className: css["view-product__stats-gap"],
+});
+const ViewProduct_ProductFragment = graphql(/* GraphQL */ `
+    fragment ViewProduct_ProductFragment on Product {
+        name
+        price
+        salesToday
+        salesTotal
+        salesPerDay
+    }
+`);
+interface ViewProductProps {
+    product: FragmentType<typeof ViewProduct_ProductFragment>;
+    onEdit?: () => void;
 }
-interface IProductProps {
-    product: IProduct;
-}
-const Product: React.FC<IProductProps> = ({ product }) => {
-    const [display, setDisplay] = useState<EDisplay>(EDisplay.Default);
+const ViewProduct: FC<ViewProductProps> = memo(
+    ({ product: _product, onEdit }) => {
+        const product = useFragment(ViewProduct_ProductFragment, _product);
+        return (
+            <CardInner>
+                <CardHeader>{product.name}</CardHeader>
+                <CardContent>
+                    <DisplayInfo label="Preis">
+                        {currency(product.price)}
+                    </DisplayInfo>
+                    <Typography
+                        use="body2"
+                        theme="textSecondaryOnBackground"
+                        className={css["view-product__stats"]}
+                    >
+                        <span>{product.salesToday} heute</span>
+                        <StatsGap />
+                        <Dot size={6} />
+                        <StatsGap />
+                        <span>{product.salesTotal} ges.</span>
+                        <StatsGap />
+                        <Dot size={6} />
+                        <StatsGap />
+                        <span>{product.salesPerDay}/Tag</span>
+                    </Typography>
+                </CardContent>
+                <CardActions>
+                    <CardActionIcons>
+                        <CardActionIcon icon="edit" onClick={onEdit} />
+                    </CardActionIcons>
+                </CardActions>
+            </CardInner>
+        );
+    }
+);
 
+const EditProduct_ProductFragment = graphql(/* GraphQL */ `
+    fragment EditProduct_ProductFragment on Product {
+        id
+        name
+        price
+    }
+`);
+const editMutation = graphql(/* GraphQL */ `
+    mutation EditProductMutation($id: ID!, $product: ProductInput!) {
+        editProduct(id: $id, product: $product) {
+            id
+            name
+            price
+        }
+    }
+`);
+type EditInputs = [string, number];
+const editAction =
+    (
+        product: ResultOf<typeof EditProduct_ProductFragment>
+    ): TAction<[], EditInputs> =>
+    async ([name, price]) => {
+        if (product.name === name && product.price === price)
+            // nothing changed, so don't bother the server
+            return { data: [], inputErrors: [undefined, undefined] };
+
+        const result = await client.mutation(editMutation, {
+            id: product.id,
+            product: { name, price },
+        });
+        const { data, error } = safeData(result);
+        const [nameError, priceError] = categorizeError(error, [
+            byCode(startsWith("NAME")),
+            byCode(startsWith("PRICE")),
+        ]);
+        return {
+            data: data ? [] : undefined,
+            inputErrors: [nameError, priceError],
+        };
+    };
+interface EditProductProps {
+    product: FragmentType<typeof EditProduct_ProductFragment>;
+    onBack?: () => void;
+}
+const EditProduct: FC<EditProductProps> = memo(
+    ({ product: _product, onBack }) => {
+        const product = useFragment(EditProduct_ProductFragment, _product);
+        return (
+            <ActionCard<[], EditInputs>
+                action={editAction(product)}
+                inputs={[
+                    {
+                        label: "Name",
+                        type: "text",
+                        fromInput: identity,
+                        toInput: identity,
+                        init: product.name,
+                    },
+                    {
+                        label: "Preis",
+                        type: "text",
+                        fromInput: parseCurrency,
+                        toInput: (_) => currency(_, { unit: "none" }),
+                        init: product.price,
+                    },
+                ]}
+                title="Bearbeiten"
+                confirmButton={{
+                    label: "Bearbeiten",
+                    raised: true,
+                    danger: true,
+                }}
+                onSuccess={onBack}
+                cancelButton={{ label: "Zurück" }}
+                onCancel={onBack}
+                inner
+            />
+        );
+    }
+);
+
+const Product_ProductFragment = graphql(/* GraphQL */ `
+    fragment Product_ProductFragment on Product {
+        ...ViewProduct_ProductFragment
+        ...EditProduct_ProductFragment
+    }
+`);
+interface ProductProps {
+    product: FragmentType<typeof Product_ProductFragment>;
+}
+const Product: FC<ProductProps> = ({ product: _product }) => {
+    const product = useFragment(Product_ProductFragment, _product);
+    const [edit, setEdit] = useState(false);
+    const [editKey, remountEdit] = useRemount();
     return (
-        <Card>
-            <SiblingTransitionBase mode={Modes.xAxis} activeElement={display}>
-                <SiblingTransitionBaseElement index={EDisplay.Default}>
-                    <CardInner>
-                        <CardHeader>{product.name}</CardHeader>
-                        <CardContent>
-                            <DisplayInfo label="Preis">
-                                {parseCurrency(product.price)}
-                            </DisplayInfo>
-                        </CardContent>
-                        <CardContent>
-                            <Typography
-                                use="body2"
-                                theme="textSecondaryOnBackground"
-                                style={{ textAlign: "center" }}
-                            >
-                                Heute 10x verkauft
-                            </Typography>
-                            <Typography
-                                use="body2"
-                                theme="textSecondaryOnBackground"
-                                className={styles["product__stats"]}
-                            >
-                                <span>34 gesamt</span>
-                                <Dot size={6} />
-                                <span>12/Tag {"\u2300"}</span>
-                            </Typography>
-                        </CardContent>
-                        <CardActions>
-                            <CardActionIcons>
-                                <CardActionIcon
-                                    onClick={() => setDisplay(EDisplay.Stats)}
-                                    icon="insights"
-                                />
-                                <CardActionIcon
-                                    onClick={() => setDisplay(EDisplay.Edit)}
-                                    icon="edit"
-                                />
-                            </CardActionIcons>
-                        </CardActions>
-                    </CardInner>
-                </SiblingTransitionBaseElement>
-                <SiblingTransitionBaseElement index={EDisplay.Stats}>
-                    <Stats onGoBack={() => setDisplay(EDisplay.Default)} />
-                </SiblingTransitionBaseElement>
-                <SiblingTransitionBaseElement index={EDisplay.Edit}>
-                    <EditProduct
-                        cancel={{
-                            onCancel: () => setDisplay(EDisplay.Default),
-                            icon: "arrow_back",
-                            label: "Zurück",
-                        }}
-                        confirm={{
-                            onConfirm: () => setDisplay(EDisplay.Default),
-                            label: "Anwenden",
-                            danger: true,
-                        }}
-                        product={product}
-                        title="Bearbeiten"
-                    />
-                </SiblingTransitionBaseElement>
-            </SiblingTransitionBase>
-        </Card>
+        <>
+            <Card>
+                <ViewProduct product={product} onEdit={() => setEdit(true)} />
+            </Card>
+            <Dialog
+                open={edit}
+                onClose={() => setEdit(false)}
+                onClosed={remountEdit}
+            >
+                <EditProduct
+                    key={editKey}
+                    product={product}
+                    onBack={() => setEdit(false)}
+                />
+            </Dialog>
+        </>
     );
 };
 
-export const Products: React.FC = () => {
-    try {
-        // useCompanyAdminRedirect();
-    } catch (e) {
-        return <div>Redirect failed</div>;
-    }
+/* Main component
+ */
 
+const UnexpectedError: FC = memo(() => (
+    <FallbackText icon="error" text="Ein unerwarteter Fehler is aufgetreten." />
+));
+const Fetching: FC = memo(() => <FallbackText icon="refresh" text="Lädt..." />);
+
+const query = graphql(/* GraphQL */ `
+    query ProductsQuery {
+        meCompany {
+            id
+            products {
+                id
+                name
+                ...Product_ProductFragment
+            }
+        }
+    }
+`);
+export const Products: React.FC = () => {
+    const [result] = useQuery({ query });
+    const { data, fetching, error } = useSafeData(result);
+    const [unexpectedError] = useCategorizeError(error, []);
+    if (useStable(fetching)) return <Fetching />;
+    if (unexpectedError) return <UnexpectedError />;
+    if (!data) return <></>;
     return (
         <>
             <GridPage>
                 <DrawerAppBarHandle title="Produktverwaltung" />
-                {products.map((product) => (
-                    <GridCell span={4} key={product.id}>
-                        <Product product={product} />
-                    </GridCell>
-                ))}
+                {data.meCompany.products
+                    .slice() // create copy of array
+                    .sort(compareBy((_) => _.name))
+                    .map((product) => (
+                        <GridCell span={4} key={product.id}>
+                            <Product product={product} />
+                        </GridCell>
+                    ))}
             </GridPage>
-            <AddFab />
+            <AddProduct />
         </>
     );
 };

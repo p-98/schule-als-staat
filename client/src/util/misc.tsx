@@ -97,6 +97,18 @@ export const mutableAssign =
         Object.assign(target, source);
     };
 
+type CompareFn<T> = (a: T, b: T) => number;
+/** Sort by using gt/lt after applying function  */
+export const compareBy =
+    <T, S>(f: (_: T) => S): CompareFn<T> =>
+    (a, b) => {
+        const fa = f(a);
+        const fb = f(b);
+        if (fa < fb) return -1;
+        if (fa > fb) return 1;
+        return 0;
+    };
+
 /* React utilities
  */
 

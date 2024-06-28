@@ -84,7 +84,7 @@
         "tinycolor2": "^1.4.2",
         "typescript-event-target": "^1.1.1",
         "urql": "^4.0.6",
-        "uuid": "^9.0.0"
+        "uuid": "^10.0.0"
     },
     "devDependencies": {
         "@babel/core": "^7.13.15",
@@ -118,7 +118,7 @@
         "@types/react-dom": "^18.2.22",
         "@types/set-cookie-parser": "^2.4.3",
         "@types/tinycolor2": "^1.4.3",
-        "@types/uuid": "^9.0.4",
+        "@types/uuid": "^10.0.0",
         "@types/web": "^0.0.145",
         "@types/webpack-env": "^1.16.0",
         "@types/webpack-node-externals": "^2.5.0",

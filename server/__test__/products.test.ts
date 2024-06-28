@@ -290,16 +290,21 @@ async function testAddProduct(
     const state = await getProductState(_company);
 
     // invalid requests
-    const invalidName = await _company({
+    const emptyName = await _company({
+        document: addProductMutation,
+        variables: { name: "", price },
+    });
+    assertInvalid(emptyName, "NAME_EMPTY");
+    const whitespaceName = await _company({
         document: addProductMutation,
         variables: { name: "  ", price },
     });
-    assertInvalid(invalidName, "BAD_USER_INPUT");
+    assertInvalid(whitespaceName, "NAME_EMPTY");
     const invalidPrice = await _company({
         document: addProductMutation,
         variables: { name, price: -1.0 },
     });
-    assertInvalid(invalidPrice, "BAD_USER_INPUT");
+    assertInvalid(invalidPrice, "PRICE_NEGATIVE");
     const wrongUserType = await citizen({
         document: addProductMutation,
         variables: { name, price },
@@ -344,16 +349,21 @@ async function testEditProduct(product: IProduct): Promise<IProduct> {
         variables: { id: "invalidProductId", name, price },
     });
     assertInvalid(invalidId, "PRODUCT_NOT_FOUND");
-    const invalidName = await seller({
+    const emptyName = await seller({
+        document: editProductMutation,
+        variables: { id: product.id, name: "", price },
+    });
+    assertInvalid(emptyName, "NAME_EMPTY");
+    const whitespaceName = await seller({
         document: editProductMutation,
         variables: { id: product.id, name: "  ", price },
     });
-    assertInvalid(invalidName, "BAD_USER_INPUT");
+    assertInvalid(whitespaceName, "NAME_EMPTY");
     const invalidPrice = await seller({
         document: editProductMutation,
         variables: { id: product.id, name, price: -1.0 },
     });
-    assertInvalid(invalidPrice, "BAD_USER_INPUT");
+    assertInvalid(invalidPrice, "PRICE_NEGATIVE");
     const wrongUserId = await company({
         document: editProductMutation,
         variables: { id: product.id, name, price },

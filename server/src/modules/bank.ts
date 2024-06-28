@@ -26,7 +26,7 @@ import {
 } from "Util/parse";
 import { formatDateTimeZ } from "Util/date";
 import { v4 as uuidv4 } from "uuid";
-import { assert, GraphQLYogaError, hasCode } from "Util/error";
+import { assert, GraphQLYogaError } from "Util/error";
 import { TChangeInput, TCredentialsInput } from "Types/schema";
 import { TNullable } from "Types";
 import { assertCredentials, assertRole, checkRole } from "Util/auth";

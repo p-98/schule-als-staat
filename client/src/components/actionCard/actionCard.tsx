@@ -1,10 +1,16 @@
 import { constant } from "lodash/fp";
-import { type FormEvent, useState, type ReactElement } from "react";
-import { Card, CardContent, CardHeader } from "Components/material/card";
+import { type FormEvent, type ReactElement, useState } from "react";
+import {
+    Card,
+    CardActionButton,
+    CardActions,
+    CardContent,
+    CardHeader,
+    CardInner,
+} from "Components/material/card";
 import { Theme } from "Components/material/theme";
 import { Select } from "Components/material/select";
 import { TextField } from "Components/material/textfield";
-import { Button } from "Components/material/button";
 
 import { ChangeEvent } from "Utility/types";
 import { syncifyF } from "Utility/misc";
@@ -120,14 +126,22 @@ const initInputValues = (inputs: InputProp<unknown>[]): unknown[] =>
     inputs.map((_) => _.init);
 
 interface IActionCardProps<TData, TInputs extends unknown[]> {
+    /** MUST NOT change */
     inputs: MapInputProps<TInputs>;
     action: TAction<TData, TInputs>;
-    onSuccess?: (data: TData) => void;
     title: string;
     confirmButton: {
         label: string;
+        raised?: boolean;
         danger?: boolean;
     };
+    onSuccess?: (data: TData) => void;
+    cancelButton?: {
+        label: string;
+    };
+    onCancel?: () => void;
+    /** Adapter flag when used as <Card>-like child */
+    inner?: boolean;
 }
 /** Card with inputs executing an async action
  *
@@ -136,10 +150,15 @@ interface IActionCardProps<TData, TInputs extends unknown[]> {
 export const ActionCard = <TData, TInputs extends unknown[]>({
     inputs,
     action,
-    onSuccess,
     title,
     confirmButton,
+    onSuccess,
+    cancelButton,
+    onCancel,
+    inner = false,
 }: IActionCardProps<TData, TInputs>): ReactElement => {
+    if (!!cancelButton !== !!onCancel)
+        throw Error("cancelButton, onCancel must be set together");
     const [fetching, setFetching] = useState(false);
     const [inputValues, setInputValues] = useState(() =>
         initInputValues(inputs)
@@ -171,8 +190,9 @@ export const ActionCard = <TData, TInputs extends unknown[]>({
     };
 
     const renderFetching = useStable(fetching);
+    const Tag = inner ? CardInner : Card;
     return (
-        <Card>
+        <Tag>
             <CardHeader>{title}</CardHeader>
             <CardContent>
                 {inputs.map((input: InputProp<unknown>, index: number) => (
@@ -187,13 +207,22 @@ export const ActionCard = <TData, TInputs extends unknown[]>({
                         disabled={renderFetching}
                     />
                 ))}
-                <Button
+            </CardContent>
+            <CardActions dialogLayout>
+                {cancelButton && (
+                    <CardActionButton
+                        label={cancelButton.label}
+                        onClick={onCancel}
+                    />
+                )}
+                <CardActionButton
                     label={confirmButton.label}
                     onClick={syncifyF(handleConfirm)}
                     disabled={renderFetching}
+                    raised={confirmButton.raised}
                     danger={confirmButton.danger}
                 />
-            </CardContent>
-        </Card>
+            </CardActions>
+        </Tag>
     );
 };
