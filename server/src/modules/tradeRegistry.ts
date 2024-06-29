@@ -12,6 +12,7 @@ import {
     flatMap,
     curry,
     filter,
+    assign,
 } from "lodash/fp";
 import {
     ICompanyStatsFragmentModel,
@@ -41,26 +42,48 @@ import {
 import { formatDateTimeZ, formatDateZ, openingHours } from "Util/date";
 import { assertRole } from "Util/auth";
 
+/* Helper functions
+ */
+const addType: (company: Omit<ICompanyUserModel, "type">) => ICompanyUserModel =
+    assign({ type: "COMPANY" } as const);
+
+/* Query functions
+ */
+
 export async function getCompany(
     { knex }: IAppContext,
-    id: string
+    id: string,
+    options?: { code?: string }
 ): Promise<ICompanyUserModel> {
-    const raw = (await knex("companies")
+    const raw = await knex("companies")
         // select order important, because both tables contain id field
-        .select("bankAccounts.*", "companies.*")
+        .select<ICompany & IBankAccount>("bankAccounts.*", "companies.*")
         .where("companies.id", id)
         .innerJoin("bankAccounts", "companies.bankAccountId", "bankAccounts.id")
-        .first()) as (ICompany & IBankAccount) | undefined;
+        .first();
+    assert(
+        !!raw,
+        `Company with id ${id} not found`,
+        options?.code ?? "COMPANY_NOT_FOUND"
+    );
+    return addType(raw);
+}
 
-    if (!raw)
-        throw new GraphQLYogaError(`Company with id ${id} not found`, {
-            code: "COMPANY_NOT_FOUND",
-        });
+export async function getAllComnpanies(
+    ctx: IAppContext
+): Promise<ICompanyUserModel[]> {
+    const { knex, session } = ctx;
+    assertRole(ctx, session.userSignature, "TAX_OFFICE", { allowAdmin: true });
 
-    return {
-        type: "COMPANY",
-        ...raw,
-    };
+    const raw = await knex("companies")
+        // select order important, because both tables contain id field
+        .select<(ICompany & IBankAccount)[]>("bankAccounts.*", "companies.*")
+        .innerJoin(
+            "bankAccounts",
+            "companies.bankAccountId",
+            "bankAccounts.id"
+        );
+    return raw.map(addType);
 }
 
 export async function getProduct(
@@ -394,6 +417,9 @@ export async function getWorktime(
 
     return raw;
 }
+
+/* Mutation functions
+ */
 
 export async function createEmploymentOffer(
     { knex }: IAppContext,

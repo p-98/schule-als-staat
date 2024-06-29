@@ -89,6 +89,13 @@ test("user roles", async () => {
             }),
             ["USER", "COMPANY", "BORDER_CONTROL"],
         ],
+        "tax office": [
+            await buildHTTPUserExecutor(knex, yoga, {
+                type: "COMPANY",
+                id: config.roles.taxOfficeCompanyId,
+            }),
+            ["USER", "COMPANY", "TAX_OFFICE"],
+        ],
         politics: [
             await buildHTTPUserExecutor(knex, yoga, {
                 type: "COMPANY",

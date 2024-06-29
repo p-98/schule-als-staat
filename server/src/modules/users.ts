@@ -48,6 +48,7 @@ const roles: TUserRole[] = [
     "ADMIN",
     "BANK",
     "BORDER_CONTROL",
+    "TAX_OFFICE",
     "CITIZEN",
     "COMPANY",
     "GUEST",

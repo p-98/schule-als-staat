@@ -62,6 +62,7 @@ import {
     editProduct,
     removeProduct,
     getEmploymentOffers,
+    getAllComnpanies,
 } from "Modules/tradeRegistry";
 import {
     castVote,
@@ -307,6 +308,7 @@ export const resolvers: TResolvers = {
 
         user: (_, args, ctx) => getUser(ctx, args.user),
         citizensByClass: (_, args, ctx) => getCitizensByClass(ctx, args.class),
+        companies: (_, __, ctx) => getAllComnpanies(ctx),
 
         votes: (_, __, ctx) => getAllVotes(ctx),
 

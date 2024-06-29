@@ -39,6 +39,7 @@ export default {
         warehouseCompanyId: "WAREH",
         bankCompanyId: "bank",
         borderControlCompanyId: "BCTRL",
+        taxOfficeCompanyId: "TAX",
         policeCompanyId: "POLICE",
         policiticsCompanyId: "POLITICS",
     },

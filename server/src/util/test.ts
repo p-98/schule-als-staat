@@ -154,6 +154,7 @@ export const config: Config<"plancko-digital" | "plancko-analog"> = {
         warehouseCompanyId: "WAREH",
         bankCompanyId: "SBANK",
         borderControlCompanyId: "BCTRL",
+        taxOfficeCompanyId: "TAX",
         policeCompanyId: "POLICE",
         policiticsCompanyId: "POLITICS",
     },

@@ -29,6 +29,7 @@ export type Config<Currencies extends string> = {
         bankCompanyId: string;
         warehouseCompanyId: string;
         borderControlCompanyId: string;
+        taxOfficeCompanyId: string;
         policeCompanyId: string;
         policiticsCompanyId: string;
     };
