@@ -17,6 +17,7 @@ import {
     graphql,
     useFragment as getFragment,
 } from "Utility/graphql";
+import { compareBy } from "Utility/misc";
 import { ProductCard } from "./components/productCard";
 import { Cart, TAction } from "./components/cart";
 
@@ -38,6 +39,7 @@ export { type TAction };
 export const Pos_ProductFragment = graphql(/* GraphQL */ `
     fragment Pos_ProductFragment on Product {
         id
+        name
         ...Card_ProductFragment
         ...Cart_ProductFragment
     }
@@ -62,7 +64,10 @@ export const Pos = <TData,>({
 }: IPosProps<TData>): ReactElement => {
     type TProduct = ResultOf<typeof Pos_ProductFragment>;
     const products = useMemo(
-        () => _products.map((_) => getFragment(Pos_ProductFragment, _)),
+        () =>
+            _products
+                .map((_) => getFragment(Pos_ProductFragment, _))
+                .sort(compareBy((_) => _.name)),
         [_products]
     );
     const [cart, setCart] = useState(() => emptyCart(products));
