@@ -83,7 +83,13 @@ export const yogaFactory = (
                 getPersistedOperation: (hash) =>
                     persistedDocuments.get(hash) ?? null,
                 skipDocumentValidation: true,
-                allowArbitraryOperations: process.env.NODE_ENV === "test",
+                allowArbitraryOperations: async (request) => {
+                    if (process.env.NODE_ENV === "test") return true;
+                    const key = request.headers.get("x-trusted-operation");
+                    if (key === null) return false;
+                    const _config = await config.get();
+                    return _config.server.trustedOperations.includes(key);
+                },
             }),
         ],
     });

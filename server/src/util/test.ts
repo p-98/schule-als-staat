@@ -165,7 +165,9 @@ export const config: Config<"plancko-digital" | "plancko-analog"> = {
         timezone: "+02:00",
     },
     guestInitialBalance: 50,
-    server: setNotImplemented(["url", "host", "port"], {}),
+    server: setNotImplemented(["url", "host", "port"], {
+        trustedOperations: ["TRUSTED"],
+    }),
     database: {
         file: "nonExistend.sqlite3",
         backup: {

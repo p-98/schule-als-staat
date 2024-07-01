@@ -48,6 +48,8 @@ export type Config<Currencies extends string> = {
         url: string;
         host: string;
         port: number;
+        /** Allow arbitrary operations when set as 'x-trusted-operation' header */
+        trustedOperations: string[];
     };
     database: {
         file: string;
