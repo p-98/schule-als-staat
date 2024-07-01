@@ -1,11 +1,13 @@
+import { toLower } from "lodash/fp";
 import { formatDurationWithOptions, intervalToDuration } from "date-fns/fp";
 import { de } from "date-fns/locale";
 import config from "Config";
 import { FragmentType, graphql, useFragment as getFragment } from "./graphql";
 
 export class InvalidInput {}
-export class NoInput {}
+export type Parser<T> = (string: string) => T | InvalidInput;
 
+export const parseUserId: Parser<string> = toLower;
 export const Name_UserFragment = graphql(/* GraphQL */ `
     fragment Name_UserFragment on User {
         ... on CitizenUser {
@@ -20,7 +22,6 @@ export const Name_UserFragment = graphql(/* GraphQL */ `
         }
     }
 `);
-
 interface INameOpt {
     /** Fallback when guests provide no name */
     fallback: string;
@@ -99,13 +100,13 @@ export function currencyName(_currency: string): string {
 }
 
 /** Parse a currency value */
-export function parseCurrency(string: string): number | InvalidInput {
+export const parseCurrency: Parser<number> = (string) => {
     if (string === "") return 0;
 
     const value = parseInt(string, 10);
     if (Number.isNaN(value)) return new InvalidInput();
     return value;
-}
+};
 
 export const Eq_UserFragment = graphql(/* GraohQL */ `
     fragment Eq_UserFragment on User {

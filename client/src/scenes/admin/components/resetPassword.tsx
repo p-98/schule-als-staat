@@ -5,6 +5,7 @@ import { ActionCard, TAction } from "Components/actionCard/actionCard";
 import { graphql } from "Utility/graphql";
 import { UserType } from "Utility/graphql/graphql";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";
+import { parseUserId } from "Utility/data";
 
 const resetMutation = graphql(/* GraphQL */ `
     mutation ResetPasswordMutation(
@@ -52,7 +53,7 @@ export const ResetPassword = memo(() => (
                 type: "text",
                 init: "",
                 toInput: identity,
-                fromInput: identity,
+                fromInput: parseUserId,
             },
             {
                 label: "Neues Passwort",

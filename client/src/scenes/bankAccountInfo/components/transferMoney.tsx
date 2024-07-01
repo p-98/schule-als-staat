@@ -4,7 +4,7 @@ import { graphql } from "Utility/graphql";
 import { UserType } from "Utility/graphql/graphql";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";
 import { identity } from "lodash/fp";
-import { currency, parseCurrency } from "Utility/data";
+import { currency, parseCurrency, parseUserId } from "Utility/data";
 
 type TInputs = [UserType, string, number, string];
 
@@ -66,7 +66,7 @@ export const TransferMoney = memo(() => (
                 label: "Empfänger Benutzername",
                 init: "",
                 toInput: identity,
-                fromInput: identity,
+                fromInput: parseUserId,
             },
             {
                 type: "text",

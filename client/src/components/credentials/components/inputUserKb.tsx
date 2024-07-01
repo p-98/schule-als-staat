@@ -18,6 +18,7 @@ import { type UserType } from "Utility/graphql/graphql";
 import { syncify } from "Utility/misc";
 import { ChangeEvent } from "Utility/types";
 import { Theme } from "Components/material/theme";
+import { InvalidInput, parseUserId } from "Utility/data";
 
 /** Exactly one of resulting fields must be set. */
 export type TAction<TData> = (
@@ -97,7 +98,11 @@ export const InputUserKb = <TData,>({
                     id="input-user-kb__user-id"
                     label="Benutzername"
                     value={id}
-                    onChange={(e: ChangeEvent) => setId(e.currentTarget.value)}
+                    onChange={(e: ChangeEvent) => {
+                        const value = parseUserId(e.currentTarget.value);
+                        if (value instanceof InvalidInput) return;
+                        setId(value);
+                    }}
                     invalid={!!idError}
                     helpText={{
                         validationMsg: true,

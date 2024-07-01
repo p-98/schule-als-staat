@@ -33,15 +33,15 @@ export default {
     roles: {
         stateBankAccountId: "STATE",
 
-        adminCitizenIds: ["ADMIN", "j.keller"],
-        teacherCitizenIds: ["TEACH", "m.koch"],
+        adminCitizenIds: ["admin", "j.keller"],
+        teacherCitizenIds: ["teach", "m.koch"],
 
-        warehouseCompanyId: "WAREH",
+        warehouseCompanyId: "warehouse",
         bankCompanyId: "bank",
-        borderControlCompanyId: "BCTRL",
-        taxOfficeCompanyId: "TAX",
-        policeCompanyId: "POLICE",
-        policiticsCompanyId: "POLITICS",
+        borderControlCompanyId: "border",
+        taxOfficeCompanyId: "tax",
+        policeCompanyId: "police",
+        policiticsCompanyId: "politics",
     },
     openingHours: {
         dates: ["2020-07-23", "2020-07-24", "2020-07-27", "2020-07-28"],

@@ -15,7 +15,7 @@ import { TextField } from "Components/material/textfield";
 import { ChangeEvent } from "Utility/types";
 import { syncifyF } from "Utility/misc";
 import { useStable } from "Utility/urql";
-import { InvalidInput } from "Utility/data";
+import { InvalidInput, type Parser } from "Utility/data";
 
 interface IActionCardInput<T> {
     input: InputProp<T>;
@@ -92,7 +92,7 @@ type MapInputErrors<TInputs extends unknown[]> = TInputs extends [
 type InputTextProp<T> = {
     type: "text";
     toInput: (_: T) => string;
-    fromInput: (_: string) => T | InvalidInput;
+    fromInput: Parser<T>;
 };
 type InputSelectProp<T> = T extends string
     ? {
