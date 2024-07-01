@@ -9,10 +9,10 @@ import {
 } from "Components/material/card";
 
 // local
-import type { ChangeEvent } from "Utility/types";
-import { parseCurrency } from "Utility/parseCurrency";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
 import { HightlightStates } from "Components/highlightStates/highlightStates";
+import type { ChangeEvent } from "Utility/types";
+import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { currency } from "Utility/data";
 
 import styles from "../pos.module.css";
 
@@ -56,7 +56,7 @@ export const ProductCard = React.memo<IProductCardProps>(
                             theme="textSecondaryOnBackground"
                             className={styles["pos__card-subtitle"]}
                         >
-                            {parseCurrency(product.price)}
+                            {currency(product.price)}
                         </Typography>
                         <CardContent>
                             <TextField
