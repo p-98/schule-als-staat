@@ -1,11 +1,14 @@
 import { type RequestListener, createServer } from "http";
 import exitHook from "async-exit-hook";
+import { entries, mapValues } from "lodash/fp";
+import { type DocumentNode, parse } from "graphql";
 
+import { type Config } from "Root/types/config";
 import { yogaFactory } from "Server";
 import { backup, Db, loadKnex } from "Database";
 import { FileConfig } from "Util/config";
-import { syncifyF } from "Util/misc";
-import { type Config } from "Root/types/config";
+import { pipe1, syncifyF } from "Util/misc";
+import persistedDocumentsJson from "Util/graphql/persisted-documents.json";
 
 const periodicBackups = (() => {
     let backupInterval: NodeJS.Timer;
@@ -23,6 +26,13 @@ const periodicBackups = (() => {
 const config = new FileConfig();
 const _config = await config.get();
 
+const operations = pipe1(
+    persistedDocumentsJson,
+    mapValues(parse),
+    entries<DocumentNode>,
+    (e) => new Map(e)
+);
+
 const [db, knex] = await loadKnex(_config);
 exitHook((done) =>
     syncifyF(async () => {
@@ -37,7 +47,7 @@ config.addEventListener("reload", (e) => {
     periodicBackups.restart(db, e.detail);
 });
 
-const yoga = yogaFactory(db, knex, config);
+const yoga = yogaFactory(db, knex, operations, config);
 const server = createServer(yoga as unknown as RequestListener);
 const { port, host } = _config.server;
 server.listen(port, host, () => {

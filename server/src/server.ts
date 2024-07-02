@@ -21,13 +21,6 @@ import persistedDocumentsJson from "Util/graphql/persisted-documents.json";
 import sessionFactory from "./sessionFactory";
 import { resolvers } from "./resolvers";
 
-const persistedDocuments = pipe1(
-    persistedDocumentsJson,
-    mapValues(parse),
-    entries<DocumentNode>,
-    (e) => new Map(e)
-);
-
 export interface IDynamicConfig {
     get: () => Promise<Config<string>>;
     reload: () => Promise<void>;
@@ -64,6 +57,7 @@ export type TYogaServerInstance = YogaServerInstance<
 export const yogaFactory = (
     db: Db,
     knex: Knex,
+    operations: Map<string, DocumentNode>,
     config: IDynamicConfig
 ): TYogaServerInstance =>
     createYoga({
@@ -80,8 +74,7 @@ export const yogaFactory = (
         plugins: [
             useCookies(),
             usePersistedOperations({
-                getPersistedOperation: (hash) =>
-                    persistedDocuments.get(hash) ?? null,
+                getPersistedOperation: (hash) => operations.get(hash) ?? null,
                 skipDocumentValidation: true,
                 allowArbitraryOperations: async (request) => {
                     if (process.env.NODE_ENV === "test") return true;
