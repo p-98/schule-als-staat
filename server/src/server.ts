@@ -29,7 +29,7 @@ const persistedDocuments = pipe1(
 );
 
 export interface IDynamicConfig {
-    get: () => Promise<Config<string>>;
+    get: () => Promise<Config>;
     reload: () => Promise<void>;
 }
 export type TBackup = () => Promise<void>;

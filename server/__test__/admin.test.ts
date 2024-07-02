@@ -73,7 +73,7 @@ const userQuery = graphql(/* GraphQL */ `
     }
 `);
 
-let config: Config<string>;
+let config: Config;
 const dconfig = {
     get: jest.fn(() => Promise.resolve(config)),
     reload: jest.fn(constant(Promise.resolve())),

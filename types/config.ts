@@ -1,6 +1,6 @@
 type NeverTo<T, Fallback> = [T] extends [never] ? Fallback : T;
 export type ConversionFn = (fromValue: number) => number;
-export type Config<Currencies extends string> = {
+export type Config<Currencies extends string = string> = {
     school: {
         classes: string[];
     };

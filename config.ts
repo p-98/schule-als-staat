@@ -65,4 +65,4 @@ export default {
         },
         allowRawSql: false,
     },
-} satisfies Config<"plancko-digital" | "plancko-analog"> as Config<string>;
+} satisfies Config<"plancko-digital" | "plancko-analog"> as Config;
