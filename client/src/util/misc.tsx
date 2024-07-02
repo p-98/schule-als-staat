@@ -1,3 +1,4 @@
+import { type TypedEventTarget } from "typescript-event-target";
 import cn from "classnames";
 import {
     type FC,
@@ -230,15 +231,27 @@ export const animationFrame = (): Promise<DOMHighResTimeStamp> =>
 export const time = (ms: number): Promise<void> =>
     new Promise((resolve) => setTimeout(resolve, ms));
 
+/** Not exported from typescript-event-target */
+type ValueIsEvent<T> = {
+    [key in keyof T]: Event;
+};
+interface EventFn {
+    <K extends keyof HTMLElementEventMap>(type: K, el: HTMLElement): Promise<
+        HTMLElementEventMap[K]
+    >;
+    <M extends ValueIsEvent<M>, E extends keyof M>(
+        type: E,
+        el: TypedEventTarget<M>
+    ): Promise<M[E]>;
+}
 /** Wait until dom event is emitted */
-export const event = <K extends keyof HTMLElementEventMap>(
-    type: K,
-    el: HTMLElement
-): Promise<HTMLElementEventMap[K]> =>
+export const event: EventFn = (
+    type: string,
+    el: EventTarget
+): Promise<unknown> =>
     new Promise((resolve) => {
-        const callback = (e: HTMLElementEventMap[K]) => {
-            // cleanup after ourselves
-            el.removeEventListener(type, callback);
+        const callback = (e: unknown) => {
+            el.removeEventListener(type, callback); // cleanup after ourselves
             resolve(e);
         };
         el.addEventListener(type, callback);

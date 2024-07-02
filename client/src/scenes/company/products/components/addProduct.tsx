@@ -1,12 +1,98 @@
-import { identity, startsWith } from "lodash/fp";
-import { type FC, useState } from "react";
+import { assign, identity, startsWith } from "lodash/fp";
+import { TypedEventTarget } from "typescript-event-target";
+import { type FC, useState, useMemo, useEffect } from "react";
 import { Fab } from "Components/material/fab/fab";
-import { Dialog } from "Components/material/dialog";
+import {
+    Dialog,
+    type DialogOnClosedEventT,
+    type DialogOnCloseEventT,
+    type DialogOnOpenedEventT,
+    type DialogOnOpenEventT,
+    type DialogProps,
+} from "Components/material/dialog";
 
 import { ActionCard, TAction } from "Components/actionCard/actionCard";
 import { currency, parseCurrency } from "Utility/data";
 import { graphql } from "Utility/graphql";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";
+import { event } from "Utility/misc";
+
+export type DialogEventTarget = TypedEventTarget<{
+    close: DialogOnCloseEventT;
+    closed: DialogOnClosedEventT;
+    open: DialogOnOpenEventT;
+    opened: DialogOnOpenedEventT;
+}>;
+export type DialogEventProps = Pick<
+    DialogProps,
+    "onClose" | "onClosed" | "onOpen" | "onOpened"
+>;
+export const useDialogEvents = (): [DialogEventTarget, DialogEventProps] =>
+    useMemo(() => {
+        const dialog: DialogEventTarget = new TypedEventTarget();
+        const props: DialogEventProps = {
+            onClose: (e) => dialog.dispatchTypedEvent("close", e),
+            onClosed: (e) => dialog.dispatchTypedEvent("closed", e),
+            onOpen: (e) => dialog.dispatchTypedEvent("open", e),
+            onOpened: (e) => dialog.dispatchTypedEvent("opened", e),
+        };
+        return [dialog, props];
+    }, []);
+
+export type DialogActions = {
+    close: () => void;
+    open: () => void;
+};
+export type DialogActionsProps = Pick<DialogProps, "open">;
+export const useDialogActions = (
+    open: boolean
+): [DialogActions, DialogActionsProps] => {
+    const [_open, _setOpen] = useState(open);
+    useEffect(() => _setOpen(open), [open]);
+    const actions: DialogActions = useMemo(
+        () => ({
+            close: () => _setOpen(false),
+            open: () => _setOpen(true),
+        }),
+        []
+    );
+    const props: DialogActionsProps = useMemo(() => ({ open: _open }), [_open]);
+    return [actions, props];
+};
+
+export type AsyncDialog = DialogEventTarget & {
+    close: () => Promise<void>;
+    open: () => Promise<void>;
+};
+export type AsyncDialogProps = Pick<
+    DialogProps,
+    "onClose" | "onClosed" | "onOpen" | "onOpened" | "open"
+>;
+export const useAsyncDialog = (
+    open: boolean
+): [AsyncDialog, AsyncDialogProps] => {
+    const [dialog, eventProps] = useDialogEvents();
+    const [actions, actionProps] = useDialogActions(open);
+    const _dialog: AsyncDialog = useMemo(
+        () =>
+            assign(dialog, {
+                close: async () => {
+                    actions.close();
+                    await event("closed", dialog);
+                },
+                open: async () => {
+                    actions.open();
+                    await event("opened", dialog);
+                },
+            }),
+        [dialog, actions]
+    );
+    const props: AsyncDialogProps = useMemo(
+        () => ({ ...eventProps, ...actionProps }),
+        [eventProps, actionProps]
+    );
+    return [_dialog, props];
+};
 
 type Inputs = [string, number];
 
