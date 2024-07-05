@@ -22,6 +22,7 @@ import {
     useStable,
 } from "Utility/urql";
 import { syncify, syncifyF } from "Utility/misc";
+import { notify } from "Utility/notifications";
 import * as format from "Utility/data";
 
 const mainCurrency = config.currencies[config.mainCurrency]!;
@@ -89,7 +90,10 @@ export const CreateGuest: React.FC<ICreateGuestProps> = ({
             });
             const { data: assignData, error: assignError } =
                 safeData(assignResult);
-            categorizeError(assignError, []);
+            const [cardBlocked] = categorizeError(assignError, [
+                byCode("CARD_BLOCKED"),
+            ]);
+            if (cardBlocked) notify({ body: cardBlocked.message });
             if (!assignData) return setFetching(false);
 
             await close();
@@ -210,7 +214,10 @@ export const RemoveGuest: React.FC<IRemoveGuestProps> = ({
         });
         const { data: unassignData, error: unassignError } =
             safeData(unassignResult);
-        categorizeError(unassignError, []);
+        const [cardBlocked] = categorizeError(unassignError, [
+            byCode("CARD_BLOCKED"),
+        ]);
+        if (cardBlocked) notify({ body: cardBlocked.message });
         if (!unassignData) return setFetching(false);
 
         await close();

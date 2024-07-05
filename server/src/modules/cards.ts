@@ -20,14 +20,18 @@ function assertCardFound(
 ): asserts card is ICard {
     assert(
         !isUndefined(card),
-        `Card with id ${id} not found.`,
+        `Card with id '${id}' not found.`,
         "CARD_NOT_FOUND"
     );
 }
 function assertCardUnblocked(
     card: ICard
 ): asserts card is ICard & { blocked: false } {
-    assert(!card.blocked, "An unexpected error occured.", "CARD_BLOCKED");
+    assert(
+        !card.blocked,
+        `Card with id '${card.id}' is blocked.`,
+        "CARD_BLOCKED"
+    );
 }
 
 const cardDbToModel = (card: ICard): ICardModel => ({
