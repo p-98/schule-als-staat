@@ -24,6 +24,8 @@ import {
 import { syncify, syncifyF } from "Utility/misc";
 import * as format from "Utility/data";
 
+const mainCurrency = config.currencies[config.mainCurrency]!;
+
 const createGuestMutation = graphql(/* GraphQL */ `
     mutation CreateGuestMutation($name: String, $balance: Float) {
         createGuest(guest: { name: $name, balance: $balance }) {
@@ -116,7 +118,7 @@ export const CreateGuest: React.FC<ICreateGuestProps> = ({
                 />
                 <TextField
                     id="create-geust__balance"
-                    label={`Anfangskontostand in ${config.currencies.virtual.short}`}
+                    label={`Anfangskontostand in ${mainCurrency.name}`}
                     type="number"
                     value={balance}
                     onChange={(e: FormEvent<HTMLInputElement>) => {
