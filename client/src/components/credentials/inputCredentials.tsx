@@ -18,8 +18,8 @@ import { useCache } from "Utility/hooks/useCache";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";
 import { UserType } from "Utility/graphql/graphql";
 import { event, getByClass, syncifyF } from "Utility/misc";
-import { InputUserQr, TAction as TQrAction } from "./components/inputUserQr";
-import { InputUserKb, TAction as TKbAction } from "./components/inputUserKb";
+import { InputQr, TAction as TQrAction } from "Components/qr/qr";
+import { InputUserKb, TAction as TKbAction } from "./inputUserKb";
 import { InputPassword } from "./inputPassword";
 
 import css from "./credentials.module.css";
@@ -57,11 +57,10 @@ const qrAction: TQrAction<FragmentType<typeof Login_UserFragment>> = async (
         { requestPolicy: "network-only" }
     );
     const { data, error } = safeData(result);
-    const [idError] = categorizeError(error, [byCode(endsWith("NOT_FOUND"))]);
+    categorizeError(error, []);
     return {
         data: data?.readCard ?? undefined, // prevent null
-        emptyError: !error && !data?.readCard,
-        idError,
+        unspecificError: error,
     };
 };
 const kbAction: TKbAction<FragmentType<typeof Login_UserFragment>> = async (
@@ -138,12 +137,14 @@ export const InputCredentials = <Data,>({
         >
             <ContainerTransformElement elementKey={Input.Qr}>
                 {/* Qr input */}
-                <InputUserQr
+                <InputQr
                     action={qrAction}
                     scan={input === Input.Qr && !user && scanQr}
-                    onUseKeyboard={() => setInput(Input.Keyboard)}
+                    onUnavailable={() => setInput(Input.Keyboard)}
                     cancelButton={cancelButton}
                     onCancel={onCancel}
+                    mainButton={{ label: "Manuelle Eingabe" }}
+                    onMain={() => setInput(Input.Keyboard)}
                     onSuccess={_setUser}
                     title={title}
                 />
@@ -193,11 +194,11 @@ type AdapterFCT = Pick<
 >;
 export const adapterFCT: AdapterFCT = {
     onClose: (ancestor, portalAncestor) => {
-        const portalQr = getByClass("input-user-qr__qr", portalAncestor);
+        const portalQr = getByClass("input-qr__qr", portalAncestor);
         portalQr.remove();
     },
     onClosed: syncifyF(async (ancestor) => {
-        const qr = getByClass("input-user-qr__qr", ancestor);
+        const qr = getByClass("input-qr__qr", ancestor);
         qr.classList.add(css["input-user__qr--fade-back"]!);
         await event("animationend", qr);
         qr.classList.remove(css["input-user__qr--fade-back"]!);

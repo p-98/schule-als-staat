@@ -23,7 +23,7 @@ import { Typography } from "Components/material/typography";
 import { syncifyF } from "Utility/misc";
 import { notify } from "Utility/notifications";
 
-import styles from "../credentials.module.css";
+import css from "./qr.module.css";
 
 /* Qr scanner component
  */
@@ -85,7 +85,7 @@ const Qr: React.FC<IQrProps> = ({
         const canvas = document.createElement("canvas");
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        canvas.className = styles["qr__dummy"]!;
+        canvas.className = css["qr__dummy"]!;
         canvas.getContext("2d")!.drawImage(video, 0, 0);
         ref.current.prepend(canvas);
     };
@@ -130,7 +130,7 @@ const Qr: React.FC<IQrProps> = ({
     return (
         <div
             {...restProps}
-            className={cn(restProps.className, styles["qr"])}
+            className={cn(restProps.className, css["qr"])}
             id={id}
             ref={ref}
         />
@@ -143,47 +143,49 @@ const Qr: React.FC<IQrProps> = ({
 /** Exactly one of resulting fields must be set. */
 export type TAction<TData> = (id: string) => Promise<{
     data?: TData;
-    idError?: Error;
-    emptyError?: boolean;
     unspecificError?: Error;
 }>;
 
-export interface IInputUserQrProps<TData>
-    extends ComponentPropsWithoutRef<"div"> {
+export interface InputQrProps<TData> extends ComponentPropsWithoutRef<"div"> {
     action: TAction<TData>;
     /** Whether the qr scanner is active */
     scan: boolean;
+    onUnavailable: () => void;
     cancelButton?: { label: string };
     onCancel?: () => void;
-    onUseKeyboard: () => void;
+    /** The button right of the cancel button */
+    mainButton?: { label: string };
+    onMain: () => void;
     onSuccess: (data: TData) => void;
     title: string;
 }
-/** User input method using a qr reader
+/** Read qr codes and perform an action
  *
- * Applies "input-user-qr__qr" to the qr reader
+ * Applies "input-qr__qr" to the qr reader
  */
-export const InputUserQr = <TData,>({
+export const InputQr = <TData,>({
     action,
     scan,
+    onUnavailable,
     cancelButton,
     onCancel,
-    onUseKeyboard,
+    mainButton,
+    onMain,
     onSuccess,
     title,
     ...restProps
-}: IInputUserQrProps<TData>): ReactElement => {
-    if (!onCancel && cancelButton) throw Error("onCancel undefined");
+}: InputQrProps<TData>): ReactElement => {
+    if (!!onCancel !== !!cancelButton)
+        throw Error("cancelButton, onCancel must be set together");
+    if (!!onMain !== !!mainButton)
+        throw Error("mainButton, onMain must be set together");
     const [fetching, setFetching] = useState(false);
 
-    const handleResult = useCallback(
+    const handleScan = useCallback(
         async (id: string) => {
             if (fetching) return;
             setFetching(true);
             const { data, ...errors } = await action(id);
-            if (errors.idError) notify({ body: errors.idError.message });
-            if (errors.emptyError)
-                notify({ body: `Card with id ${id} is empty.` });
             if (errors.unspecificError)
                 notify({ body: errors.unspecificError.message });
             setFetching(false);
@@ -191,14 +193,14 @@ export const InputUserQr = <TData,>({
         },
         [fetching, action, onSuccess]
     );
-    const handleError = useCallback(
+    const handleUnavailable = useCallback(
         (err: Error) => {
             notify({ body: "QR-Scanner nicht verfügbar." });
             // eslint-disable-next-line no-console
-            console.error(err);
-            onUseKeyboard();
+            console.error("Qr scanner not available: ", err);
+            onMain();
         },
-        [onUseKeyboard]
+        [onMain]
     );
 
     return (
@@ -207,30 +209,28 @@ export const InputUserQr = <TData,>({
             <CardMedia square>
                 <Qr
                     scan={scan}
-                    onSuccess={syncifyF(handleResult)}
-                    onFailure={handleError}
-                    className={cn(
-                        styles["input-user-qr__qr"],
-                        "input-user-qr__qr"
-                    )}
+                    onSuccess={syncifyF(handleScan)}
+                    onFailure={handleUnavailable}
+                    className={cn(css["input-qr__qr"], "input-qr__qr")}
                 />
             </CardMedia>
             <CardHeader>{title}</CardHeader>
             <CardContent>
                 <Typography use="body1" theme="textSecondaryOnBackground">
-                    {/* Kurzer Text */}
                     Halte den QR-Code auf deinem Ausweis vor die Kamera.
                 </Typography>
             </CardContent>
             <CardActions dialogLayout>
                 {cancelButton && (
                     <CardActionButton onClick={onCancel}>
-                        {cancelButton?.label}
+                        {cancelButton.label}
                     </CardActionButton>
                 )}
-                <CardActionButton onClick={onUseKeyboard}>
-                    Manuelle Eingabe
-                </CardActionButton>
+                {mainButton && (
+                    <CardActionButton onClick={onMain}>
+                        {mainButton.label}
+                    </CardActionButton>
+                )}
             </CardActions>
         </CardInner>
     );

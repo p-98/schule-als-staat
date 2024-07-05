@@ -1,0 +1,17 @@
+.qr > video {
+    /* Override element styles of html5-qrcode to update on resize */
+    width: 100% !important;
+}
+
+.qr > .qr__dummy {
+    width: 100%;
+}
+
+.input-qr__qr {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}

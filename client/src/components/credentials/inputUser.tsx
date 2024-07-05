@@ -9,8 +9,8 @@ import {
     ContainerTransformElement,
 } from "Components/transition/containerTransform/containerTransform";
 
-import { InputUserQr, TAction as TQrAction } from "./components/inputUserQr";
-import { InputUserKb, TAction as TKbAction } from "./components/inputUserKb";
+import { InputQr, TAction as TQrAction } from "Components/qr/qr";
+import { InputUserKb, TAction as TKbAction } from "./inputUserKb";
 
 export { type TQrAction, type TKbAction };
 
@@ -47,12 +47,14 @@ export const InputUser = <Data,>({
         <ContainerTransform {...restProps} activeElement={input}>
             <ContainerTransformElement elementKey={Input.Qr}>
                 {/* Qr input */}
-                <InputUserQr
+                <InputQr
                     action={qrAction}
                     scan={input === Input.Qr && scanQr}
-                    onUseKeyboard={() => setInput(Input.Keyboard)}
+                    onUnavailable={() => setInput(Input.Keyboard)}
                     cancelButton={cancelButton}
                     onCancel={onCancel}
+                    mainButton={{ label: "Manuelle Eingabe" }}
+                    onMain={() => setInput(Input.Keyboard)}
                     onSuccess={onSuccess}
                     title={title}
                 />
