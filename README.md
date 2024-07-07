@@ -38,13 +38,14 @@ To start the preview:
 
 To start a production environment:
 
-1. Remove the existing database (if present), create an empty database, import data:
+1. Remove the existing database (if present), create an empty database and import data:
 
     ```shell
-    $ rm -f database.sqlite3* && bun scripts/create-empty-db.ts && bun run scripts/import-citizens.ts <dataset.csv>
+    $ rm -f database.sqlite3* && bun scripts/create-empty-db.ts
+    $ bun scripts/import-users.ts ...
     ```
 
-    The last part can be repeated to import more data. If dataset already includes passwords, use the `-p` flag.
+    Run `bun scripts/import-users.ts --help` to get more information on imports.
 
 2. Start the production server:
 
