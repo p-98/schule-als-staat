@@ -1,11 +1,15 @@
+import { useMutation } from "urql";
 import { Typography } from "Components/material/typography";
 import { ThemePropT } from "Components/material/types";
+import { Button } from "Components/material/button";
 
 import { Avatar } from "Components/avatar/avatar";
 import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { useCategorizeError, useSafeData } from "Utility/urql";
+import { syncify } from "Utility/misc";
 import { name } from "Utility/data";
 
-import styles from "./drawerHeader.module.css";
+import css from "./drawerHeader.module.css";
 
 /* Badge component
  */
@@ -41,7 +45,7 @@ const Badge: React.FC<IBadgeProps> = ({ type }) => {
 
     return (
         <Typography
-            className={styles["badge"]}
+            className={css["badge"]}
             use="caption"
             style={{ background }}
             theme={theme as ThemePropT}
@@ -61,6 +65,17 @@ export const DrawerHeader_UserFragment = graphql(/* GraphQL */ `
         type
     }
 `);
+const logoutMutation = graphql(/* GraphQL */ `
+    mutation LogoutMutation {
+        logout {
+            id
+            user {
+                __typename
+                id
+            }
+        }
+    }
+`);
 
 interface IDrawerHeaderProps {
     user: FragmentType<typeof DrawerHeader_UserFragment>;
@@ -68,17 +83,28 @@ interface IDrawerHeaderProps {
 
 export const DrawerHeader: React.FC<IDrawerHeaderProps> = ({ user: _user }) => {
     const user = useFragment(DrawerHeader_UserFragment, _user);
+    const [result, logout] = useMutation(logoutMutation);
+    const { fetching, error } = useSafeData(result);
+    useCategorizeError(error, []);
+
     return (
-        <div className={styles["drawer-header"]}>
-            <Avatar user={user} className={styles["drawer-header__avatar"]} />
+        <div className={css["drawer-header"]}>
+            <Avatar user={user} className={css["drawer-header__avatar"]} />
             <Typography
-                className={styles["drawer-header__name"]}
+                className={css["drawer-header__name"]}
                 use="headline6"
                 theme="textPrimaryOnLight"
             >
                 {name(user)}
             </Typography>
             <Badge type={user.type} />
+            <Button
+                className={css["drawer-header__logout"]}
+                label="Abmelden"
+                onClick={() => syncify(logout({}))}
+                disabled={fetching}
+                outlined
+            />
         </div>
     );
 };

@@ -5,24 +5,30 @@
     flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
+    padding: 8px;
 }
 .drawer-header__avatar {
     /* TODO: change to font-size when rmwc avatar is working again */
     /* font-size: 56px; */
     height: 56px;
     width: 56px;
-    margin-bottom: 4px;
 }
 
 .drawer-header__name {
     display: block;
     box-sizing: border-box;
-    width: calc(100%);
-    padding: 0 8px;
+    width: 100%;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    text-align: center;
+}
+
+.drawer-header__logout {
+    margin-top: 16px;
+    width: 100%;
+    height: 30px;
 }
 
 .badge {
