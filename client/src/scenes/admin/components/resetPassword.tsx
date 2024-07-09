@@ -65,6 +65,11 @@ export const ResetPassword = memo(() => (
         ]}
         action={action}
         title="Passwort zurücksetzen"
-        confirmButton={{ label: "Zurücksetzen", danger: true }}
+        confirmButton={{ label: "Zurücksetzen" }}
+        dangerDialog={{
+            title: "Zurücksetzen bestätigen",
+            content:
+                "Möchtest Du wirklich das Passwort zurücksetzen? Dies kann nicht rückgängig gemacht werden.",
+        }}
     />
 ));

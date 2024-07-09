@@ -1,5 +1,7 @@
-import { useState, type FC } from "react";
+import { over } from "lodash/fp";
+import { ReactNode, useState, type FC } from "react";
 import { Button } from "Components/material/button";
+import { SimpleDialog } from "Components/material/dialog/dialog";
 
 import { notify } from "Utility/notifications";
 import { syncifyF } from "Utility/misc";
@@ -30,14 +32,15 @@ export type TAction = () => Promise<{
 interface IActionButtonProps {
     action: TAction;
     label: string;
-    danger?: boolean;
+    confirmDialog?: { title: string; content: ReactNode; danger?: boolean };
 }
 export const ActionButton: FC<IActionButtonProps> = ({
     action,
     label,
-    danger,
+    confirmDialog,
 }) => {
     const [fetching, setFetching] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     const handleAction = async () => {
         if (fetching) return;
@@ -50,11 +53,37 @@ export const ActionButton: FC<IActionButtonProps> = ({
     };
 
     return (
-        <Button
-            label={label}
-            onClick={syncifyF(handleAction)}
-            disabled={useStable(fetching)}
-            danger={danger}
-        />
+        <>
+            {confirmDialog && (
+                <SimpleDialog
+                    renderToPortal
+                    title={confirmDialog.title}
+                    content={confirmDialog.content}
+                    accept={{
+                        label: "Bestätigen",
+                        onAccept: over([
+                            () => setDialogOpen(false),
+                            syncifyF(handleAction),
+                        ]),
+                        danger: confirmDialog.danger,
+                    }}
+                    open={dialogOpen}
+                    cancel={{
+                        label: "Abbrechen",
+                        onCancel: () => setDialogOpen(false),
+                    }}
+                    onClose={() => setDialogOpen(false)}
+                />
+            )}
+            <Button
+                label={label}
+                onClick={
+                    confirmDialog
+                        ? () => setDialogOpen(true)
+                        : syncifyF(handleAction)
+                }
+                disabled={useStable(fetching)}
+            />
+        </>
     );
 };

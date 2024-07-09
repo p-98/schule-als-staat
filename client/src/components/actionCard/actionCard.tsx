@@ -1,5 +1,5 @@
-import { constant } from "lodash/fp";
-import { type FormEvent, type ReactElement, useState } from "react";
+import { constant, over } from "lodash/fp";
+import { type FormEvent, type ReactElement, useState, ReactNode } from "react";
 import {
     Card,
     CardActionButton,
@@ -11,6 +11,7 @@ import {
 import { Theme } from "Components/material/theme";
 import { Select } from "Components/material/select";
 import { TextField } from "Components/material/textfield";
+import { SimpleDialog } from "Components/material/dialog/dialog";
 
 import { ChangeEvent } from "Utility/types";
 import { syncifyF } from "Utility/misc";
@@ -140,6 +141,7 @@ interface IActionCardProps<TData, TInputs extends unknown[]> {
         label: string;
     };
     onCancel?: () => void;
+    dangerDialog?: { title?: string; content?: ReactNode };
     /** Adapter flag when used as <Card>-like child */
     inner?: boolean;
 }
@@ -155,6 +157,7 @@ export const ActionCard = <TData, TInputs extends unknown[]>({
     onSuccess,
     cancelButton,
     onCancel,
+    dangerDialog,
     inner = false,
 }: IActionCardProps<TData, TInputs>): ReactElement => {
     if (!!cancelButton !== !!onCancel)
@@ -173,6 +176,7 @@ export const ActionCard = <TData, TInputs extends unknown[]>({
         initInputErrors(inputs)
     );
     const [unspecificError, setUnspecificError] = useState<Error>();
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     const handleConfirm = async () => {
         if (fetching) return;
@@ -193,6 +197,29 @@ export const ActionCard = <TData, TInputs extends unknown[]>({
     const Tag = inner ? CardInner : Card;
     return (
         <Tag>
+            {dangerDialog && (
+                <SimpleDialog
+                    open={dialogOpen}
+                    title={dangerDialog.title ?? `${title} Bestätigen`}
+                    content={
+                        dangerDialog.content ??
+                        `Möchtest Du ${confirmButton.label}? Dies kann nicht rückgängig gemacht werden.`
+                    }
+                    accept={{
+                        label: "Bestätigen",
+                        onAccept: over([
+                            () => setDialogOpen(false),
+                            syncifyF(handleConfirm),
+                        ]),
+                        danger: true,
+                    }}
+                    cancel={{
+                        label: "Abbrechen",
+                        onCancel: () => setDialogOpen(false),
+                    }}
+                    onClose={() => setDialogOpen(false)}
+                />
+            )}
             <CardHeader>{title}</CardHeader>
             <CardContent>
                 {inputs.map((input: InputProp<unknown>, index: number) => (
@@ -217,7 +244,11 @@ export const ActionCard = <TData, TInputs extends unknown[]>({
                 )}
                 <CardActionButton
                     label={confirmButton.label}
-                    onClick={syncifyF(handleConfirm)}
+                    onClick={
+                        dangerDialog
+                            ? () => setDialogOpen(true)
+                            : syncifyF(handleConfirm)
+                    }
                     disabled={renderFetching}
                     raised={confirmButton.raised}
                     danger={confirmButton.danger}

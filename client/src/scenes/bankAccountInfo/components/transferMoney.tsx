@@ -85,6 +85,11 @@ export const TransferMoney = memo(() => (
         ]}
         action={action}
         title="Überweisung"
-        confirmButton={{ label: "Geld überweisen", danger: true }}
+        confirmButton={{ label: "Geld überweisen" }}
+        dangerDialog={{
+            title: "Überweisen bestätigen",
+            content:
+                "Bist Du sicher, dass du die Überweisung tätigen möchtest? Dies kann nicht rückgängig gemacht werden.",
+        }}
     />
 ));

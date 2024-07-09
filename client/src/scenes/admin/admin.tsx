@@ -154,7 +154,12 @@ const ActionButtons = memo(() => (
             <ActionButton
                 action={leaveAllAction}
                 label="Alle Bürger ausweisen"
-                danger
+                confirmDialog={{
+                    title: "Ausweisen Bestätigen",
+                    content:
+                        "Möchtest Du registrieren, dass alle Bürger den Staat verlassen? Dies kann nicht rückgängig gemacht werden, alle Bürger müssen dann wieder durch den Zoll in den Staat kommen.",
+                    danger: true,
+                }}
             />
         </CardContent>
     </Card>
