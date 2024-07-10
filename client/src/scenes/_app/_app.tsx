@@ -61,8 +61,10 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
     const drawerDispatch = useDispatch();
 
     const [result] = useQuery({ query });
-    const { data, fetching, error } = useSafeData(result);
-    const authorized = useCheckRouteAndAuth({ data: data?.session, fetching });
+    const { data, fetching, error, stale } = useSafeData(result);
+    const authorized = useCheckRouteAndAuth(
+        fetching || stale ? undefined : data?.session
+    );
     if (useStable(fetching)) return <AppFallback />;
     if (error) return <Error />;
     if (!data || !authorized) return <></>;

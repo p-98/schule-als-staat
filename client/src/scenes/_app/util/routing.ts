@@ -1,4 +1,4 @@
-import { any, constant } from "lodash/fp";
+import { any, constant, isNil, isUndefined } from "lodash/fp";
 import { useRouter } from "next/router";
 import { useEffect, useMemo } from "react";
 import {
@@ -157,24 +157,27 @@ const useRedirect = (redirect: boolean, url: string) => {
     }, [redirect, url, router.asPath]);
 };
 
+type Nullable<T> = T | null | undefined;
 /** Check if the route exists and the user is authorization
  *
  * Redirects if conditions are not met.
- * @param user the user with information whether it has already loaded
+ * @param session the session. If not an object,
+ *        it is treated as not yet loaded and will not redirect
  * @returns undefined, if user.fetching. Whether checks passed, otherwise.
  */
-export const useCheckRouteAndAuth = (_session: {
-    data?: FragmentType<typeof Routing_SessionFragment>;
-    fetching: boolean;
-}): boolean | undefined => {
-    const { data: session, fetching } = _session;
+export const useCheckRouteAndAuth = (
+    session: Nullable<FragmentType<typeof Routing_SessionFragment>>
+): boolean | undefined => {
     const router = useRouter();
     const route = useMemo(
         () => routes.find((_) => _.href === router.asPath),
         [router.asPath]
     );
 
-    const allOk = (session && route && route.authorized(session)) ?? false;
-    useRedirect(!fetching && !allOk, "/login");
-    return allOk;
+    const invalidRoute = isUndefined(route);
+    const invalidAuth = isNil(session)
+        ? false // don't redirect if the session has not loaded yet
+        : !route?.authorized(session) ?? false;
+    useRedirect(invalidRoute || invalidAuth, "/login");
+    return !(invalidRoute || invalidAuth);
 };
