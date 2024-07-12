@@ -2,18 +2,7 @@ import fs from "fs";
 import { extname } from "path";
 import * as csv from "csv/sync";
 import niceware from "niceware";
-import {
-    pick,
-    toLower,
-    keys,
-    pipe,
-    flatten,
-    range,
-    replace,
-    times,
-    random,
-    assign,
-} from "lodash/fp";
+import { pick, toLower, keys, pipe, flatten, replace, times } from "lodash/fp";
 import {
     array,
     binary,
@@ -28,12 +17,14 @@ import {
     run,
     string,
 } from "cmd-ts";
+import crypto from "crypto";
 import { File } from "cmd-ts/batteries/fs";
 
 import { createKnex, type Knex } from "../server/src/database/database";
 import { type IAppContext } from "../server/src/server";
 import { createBankAccount } from "../server/src/modules/bank";
 import { encryptPassword } from "../server/src/util/auth";
+import { stringifyUserSignature } from "../server/src/util/parse";
 import config from "../config";
 
 const INITIAL_BANLANCE = 50;
@@ -48,15 +39,20 @@ const idTransformFns = {
 
 const description = `Import user data from csv/json files into the database.
 
-A user record must have one of field combinations:
-- type='CITIZEN', id, firstName, lastName, class, password (optional)
-- type='COMPANY', id, name, password (optional)
+A user record must have one of field combinations. In brackets are optional:
+- type='CITIZEN', id, [qr], [password], firstName, lastName, class
+- type='COMPANY', id, [qr], [password], name
 
 The password sources are:
 - 'gen-words' generates a password of 3 human-readable words
 - 'gen-random' generates a password of 8 alphanumerical characters
 - 'import' uses the password field of the input records
-- 'id' uses the id field of the input records (including the transformations made)`;
+- 'id' uses the id field of the input records (including the transformations made)
+
+The qr sources are:
+- 'gen-base64' generates a qr-code of 4 base64 characters
+- 'gen-M3-L' generates a qr-code of 5 caps-only alphanumerical characters. For Micro QR codes version M3, ECC level M.
+- 'import' uses the qr field of the input records`;
 const cmd = command({
     name: "import-users",
     description,
@@ -72,7 +68,17 @@ const cmd = command({
             type: oneOf(["gen-words", "gen-random", "import", "id"] as const),
             long: "password",
             short: "p",
+            defaultValue: () => "import" as const,
+            defaultValueIsSerializable: true,
             description: "A password source the passwords are taken from.",
+        }),
+        qrFrom: option({
+            type: oneOf(["gen-base64", "gen-M3-L", "import"] as const),
+            long: "qr",
+            short: "q",
+            defaultValue: () => "import" as const,
+            defaultValueIsSerializable: true,
+            description: "A qr source the qr-codes are taken from",
         }),
         dryRun: flag({
             type: boolean,
@@ -97,7 +103,7 @@ const cmd = command({
     },
     handler: (_) => _,
 });
-const { idTransforms, pwFrom, dryRun, out, ins } = await run(
+const { idTransforms, pwFrom, qrFrom, dryRun, out, ins } = await run(
     binary(cmd),
     Bun.argv
 );
@@ -108,6 +114,7 @@ const { idTransforms, pwFrom, dryRun, out, ins } = await run(
 type Citizen = {
     type: "CITIZEN";
     id: string;
+    qr: string;
     firstName: string;
     lastName: string;
     class: string;
@@ -116,6 +123,7 @@ type Citizen = {
 type Company = {
     type: "COMPANY";
     id: string;
+    qr: string;
     name: string;
     password: string;
 };
@@ -126,20 +134,13 @@ type FileType = "csv" | "json";
 /* Define processing steps
  */
 
-const fromCodePoint = (codePoint: number) => String.fromCodePoint(codePoint);
-/** Range of characters
- * @start Start of range. Must contain exactly one character.
- * @end End of range. Must contain exactly one character.
- * @returns The range from start to including end.
- */
-const charRange = (start: string, end: string): string[] =>
-    range(start.codePointAt(0)!, end.codePointAt(0)! + 1).map(fromCodePoint);
-const alphaNum = [
-    ...charRange("a", "z"),
-    ...charRange("A", "Z"),
-    ...charRange("0", "9"),
-];
-const chooseRandom = <T>(arr: T[]): T => arr[random(arr.length, false)]!;
+const alphanum =
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const qrAlphanum = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const randomChar = (alphabet: string): string =>
+    alphabet[crypto.randomInt(alphabet.length)]!;
+const randomString = (length: number, alphabet: string) =>
+    times(() => randomChar(alphabet), length).join("");
 const stripBom = replace(/^\uFEFF/g, "");
 
 const isIn = <O>(k: PropertyKey, o: O): k is keyof O =>
@@ -168,33 +169,41 @@ const safeGet = (p: string, o: Record<string, unknown>): string => {
 };
 type PasswordFn = (user: { id: string; password?: string }) => string;
 const passwords: Record<typeof pwFrom, PasswordFn> = {
-    "gen-random": (user) => times(() => chooseRandom(alphaNum), 8).join(""),
+    "gen-random": (user) => randomString(8, alphanum),
     "gen-words": (user) => niceware.generatePassphrase(6).join("-"),
     id: (user) => user.id,
     import: (user) => safeGet("password", user),
+};
+type QrFn = (user: { id: string; qr?: string }) => string;
+const qrs: Record<typeof qrFrom, QrFn> = {
+    "gen-base64": (user) => crypto.randomBytes(3).toString("base64"),
+    "gen-M3-L": (user) => randomString(5, qrAlphanum),
+    import: (user) => safeGet("qr", user),
 };
 
 type CheckFn<T extends User> = (user: Pick<T, "type">) => T;
 const checkFns: { [K in User["type"]]: CheckFn<User & { type: K }> } = {
     CITIZEN: (citizen): Citizen => {
-        const withoutPw = {
+        const id = applyIdTransforms(safeGet("id", citizen));
+        return {
             type: citizen.type,
-            id: applyIdTransforms(safeGet("id", citizen)),
+            id,
+            qr: qrs[qrFrom]({ id, ...citizen }),
             firstName: safeGet("firstName", citizen),
             lastName: safeGet("lastName", citizen),
             class: safeGet("class", citizen),
+            password: passwords[pwFrom]({ id, ...citizen }),
         };
-        const password = passwords[pwFrom](assign(citizen, withoutPw));
-        return { ...withoutPw, password };
     },
     COMPANY: (company): Company => {
-        const withoutPw = {
+        const id = applyIdTransforms(safeGet("id", company));
+        return {
             type: company.type,
-            id: applyIdTransforms(safeGet("id", company)),
+            id,
+            qr: qrs[qrFrom]({ id, ...company }),
             name: safeGet("name", company),
+            password: passwords[pwFrom]({ id, ...company }),
         };
-        const password = passwords[pwFrom](assign(company, withoutPw));
-        return { ...withoutPw, password };
     },
 };
 const checkUser = (user: unknown): User => {
@@ -214,9 +223,17 @@ const checkUsers = (users: unknown): User[] => {
     return users.map(checkUser);
 };
 
-type ImportFn<T> = (knex: Knex) => (user: T) => Promise<void>;
+const importQr = async (knex: Knex, user: User): Promise<void> => {
+    await knex("cards").insert({
+        id: user.qr,
+        // @ts-expect-error userSignature must be set initially
+        userSignature: stringifyUserSignature(user),
+        blocked: false,
+    });
+};
+type ImportFn<T> = (knex: Knex, user: T) => Promise<void>;
 const importFns: { [K in User["type"]]: ImportFn<User & { type: K }> } = {
-    CITIZEN: (knex) => async (citizen) => {
+    CITIZEN: async (knex, citizen) => {
         const ctx = { knex } as IAppContext;
         const bankAccount = await createBankAccount(ctx, INITIAL_BANLANCE);
         await knex("citizens").insert({
@@ -226,7 +243,7 @@ const importFns: { [K in User["type"]]: ImportFn<User & { type: K }> } = {
             image: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>',
         });
     },
-    COMPANY: (knex) => async (company) => {
+    COMPANY: async (knex, company) => {
         const ctx = { knex } as IAppContext;
         const bankAccount = await createBankAccount(ctx, INITIAL_BANLANCE);
         await knex("companies").insert({
@@ -241,8 +258,9 @@ const importUsers = async (users: User[]) => {
     const [, knex] = await createKnex(config.database.file, {
         client: "sqlite3",
     });
-    for (const user of users) {
-        await importFns[user.type](knex)(user as never);
+    for (const [i, user] of users.entries()) {
+        await importQr(knex, user);
+        await importFns[user.type](knex, user as never);
     }
     await knex.destroy();
 };
@@ -260,8 +278,6 @@ const exqort = (path: string, users: User[]) => {
 
 /* Use processing steps
  */
-
-// load data
 
 const users = flatten(ins.map(pipe(load, checkUsers)));
 
