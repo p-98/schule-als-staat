@@ -2,7 +2,19 @@ import fs from "fs";
 import { extname } from "path";
 import * as csv from "csv/sync";
 import niceware from "niceware";
-import { pick, toLower, keys, pipe, flatten, replace, times } from "lodash/fp";
+import {
+    pick,
+    toLower,
+    keys,
+    pipe,
+    flatten,
+    replace,
+    times,
+    constant,
+    min,
+    round,
+    repeat,
+} from "lodash/fp";
 import {
     array,
     binary,
@@ -17,6 +29,7 @@ import {
     run,
     string,
 } from "cmd-ts";
+import exitHook from "async-exit-hook";
 import crypto from "crypto";
 import { File } from "cmd-ts/batteries/fs";
 
@@ -107,6 +120,35 @@ const { idTransforms, pwFrom, qrFrom, dryRun, out, ins } = await run(
     binary(cmd),
     Bun.argv
 );
+
+/* Logging
+ */
+
+const createLogger = (message: string, max: number, height: number) => {
+    const logs: string[] = times(constant(""), height);
+    let progress: number = 0;
+    const w = process.stdout.write.bind(process.stdout);
+    const render = (opts?: { before?: () => void }) => {
+        opts?.before?.();
+        const logs5 = logs.slice(-height);
+        const width = min([process.stdout.columns, 40])! - 2;
+        const barlen = round((progress / max) * width);
+        const bar = `[${repeat(barlen, "=")}${repeat(width - barlen, " ")}]`;
+        const pre = message ? `${message} ` : "";
+        const suff = ` ${progress}/${max}`;
+        w(`\u001b[${height}F\u001b[J${logs5.join("\n")}\n${pre}${bar}${suff}`);
+    };
+
+    exitHook(() => w(`\u001b[?25h`)); // show cursor again
+    w(`\u001b[?25l${repeat(height, "\n")}`); // rmeove cursor, to bar line
+    render();
+    return {
+        log: (log: string) => render({ before: () => logs.push(log) }),
+        progress: (current: number) =>
+            render({ before: () => (progress = current) }),
+        finish: () => w(`\u001b[${height}F\u001b[J\u001b[?25h`),
+    };
+};
 
 /* Type definitions
  */
@@ -258,10 +300,14 @@ const importUsers = async (users: User[]) => {
     const [, knex] = await createKnex(config.database.file, {
         client: "sqlite3",
     });
+    const logger = createLogger("", users.length, 5);
     for (const [i, user] of users.entries()) {
+        logger.log(`Importing user '${user.id}'`);
         await importQr(knex, user);
         await importFns[user.type](knex, user as never);
+        logger.progress(i + 1);
     }
+    logger.finish();
     await knex.destroy();
 };
 
