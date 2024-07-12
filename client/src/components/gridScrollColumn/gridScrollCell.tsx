@@ -2,7 +2,7 @@ import cn from "classnames";
 import { ReactNode } from "react";
 
 // local
-import styles from "./GridScrollColumn.module.scss";
+import styles from "./gridScrollColumn.module.scss";
 
 interface IGridScrollColumnProps {
     children: ReactNode;
