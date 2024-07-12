@@ -1,1 +1,1 @@
-export { Products as default } from "Scenes/company/products/products";
+export { Products as default } from "Scenes/products/products";

@@ -28,7 +28,7 @@ interface IRoute {
 }
 
 const always: IRoute["authorized"] = constant(true);
-const never: IRoute["authorized"] = constant(false);
+// const never: IRoute["authorized"] = constant(false);
 const role =
     (...roles: UserRole[]): IRoute["authorized"] =>
     (_session) => {
@@ -39,17 +39,30 @@ const role =
 
 export const routes: IRoute[] = [
     {
-        href: "/test1",
-        label: "Test 1",
-        icon: "build",
+        href: "/login",
+        label: "Login",
+        icon: "login",
         authorized: always,
     },
     {
-        href: "/test2",
-        label: "Test 2",
-        icon: "build",
-        authorized: always,
+        href: "/bankAccountInfo",
+        label: "Bankkonto",
+        icon: "account_balance",
+        authorized: role("USER"),
     },
+    {
+        href: "/products",
+        label: "Produktverwaltung",
+        icon: "category",
+        authorized: role("COMPANY"),
+    },
+    {
+        href: "/pos",
+        label: "Kasse",
+        icon: "shopping_cart",
+        authorized: role("COMPANY"),
+    },
+
     {
         href: "/admin",
         label: "Administration",
@@ -63,58 +76,10 @@ export const routes: IRoute[] = [
         authorized: role("ADMIN", "TEACHER"),
     },
     {
-        href: "/products",
-        label: "Produktverwaltung",
-        icon: "category",
-        authorized: role("COMPANY"),
-    },
-    {
-        href: "/employees",
-        label: "Mitarbeiterverwaltung",
-        icon: "badge",
-        authorized: role("COMPANY"),
-    },
-    {
-        href: "/finances",
-        label: "Finanzen",
-        icon: "attach_money",
-        authorized: role("COMPANY"),
-    },
-    {
         href: "/bank",
         label: "Bank",
         icon: "account_balance",
         authorized: role("BANK"),
-    },
-    {
-        href: "/terminal/accountInfo",
-        label: "Kontoinformationen",
-        icon: "person",
-        authorized: role("BORDER_CONTROL", "POLICE", "ADMIN"),
-    },
-    {
-        href: "/bankAccountInfo",
-        label: "Bankkonto",
-        icon: "account_balance",
-        authorized: role("USER"),
-    },
-    {
-        href: "/vote",
-        label: "Abstimmungen",
-        icon: "ballot",
-        authorized: role("CITIZEN"),
-    },
-    {
-        href: "/pos",
-        label: "Kasse",
-        icon: "shopping_cart",
-        authorized: role("COMPANY"),
-    },
-    {
-        href: "/warehouse",
-        label: "Warenlager",
-        icon: "store",
-        authorized: role("COMPANY"),
     },
     {
         href: "/borderControl",
@@ -122,22 +87,69 @@ export const routes: IRoute[] = [
         icon: "swap_horiz",
         authorized: role("BORDER_CONTROL"),
     },
+
+    /* Tests & Mockups
+     */
+
     {
-        href: "/orderSummary",
+        href: "/test1",
+        label: "Test 1",
+        icon: "build",
+        authorized: always,
+    },
+    {
+        href: "/test2",
+        label: "Test 2",
+        icon: "build",
+        authorized: always,
+    },
+    {
+        href: "mockup/terminal/accountInfo",
+        label: "Kontoinformationen",
+        icon: "person",
+        // authorized: role("BORDER_CONTROL", "POLICE", "ADMIN"),
+        authorized: always,
+    },
+    {
+        href: "/mockup/warehouse",
+        label: "Warenlager",
+        icon: "store",
+        // authorized: role("COMPANY"),
+        authorized: always,
+    },
+    {
+        href: "/mockup/finances",
+        label: "Finanzen",
+        icon: "attach_money",
+        // authorized: role("COMPANY"),
+        authorized: always,
+    },
+    {
+        href: "/mockup/employees",
+        label: "Mitarbeiterverwaltung",
+        icon: "badge",
+        // authorized: role("COMPANY"),
+        authorized: always,
+    },
+    {
+        href: "/mockup/orderSummary",
         label: "Einkaufslisten",
         icon: "add_shopping_cart",
-        authorized: never,
+        // authorized: role("WAREHOUSE"),
+        authorized: always,
     },
     {
-        href: "/orders",
+        href: "/mockup/orders",
         label: "Bestellungen",
         icon: "store",
-        authorized: never,
+        // authorized: role("WAREHOUSE"),
+        authorized: always,
     },
     {
-        href: "/login",
-        label: "Login",
-        icon: "login",
+        href: "/mockup/vote",
+        label: "Abstimmungen",
+        icon: "ballot",
+        // authorized: role("CITIZEN"),
         authorized: always,
     },
 ];

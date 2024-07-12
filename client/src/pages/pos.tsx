@@ -1,1 +1,1 @@
-export { Pos as default } from "Scenes/company/pos/pos";
+export { Pos as default } from "Scenes/pos/pos";
