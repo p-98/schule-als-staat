@@ -13,9 +13,8 @@ import {
 import { SimpleDialog } from "Components/material/dialog";
 
 // local
-import config from "Config";
 import { reassignIDs, repeatArr } from "Utility/dataMockup";
-import { parseCurrency } from "Utility/parseCurrency";
+import { currency } from "Utility/data";
 
 import styles from "../finances.module.scss";
 
@@ -84,7 +83,7 @@ export const BonusPayout: React.FC = () => {
             <CardDivider />
             <CardContent>
                 <TextField
-                    label={`Betrag in ${config.currencies.virtual.short}`}
+                    label="Betrag in πCoin"
                     value={value || ""}
                     type="number"
                     onChange={(e: ChangeEvent<HTMLInputElement>) =>
@@ -140,13 +139,11 @@ export const BonusPayout: React.FC = () => {
                 <CardContent
                     text={
                         <>
-                            Eine Auszahlung von {parseCurrency(value)} an{" "}
+                            Eine Auszahlung von {currency(value)} an{" "}
                             {selectedEmployees.length} Mitarbeiter kostet das
                             Unternehmen{" "}
                             <Typography theme="primary" use="body1">
-                                {parseCurrency(
-                                    selectedEmployees.length * value
-                                )}
+                                {currency(selectedEmployees.length * value)}
                             </Typography>
                             . Soll sie jetzt abgebucht werden?
                         </>

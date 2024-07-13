@@ -14,7 +14,7 @@ import { Card, CardHeader, CardListContent } from "Components/material/card";
 
 // local
 import { GridPage } from "Components/page/page";
-import { parseCurrency } from "Utility/parseCurrency";
+import { currency } from "Utility/data";
 import { AddOfferFab } from "./addOfferFab";
 
 import styles from "../employees.module.scss";
@@ -49,7 +49,7 @@ const DiscardListItem: React.FC<IDiscardListItemProps> = ({
             graphic={<Avatar src="profile.jpg" name={name} />}
             text={name}
             key={name}
-            secondaryText={`5h\u00A0\u00A0\u2022\u00A0\u00A0${parseCurrency(
+            secondaryText={`5h\u00A0\u00A0\u2022\u00A0\u00A0${currency(
                 13.543
             )}/h`}
             metaIcon={{
@@ -155,7 +155,7 @@ export const Offers: React.FC<HTMLAttributes<HTMLDivElement>> = ({
                                 }
                                 text={name}
                                 key={name}
-                                secondaryText={`5h\u00A0\u00A0\u2022\u00A0\u00A0${parseCurrency(
+                                secondaryText={`5h\u00A0\u00A0\u2022\u00A0\u00A0${currency(
                                     13.543
                                 )}/h`}
                             />

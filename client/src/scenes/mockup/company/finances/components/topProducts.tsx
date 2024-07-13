@@ -3,7 +3,7 @@ import { Typography } from "Components/material/typography";
 import { Card, CardHeader, CardSubtitle } from "Components/material/card";
 
 // local
-import { parseCurrency } from "Utility/parseCurrency";
+import { currency } from "Utility/data";
 import { products } from "../finances.data";
 
 const topListSales = products.sort((p1, p2) => {
@@ -59,7 +59,7 @@ export const TopRevenue: React.FC = () => (
                     meta={
                         <div>
                             <Typography use="subtitle2" theme="primary">
-                                {parseCurrency(product.revenue, {
+                                {currency(product.revenue, {
                                     omitDecimals: true,
                                 })}
                             </Typography>

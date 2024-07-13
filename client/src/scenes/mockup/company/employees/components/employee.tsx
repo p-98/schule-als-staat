@@ -20,7 +20,7 @@ import { SimpleDialog } from "Components/material/dialog";
 
 // local
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
-import { parseCurrency } from "Utility/parseCurrency";
+import { currency } from "Utility/data";
 import type { TEmployee } from "../employees.data";
 
 import styles from "../employees.module.scss";
@@ -128,7 +128,7 @@ export const EmployeeCard: React.FC<IEmployeeCardProps> = ({ employee }) => {
                             label="Stundenlohn"
                             style={{ gridArea: "contract-salary" }}
                         >
-                            {parseCurrency(12.42)}
+                            {currency(12.42)}
                         </DisplayInfo>
                     </CardContent>
                     <CardActions>

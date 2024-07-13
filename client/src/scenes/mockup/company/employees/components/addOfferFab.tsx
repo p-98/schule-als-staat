@@ -112,10 +112,7 @@ export const AddOfferFab: React.FC<IAddOfferFabProps> = ({ exited }) => {
                             label="Arbeitszeit in Stunden"
                             type="number"
                         />
-                        <TextField
-                            label={`Stundenlohn in ${config.currencies.virtual.short}`}
-                            type="number"
-                        />
+                        <TextField label="Stundenlohn in πCoin" type="number" />
                     </CardContent>
                 </React.Fragment>
             </SimpleDialog>
