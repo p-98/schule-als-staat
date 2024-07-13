@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { useState, useRef } from "react";
 import cn from "classnames";
 import { Typography } from "Components/material/typography";
@@ -20,7 +19,9 @@ import { SimpleDialog } from "Components/material/dialog";
 
 // local
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
+import { Avatar, Avatar_UserFragment } from "Components/avatar/avatar";
 import { currency } from "Utility/data";
+import { makeFragmentData } from "Utility/graphql";
 import type { TEmployee } from "../employees.data";
 
 import styles from "../employees.module.scss";
@@ -32,6 +33,15 @@ const helperText = (
         Die Arbeitszeit einer laufenden Schicht ist nicht mit einberechnet.
     </>
 );
+
+const _testUser = {
+    __typename: "CitizenUser",
+    type: "CITIZEN",
+    id: "example.id",
+    firstName: "Max",
+    lastName: "Mustermann",
+} as const;
+const testUser = makeFragmentData(_testUser, Avatar_UserFragment);
 
 interface IEmployeeCardProps {
     employee: TEmployee;
@@ -55,17 +65,10 @@ export const EmployeeCard: React.FC<IEmployeeCardProps> = ({ employee }) => {
                     innerProps={{ className: styles["employee__main"] }}
                     onClick={() => setExpanded(!expanded)}
                 >
-                    <div className={styles["employee__image-container"]}>
-                        <Image
-                            alt={`employee ${employee.name}`}
-                            src={employee.image}
-                            fill
-                            sizes="100vw"
-                            style={{
-                                objectFit: "cover",
-                            }}
-                        />
-                    </div>
+                    <Avatar
+                        user={testUser}
+                        className={styles["employee__image"]}
+                    />
                     <CardInner>
                         <CardHeader>
                             {employee.name}

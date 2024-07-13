@@ -9,17 +9,27 @@ import React, {
 import cn from "classnames";
 import { GridCell } from "Components/material/grid";
 import { ListDivider, SimpleListItem } from "Components/material/list";
-import { Avatar } from "Components/material/avatar";
 import { Card, CardHeader, CardListContent } from "Components/material/card";
 
 // local
 import { GridPage } from "Components/page/page";
+import { Avatar, Avatar_UserFragment } from "Components/avatar/avatar";
 import { currency } from "Utility/data";
+import { makeFragmentData } from "Utility/graphql";
 import { AddOfferFab } from "./addOfferFab";
 
 import styles from "../employees.module.scss";
 
 const users = ["Max Mustermann", "Ute Keipl", "Jens van Diesel"];
+
+const _testUser = {
+    __typename: "CitizenUser",
+    type: "CITIZEN",
+    id: "example.id",
+    firstName: "Max",
+    lastName: "Mustermann",
+} as const;
+const testUser = makeFragmentData(_testUser, Avatar_UserFragment);
 
 interface IDiscardListItemProps extends HTMLAttributes<HTMLDivElement> {
     name: string;
@@ -46,7 +56,9 @@ const DiscardListItem: React.FC<IDiscardListItemProps> = ({
                 styles["offers__discard-list-item"],
                 discard && styles["offers__discard-list-item--discard"]
             )}
-            graphic={<Avatar src="profile.jpg" name={name} />}
+            graphic={
+                <Avatar user={testUser} className={styles["offers__avatar"]} />
+            }
             text={name}
             key={name}
             secondaryText={`5h\u00A0\u00A0\u2022\u00A0\u00A0${currency(
@@ -150,8 +162,12 @@ export const Offers: React.FC<HTMLAttributes<HTMLDivElement>> = ({
                     <CardListContent caption="Ausstehend" twoLine>
                         {users.map((name) => (
                             <SimpleListItem
+                                className={styles["offers__list-item"]}
                                 graphic={
-                                    <Avatar src="profile.jpg" name={name} />
+                                    <Avatar
+                                        user={testUser}
+                                        className={styles["offers__avatar"]}
+                                    />
                                 }
                                 text={name}
                                 key={name}
