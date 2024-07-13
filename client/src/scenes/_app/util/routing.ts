@@ -104,9 +104,9 @@ export const routes: IRoute[] = [
         authorized: always,
     },
     {
-        href: "mockup/terminal/accountInfo",
-        label: "Kontoinformationen",
-        icon: "person",
+        href: "/mockup/infoPoint",
+        label: "Infopunkt",
+        icon: "info",
         // authorized: role("BORDER_CONTROL", "POLICE", "ADMIN"),
         authorized: always,
     },

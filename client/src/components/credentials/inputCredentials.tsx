@@ -199,8 +199,8 @@ export const adapterFCT: AdapterFCT = {
     },
     onClosed: syncifyF(async (ancestor) => {
         const qr = getByClass("input-qr__qr", ancestor);
-        qr.classList.add(css["input-user__qr--fade-back"]!);
+        qr.classList.add(css["input-credentials__qr--fade-back"]!);
         await event("animationend", qr);
-        qr.classList.remove(css["input-user__qr--fade-back"]!);
+        qr.classList.remove(css["input-credentials__qr--fade-back"]!);
     }),
 };

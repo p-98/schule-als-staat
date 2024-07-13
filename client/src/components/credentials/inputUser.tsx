@@ -8,9 +8,12 @@ import {
     ContainerTransform,
     ContainerTransformElement,
 } from "Components/transition/containerTransform/containerTransform";
-
+import { type FCT } from "Components/transition/fullscreenContainerTransform/fullscreenContainerTransform";
 import { InputQr, TAction as TQrAction } from "Components/qr/qr";
+import { getByClass, videoToCanvas, syncifyF, event } from "Utility/misc";
 import { InputUserKb, TAction as TKbAction } from "./inputUserKb";
+
+import css from "./credentials.module.css";
 
 export { type TQrAction, type TKbAction };
 
@@ -72,4 +75,25 @@ export const InputUser = <Data,>({
             </ContainerTransformElement>
         </ContainerTransform>
     );
+};
+
+/** Adapter for <FCT> when <InputUser> is used as handle
+ *
+ * Expects <InputUser> to be remounted between open and close.
+ */
+type AdapterFCT = Pick<
+    ComponentPropsWithoutRef<typeof FCT>,
+    "onOpen" | "onClose" | "onClosed"
+>;
+export const adapterFCT: AdapterFCT = {
+    onOpen: (ancestor, portalAncestor) => {
+        const video = portalAncestor.getElementsByTagName("video")[0];
+        video?.replaceWith(videoToCanvas(video));
+    },
+    onClosed: syncifyF(async (ancestor) => {
+        const qr = getByClass("input-qr__qr", ancestor);
+        qr.classList.add(css["input-user__qr--fade-back"]!);
+        await event("animationend", qr);
+        qr.classList.remove(css["input-user__qr--fade-back"]!);
+    }),
 };

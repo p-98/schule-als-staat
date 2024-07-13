@@ -1,4 +1,8 @@
-import React, { isValidElement } from "react";
+import React, {
+    type ComponentPropsWithoutRef,
+    type ReactNode,
+    isValidElement,
+} from "react";
 
 import { Icon } from "Components/material/icon";
 import { Typography } from "Components/material/typography";
@@ -19,10 +23,13 @@ function isIconOptions(
     return true;
 }
 
-interface IDisplayInfoProps extends React.HTMLAttributes<HTMLDivElement> {
+interface IDisplayInfoProps extends ComponentPropsWithoutRef<"div"> {
     label: string;
     icon?: string | IconOptions | React.ReactElement;
     trailingIcon?: string | IconOptions | React.ReactElement;
+    /** Alternative to `children` */
+    value?: ReactNode;
+    children?: ReactNode;
     activated?: boolean;
     selected?: boolean;
 }
@@ -30,6 +37,7 @@ export const DisplayInfo: React.FC<IDisplayInfoProps> = ({
     label,
     icon,
     trailingIcon,
+    value,
     children,
     activated = false,
     selected = false,
@@ -66,6 +74,7 @@ export const DisplayInfo: React.FC<IDisplayInfoProps> = ({
                     {label}
                 </Typography>
                 <Typography use="subtitle1" theme="textPrimaryOnBackground">
+                    {value}
                     {children}
                 </Typography>
             </div>

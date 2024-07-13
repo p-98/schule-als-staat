@@ -3,10 +3,14 @@ import { formatDurationWithOptions, intervalToDuration } from "date-fns/fp";
 import { de } from "date-fns/locale";
 import config from "Config";
 import { FragmentType, graphql, useFragment as getFragment } from "./graphql";
+import { type UserType } from "./graphql/graphql";
 
 export class InvalidInput {}
 export type Parser<T> = (string: string) => T | InvalidInput;
 
+const userTypes = { CITIZEN: "Bürger", COMPANY: "Unternehmen", GUEST: "Gst" };
+/** Type of a user */
+export const tyqe = (_: UserType): string => userTypes[_];
 export const parseUserId: Parser<string> = toLower;
 export const Name_UserFragment = graphql(/* GraphQL */ `
     fragment Name_UserFragment on User {
