@@ -1,6 +1,6 @@
 import React from "react";
 import { ThemePropT } from "Components/material/types";
-import { IChangeCurrenciesInfo } from "Scenes/bank/types";
+import config from "Config";
 
 export type TUser = string;
 
@@ -44,10 +44,14 @@ export interface ITransferTransaction extends ITransactionBase {
     value: number;
     purpose: string;
 }
-export interface IChangeTransaction
-    extends ITransactionBase,
-        IChangeCurrenciesInfo {
+export interface IChangeTransaction extends ITransactionBase {
     type: "change";
+
+    baseCurrency: keyof typeof config.currencies;
+    baseValue: number;
+
+    targetCurrency: keyof typeof config.currencies;
+    targetValue: number;
 }
 
 export interface IPurchaseTransaction extends ITransactionBase {

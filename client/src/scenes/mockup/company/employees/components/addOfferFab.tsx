@@ -8,7 +8,6 @@ import { Fab } from "Components/material/fab";
 
 // local
 import { useForceRemount } from "Utility/hooks/forceRemount";
-import config from "Config";
 
 import styles from "../employees.module.scss";
 
