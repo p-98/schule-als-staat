@@ -136,9 +136,12 @@ async function testCreateGuest(
     assert.isAtLeast(new Date(guest.enteredAt).getTime(), before.getTime());
     assert.isAtMost(new Date(guest.enteredAt).getTime(), after.getTime());
 
-    const guestClient = await buildHTTPUserExecutor(knex, yoga, guest, {
-        noSeed: true,
-    });
+    const guestClient = await buildHTTPUserExecutor(
+        knex,
+        yoga,
+        { ...guest, password: undefined },
+        { noSeed: true }
+    );
     await assertGuestState(guestClient)(guest);
 
     return guest;
@@ -168,9 +171,12 @@ async function testLeaveGuest(guest: TGuest): Promise<void> {
     assert.isAtLeast(new Date(left.leftAt!).getTime(), before.getTime());
     assert.isAtMost(new Date(left.leftAt!).getTime(), after.getTime());
 
-    const guestClient = await buildHTTPUserExecutor(knex, yoga, guest, {
-        noSeed: true,
-    });
+    const guestClient = await buildHTTPUserExecutor(
+        knex,
+        yoga,
+        { ...guest, password: undefined },
+        { noSeed: true }
+    );
     await assertGuestState(guestClient)(guest, [before, after]);
 }
 
