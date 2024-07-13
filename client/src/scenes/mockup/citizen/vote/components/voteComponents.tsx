@@ -22,14 +22,15 @@ const VoteRadio = React.memo<TWithVoteProp<IVoteRadio, IVoteRadioProps>>(
                         name={`voteForm${voteProp.id}`}
                         key={item}
                         id={item}
-                        label={
-                            <Typography
-                                use="subtitle2"
-                                theme="textPrimaryOnBackground"
-                            >
-                                {item}
-                            </Typography>
-                        }
+                        // label={
+                        //     <Typography
+                        //         use="subtitle2"
+                        //         theme="textPrimaryOnBackground"
+                        //     >
+                        //         {item}
+                        //     </Typography>
+                        // }
+                        label={item}
                         checked={vote === index}
                         onChange={() => setVote(index)}
                         disabled={disabled}
