@@ -4,10 +4,14 @@ import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { makeFragmentData } from "Utility/graphql";
 // import products from "./warehouse.data";
 
-const product = makeFragmentData(
-    { __typename: "Product", id: "productId" },
-    Pos_ProductFragment
-);
+const _product = {
+    __typename: "Product",
+    id: "dönerId",
+    revision: "1",
+    name: "Döner",
+    price: 2.0,
+} as const;
+const product = makeFragmentData(_product, Pos_ProductFragment);
 export const Warehouse: React.FC = () => (
     <>
         <DrawerAppBarHandle title="Warenlager" />
