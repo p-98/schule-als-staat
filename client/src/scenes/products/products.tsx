@@ -22,6 +22,10 @@ import { FallbackText } from "Components/fallbackText/fallbackText";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import { Dot } from "Components/dot/dot";
 import { ActionCard, TAction } from "Components/actionCard/actionCard";
+import {
+    ActionButton,
+    TAction as TButtonAction,
+} from "Components/actionButton/actionButton";
 import { FragmentType, graphql, useFragment } from "Utility/graphql";
 import {
     byCode,
@@ -42,11 +46,25 @@ import css from "./products.module.css";
 /* Product component
  */
 
+const deleteMutation = graphql(/* GraphQL */ `
+    mutation DeleteProductMutation($id: ID!) {
+        removeProduct(id: $id)
+    }
+`);
+const deleteAction =
+    (id: string): TButtonAction =>
+    async () => {
+        const result = await client.mutation(deleteMutation, { id });
+        const { data, error } = safeData(result);
+        categorizeError(error, []);
+        return { data: data ? true : undefined, unspecificError: undefined };
+    };
 const StatsGap = componentFactory({
     className: css["view-product__stats-gap"],
 });
 const ViewProduct_ProductFragment = graphql(/* GraphQL */ `
     fragment ViewProduct_ProductFragment on Product {
+        id
         name
         price
         salesToday
@@ -87,6 +105,17 @@ const ViewProduct: FC<ViewProductProps> = memo(
                 <CardActions>
                     <CardActionIcons>
                         <CardActionIcon icon="edit" onClick={onEdit} />
+                        <ActionButton
+                            action={deleteAction(product.id)}
+                            label="Löschen"
+                            tag={memo(({ onClick, disabled }) => (
+                                <CardActionIcon
+                                    icon="delete"
+                                    onClick={onClick}
+                                    disabled={disabled}
+                                />
+                            ))}
+                        />
                     </CardActionIcons>
                 </CardActions>
             </CardInner>

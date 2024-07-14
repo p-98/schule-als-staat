@@ -90,6 +90,12 @@ const cacheInstance = cacheExchange({
                 if (!me) return;
                 cache.invalidate(me as Entity, "transactions");
             },
+            removeProduct: (parent, args, cache, info) => {
+                const resolveMe = resolveSessionUser("CompanyUser");
+                const me = resolveMe(parent, args, cache, info);
+                if (!me) return;
+                cache.invalidate(me as Entity, "products");
+            },
         },
     },
     schema,
