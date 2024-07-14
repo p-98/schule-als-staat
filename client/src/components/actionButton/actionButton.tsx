@@ -1,5 +1,5 @@
 import { over } from "lodash/fp";
-import { ReactNode, useState, type FC } from "react";
+import { ComponentType, ReactNode, useState, type FC } from "react";
 import { Button } from "Components/material/button";
 import { SimpleDialog } from "Components/material/dialog/dialog";
 
@@ -33,11 +33,17 @@ interface IActionButtonProps {
     action: TAction;
     label: string;
     confirmDialog?: { title: string; content: ReactNode; danger?: boolean };
+    tag?: ComponentType<{
+        label?: string;
+        onClick?: () => void;
+        disabled?: boolean;
+    }>;
 }
 export const ActionButton: FC<IActionButtonProps> = ({
     action,
     label,
     confirmDialog,
+    tag,
 }) => {
     const [fetching, setFetching] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -51,7 +57,7 @@ export const ActionButton: FC<IActionButtonProps> = ({
         if (data) notifyActionSuccess(label);
         setFetching(false);
     };
-
+    const Tag = tag ?? Button;
     return (
         <>
             {confirmDialog && (
@@ -75,7 +81,7 @@ export const ActionButton: FC<IActionButtonProps> = ({
                     onClose={() => setDialogOpen(false)}
                 />
             )}
-            <Button
+            <Tag
                 label={label}
                 onClick={
                     confirmDialog
