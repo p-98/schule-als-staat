@@ -16,8 +16,10 @@ import {
     type TAction as TActionCr,
 } from "Components/credentials/inputCredentials";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
-import { DynamicAppBarHandle } from "Components/dynamicAppBar/dynamicAppBar";
-import { FullscreenAppBarHandle } from "Components/dynamicAppBar/presets";
+import {
+    DrawerAppBarHandle,
+    FullscreenAppBarHandle,
+} from "Components/dynamicAppBar/presets";
 import { PageGrid } from "Components/pageGrid/pageGrid";
 import { FCT } from "Components/transition/fullscreenContainerTransform/fullscreenContainerTransform";
 import { UserBanner } from "Components/userBanner/userBanner";
@@ -195,7 +197,7 @@ export const Bank: FC = () => {
     const willOpen = !clerk;
     return (
         <PageGrid>
-            <DynamicAppBarHandle title="Geldwechsel" />
+            <DrawerAppBarHandle title="Geldwechsel" />
             <GridCell desktop={4} tablet={2} phone={0} />
             <GridCell span={4}>
                 <FCT
