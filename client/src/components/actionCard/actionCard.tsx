@@ -78,6 +78,7 @@ const ActionCardInput = <T,>({
                         setInputValue(e.currentTarget.value as T)
                     }
                     disabled={disabled}
+                    invalid={!!inputError}
                     helpText={helpText}
                 />
             );
