@@ -3,7 +3,12 @@ import React, { useMemo } from "react";
 import cn from "classnames";
 import config from "Config";
 import { SimpleListItem } from "Components/material/list";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import {
+    FragmentType,
+    graphql,
+    makeFragmentData,
+    useFragment,
+} from "Utility/graphql";
 import {
     currency,
     currencyName,
@@ -13,6 +18,15 @@ import {
 } from "Utility/data";
 
 import styles from "../bankAccountInfo.module.css";
+
+const bank = makeFragmentData(
+    {
+        __typename: "CompanyUser",
+        type: "COMPANY" as const,
+        id: config.roles.bankCompanyId,
+    },
+    Eq_UserFragment
+);
 
 export const Summary_TransactionFragment = graphql(/* GraohQL */ `
     fragment Summary_TransactionFragment on Transaction {
@@ -111,6 +125,10 @@ const summaryFactories: {
         const fromCurrencyName = currencyName(trx.fromCurrency);
         const toCurrencyName = currencyName(trx.toCurrency);
         const value = (() => {
+            if (userEq(user, bank) && trx.fromCurrency === config.mainCurrency)
+                return +trx.fromValue;
+            if (userEq(user, bank) && trx.toCurrency === config.mainCurrency)
+                return -trx.toValue;
             if (trx.fromCurrency === config.mainCurrency) return -trx.fromValue;
             if (trx.toCurrency === config.mainCurrency) return trx.toValue;
             return 0;
