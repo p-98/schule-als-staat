@@ -178,6 +178,9 @@ export const config: Config<"plancko-digital" | "plancko-analog"> = {
         },
         allowRawSql: true,
     },
+    flags: {
+        changeTransactionClerk: true,
+    },
 };
 
 export const mockAppContext = (knex: Knex): IAppContext =>

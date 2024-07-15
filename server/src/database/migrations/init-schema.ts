@@ -97,7 +97,7 @@ export async function up(knex: Knex): Promise<void> {
         table.double("fromValue").notNullable();
         table.text("toCurrency").notNullable();
         table.double("toValue").notNullable();
-        table.text("clerkCitizenId").notNullable();
+        table.text("clerkCitizenId");
         table.foreign("clerkCitizenId").references("id").inTable("citizens");
         table.index("clerkCitizenId");
     });

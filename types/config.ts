@@ -60,4 +60,8 @@ export type Config<Currencies extends string = string> = {
         };
         allowRawSql: boolean;
     };
+    flags: {
+        /** Whether a clerk is tracked for each change transaction */
+        changeTransactionClerk: boolean;
+    };
 };

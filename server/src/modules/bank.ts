@@ -323,6 +323,7 @@ export async function changeCurrencies(
 ): Promise<IChangeDraftModel> {
     const { knex, config } = ctx;
     const date = formatDateTimeZ(new Date());
+    const expectClerk = config.flags.changeTransactionClerk;
 
     assert(
         fromCurrency in config.currencies,
@@ -340,14 +341,20 @@ export async function changeCurrencies(
         "Same source and target currency",
         "TO_CURRENCY_SAME_AS_FROM"
     );
+    assert(
+        expectClerk === !!clerk,
+        expectClerk ? "Must specify clerk" : "Must not specify clerk",
+        expectClerk ? "CLERK_MISSING" : "CLERK_SET"
+    );
     const toValue =
         config.currencies[fromCurrency]!.conversion[toCurrency]!(fromValue);
 
     return knex.transaction(async (trx) => {
         // check clerk exists
-        await getCitizen({ ...ctx, knex: trx }, clerk, {
-            code: "CLERK_UNKNOWN",
-        });
+        if (clerk)
+            await getCitizen({ ...ctx, knex: trx }, clerk, {
+                code: "CLERK_UNKNOWN",
+            });
         const [raw] = await trx("changeTransactions")
             .insert({
                 date,
@@ -355,7 +362,7 @@ export async function changeCurrencies(
                 fromValue,
                 toCurrency,
                 toValue,
-                clerkCitizenId: clerk,
+                clerkCitizenId: clerk ?? null,
             })
             .returning("*");
         return addType("CHANGE" as const)(raw!);

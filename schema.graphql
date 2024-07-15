@@ -263,7 +263,7 @@ type ChangeTransaction implements Transaction {
     fromValue: Float!
     toCurrency: String!
     toValue: Float!
-    clerk: CitizenUser!
+    clerk: CitizenUser
 }
 " The draft of a change transaction "
 type ChangeDraft implements Draft {
@@ -273,7 +273,7 @@ type ChangeDraft implements Draft {
     fromValue: Float!
     toCurrency: String!
     toValue: Float!
-    clerk: CitizenUser!
+    clerk: CitizenUser
 }
 " Input type of a change transaction "
 input ChangeInput {
@@ -281,7 +281,7 @@ input ChangeInput {
     fromValue: Float!
     toCurrency: String!
     " citizen id of clerk "
-    clerk: ID!
+    clerk: ID
 }
 " A purchase transaction "
 type PurchaseTransaction implements Transaction {

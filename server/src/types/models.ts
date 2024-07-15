@@ -139,7 +139,7 @@ export interface IChangeTransactionModel extends ITransactionBaseModel {
     fromValue: number;
     toCurrency: string;
     toValue: number;
-    clerkCitizenId: string;
+    clerkCitizenId: TNullable<string>;
 }
 export type IChangeDraftModel = Omit<IChangeTransactionModel, "userSignature">;
 

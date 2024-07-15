@@ -72,7 +72,7 @@ const changeCurrenciesMutation = graphql(/* GraphQL */ `
         $fromCurrency: String!
         $fromValue: Float!
         $toCurrency: String!
-        $clerk: ID!
+        $clerk: ID
     ) {
         changeCurrencies(
             change: {
@@ -214,6 +214,12 @@ const testChangeCurrencies = async (
         variables: { ...input, clerk: "unknownCitizenId" },
     });
     assertInvalid(unknownClerk, "CLERK_UNKNOWN");
+    const missingClerk = await bank({
+        document: changeCurrenciesMutation,
+        variables: { ...input, clerk: null },
+    });
+    assertInvalid(missingClerk, "CLERK_MISSING");
+    // TODO: test for CLERK_SET error when config.flags.changeTransactionClerk is unset
 
     // valid request
     const before = new Date();

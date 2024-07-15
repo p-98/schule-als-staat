@@ -65,4 +65,7 @@ export default {
         },
         allowRawSql: false,
     },
+    flags: {
+        changeTransactionClerk: false,
+    },
 } satisfies Config<"plancko-digital" | "plancko-analog"> as Config;

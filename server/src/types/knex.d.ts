@@ -91,7 +91,7 @@ export interface IChangeTransaction {
     fromValue: number;
     toCurrency: string;
     toValue: number;
-    clerkCitizenId: string;
+    clerkCitizenId: TNullable<string>;
 }
 
 export interface IPurchaseTransaction {
