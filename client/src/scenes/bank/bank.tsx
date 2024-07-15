@@ -1,4 +1,4 @@
-import { keys, mapValues, startsWith } from "lodash/fp";
+import { endsWith, keys, mapValues, startsWith } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import cn from "classnames";
 import { FC, memo, useMemo, useState } from "react";
@@ -10,11 +10,6 @@ import {
     ActionCard,
     type TAction as TActionCa,
 } from "Components/actionCard/actionCard";
-import {
-    adapterFCT,
-    InputCredentials,
-    type TAction as TActionCr,
-} from "Components/credentials/inputCredentials";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import {
     DrawerAppBarHandle,
@@ -22,9 +17,27 @@ import {
 } from "Components/dynamicAppBar/presets";
 import { PageGrid } from "Components/pageGrid/pageGrid";
 import { FCT } from "Components/transition/fullscreenContainerTransform/fullscreenContainerTransform";
-import { UserBanner } from "Components/userBanner/userBanner";
+import {
+    InputUser,
+    adapterFCT,
+    type TKbAction,
+    type TQrAction,
+} from "Components/credentials/inputUser";
+import { BankAccountInfo } from "Components/dashboard/bankAccountInfo";
+import {
+    InputPassword,
+    TAction as TActionPw,
+} from "Components/credentials/inputPassword";
+import { GridScrollColumn } from "Components/gridScrollColumn/gridScrollCell";
+import { UserInfo } from "Components/dashboard/userInfo";
+import { UserType } from "Utility/graphql/graphql";
 import { currency, currencyName, parseCurrency } from "Utility/data";
-import { graphql } from "Utility/graphql";
+import {
+    FragmentType,
+    graphql,
+    useFragment as getFragment,
+    useFragment,
+} from "Utility/graphql";
 import { useRemount, useWillClick } from "Utility/hooks/hooks";
 import { useCache } from "Utility/hooks/useCache";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";
@@ -40,7 +53,6 @@ const secondaryCurrency =
     keys(config.currencies).find((_) => _ !== config.mainCurrency) ??
     config.mainCurrency;
 type Draft = ResultOf<typeof changeMutation>["changeCurrencies"];
-type CitizenId = string;
 
 /* Helper component
  */
@@ -74,21 +86,29 @@ const changeMutation = graphql(/* GraphQL */ `
         }
     }
 `);
-const changeAction =
-    (clerk: CitizenId): TActionCa<Draft, Inputs> =>
-    async ([fromCurrency, fromValue, toCurrency]) => {
-        const result = await client.mutation(changeMutation, {
-            change: { fromCurrency, fromValue, toCurrency, clerk },
-        });
-        const { data, error } = safeData(result);
-        const [fromValueNotPositiveError] = categorizeError(error, [
-            byCode("FROM_VALUE_NOT_POSITIVE"),
-        ]);
-        return {
-            data: data ? data.changeCurrencies : undefined,
-            inputErrors: [undefined, fromValueNotPositiveError, undefined],
-        };
+const changeAction: TActionCa<Draft, Inputs> = async ([
+    fromCurrency,
+    fromValue,
+    toCurrency,
+]) => {
+    const result = await client.mutation(changeMutation, {
+        change: { fromCurrency, fromValue, toCurrency, clerk: null },
+    });
+    const { data, error } = safeData(result);
+    const [fromValueNotPositiveError, sameCurrenciesError] = categorizeError(
+        error,
+        [byCode("FROM_VALUE_NOT_POSITIVE"), byCode("TO_CURRENCY_SAME_AS_FROM")]
+    );
+    return {
+        data: data ? data.changeCurrencies : undefined,
+        inputErrors: [
+            undefined,
+            fromValueNotPositiveError,
+            sameCurrenciesError,
+        ],
+        unspecificError: undefined,
     };
+};
 const payMutation = graphql(/* GraphQL */ `
     mutation PayChangeDraft($id: Int!, $credentials: CredentialsInput!) {
         payChangeDraft(id: $id, credentials: $credentials) {
@@ -96,30 +116,43 @@ const payMutation = graphql(/* GraphQL */ `
         }
     }
 `);
+type UserSignature = { type: UserType; id: string };
 const payAction =
-    (draft: Draft): TActionCr<[]> =>
-    async (type, id, password) => {
+    (draft: Draft, { type, id }: UserSignature): TActionPw<[]> =>
+    async (password) => {
         const result = await client.mutation(payMutation, {
             id: draft.id,
             credentials: { type, id, password },
         });
         const { data, error } = safeData(result);
-        const [passwordError] = categorizeError(error, [
+        const [passwordError, balanceTooLowError] = categorizeError(error, [
             byCode(startsWith("PASSWORD")),
+            byCode("BALANCE_TOO_LOW"),
         ]);
-        return { data: data ? [] : undefined, passwordError };
+        return {
+            data: data ? [] : undefined,
+            passwordError,
+            unspecificError: balanceTooLowError,
+        };
     };
+const Change_UserFragment = graphql(/* GraphQL */ `
+    fragment Change_UserFragment on User {
+        type
+        id
+    }
+`);
 interface ChangeCardProps {
-    clerk: CitizenId;
+    user: FragmentType<typeof Change_UserFragment>;
 }
-const Change: FC<ChangeCardProps> = ({ clerk }) => {
+const Change: FC<ChangeCardProps> = ({ user: _user }) => {
+    const user = useFragment(Change_UserFragment, _user);
     const [draft, setDraft] = useState<Draft>();
     const cachedDraft = useCache(draft);
     const _payAction = useMemo(
-        () => cachedDraft && payAction(cachedDraft),
-        [cachedDraft]
+        () => cachedDraft && payAction(cachedDraft, user),
+        [cachedDraft, user]
     );
-    const [inputCredentialsKey, remountInputCredentials] = useRemount();
+    const [inputPasswordKey, remountInputPassword] = useRemount();
     return (
         <>
             <ActionCard<Draft, Inputs>
@@ -144,7 +177,7 @@ const Change: FC<ChangeCardProps> = ({ clerk }) => {
                         init: secondaryCurrency,
                     },
                 ]}
-                action={useMemo(() => changeAction(clerk), [clerk])}
+                action={changeAction}
                 onSuccess={setDraft}
                 title="Geldwechsel"
                 confirmButton={{ label: "Weiter" }}
@@ -152,20 +185,20 @@ const Change: FC<ChangeCardProps> = ({ clerk }) => {
             <Dialog
                 open={!!draft}
                 renderToPortal
-                onClosed={remountInputCredentials}
+                onClosed={remountInputPassword}
+                preventOutsideDismiss
             >
                 {cachedDraft && (
-                    <InputCredentials<[]>
-                        key={inputCredentialsKey}
+                    <InputPassword<[]>
+                        key={inputPasswordKey}
                         action={_payAction!}
-                        scanQr={!!draft}
                         cancelButton={{ label: "Abbrechen" }}
                         onCancel={() => setDraft(undefined)}
                         confirmButton={{ label: "Bestätigen", danger: true }}
                         onSuccess={() => setDraft(undefined)}
-                        title="Geld wechseln?"
+                        title="Geldwechsel autorisieren"
                         actionSummary={<ChangeSummary draft={cachedDraft} />}
-                        dialog
+                        id="change__password"
                     />
                 )}
             </Dialog>
@@ -176,31 +209,66 @@ const Change: FC<ChangeCardProps> = ({ clerk }) => {
 /* Main component
  */
 
-const clerkQuery = graphql(/* GraphQL */ `
-    query CheckClerkQuery($id: ID!, $password: String) {
-        checkCredentials(
-            credentials: { type: CITIZEN, id: $id, password: $password }
-        ) {
-            __typename
+const Bank_UserFragment = graphql(/* GraphQL */ `
+    fragment Bank_UserFragment on User {
+        ...UserInfo_UserFragment
+        ...BankAccountInfo_UserFragment
+        ...Change_UserFragment
+    }
+`);
+const userQrQuery = graphql(/* GraphQL */ `
+    query BankQrUserQuery($id: ID!) {
+        readCard(id: $id) {
+            ...Bank_UserFragment
         }
     }
 `);
-const clerkAction: TActionCr<CitizenId> = async (type, id, password) => {
-    const userTypeError = Error("Sachbearbeiter muss ein Bürger sein.");
-    if (type !== "CITIZEN") return { unspecificError: userTypeError };
-
-    const result = await client.query(clerkQuery, { id, password });
+const userKbQuery = graphql(/* GraphQL */ `
+    query BankKbUserQuery($type: UserType!, $id: String!) {
+        user(user: { type: $type, id: $id }) {
+            ...Bank_UserFragment
+        }
+    }
+`);
+const userQrAction: TQrAction<ResultOf<typeof Bank_UserFragment>> = async (
+    id
+) => {
+    const result = await client.query(userQrQuery, { id });
     const { data, error } = safeData(result);
-    const [passwordError] = categorizeError(error, [byCode("WRONG_PASSWORD")]);
-    return { data: data ? id : undefined, passwordError };
+    const [notFoundError] = categorizeError(error, [
+        byCode(endsWith("CARD_NOT_FOUND")),
+    ]);
+    const noUserError =
+        data && data.readCard === null ? new Error("Karte leer.") : undefined;
+    return {
+        data:
+            data && !noUserError
+                ? getFragment(Bank_UserFragment, data.readCard!)
+                : undefined,
+        unspecificError: notFoundError ?? noUserError,
+    };
+};
+const userKbAction: TKbAction<ResultOf<typeof Bank_UserFragment>> = async (
+    type,
+    id
+) => {
+    const result = await client.query(userKbQuery, { type, id });
+    const { data, error } = safeData(result);
+    const [notFoundError] = categorizeError(error, [
+        byCode(endsWith("NOT_FOUND")),
+    ]);
+    return {
+        data: data ? getFragment(Bank_UserFragment, data.user) : undefined,
+        idError: notFoundError,
+    };
 };
 export const Bank: FC = () => {
-    const [clerk, setClerk] = useState<CitizenId>();
-    const cachedClerk = useCache(clerk);
-    const [clerkInputKey, remountClerkInput] = useRemount();
+    const [user, setUser] = useState<ResultOf<typeof Bank_UserFragment>>();
+    const cachedUser = useCache(user);
+    const [inputUserKey, remountInputUser] = useRemount();
 
     const [willClose, willCloseListeners] = useWillClick();
-    const willOpen = !clerk;
+    const willOpen = !user;
     return (
         <PageGrid>
             <DrawerAppBarHandle title="Geldwechsel" />
@@ -208,22 +276,20 @@ export const Bank: FC = () => {
             <GridCell span={4}>
                 <FCT
                     className={cn(cardClassNames, css["bank__fct"])}
-                    open={!!clerk}
+                    open={!!user}
                     openWillChange={willOpen || willClose}
-                    onOpened={remountClerkInput}
+                    onOpened={remountInputUser}
                     onClose={adapterFCT.onClose}
                     onClosed={adapterFCT.onClosed}
                     handle={
-                        <InputCredentials
-                            key={clerkInputKey}
-                            action={clerkAction}
-                            scanQr={!clerk}
-                            onSuccess={setClerk}
-                            title="Sachbearbeiter Authentifizieren"
-                            actionSummary={(user) => (
-                                <UserBanner label="Anmelden als" user={user} />
-                            )}
+                        <InputUser
+                            key={inputUserKey}
+                            qrAction={userQrAction}
+                            kbAction={userKbAction}
+                            scanQr={!user}
                             confirmButton={{ label: "Weiter" }}
+                            onSuccess={setUser}
+                            title="Kunde eingeben"
                         />
                     }
                     fullscreen={
@@ -231,14 +297,20 @@ export const Bank: FC = () => {
                             <FullscreenAppBarHandle
                                 // eslint-disable-next-line react/jsx-props-no-spreading
                                 {...willCloseListeners}
-                                render={!!clerk}
-                                onClose={() => setClerk(undefined)}
+                                render={!!user}
+                                onClose={() => setUser(undefined)}
                             />
-                            <GridCell desktop={4} tablet={2} phone={0} />
+                            <GridCell desktop={2} tablet={0} phone={0} />
                             <GridCell span={4}>
-                                {!!cachedClerk && (
-                                    <Change clerk={cachedClerk} />
+                                {cachedUser && (
+                                    <GridScrollColumn desktop tablet>
+                                        <UserInfo user={cachedUser} />
+                                        <BankAccountInfo user={cachedUser} />
+                                    </GridScrollColumn>
                                 )}
+                            </GridCell>
+                            <GridCell span={4}>
+                                {cachedUser && <Change user={cachedUser} />}
                             </GridCell>
                         </PageGrid>
                     }
