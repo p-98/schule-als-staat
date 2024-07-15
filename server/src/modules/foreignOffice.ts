@@ -19,7 +19,7 @@ export async function getGuest(
         .select("bankAccounts.*", "guests.*")
         .where("guests.id", id)
         .innerJoin("bankAccounts", "guests.bankAccountId", "bankAccounts.id");
-    assert(!!raw, `Guest with id ${id} not found`, "GUEST_NOT_FOUND");
+    assert(!!raw, `Gast mit '${id}' nicht gefunden.`, "GUEST_NOT_FOUND");
 
     return {
         type: "GUEST",
@@ -38,7 +38,7 @@ export async function createGuest(
     if (!isNil(guest.balance))
         assert(
             guest.balance >= 0,
-            "Balance must not be negative",
+            "Kontostand darf nicht negativ sein.",
             "BAD_USER_INPUT"
         );
 
@@ -83,10 +83,14 @@ export async function leaveGuest(
 
     return knex.transaction(async (trx) => {
         const [guest] = await trx("guests").select("leftAt").where({ id });
-        assert(!!guest, `Guest with id ${id} not found`, "GUEST_NOT_FOUND");
+        assert(
+            !!guest,
+            `Gast mit id '${id}' nicht gefunden.`,
+            "GUEST_NOT_FOUND"
+        );
         assert(
             isNull(guest.leftAt),
-            "Guest has already left.",
+            "Gast hat den Staat bereits verlassen.",
             "GUEST_ALREADY_LEFT"
         );
 

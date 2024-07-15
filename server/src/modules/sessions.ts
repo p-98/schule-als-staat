@@ -34,7 +34,7 @@ export async function login(
         .returning("*");
     assert(
         !!success,
-        `Session with id ${session.id} not found`,
+        `Sitzung mit id '${session.id}' nicht gefunden.`,
         "SESSION_NOT_FOUND"
     );
     session.userSignature = omit("password", credentials);
@@ -55,7 +55,11 @@ export async function logout(
         .update({ userSignature: null })
         .where({ id })
         .returning("*");
-    assert(!!success, `Session with id ${id} not found`, "SESSION_NOT_FOUND");
+    assert(
+        !!success,
+        `Sitzung mit id '${id}' nicht gefunden.`,
+        "SESSION_NOT_FOUND"
+    );
     session.userSignature = null;
 
     return {

@@ -22,7 +22,7 @@ async function loadFile(path: string): Promise<object> {
         return jiti.import(path, {}) as object;
     } catch (err) {
         if (isError(err) && err.message.startsWith("Cannot find module"))
-            fail("File config.ts not found.", "CONFIG_NOT_FOUND");
+            fail("Datei config.ts nicht gefunden.", "CONFIG_NOT_FOUND");
         throw err;
     }
 }
@@ -32,12 +32,12 @@ async function loadConfigFile(): Promise<Config> {
     const module = await loadFile(path);
     if (!inOperator("default", module))
         fail(
-            "File config.ts must have config as default export.",
+            "Datei config.ts muss die Konfiguration als Standartexport haben.",
             "CONFIG_MISSING_EXPORT"
         );
     if (typeof module.default !== "object" || module.default === null)
         fail(
-            "File config.ts default export must be an config object.",
+            "Datei config.ts Standartexport muss ein Konfigurationsobject sein.",
             "CONFIG_INVALID_EXPORT"
         );
     return module.default as Config;

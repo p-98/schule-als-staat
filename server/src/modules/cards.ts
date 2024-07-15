@@ -20,7 +20,7 @@ function assertCardFound(
 ): asserts card is ICard {
     assert(
         !isUndefined(card),
-        `Card with id '${id}' not found.`,
+        `Karte mit id '${id}' nicht gefunden.`,
         "CARD_NOT_FOUND"
     );
 }
@@ -29,7 +29,7 @@ function assertCardUnblocked(
 ): asserts card is ICard & { blocked: false } {
     assert(
         !card.blocked,
-        `Card with id '${card.id}' is blocked.`,
+        `Karte mit id '${card.id}' ist gesperrt.`,
         "CARD_BLOCKED"
     );
 }
@@ -89,7 +89,10 @@ export async function registerCard(
         return cardDbToModel(card!);
     } catch (err) {
         if (hasCode(err) && err.code === "SQLITE_CONSTRAINT_PRIMARYKEY")
-            fail("Card id already exists.", "CARD_ALREADY_REGISTERED");
+            fail(
+                `Karte mit id '${id}' existiert bereits.`,
+                "CARD_ALREADY_REGISTERED"
+            );
 
         throw err;
     }
@@ -133,7 +136,7 @@ export async function assignCard(
         assertCardUnblocked(card);
         assert(
             !card.userSignature,
-            `Card with id ${id} is already assigned.`,
+            `Karte mit id '${id}' ist bereits belegt.`,
             "CARD_ALREADY_ASSIGNED"
         );
         return { userSignature: stringifyUserSignature(userSignature) };
@@ -153,7 +156,7 @@ export async function unassignCard(
         assertCardUnblocked(card);
         assert(
             !!card.userSignature,
-            `Card with id ${id} is already unassigned.`,
+            `Karte mit id '${id}' ist bereits leer.`,
             "CARD_ALREADY_UNASSIGNED"
         );
         return { userSignature: null };
@@ -170,7 +173,7 @@ export async function blockCard(
     return updateCard(ctx, id, (card) => {
         assert(
             !card.blocked,
-            `Card with id ${id} is already blocked.`,
+            `Karte mit id '${id}' ist bereits gesperrt.`,
             "CARD_ALREADY_BLOCKED"
         );
         return { blocked: true };
@@ -187,7 +190,7 @@ export async function unblockCard(
     return updateCard(ctx, id, (card) => {
         assert(
             card.blocked,
-            `Card with id ${id} is already unblocked.`,
+            `Karte mit id '${id}' ist bereits entsperrt.`,
             "CARD_ALREADY_UNBLOCKED"
         );
         return { blocked: false };

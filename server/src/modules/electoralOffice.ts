@@ -67,7 +67,7 @@ export async function getAllVotes(ctx: IAppContext): Promise<IVoteModel[]> {
     assert(
         checkRole(ctx, session.userSignature, "CITIZEN") ||
             checkRole(ctx, session.userSignature, "POLITICS"),
-        "Not logged in as citizen or political admin",
+        "Nicht als Bürger oder politischer Administrator angemeldet.",
         "PERMISSION_DENIED"
     );
 
@@ -103,16 +103,20 @@ export async function createVote(
 ): Promise<IVoteModel> {
     const { knex, session } = ctx;
     assertRole(ctx, session.userSignature, "POLITICS");
-    assert(title.trim() !== "", "Title must not be empty", "BAD_USER_INPUT");
+    assert(
+        title.trim() !== "",
+        "Titel darf nicht leer sein.",
+        "BAD_USER_INPUT"
+    );
     assert(
         isFuture(new Date(endAt)),
-        "EndAt must be in the future",
+        "Ende muss in der Zukunft liegen",
         "BAD_USER_INPUT"
     );
     assert(choices.length > 0, "Choices must not be empty", "BAD_USER_INPUT");
     assert(
         all((_) => _.trim() !== "", choices),
-        "No choice is allowed to be empty",
+        "Keine Option darf leer sein.",
         "BAD_USER_INPUT"
     );
     return knex.transaction(async (trx) => {
@@ -143,7 +147,11 @@ export async function deleteVote(ctx: IAppContext, id: string): Promise<void> {
     return knex.transaction(async (trx) => {
         await trx("votingPapers").delete().where({ voteId: id });
         const deleted = await trx("votes").delete().where({ id });
-        assert(deleted > 0, `Vote with id ${id} not found`, "VOTE_NOT_FOUND");
+        assert(
+            deleted > 0,
+            `Abstimmung mit id '${id}' nicht gefunden.`,
+            "VOTE_NOT_FOUND"
+        );
     });
 }
 
@@ -159,29 +167,29 @@ export async function castVote(
         const vote = await trx("votes").where({ id: voteId }).first();
         assert(
             !isUndefined(vote),
-            `Vote with id ${voteId} not found`,
+            `Abstimmung mit id '${voteId}' nicht gefunden.`,
             "VOTE_NOT_FOUND"
         );
         const choices = parseVoteChoices(vote.choices);
         assert(
             choices.length === votingPaper.length,
-            `VotingPaper must contain ${choices.length} values`,
+            `Stimmzettel muss ${choices.length} Werte enthalten.`,
             "BAD_USER_INPUT"
         );
         assert(
             all((_) => _ <= 1 && _ >= 0, votingPaper),
-            "Every choice must be between 0 and 1",
+            "Jede Stimme muss zwischen 0 und 1 sein.",
             "BAD_USER_INPUT"
         );
         if (vote.type === "RADIO")
             assert(
                 pipe(partition(eq(0.0)), get(1), isEqual([1.0]))(votingPaper),
-                "One choice must be selected with 1.0, all others set to 0.0",
+                "Eine Stimme muss mit 1.0 ausgewählt und alle anderen auf 0.0 gesetzt werden.",
                 "BAD_USER_INPUT"
             );
         assert(
             new Date() < new Date(vote.endAt),
-            "Vote has already ended",
+            "Abstimmung hat bereits geendet.",
             "VOTE_ENDED"
         );
 

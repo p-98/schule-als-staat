@@ -1,7 +1,7 @@
 import { backup } from "Database";
 import { type IAppContext } from "Server";
 import { assertRole, checkRole, encryptPassword } from "Util/auth";
-import { assert, fail, hasCode } from "Util/error";
+import { assert, fail, hasCode, userStr } from "Util/error";
 import { type TUserSignatureInput } from "Types/schema";
 import { type TUserModel } from "Types/models";
 import { EUserTypeTableMap, stringifyUserSignature } from "Util/parse";
@@ -21,7 +21,7 @@ export async function execDatabase(
     assertRole(ctx, session.userSignature, "ADMIN");
     assert(
         config.database.allowRawSql,
-        "Configuration database.allowRawSql not set.",
+        "Konfiguration database.allowRawSql nicht gesetzt.",
         "RESTRICTION_ALLOW_RAW_SQL"
     );
     await backup(db, config);
@@ -49,7 +49,7 @@ export function resetPassword(
     assertRole(ctx, session.userSignature, "ADMIN");
     assert(
         checkRole(ctx, user, "CITIZEN") || checkRole(ctx, user, "COMPANY"),
-        "User is a guest and guests have no password",
+        "Benutzer ist ein Gast und Gäste haben kein Passwort.",
         "USER_IS_GUEST"
     );
     return knex.transaction(async (trx) => {
@@ -59,7 +59,7 @@ export function resetPassword(
             .returning("id");
         assert(
             updates.length > 0,
-            `User with signature ${stringifyUserSignature(user)} not found`,
+            `${userStr(user)} nicht gefunden.`,
             "USER_NOT_FOUND"
         );
         // logout all clients logged in with this user

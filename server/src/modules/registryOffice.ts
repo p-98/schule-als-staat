@@ -27,7 +27,7 @@ export async function getCitizen(
         .first();
     assert(
         !!raw,
-        `Citizen with id ${id} not found`,
+        `Bürger mit id '${id}' nicht gefunden.`,
         options?.code ?? "CITIZEN_NOT_FOUND"
     );
     return addType(raw);

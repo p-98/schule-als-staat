@@ -1,5 +1,6 @@
 import { GraphQLError, GraphQLErrorExtensions } from "graphql";
 import { inOperator } from "Types";
+import { UserType } from "./graphql/graphql";
 
 /** Conveniently represents flow's "Maybe" type https://flow.org/en/docs/types/maybe/ */
 type Maybe<T> = null | undefined | T;
@@ -26,3 +27,13 @@ export function assert(
 export function fail(message: string, code: string): never {
     assert(false, message, code);
 }
+
+const userTypeStrings = {
+    CITIZEN: "Bürger",
+    COMPANY: "Unternehmen",
+    GUEST: "Gast",
+};
+export const userTypeStr = (userType: UserType): string =>
+    userTypeStrings[userType];
+export const userStr = (_user: { type: UserType; id: string }): string =>
+    `${userTypeStrings[_user.type]} mit id '${_user.id}'`;

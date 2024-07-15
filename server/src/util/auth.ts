@@ -5,7 +5,7 @@ import type { IAppContext } from "Server";
 
 import bcrypt from "bcrypt";
 import { isNil } from "lodash/fp";
-import { assert } from "Util/error";
+import { assert, userTypeStr } from "Util/error";
 import { getUser } from "Modules/users";
 
 export function encryptPassword(password: string): Promise<string> {
@@ -32,7 +32,7 @@ export async function assertCredentials(
     if (user.type === "GUEST") {
         assert(
             isNil(credentials.password),
-            "Must not specify password for guest",
+            "Passwort für Gast muss weggelassen werden.",
             "PASSWORD_SET"
         );
         return user;
@@ -40,12 +40,12 @@ export async function assertCredentials(
 
     assert(
         !isNil(credentials.password),
-        `Must specify password for ${user.type.toLowerCase()}`,
+        `Passwort für ${userTypeStr(user.type)} muss angegeben werden.`,
         "PASSWORD_MISSING"
     );
     assert(
         await bcrypt.compare(credentials.password, user.password),
-        "Wrong password",
+        "Falsches Passwort.",
         "PASSWORD_WRONG"
     );
     return user;
@@ -144,17 +144,17 @@ export function checkRole(
 }
 
 const assertRoleMessages = {
-    ADMIN: "Not logged in as admin",
-    BANK: "Not logged in as bank",
-    BORDER_CONTROL: "Not logged in as border control",
-    TAX_OFFICE: "Not logged in as tax office",
-    CITIZEN: "Not logged in as citizen",
-    COMPANY: "Not logged in as company",
-    GUEST: "Not logged in as guest",
-    POLICE: "Not logged in as police",
-    POLITICS: "Not logged in as political admin",
-    TEACHER: "Not logged in as teacher",
-    USER: "Not logged in",
+    ADMIN: "Nicht als Administrator angemeldet.",
+    BANK: "Nicht als Bank angemeldet.",
+    BORDER_CONTROL: "Nicht als Zoll angemeldet.",
+    TAX_OFFICE: "Nicht als Finanzamt angemeldet.",
+    CITIZEN: "Nicht als Bürger angemeldet.",
+    COMPANY: "Nicht als Unternehmen angemeldet.",
+    GUEST: "Nicht als Gast angemeldet.",
+    POLICE: "Nicht als Polizei angemeldet.",
+    POLITICS: "Nicht als politischer Administrator angemeldet.",
+    TEACHER: "Nicht als Lehrer angemeldet.",
+    USER: "Nicht angemeldet.",
 };
 export function assertRole(
     ctx: IAppContext,

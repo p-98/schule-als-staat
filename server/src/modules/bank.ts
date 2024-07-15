@@ -26,7 +26,7 @@ import {
 } from "Util/parse";
 import { formatDateTimeZ } from "Util/date";
 import { v4 as uuidv4 } from "uuid";
-import { assert, GraphQLYogaError } from "Util/error";
+import { assert, GraphQLYogaError, userStr } from "Util/error";
 import { TChangeInput, TCredentialsInput } from "Types/schema";
 import { TNullable } from "Types";
 import { assertCredentials, assertRole, checkRole } from "Util/auth";
@@ -240,7 +240,7 @@ export async function payBonus(
     return knex.transaction(async (trx) => {
         const date = formatDateTimeZ(new Date());
 
-        assert(value > 0, "Value must be positive", "BAD_USER_INPUT");
+        assert(value > 0, "Wert muss positiv sein.", "BAD_USER_INPUT");
         // TODO: implement taxes
         const tax = 0;
         const grossValue = value;
@@ -260,13 +260,13 @@ export async function payBonus(
         );
         assert(
             updatedCompany!.balance > 0,
-            "Not enough money to complete bonus payment",
+            "Nicht genug Geld für Bonusauszahlung.",
             "BALANCE_TOO_LOW"
         );
 
         assert(
             !isEmpty(employmentIds),
-            "EmploymentsIds must not be empty",
+            "Es muss mindestens ein Arbeitsvertrag angegeben werden.",
             "BAD_USER_INPUT"
         );
         const singleton = <T>(item: T): [T] => [item];
@@ -279,12 +279,12 @@ export async function payBonus(
         );
         assert(
             employments.length === employmentIds.length,
-            "One of the employments is invalid",
+            "Einer der Arbeitsverträge ist ungültig.",
             "EMPLOYMENT_NOT_FOUND"
         );
         assert(
             all((_) => _.companyId === company.id, employments),
-            "One of the employments is from a different company",
+            "Einer der Arbeitsverträge ist von einem anderen Unternehmen",
             "PERMISSION_DENIED"
         );
         const employmentsTable = employments.map((_) => [_.citizenId]);
@@ -326,18 +326,18 @@ export async function changeCurrencies(
 
     assert(
         fromCurrency in config.currencies,
-        "Uknown source currency",
+        "Unbekannte Ausgangswährung.",
         "FROM_CURRENCY_UNKNOWN"
     );
-    assert(fromValue > 0, "Value must be positive", "FROM_VALUE_NOT_POSITIVE");
+    assert(fromValue > 0, "Wert muss positiv sein.", "FROM_VALUE_NOT_POSITIVE");
     assert(
         toCurrency in config.currencies,
-        "Uknown target currency",
+        "Unbekannte Zielwährung.",
         "TO_CURRENCY_UNKNOWN"
     );
     assert(
         toCurrency !== fromCurrency,
-        "Same source and target currency",
+        "Gleiche Ausgangs- und Zielwährung.",
         "TO_CURRENCY_SAME_AS_FROM"
     );
     const toValue =
@@ -378,7 +378,7 @@ export async function payChangeDraft(
             if (checkRole(ctx, session.userSignature, "BANK")) {
                 assert(
                     !isNull(credentials),
-                    "Must specify credentials",
+                    "Anmeldedaten müssen angegeben werden.",
                     "CREDENTIALS_MISSING"
                 );
                 await assertCredentials({ ...ctx, knex: trx }, credentials);
@@ -387,7 +387,7 @@ export async function payChangeDraft(
 
             assert(
                 isNull(credentials),
-                "Must not specify credentials",
+                "Anmeldedaten dürfen nicht angegeben werden.",
                 "CREDENTIALS_SET"
             );
             assertRole(ctx, session.userSignature, "USER");
@@ -400,12 +400,12 @@ export async function payChangeDraft(
             .first();
         assert(
             !isUndefined(draft),
-            `Change transaction with id ${id} not found`,
+            `Wechseltransaktion mit id '${id}' nicht gefunden.`,
             "CHANGE_TRANSACTION_NOT_FOUND"
         );
         assert(
             isNull(draft.userSignature),
-            `Change transaction with id ${id} already paid`,
+            `Wechseltransaktion mit id '${id}' bereits bezahlt.`,
             "CHANGE_TRANSACTION_ALREADY_PAID"
         );
 
@@ -431,7 +431,7 @@ export async function payChangeDraft(
             .returning("balance");
         assert(
             updatedUser!.balance >= 0,
-            "Not enough money to complete change.",
+            "Nicht genug Geld.",
             "BALANCE_TOO_LOW"
         );
 
@@ -460,12 +460,12 @@ export async function deleteChangeDraft(
         .first();
     assert(
         !isUndefined(draft),
-        `Change transaction with id ${id} not found.`,
+        `Wechseltransaktion mit id '${id}' nicht gefunden.`,
         "CHANGE_TRANSACTION_NOT_FOUND"
     );
     assert(
         isNull(draft.userSignature),
-        `Change transaction with id ${id} already paid`,
+        `Wechseltransaktion mit id '${id}' bereits bezahlt.`,
         "CHANGE_TRANSACTION_ALREADY_PAID"
     );
 
@@ -508,7 +508,7 @@ export async function transferMoney(
             .returning("balance");
         assert(
             updatedSenders[0]!.balance >= 0,
-            "Not enough money to complete transfer",
+            "Nicht genug Geld.",
             "BALANCE_TOO_LOW"
         );
         const updatedReceivers = await trx("bankAccounts")
@@ -521,9 +521,7 @@ export async function transferMoney(
             );
         assert(
             updatedReceivers === 1,
-            `User with signature ${stringifyUserSignature(
-                receiver
-            )} not found.`,
+            `${userStr(receiver)} nicht gefunden.`,
             "USER_NOT_FOUND"
         );
 
@@ -559,12 +557,12 @@ export async function sell(
         await getCompany({ ...ctx, knex: trx }, companyId); // check company exists
         assert(
             isNull(discount) || discount > 0,
-            "Discound must be positive or omitted",
+            "Rabatt muss positiv sein oder weggelassen werden.",
             "BAD_USER_INPUT"
         );
         assert(
             all((item) => item.amount > 0, items),
-            "Amount of items must be positive",
+            "Anzahl von Produkten muss positiv sein.",
             "BAD_USER_INPUT"
         );
         const date = formatDateTimeZ(new Date());
@@ -589,12 +587,12 @@ export async function sell(
         );
         assert(
             products.length === items.length,
-            "One of the product doesn't exist",
+            "Eines der Produkte nicht gefunden.",
             "PRODUCT_NOT_FOUND"
         );
         assert(
             all((_) => _.companyId === companyId, products),
-            "One of the products has a different owner",
+            "Eines der Produkte gehört einem anderen Unternehmen",
             "PERMISSION_DENIED"
         );
 
@@ -637,12 +635,12 @@ export async function payPurchaseDraft(
             .where({ id });
         assert(
             !isUndefined(draft),
-            `Purchase transaction with id ${id} not found`,
+            `Kauftransaktion mit id '${id}' nicht gefunden.`,
             "PURCHASE_TRANSACTION_NOT_FOUND"
         );
         assert(
             isNull(draft.customerUserSignature),
-            `Purchase transaction with id ${id} already paid`,
+            `Kauftransaktion mit id '${id}' bereits bezahlt.`,
             "PURCHASE_TRANSACTION_ALREADY_PAID"
         );
 
@@ -653,7 +651,7 @@ export async function payPurchaseDraft(
             ) {
                 assert(
                     !isNull(credentials),
-                    "Must specify credentials",
+                    "Anmeldedaten müssen angegeben werden.",
                     "BAD_USER_INPUT"
                 );
                 await assertCredentials({ ...ctx, knex: trx }, credentials);
@@ -662,7 +660,7 @@ export async function payPurchaseDraft(
 
             assert(
                 isNull(credentials),
-                "Must no specify credentials",
+                "Anmeldedaten dürfen nicht angegeben werden.",
                 "BAD_USER_INPUT"
             );
             assertRole(ctx, session.userSignature, "USER");
@@ -688,7 +686,7 @@ export async function payPurchaseDraft(
             .returning("balance");
         assert(
             updatedCustomer[0]!.balance >= 0,
-            "Not enough money to complete Purchase.",
+            "Nicht genug Geld.",
             "BALANCE_TOO_LOW"
         );
 
@@ -718,19 +716,19 @@ export async function deletePurchaseDraft(
             .where({ id });
         assert(
             !isUndefined(draft),
-            `Purchase transaction with id ${id} not found`,
+            `Kauftransaktion mit id '${id}' nicht gefunden.`,
             "PURCHASE_TRANSACTION_NOT_FOUND"
         );
         assert(
             isNull(draft.customerUserSignature),
-            `Purchase transaction with id ${id} already paid`,
+            `Kauftransaktion mit id '${id}' bereits bezahlt.`,
             "PURCHASE_TRANSACTION_ALREADY_PAID"
         );
 
         assertRole(ctx, session.userSignature, "COMPANY");
         assert(
             session.userSignature.id === draft.companyId,
-            "Not logged in as correct user",
+            "Kauftransaktion gehört einem anderen Unternehmen.",
             "PERMISSION_DENIED"
         );
 

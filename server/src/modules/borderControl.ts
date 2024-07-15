@@ -73,7 +73,7 @@ export async function chargeCustoms(
 ): Promise<ICustomsTransactionModel> {
     const { knex, config, session } = ctx;
     assertRole(ctx, session.userSignature, "BORDER_CONTROL");
-    assert(customs > 0, "Customs must be positive", "BAD_USER_INPUT");
+    assert(customs > 0, "Zoll muss positiv sein.", "BAD_USER_INPUT");
 
     const date = formatDateTimeZ(new Date());
     return knex.transaction(async (trx) => {
@@ -84,7 +84,7 @@ export async function chargeCustoms(
             .returning("balance");
         assert(
             updatedUser[0]!.balance >= 0,
-            "User has not enough money to complete charge",
+            "Benutzer hat nicht genug Geld.",
             "BALANCE_TOO_LOW"
         );
 

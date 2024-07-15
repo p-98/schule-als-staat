@@ -63,7 +63,7 @@ export async function getCompany(
         .first();
     assert(
         !!raw,
-        `Company with id ${id} not found`,
+        `Unternehmen mit id '${id}' nicht gefunden.`,
         options?.code ?? "COMPANY_NOT_FOUND"
     );
     return addType(raw);
@@ -96,7 +96,7 @@ export async function getProduct(
         : await knex("products").where({ id, deleted: false }).first();
     assert(
         !isUndefined(product),
-        `Product with id ${id} not found`,
+        `Produkt mit id '${id}' nicht gefunden.`,
         "PRODUCT_NOT_FOUND"
     );
     return product;
@@ -600,15 +600,15 @@ export async function cancelEmployment(
 }
 
 const assertProductInput = ({ name, price }: TProductInput) => {
-    assert(name.trim() !== "", "Name must not be empty", "NAME_EMPTY");
-    assert(price >= 0, "Price must not be negative", "PRICE_NEGATIVE");
+    assert(name.trim() !== "", "Name darf nicht leer sein.", "NAME_EMPTY");
+    assert(price >= 0, "Preis darf nicht negativ sein.", "PRICE_NEGATIVE");
 };
 const assertProductOwnership = (ctx: IAppContext, product: IProductModel) => {
     const { session } = ctx;
     assertRole(ctx, session.userSignature, "COMPANY");
     assert(
         product.companyId === session.userSignature.id,
-        "You don't own this product",
+        "Produkt gehört einem anderen Unternehmen.",
         "PERMISSION_DENIED"
     );
 };
