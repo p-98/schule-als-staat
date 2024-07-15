@@ -119,6 +119,7 @@ const Change: FC<ChangeCardProps> = ({ clerk }) => {
         () => cachedDraft && payAction(cachedDraft),
         [cachedDraft]
     );
+    const [inputCredentialsKey, remountInputCredentials] = useRemount();
     return (
         <>
             <ActionCard<Draft, Inputs>
@@ -148,9 +149,14 @@ const Change: FC<ChangeCardProps> = ({ clerk }) => {
                 title="Geldwechsel"
                 confirmButton={{ label: "Weiter" }}
             />
-            <Dialog open={!!draft} renderToPortal>
+            <Dialog
+                open={!!draft}
+                renderToPortal
+                onClosed={remountInputCredentials}
+            >
                 {cachedDraft && (
                     <InputCredentials<[]>
+                        key={inputCredentialsKey}
                         action={_payAction!}
                         scanQr={!!draft}
                         cancelButton={{ label: "Abbrechen" }}
