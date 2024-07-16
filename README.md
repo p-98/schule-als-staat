@@ -86,3 +86,9 @@ PRAGMA journal_mode = WAL;
 **Caveats**: You can start long-lasting read-transactions in WAL mode, but you cannot do long-lasting write transactions.
 I.e., if you open sqlite3 via cli, start a transaction via `BEGIN TRANSACTION`, do a write query and then want to see whether your query had the desired effect before commiting, requests to the server will start getting rejected with internal server errors after 5 seconds. They will recover when the transaction is commited.<br/>
 Short transactions for example using scripts are fine though, in this case sqlite just retries until the database is free.
+
+### BGE
+
+```shell
+$ bun scripts/get-citizens | jq -f scripts/bge-prepare.jq | bun batch-transaction.ts
+```
