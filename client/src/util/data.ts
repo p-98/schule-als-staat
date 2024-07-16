@@ -53,8 +53,8 @@ export const name = (
 /** Boolean value */
 export const bool = (_: boolean): string => (_ ? "Ja" : "Nein");
 
-/** Duration in hours */
-export const hours = (seconds: number): string =>
+/** Duration in hours and minutes */
+export const timeInState = (seconds: number): string =>
     formatDurationWithOptions(
         { format: ["hours", "minutes"], zero: true, locale: de },
         intervalToDuration({ start: 0, end: seconds * 1000 })

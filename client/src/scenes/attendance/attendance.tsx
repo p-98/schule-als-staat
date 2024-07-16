@@ -10,7 +10,7 @@ import { PageGrid } from "Components/pageGrid/pageGrid";
 import { FallbackText } from "Components/fallbackText/fallbackText";
 import { graphql } from "Utility/graphql";
 import { useCategorizeError, useSafeData, useStable } from "Utility/urql";
-import { bool, hours, name } from "Utility/data";
+import { bool, timeInState, name } from "Utility/data";
 import config from "Config";
 
 import css from "./attendance.module.css";
@@ -81,7 +81,7 @@ const AttendanceByClass: FC<AttendanceByClassProps> = ({ class: classs }) => {
                         activated={c.isInState}
                         text={name(c)}
                         secondaryText={`Im Staat: ${bool(c.isInState)}`}
-                        meta={nonbreaking(hours(c.timeInState))}
+                        meta={nonbreaking(timeInState(c.timeInState))}
                     />
                 ))}
             </List>

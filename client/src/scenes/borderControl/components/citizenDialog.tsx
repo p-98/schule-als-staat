@@ -21,7 +21,7 @@ import {
     safeData,
     useStable,
 } from "Utility/urql";
-import { name } from "Utility/data";
+import { timeInState, name } from "Utility/data";
 import { syncify, syncifyF } from "Utility/misc";
 import { useNumberInput } from "Utility/hooks/inputs";
 
@@ -29,6 +29,7 @@ export const BorderControl_CitizenUserFragment = graphql(/* GraphQL */ `
     fragment BorderControl_CitizenUserFragment on CitizenUser {
         id
         isInState
+        timeInState
         ...Name_UserFragment
     }
 `);
@@ -139,6 +140,9 @@ export const ChargeCitizen: React.FC<IChargeCitizenProps> = ({
             <DialogContent layout="card">
                 <DisplayInfo label="Name" activated>
                     {name(citizen)}
+                </DisplayInfo>
+                <DisplayInfo label="Anwesenheit heute">
+                    {timeInState(citizen.timeInState)}
                 </DisplayInfo>
                 <TextField
                     id="charge-citizen__customs"
