@@ -26,6 +26,7 @@ import theme from "../../util/theme";
 import { Drawer } from "./components/drawer";
 import { AppFallback } from "./components/fallback";
 import { useCheckRouteAndAuth } from "./util/routing";
+import { SessionUserProvider } from "./contexts";
 
 import styles from "./_app.module.scss";
 
@@ -33,6 +34,7 @@ const query = graphql(/* GraphQL */ `
     query AppQuery {
         session {
             id
+            ...Session_SessionFragment
             ...Drawer_SessionFragment
             ...Routing_SessionFragment
         }
@@ -70,23 +72,28 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
     if (!data || !authorized) return <></>;
 
     return (
-        <DrawerToggle
-            className={styles["app"]}
-            id="rmwcPortal"
-            open={drawerOpen}
-            onClose={() => drawerDispatch(close())}
-            drawer={<Drawer session={data.session} />}
-        >
-            <div className={styles["app__bar-wrapper"]}>
-                <DynamicAppBarDisplay />
-                <div className={styles["app__fullscreen-wrapper"]}>
-                    <Component {...pageProps} />
-                    <div id="fullscreen" className={styles["app__fullscreen"]}>
-                        <SnackbarQueue messages={notifications} />
+        <SessionUserProvider value={data.session}>
+            <DrawerToggle
+                className={styles["app"]}
+                id="rmwcPortal"
+                open={drawerOpen}
+                onClose={() => drawerDispatch(close())}
+                drawer={<Drawer session={data.session} />}
+            >
+                <div className={styles["app__bar-wrapper"]}>
+                    <DynamicAppBarDisplay />
+                    <div className={styles["app__fullscreen-wrapper"]}>
+                        <Component {...pageProps} />
+                        <div
+                            id="fullscreen"
+                            className={styles["app__fullscreen"]}
+                        >
+                            <SnackbarQueue messages={notifications} />
+                        </div>
                     </div>
                 </div>
-            </div>
-        </DrawerToggle>
+            </DrawerToggle>
+        </SessionUserProvider>
     );
 };
 
