@@ -11,7 +11,7 @@ import { mapNullableC } from "Util/misc";
 import { pipe as pipeSub, filter } from "graphql-yoga";
 import { VoidResolver, DateTimeResolver } from "graphql-scalars";
 import { subDays } from "date-fns/fp";
-import { curry, pipe } from "lodash/fp";
+import { curry, isNil, pipe } from "lodash/fp";
 
 import {
     getAllBooks,
@@ -197,10 +197,16 @@ export const resolvers: TResolvers = {
     },
     ChangeTransaction: {
         user: (parent, _, ctx) => getUser(ctx, parent.userSignature),
-        clerk: (parent, _, ctx) => getCitizen(ctx, parent.clerkCitizenId),
+        clerk: (parent, _, ctx) => {
+            if (isNil(parent.clerkCitizenId)) return null;
+            return getCitizen(ctx, parent.clerkCitizenId);
+        },
     },
     ChangeDraft: {
-        clerk: (parent, _, ctx) => getCitizen(ctx, parent.clerkCitizenId),
+        clerk: (parent, _, ctx) => {
+            if (isNil(parent.clerkCitizenId)) return null;
+            return getCitizen(ctx, parent.clerkCitizenId);
+        },
     },
     PurchaseItem: {
         product: (parent, _, ctx) =>
