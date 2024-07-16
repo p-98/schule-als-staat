@@ -2,6 +2,7 @@ import { endsWith, keys, mapValues, startsWith } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import cn from "classnames";
 import { FC, memo, useMemo, useState } from "react";
+import { useQuery } from "urql";
 import { Dialog } from "Components/material/dialog";
 import { GridCell } from "Components/material/grid";
 import { cardClassNames } from "Components/material/card/card";
@@ -40,7 +41,13 @@ import {
 } from "Utility/graphql";
 import { useRemount, useWillClick } from "Utility/hooks/hooks";
 import { useCache } from "Utility/hooks/useCache";
-import { byCode, categorizeError, client, safeData } from "Utility/urql";
+import {
+    byCode,
+    categorizeError,
+    client,
+    safeData,
+    useSafeData,
+} from "Utility/urql";
 import config from "Config";
 
 import css from "./bank.module.css";
@@ -113,6 +120,10 @@ const payMutation = graphql(/* GraphQL */ `
     mutation PayChangeDraft($id: Int!, $credentials: CredentialsInput!) {
         payChangeDraft(id: $id, credentials: $credentials) {
             id
+            user {
+                id
+                balance
+            }
         }
     }
 `);
@@ -206,14 +217,59 @@ const Change: FC<ChangeCardProps> = ({ user: _user }) => {
     );
 };
 
+/* User component
+ */
+
+const userQuery = graphql(/* GraphQL */ `
+    query BankUserQuery($type: UserType!, $id: String!) {
+        user(user: { type: $type, id: $id }) {
+            ...UserInfo_UserFragment
+            ...BankAccountInfo_UserFragment
+            ...Change_UserFragment
+        }
+    }
+`);
+const User_UserFragment = graphql(/* GraphQL */ `
+    fragment User_UserFragment on User {
+        type
+        id
+    }
+`);
+interface UserProps {
+    user: FragmentType<typeof User_UserFragment>;
+}
+const User: FC<UserProps> = ({ user: _user }) => {
+    const user = useFragment(User_UserFragment, _user);
+    const [result] = useQuery({
+        query: userQuery,
+        variables: { ...user },
+    });
+    const { data, fetching, error, stale } = useSafeData(result);
+    categorizeError(error, []);
+    if (fetching || stale) return <>Laden...</>;
+    if (!data) return <>Fehler.</>;
+    return (
+        <>
+            <GridCell desktop={2} tablet={0} phone={0} />
+            <GridCell span={4}>
+                <GridScrollColumn desktop tablet>
+                    <UserInfo user={data.user} />
+                    <BankAccountInfo user={data.user} />
+                </GridScrollColumn>
+            </GridCell>
+            <GridCell span={4}>
+                <Change user={data.user} />
+            </GridCell>
+        </>
+    );
+};
+
 /* Main component
  */
 
 const Bank_UserFragment = graphql(/* GraphQL */ `
     fragment Bank_UserFragment on User {
-        ...UserInfo_UserFragment
-        ...BankAccountInfo_UserFragment
-        ...Change_UserFragment
+        ...User_UserFragment
     }
 `);
 const userQrQuery = graphql(/* GraphQL */ `
@@ -300,18 +356,7 @@ export const Bank: FC = () => {
                                 render={!!user}
                                 onClose={() => setUser(undefined)}
                             />
-                            <GridCell desktop={2} tablet={0} phone={0} />
-                            <GridCell span={4}>
-                                {cachedUser && (
-                                    <GridScrollColumn desktop tablet>
-                                        <UserInfo user={cachedUser} />
-                                        <BankAccountInfo user={cachedUser} />
-                                    </GridScrollColumn>
-                                )}
-                            </GridCell>
-                            <GridCell span={4}>
-                                {cachedUser && <Change user={cachedUser} />}
-                            </GridCell>
+                            {cachedUser && <User user={cachedUser} />}
                         </PageGrid>
                     }
                 />
