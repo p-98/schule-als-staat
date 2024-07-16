@@ -16,7 +16,7 @@ import {
     DrawerAppBarHandle,
     FullscreenAppBarHandle,
 } from "Components/dynamicAppBar/presets";
-import { PageGrid } from "Components/pageGrid/pageGrid";
+import { GridPage } from "Components/page/page";
 import { FCT } from "Components/transition/fullscreenContainerTransform/fullscreenContainerTransform";
 import {
     InputUser,
@@ -326,7 +326,7 @@ export const Bank: FC = () => {
     const [willClose, willCloseListeners] = useWillClick();
     const willOpen = !user;
     return (
-        <PageGrid>
+        <GridPage>
             <DrawerAppBarHandle title="Geldwechsel" />
             <GridCell desktop={4} tablet={2} phone={0} />
             <GridCell span={4}>
@@ -349,7 +349,7 @@ export const Bank: FC = () => {
                         />
                     }
                     fullscreen={
-                        <PageGrid>
+                        <GridPage>
                             <FullscreenAppBarHandle
                                 // eslint-disable-next-line react/jsx-props-no-spreading
                                 {...willCloseListeners}
@@ -357,10 +357,10 @@ export const Bank: FC = () => {
                                 onClose={() => setUser(undefined)}
                             />
                             {cachedUser && <User user={cachedUser} />}
-                        </PageGrid>
+                        </GridPage>
                     }
                 />
             </GridCell>
-        </PageGrid>
+        </GridPage>
     );
 };

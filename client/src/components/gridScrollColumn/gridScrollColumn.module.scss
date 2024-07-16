@@ -1,7 +1,7 @@
 @use "sass:map";
 @use "@material/layout-grid/mixins" as layout-grid-mixins;
 @use "@material/layout-grid/variables" as layout-grid-vars;
-@use "Components/pageGrid/custom-properties";
+@use "Components/page/custom-properties";
 
 .grid-scroll-column {
     @include custom-properties.app-bar-height();

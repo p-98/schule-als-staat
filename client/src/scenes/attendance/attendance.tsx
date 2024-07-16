@@ -6,7 +6,7 @@ import { List, ListDivider, SimpleListItem } from "Components/material/list";
 import { GridCell } from "Components/material/grid";
 
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
-import { PageGrid } from "Components/pageGrid/pageGrid";
+import { GridPage } from "Components/page/page";
 import { FallbackText } from "Components/fallbackText/fallbackText";
 import { graphql } from "Utility/graphql";
 import { useCategorizeError, useSafeData, useStable } from "Utility/urql";
@@ -95,7 +95,7 @@ const AttendanceByClass: FC<AttendanceByClassProps> = ({ class: classs }) => {
 export const Attendance: FC = () => {
     const [classs, setClass] = useState<string>();
     return (
-        <PageGrid>
+        <GridPage>
             <DrawerAppBarHandle title="Anwesenheit" />
             <GridCell desktop={3} tablet={1} phone={0} />
             <GridCell span={6} phone={4}>
@@ -108,6 +108,6 @@ export const Attendance: FC = () => {
                     <AttendanceByClass class={classs} />
                 </Card>
             </GridCell>
-        </PageGrid>
+        </GridPage>
     );
 };
