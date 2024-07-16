@@ -146,6 +146,7 @@ export const ChargeCitizen: React.FC<IChargeCitizenProps> = ({
                 </DisplayInfo>
                 <TextField
                     id="charge-citizen__customs"
+                    style={{ display: "none" }}
                     label="Zollgebühren"
                     type="number"
                     value={customsProps.value}
