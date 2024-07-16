@@ -58,10 +58,12 @@ const qrAction: TQrAction<TCardAndUser> = async (id) => {
         { requestPolicy: "network-only" }
     );
     const { data, error } = safeData(result);
-    categorizeError(error, []);
+    const [cardNotFoundError] = categorizeError(error, [
+        byCode("CARD_NOT_FOUND"),
+    ]);
     return {
         data: data ? { user: data.readCard, cardId: id } : undefined,
-        unspecificError: error,
+        unspecificError: cardNotFoundError,
     };
 };
 
