@@ -43,7 +43,7 @@ export default {
         "plancko-digital": {
             name: "Plancko Digital",
             short: "PLK-D",
-            symbol: "p̶",
+            symbol: "Ᵽ",
             decimals: 0,
             conversion: {
                 "plancko-analog": multiply(1),
@@ -52,7 +52,7 @@ export default {
         "plancko-analog": {
             name: "Plancko Analog",
             short: "PLK-A",
-            symbol: "p̶",
+            symbol: "Ᵽ",
             decimals: 0,
             conversion: {
                 "plancko-digital": multiply(1),
