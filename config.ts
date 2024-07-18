@@ -63,7 +63,7 @@ export default {
     roles: {
         stateBankAccountId: "",
 
-        adminCitizenIds: [],
+        adminCitizenIds: ["silhil24", "jakwen10", "floorl24"],
         teacherCitizenIds: [
             "ass",
             "aub",
