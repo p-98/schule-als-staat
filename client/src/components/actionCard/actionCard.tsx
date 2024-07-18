@@ -1,5 +1,12 @@
+import { v4 as uuid } from "uuid";
 import { constant, over } from "lodash/fp";
-import { type FormEvent, type ReactElement, useState, ReactNode } from "react";
+import {
+    type FormEvent,
+    type ReactElement,
+    useState,
+    ReactNode,
+    useMemo,
+} from "react";
 import {
     Card,
     CardActionButton,
@@ -36,6 +43,7 @@ const ActionCardInput = <T,>({
     lastInput,
     disabled,
 }: IActionCardInput<T>) => {
+    const id = useMemo(uuid, []);
     const helpText = lastInput
         ? {
               validationMsg: true,
@@ -56,6 +64,8 @@ const ActionCardInput = <T,>({
         case "text":
             return (
                 <TextField
+                    type={input.protect ? "password" : "text"}
+                    id={id}
                     label={input.label}
                     value={input.toInput(inputValue)}
                     onChange={(e: ChangeEvent) => {
@@ -93,6 +103,7 @@ type MapInputErrors<TInputs extends unknown[]> = TInputs extends [
     : [];
 type InputTextProp<T> = {
     type: "text";
+    protect?: boolean;
     toInput: (_: T) => string;
     fromInput: Parser<T>;
 };
