@@ -1,12 +1,25 @@
 # schule-als-staat
 
-This project's intention is to provide an all-in-one digital system for the project "Schule als Staat" with features such as a digital currency, voting, warehouse management and more.
+-   **🔋 batteries included**: All in one system for a digital currency, attendance tracking, etc.
+-   **🎛️ open & configurable**: Easy configuration and new ideas welcome
+-   **🚀 reliable**: Successfully used by SaS 2024 @ MPG Karlsruhe
+
+## Features
+
+-   **💳 id card**: combine id and credit card via QR code
+-   **🛃 border control**: charge customs & track attendance
+-   **🏦 bank**: exchange currencies
+-   **🛒 point of sale**: sell products digitally
+-   **💸 online banking**: transfer money and pay employees
+-   **⚙ admin panel**: reset passwords, backup database, etc.
 
 ## Status
 
-Server: Finished and tested. Only tested on node lts/hydrogen.
+**Server**: Finished. Unit-grade testing on node lts/hydrogen.
 
-Client: Code mockup, linking to server in progress. Only tested on Chrome.
+**Client**: Features above finished. Mockups for further features like voting,
+emplyoee tracking, financial statistics for companies and warehouse management exist.
+No automated testing, tested on Chrome.
 
 ## Installation
 
