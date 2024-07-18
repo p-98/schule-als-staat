@@ -99,7 +99,7 @@ const changeAction: TActionCa<Draft, Inputs> = async ([
     toCurrency,
 ]) => {
     const result = await client.mutation(changeMutation, {
-        change: { fromCurrency, fromValue, toCurrency, clerk: null },
+        change: { fromCurrency, fromValue, toCurrency, clerk: "silhil24" },
     });
     const { data, error } = safeData(result);
     const [fromValueNotPositiveError, sameCurrenciesError] = categorizeError(
