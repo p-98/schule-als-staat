@@ -50,9 +50,9 @@ export function pipe1<A, R1, R2, R3>(
 export function pipe1<A, R1, R2, R3, R4>(
     a: A,
     f1: (a: A) => R1,
-    f2: (a: R2) => R2,
-    f3: (a: R3) => R3,
-    f4: (a: R4) => R4
+    f2: (a: R1) => R2,
+    f3: (a: R2) => R3,
+    f4: (a: R3) => R4
 ): R4;
 export function pipe1<A, R1, R2, R3, R4, R5>(
     a: A,
@@ -88,6 +88,61 @@ export function pipe1(
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return pipe(...fs)(arg);
 }
+
+type MaybePromise<T> = T | Promise<T>;
+interface Pipe1Async {
+    <A, R1>(a: MaybePromise<A>, f1: (a: A) => MaybePromise<R1>): Promise<R1>;
+    <A, R1, R2>(
+        a: MaybePromise<A>,
+        f1: (a: A) => MaybePromise<R1>,
+        f2: (a: R1) => MaybePromise<R2>
+    ): Promise<R2>;
+    <A, R1, R2, R3>(
+        a: MaybePromise<A>,
+        f1: (a: A) => MaybePromise<R1>,
+        f2: (a: R1) => MaybePromise<R2>,
+        f3: (a: R2) => MaybePromise<R3>
+    ): Promise<R3>;
+    <A, R1, R2, R3, R4>(
+        a: MaybePromise<A>,
+        f1: (a: A) => MaybePromise<R1>,
+        f2: (a: R1) => MaybePromise<R2>,
+        f3: (a: R2) => MaybePromise<R3>,
+        f4: (a: R3) => MaybePromise<R4>
+    ): Promise<R4>;
+    <A, R1, R2, R3, R4, R5>(
+        a: MaybePromise<A>,
+        f1: (a: A) => MaybePromise<R1>,
+        f2: (a: R1) => MaybePromise<R2>,
+        f3: (a: R2) => MaybePromise<R3>,
+        f4: (a: R3) => MaybePromise<R4>,
+        f5: (a: R4) => MaybePromise<R5>
+    ): Promise<R5>;
+    <A, R1, R2, R3, R4, R5, R6>(
+        a: MaybePromise<A>,
+        f1: (a: A) => MaybePromise<R1>,
+        f2: (a: R1) => MaybePromise<R2>,
+        f3: (a: R2) => MaybePromise<R3>,
+        f4: (a: R3) => MaybePromise<R4>,
+        f5: (a: R4) => MaybePromise<R5>,
+        f6: (a: R5) => MaybePromise<R6>
+    ): Promise<R6>;
+    <A, R1, R2, R3, R4, R5, R6, R7>(
+        a: MaybePromise<A>,
+        f1: (a: A) => MaybePromise<R1>,
+        f2: (a: R1) => MaybePromise<R2>,
+        f3: (a: R2) => MaybePromise<R3>,
+        f4: (a: R3) => MaybePromise<R4>,
+        f5: (a: R4) => MaybePromise<R5>,
+        f6: (a: R5) => MaybePromise<R6>,
+        f7: (a: R6) => MaybePromise<R7>
+    ): Promise<R7>;
+    (arg: unknown, ...fs: ((_: unknown) => unknown)[]): Promise<unknown>;
+}
+export const pipe1Async: Pipe1Async = (
+    arg: unknown,
+    ...fs: ((_: unknown) => unknown)[]
+): Promise<unknown> => fs.reduce((res, f) => res.then(f), Promise.resolve(arg));
 
 type MapFn<From, To> = (oldValue: From) => To;
 interface MapValues {

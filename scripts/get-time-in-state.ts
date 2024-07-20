@@ -1,10 +1,26 @@
-import { formatDistanceStrict } from "date-fns";
-import { ceil, filter, floor, map } from "lodash/fp";
-import config from "../config";
-import { createKnex, Knex } from "../server/src/database/database";
+import { map, pick } from "lodash/fp";
+import { stringify } from "csv-stringify/sync";
+import { binary, command, run } from "cmd-ts";
+
+import { type IAppContext } from "../server/src/server";
+import { type ICitizenUserModel } from "../server/src/types/models";
+import { type ICitizen } from "../server/src/types/knex";
+import { createKnex, type Knex } from "../server/src/database/database";
 import { getTimeInState } from "../server/src/modules/borderControl";
-import { IAppContext } from "../server/src/server";
-import { ICitizenUserModel } from "../server/src/types/models";
+import { pipe1Async } from "../server/src/util/misc";
+import config from "../config";
+
+/* Argument parsing
+ */
+
+const description = `Get the attendance times in seconds of all citizens as csv.`;
+const cmd = command({
+    name: "get-time-in-state",
+    description,
+    args: {},
+    handler: (_) => _,
+});
+await run(binary(cmd), Bun.argv);
 
 const withKnex = async <T>(f: (knex: Knex) => Promise<T>): Promise<T> => {
     const [, knex] = await createKnex(config.database.file, {
@@ -14,39 +30,28 @@ const withKnex = async <T>(f: (knex: Knex) => Promise<T>): Promise<T> => {
     await knex.destroy();
     return result;
 };
-const mapAsync = async <T, U>(
-    f: (_: T) => Promise<U>,
-    arr: T[]
-): Promise<U[]> => {
-    const result: U[] = [];
-    for (const el of arr) {
-        result.push(await f(el));
-    }
-    return result;
-};
-const hours = (_: number) => _ * 3600;
+const mapAsync =
+    <T, U>(f: (_: T) => Promise<U>) =>
+    async (arr: T[]): Promise<U[]> => {
+        const result: U[] = [];
+        for (const el of arr) {
+            result.push(await f(el));
+        }
+        return result;
+    };
 
-const formatDuration = (seconds: number) => {
-    const minutes = ceil(seconds / 60);
-    return `${floor(minutes / 60)} Stunden ${minutes % 60} Minuten`;
-};
+const fakeCtx = (knex: Knex) => ({ knex } as IAppContext);
+const fakeUser = pick("id") as (_: ICitizen) => ICitizenUserModel;
 
-await withKnex(async (knex) => {
-    const citizens = await knex("citizens");
-    const withTime = await mapAsync(async (c) => {
-        const raw = await getTimeInState(
-            { knex } as IAppContext,
-            { id: c.id } as ICitizenUserModel
-        );
-        return {
-            id: c.id,
-            time: raw,
-        };
-    }, citizens);
-    const withLessTime = filter((_) => _.time < hours(6), withTime);
-    const withFormatTime = map(
-        (_) => ({ ..._, time: formatDuration(_.time) }),
-        withLessTime
-    );
-    process.stdout.write(JSON.stringify(withFormatTime));
-});
+await withKnex((knex) =>
+    pipe1Async(
+        knex("citizens"),
+        mapAsync(async (_) => ({
+            ..._,
+            time: await getTimeInState(fakeCtx(knex), fakeUser(_)),
+        })),
+        map(pick(["id", "firstName", "lastName", "time"])),
+        (_) => stringify(_, { header: true, delimiter: "," }),
+        (_) => process.stdout.write(_)
+    )
+);
