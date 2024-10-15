@@ -188,10 +188,13 @@ export const getByTag = <K extends keyof HTMLElementTagNameMap>(
 /* Async utilities
  */
 
-/** Make Promise sync
+/** "Make Promise sync".
  *
- * PROMISE EXECUTION STILL HAPPENS ASYNCRONOUSELY!
- * But potential errors are catched.
+ * PROMISE EXECUTION STILL HAPPENS ASYNCRONOUSELY, but catches potential errors!
+ *
+ * @example <caption> The following two statements are equivalent </caption>
+ * syncify(p);
+ * p.catch((err) => { throw err; });
  */
 export const syncify = (promise: Promise<unknown>): void => {
     promise.catch((err) => {
@@ -199,10 +202,17 @@ export const syncify = (promise: Promise<unknown>): void => {
     });
 };
 
-/** "Make async funciton sync"
+/** "Make async funciton sync".
  *
- * FUNCTION CALL STILL HAPPENS ASYNCRONOUSELY!
- * But potential errors are catched.
+ * Potential errors are catched, but FUNCTION CALL STILL HAPPENS ASYNCRONOUSELY!
+ *
+ * @example <caption> The following two expressions are equivalent </caption>
+ * syncifyF(f)
+ * (...args) => { f(...args).catch((err) => {throw err;}); }
+ *
+ * @example <caption> Example usage </caption>
+ * async function handleClick() {...}
+ * const button = <button onClick={syncifyF(handleClick)} />
  */
 export const syncifyF =
     <Args extends unknown[]>(

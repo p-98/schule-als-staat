@@ -3,18 +3,20 @@ import type { CookieStore } from "@whatwg-node/cookie-store";
 import path from "node:path";
 // eslint-disable-next-line lodash-fp/use-fp
 import lodash from "lodash";
-import { curry, isNull, keys, omit, pipe, sum, values } from "lodash/fp";
+import { curry, isNull, keys, omit, sum, values } from "lodash/fp";
 import { TNullable } from "Types";
 
 export type WithCookieStore<T> = T & { cookieStore: CookieStore };
 
 export type UnPromise<P> = P extends Promise<infer T> ? T : never;
+export type Fn0<R> = () => R;
+export type Fn1<A1, R> = (a1: A1) => R;
 
 /** Function resolving paths relative project root */
 export const resolveRoot = (...pathSegments: string[]): string =>
     path.resolve(__dirname, "../../", ...pathSegments);
 
-/** Transpose a nxm matrix to a mxn matrix
+/** Transpose a nxm matrix to a mxn matrix.
  *
  *  matrix must be well-formed
  *  n and m must be greater than 0
@@ -27,9 +29,9 @@ export const transpose = <T>(matrix: T[][]): T[][] => {
     return matrix[0]!.map((_, choice) => matrix.map((vote) => vote[choice]!));
 };
 
-/** Average of an array of numbers
+/** Average of an array of numbers.
  *
- * arr length must be greater than 0
+ * `arr` must not be empty.
  *
  * @param arr the array of which to calculate the average
  */
@@ -39,116 +41,105 @@ export const average = (arr: number[]): number => {
     return sum(arr) / arr.length;
 };
 
-export function pipe1<A, R1>(a: A, f1: (a: A) => R1): R1;
-export function pipe1<A, R1, R2>(a: A, f1: (a: A) => R1, f2: (a: R1) => R2): R2;
-export function pipe1<A, R1, R2, R3>(
-    a: A,
-    f1: (a: A) => R1,
-    f2: (a: R1) => R2,
-    f3: (a: R2) => R3
-): R3;
-export function pipe1<A, R1, R2, R3, R4>(
-    a: A,
-    f1: (a: A) => R1,
-    f2: (a: R1) => R2,
-    f3: (a: R2) => R3,
-    f4: (a: R3) => R4
-): R4;
-export function pipe1<A, R1, R2, R3, R4, R5>(
-    a: A,
-    f1: (a: A) => R1,
-    f2: (a: R1) => R2,
-    f3: (a: R2) => R3,
-    f4: (a: R3) => R4,
-    f5: (a: R4) => R5
-): R5;
-export function pipe1<A, R1, R2, R3, R4, R5, R6>(
-    a: A,
-    f1: (a: A) => R1,
-    f2: (a: R1) => R2,
-    f3: (a: R2) => R3,
-    f4: (a: R3) => R4,
-    f5: (a: R4) => R5,
-    f6: (a: R5) => R6
-): R6;
-export function pipe1<A, R1, R2, R3, R4, R5, R6, R7>(
-    a: A,
-    f1: (a: A) => R1,
-    f2: (a: R1) => R2,
-    f3: (a: R2) => R3,
-    f4: (a: R3) => R4,
-    f5: (a: R4) => R5,
-    f6: (a: R5) => R6,
-    f7: (a: R6) => R7
-): R7;
-export function pipe1(
-    arg: unknown,
-    ...fs: ((_: unknown) => unknown)[]
-): unknown {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return pipe(...fs)(arg);
-}
-
-type MaybePromise<T> = T | Promise<T>;
-interface Pipe1Async {
-    <A, R1>(a: MaybePromise<A>, f1: (a: A) => MaybePromise<R1>): Promise<R1>;
-    <A, R1, R2>(
-        a: MaybePromise<A>,
-        f1: (a: A) => MaybePromise<R1>,
-        f2: (a: R1) => MaybePromise<R2>
-    ): Promise<R2>;
-    <A, R1, R2, R3>(
-        a: MaybePromise<A>,
-        f1: (a: A) => MaybePromise<R1>,
-        f2: (a: R1) => MaybePromise<R2>,
-        f3: (a: R2) => MaybePromise<R3>
-    ): Promise<R3>;
+interface Pipe {
+    <A, R1, R2>(f1: (_: A) => R1, f2: (_: R1) => R2): <B extends A>(v: B) => R2;
+    <A, R1, R2, R3>(f1: (_: A) => R1, f2: (_: R1) => R2, f3: (_: R2) => R3): <
+        B extends A
+    >(
+        v: B
+    ) => R3;
     <A, R1, R2, R3, R4>(
-        a: MaybePromise<A>,
-        f1: (a: A) => MaybePromise<R1>,
-        f2: (a: R1) => MaybePromise<R2>,
-        f3: (a: R2) => MaybePromise<R3>,
-        f4: (a: R3) => MaybePromise<R4>
-    ): Promise<R4>;
+        f1: (_: A) => R1,
+        f2: (_: R1) => R2,
+        f3: (_: R2) => R3,
+        f4: (_: R3) => R4
+    ): <B extends A>(v: B) => R4;
     <A, R1, R2, R3, R4, R5>(
-        a: MaybePromise<A>,
-        f1: (a: A) => MaybePromise<R1>,
-        f2: (a: R1) => MaybePromise<R2>,
-        f3: (a: R2) => MaybePromise<R3>,
-        f4: (a: R3) => MaybePromise<R4>,
-        f5: (a: R4) => MaybePromise<R5>
-    ): Promise<R5>;
+        f1: (_: A) => R1,
+        f2: (_: R1) => R2,
+        f3: (_: R2) => R3,
+        f4: (_: R3) => R4,
+        f5: (_: R4) => R5
+    ): <B extends A>(v: B) => R5;
     <A, R1, R2, R3, R4, R5, R6>(
-        a: MaybePromise<A>,
-        f1: (a: A) => MaybePromise<R1>,
-        f2: (a: R1) => MaybePromise<R2>,
-        f3: (a: R2) => MaybePromise<R3>,
-        f4: (a: R3) => MaybePromise<R4>,
-        f5: (a: R4) => MaybePromise<R5>,
-        f6: (a: R5) => MaybePromise<R6>
-    ): Promise<R6>;
+        f1: (_: A) => R1,
+        f2: (_: R1) => R2,
+        f3: (_: R2) => R3,
+        f4: (_: R3) => R4,
+        f5: (_: R4) => R5,
+        f6: (_: R5) => R6
+    ): <B extends A>(v: B) => R6;
     <A, R1, R2, R3, R4, R5, R6, R7>(
-        a: MaybePromise<A>,
-        f1: (a: A) => MaybePromise<R1>,
-        f2: (a: R1) => MaybePromise<R2>,
-        f3: (a: R2) => MaybePromise<R3>,
-        f4: (a: R3) => MaybePromise<R4>,
-        f5: (a: R4) => MaybePromise<R5>,
-        f6: (a: R5) => MaybePromise<R6>,
-        f7: (a: R6) => MaybePromise<R7>
-    ): Promise<R7>;
-    (arg: unknown, ...fs: ((_: unknown) => unknown)[]): Promise<unknown>;
+        f1: (_: A) => R1,
+        f2: (_: R1) => R2,
+        f3: (_: R2) => R3,
+        f4: (_: R3) => R4,
+        f5: (_: R4) => R5,
+        f6: (_: R5) => R6,
+        f7: (_: R6) => R7
+    ): <B extends A>(v: B) => R7;
+    (...fs: ((_: unknown) => unknown)[]): (v: unknown) => unknown;
 }
-export const pipe1Async: Pipe1Async = (
+export const pipe: Pipe =
+    (...fs: ((_: unknown) => unknown)[]) =>
+    (v: unknown) =>
+        fs.reduce((res, f) => f(res), v);
+
+interface Pipe1 {
+    <A, R1, R2>(a: A, f1: (_: A) => R1, f2: (_: R1) => R2): R2;
+    <A, R1, R2, R3>(
+        a: A,
+        f1: (_: A) => R1,
+        f2: (_: R1) => R2,
+        f3: (_: R2) => R3
+    ): R3;
+    <A, R1, R2, R3, R4>(
+        a: A,
+        f1: (_: A) => R1,
+        f2: (_: R1) => R2,
+        f3: (_: R2) => R3,
+        f4: (_: R3) => R4
+    ): R4;
+    <A, R1, R2, R3, R4, R5>(
+        a: A,
+        f1: (_: A) => R1,
+        f2: (_: R1) => R2,
+        f3: (_: R2) => R3,
+        f4: (_: R3) => R4,
+        f5: (_: R4) => R5
+    ): R5;
+    <A, R1, R2, R3, R4, R5, R6>(
+        a: A,
+        f1: (_: A) => R1,
+        f2: (_: R1) => R2,
+        f3: (_: R2) => R3,
+        f4: (_: R3) => R4,
+        f5: (_: R4) => R5,
+        f6: (_: R5) => R6
+    ): R6;
+    <A, R1, R2, R3, R4, R5, R6, R7>(
+        a: A,
+        f1: (_: A) => R1,
+        f2: (_: R1) => R2,
+        f3: (_: R2) => R3,
+        f4: (_: R3) => R4,
+        f5: (_: R4) => R5,
+        f6: (_: R5) => R6,
+        f7: (_: R6) => R7
+    ): R7;
+    (a: unknown, ...fs: ((_: unknown) => unknown)[]): unknown;
+}
+export const pipe1: Pipe1 = (
     arg: unknown,
     ...fs: ((_: unknown) => unknown)[]
-): Promise<unknown> => fs.reduce((res, f) => res.then(f), Promise.resolve(arg));
+): unknown => fs.reduce((res, f) => f(res), arg);
 
 type MapFn<From, To> = (oldValue: From) => To;
 interface MapValues {
     <
-        O extends Record<PropertyKey, unknown>,
-        FO extends { [_K in keyof Partial<O>]: MapFn<O[_K], unknown> }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        FO extends Record<PropertyKey, MapFn<any, unknown>>,
+        O extends { [_K in keyof FO]: Parameters<FO[_K]>[0] }
     >(
         fs: FO,
         o: O
@@ -156,17 +147,17 @@ interface MapValues {
         // conveniently remove readonly, since often `as const` is used for type inference
         -readonly [_K in keyof FO]: ReturnType<FO[_K]>;
     };
-    <
-        O extends Record<PropertyKey, unknown>,
-        FO extends { [_K in keyof Partial<O>]: MapFn<O[_K], unknown> }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <FO extends Record<PropertyKey, MapFn<any, unknown>>>(fs: FO): <
+        O extends { [_K in keyof FO]: Parameters<FO[_K]>[0] }
     >(
-        fs: FO
-    ): (o: O) => { [_K in Exclude<keyof O, keyof FO>]: O[_K] } & {
+        o: O
+    ) => { [_K in Exclude<keyof O, keyof FO>]: O[_K] } & {
         // conveniently remove readonly, since often `as const` is used for type inference
         -readonly [_K in keyof FO]: ReturnType<FO[_K]>;
     };
 }
-/** Map over values of an object by key
+/** Map over values of an object by key.
  *
  * Curried usage possible.
  *
@@ -220,6 +211,17 @@ export const moveKeys: MoveKeys = curry((ks: object, o: object) => ({
     ...lodash.mapValues(ks, (k) => o[k]),
 }));
 
+interface Get {
+    <K extends PropertyKey, O extends Record<K, unknown>>(key: K, obj: O): O[K];
+    <K extends PropertyKey>(key: K): <O extends Record<K, unknown>>(
+        obj: O & Record<K, unknown>
+    ) => O[K];
+}
+/** Gets the value at `key` of `obj`. */
+// @ts-expect-error Typesafety given by interface
+// eslint-disable-next-line @typescript-eslint/no-unsafe-return
+export const get: Get = curry((key: PropertyKey, obj: object) => obj[key]);
+
 export const forEachAsync = async <T, R>(
     arr: T[],
     callback: (val: T) => Promise<R>
@@ -239,7 +241,12 @@ export const forEachAsync = async <T, R>(
  */
 export const compute = <T>(f: () => T): T => f();
 
-/** Apply a function if value is not null */
+/** Throw an error */
+export const throv = (error: unknown): never => {
+    throw error;
+};
+
+/** Apply a function if value is not null. */
 export const mapNullableC =
     <T, U>(f: (_x: T) => U) =>
     (x: TNullable<T>): TNullable<U> =>
@@ -247,7 +254,7 @@ export const mapNullableC =
 
 /* * Haskell-style logging functions * */
 
-/** Log a value and return another  */
+/** Log a value and return another.  */
 export function log<T>(msg: unknown, x: T): T {
     // eslint-disable-next-line no-console
     console.log(msg);
@@ -259,10 +266,13 @@ export function logId<T>(x: T): T {
     return log(x, x);
 }
 
-/** Make Promise sync
+/** "Make Promise sync".
  *
- * PROMISE EXECUTION STILL HAPPENS ASYNCRONOUSELY!
- * But potential errors are catched.
+ * PROMISE EXECUTION STILL HAPPENS ASYNCRONOUSELY, but catches potential errors!
+ *
+ * @example <caption> The following two statements are equivalent </caption>
+ * syncify(p);
+ * p.catch((err) => { throw err; });
  */
 export const syncify = (promise: Promise<unknown>): void => {
     promise.catch((err) => {
@@ -270,10 +280,17 @@ export const syncify = (promise: Promise<unknown>): void => {
     });
 };
 
-/** "Make async funciton sync"
+/** "Make async funciton sync".
  *
- * FUNCTION CALL STILL HAPPENS ASYNCRONOUSELY!
- * But potential errors are catched.
+ * Potential errors are catched, but FUNCTION CALL STILL HAPPENS ASYNCRONOUSELY!
+ *
+ * @example <caption> The following two expressions are equivalent </caption>
+ * syncifyF(f)
+ * (...args) => { f(...args).catch((err) => {throw err;}); }
+ *
+ * @example <caption> Example usage </caption>
+ * async function handleClick() {...}
+ * const button = <button onClick={syncifyF(handleClick)} />
  */
 export const syncifyF =
     <Args extends unknown[]>(
