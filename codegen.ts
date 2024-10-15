@@ -83,6 +83,7 @@ const config: CodegenConfig = {
                     ProductStatsFragment: "./models#IProductStatsFragmentModel",
                     Vote: "./models#IVoteModel",
                     Card: "./models#ICardModel",
+                    Certificate: "./models#ICertificateModel",
                 },
             },
         },

@@ -6,6 +6,8 @@ scalar Void
 scalar DateTimeISO
 " For JSON, handled by graphql-scalars "
 scalar JSON
+" For binary data, handled by graphql-scalars"
+scalar Byte
 
 #            #
 # Enum types #
@@ -430,6 +432,19 @@ type Card {
     blocked: Boolean!
 }
 
+" A Certificate verifies the authenticity of a document "
+type Certificate {
+    # eslint-disable-next-line @graphql-eslint/description-style
+    """
+     7 bytes, compatible with M3-M QR codes
+
+    Not suspectible to brute force. Even with 1 million req/s, over 10 million hours would be required.
+    Not susceptible to diplicates. Even with 100 thousand certs, e.g. when certifying the banknotes, the probability of a collision is roughly 7e-8
+    """
+    id: Byte!
+    issuer: User!
+}
+
 #                #
 # API Root types #
 #                #
@@ -469,6 +484,9 @@ type Query {
     readCard(id: ID!): User
     " Read card information. Authorized: border control, admin "
     card(id: ID!): Card!
+
+    " Verify that a certificate is valid. "
+    verifyCertificate(id: Byte): Certificate!
 }
 
 " Mutations "
@@ -558,6 +576,11 @@ type Mutation {
     reloadConfig: Void
     " Reset the password of an citizen or company. Authorized: admin "
     resetPassword(user: UserSignatureInput!, password: String!): User!
+
+    " Create a batch of certificates. Authorized: user "
+    createCertificates(number: Int!): [Certificate!]!
+    " Delete a certificate. Authorized: owning user "
+    deleteCertificate(id: Byte): Void
 }
 
 " Subscriptions "

@@ -231,6 +231,11 @@ export interface ICardModel {
     blocked: boolean;
 }
 
+export interface ICertificateModel {
+    id: Buffer;
+    issuerUserSignature: IUserSignature;
+}
+
 // event types
 export type TEvents = {
     ADDED_BOOK: [payload: IBookModel];

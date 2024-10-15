@@ -204,6 +204,11 @@ export async function up(knex: Knex): Promise<void> {
         table.json("userSignature").index();
         table.boolean("blocked").notNullable();
     });
+
+    await knex.schema.createTable("certificates", (table) => {
+        table.binary("id", 7).primary();
+        table.json("issuerUserSignature");
+    });
 }
 
 export async function down(knex: Knex): Promise<void> {

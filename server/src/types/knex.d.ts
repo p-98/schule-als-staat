@@ -171,6 +171,11 @@ export interface ICard {
     blocked: boolean;
 }
 
+export type ICertificate = {
+    id: Buffer;
+    issuerUserSignature: string;
+};
+
 declare module "knex/types/tables" {
     interface Tables {
         sessions: Knex.CompositeTableType<
@@ -272,6 +277,11 @@ declare module "knex/types/tables" {
             ICard,
             Pick<ICard, "id" | "blocked">,
             Partial<TOmit<ICard, "id">>
+        >;
+        certificates: Knex.CompositeTableType<
+            ICertificate,
+            ICertificate,
+            never
         >;
     }
 }

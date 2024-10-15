@@ -169,7 +169,7 @@ module.exports = {
                         exceptions: {
                             suffixes: ["Fragment"],
                         },
-                        acceptedIdTypes: ["ID", "Int"],
+                        acceptedIdTypes: ["ID", "Int", "Byte"],
                     },
                 ],
             },
