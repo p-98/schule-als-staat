@@ -6,7 +6,6 @@
         "baseUrl": ".",
         "paths": {
             "Types/*": ["src/types/*"],
-            "Types": ["../types.ts"],
             "Server": ["src/server.ts"],
             "Modules/*": ["src/modules/*"],
             "Database": ["src/database/database.ts"],
@@ -14,5 +13,5 @@
             "Root/*": ["../*"]
         }
     },
-    "include": [".", "../types.ts", "../types/*"]
+    "include": [".", "../types/*"]
 }

@@ -49,9 +49,8 @@ import bcrypt from "bcrypt";
 
 import { formatDateTimeZ } from "Util/date";
 import { graphql } from "__test__/graphql";
-import { UnPromise } from "Util/misc";
+import { UnPromise, type TNullable } from "Util/misc";
 import { type Config } from "Root/types/config";
-import { type TNullable } from "Types";
 
 export function assertIsNotNil<T>(
     actual: T,

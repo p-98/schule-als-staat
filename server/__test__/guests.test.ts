@@ -14,7 +14,7 @@ import { isNil, omit } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
-import { TNullable } from "Types";
+import { TNullable } from "Util/misc";
 import { TOmit } from "Types/knex";
 import { graphql } from "./graphql";
 

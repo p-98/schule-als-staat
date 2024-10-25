@@ -4,13 +4,20 @@ import path from "node:path";
 // eslint-disable-next-line lodash-fp/use-fp
 import lodash from "lodash";
 import { curry, isNull, keys, omit, sum, values } from "lodash/fp";
-import { TNullable } from "Types";
 
 export type WithCookieStore<T> = T & { cookieStore: CookieStore };
 
+export type TNullable<T> = T | null;
 export type UnPromise<P> = P extends Promise<infer T> ? T : never;
 export type Fn0<R> = () => R;
 export type Fn1<A1, R> = (a1: A1) => R;
+
+export function inOperator<K extends PropertyKey, O>(
+    key: K,
+    obj: O
+): obj is O & Record<K, unknown> {
+    return typeof obj === "object" && obj !== null && key in obj;
+}
 
 /** Function resolving paths relative project root */
 export const resolveRoot = (...pathSegments: string[]): string =>

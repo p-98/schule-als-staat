@@ -1,4 +1,4 @@
-import type { TNullable } from "Types";
+import type { TNullable } from "Util/misc";
 import type { TBorderCrossingAction } from "./schema";
 
 export interface IBookModel {

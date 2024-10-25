@@ -1,5 +1,5 @@
 import type { IAppContext } from "Server";
-import type { TNullable } from "Types";
+import type { TNullable } from "Util/misc";
 import type { ICardModel, TUserModel } from "Types/models";
 import type { Tables } from "knex/types/tables";
 import type { TUserSignatureInput } from "Types/schema";

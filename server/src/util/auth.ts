@@ -1,4 +1,4 @@
-import type { TNullable } from "Types";
+import type { TNullable } from "Util/misc";
 import type { IUserSignature, TUserModel } from "Types/models";
 import type { TUserRole, TCredentialsInput } from "Types/schema";
 import type { IAppContext } from "Server";

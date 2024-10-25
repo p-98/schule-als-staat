@@ -32,7 +32,7 @@ import {
     TProductInput,
 } from "Types/schema";
 import { IBankAccount, ICompany } from "Types/knex";
-import { TNullable } from "Types";
+import { type TNullable } from "Util/misc";
 import {
     startOfHour as sqlStartOfHour,
     clamp,

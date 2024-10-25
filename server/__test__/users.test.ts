@@ -13,7 +13,7 @@ import {
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type Unarray } from "@envelop/types";
 import { pick } from "lodash/fp";
-import { type TNullable } from "Types";
+import { type TNullable } from "Util/misc";
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
 import { graphql } from "./graphql";

@@ -3,7 +3,7 @@ import type { IAppContext } from "Server";
 import { assert } from "Util/error";
 import type { ISessionModel, TUserModel } from "Types/models";
 import bcrypt from "bcrypt";
-import { TNullable } from "Types";
+import { type TNullable } from "Util/misc";
 import { parseUserSignature, stringifyUserSignature } from "Util/parse";
 import { TCredentialsInput } from "Types/schema";
 import { assertCredentials } from "Util/auth";

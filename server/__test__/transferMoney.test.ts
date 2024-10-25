@@ -15,7 +15,7 @@ import { omit, set } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
-import { type TNullable } from "Types";
+import { type TNullable } from "Util/misc";
 import { graphql } from "./graphql";
 
 const transferTransactionFragment = graphql(/* GraphQL */ `

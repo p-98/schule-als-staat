@@ -1,5 +1,5 @@
 import { Knex } from "knex";
-import type { TNullable } from "Types";
+import { type TNullable } from "Util/misc";
 
 type TNullableToOptional<T extends Record<PropertyKey, unknown>> = {
     [K in keyof T]: null extends T[K] ? T[K] | undefined : T[K];

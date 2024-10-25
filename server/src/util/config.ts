@@ -3,9 +3,8 @@ import createJITI from "jiti";
 
 import { type Config } from "Root/types/config";
 import { type IDynamicConfig } from "Server";
-import { inOperator } from "Types";
 import { fail } from "Util/error";
-import { resolveRoot, CustomEvent } from "Util/misc";
+import { resolveRoot, CustomEvent, inOperator } from "Util/misc";
 
 const jiti = createJITI(__filename, { requireCache: false });
 
