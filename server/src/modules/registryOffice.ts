@@ -2,7 +2,7 @@ import type { IAppContext } from "Server";
 import type { ICitizen, IBankAccount } from "Types/knex";
 
 import { assert } from "Util/error";
-import { ICitizenUserModel } from "Types/models";
+import { type ICitizenUserModel } from "Types/models";
 import { assertRole } from "Util/auth";
 import { assign } from "lodash/fp";
 

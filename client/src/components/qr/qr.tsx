@@ -7,7 +7,7 @@ import {
     useEffect,
     useRef,
     useState,
-    ComponentPropsWithoutRef,
+    type ComponentPropsWithoutRef,
     useMemo,
 } from "react";
 import { Html5Qrcode } from "html5-qrcode";

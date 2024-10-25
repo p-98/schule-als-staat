@@ -1,5 +1,6 @@
 import { test, beforeEach, afterEach } from "@jest/globals";
 import { assert } from "chai";
+import { config } from "Util/test";
 import {
     assertNoErrors,
     assertSingleValue,
@@ -7,15 +8,13 @@ import {
     type TUserExecutor,
     assertInvalid,
     createTestServer,
-    config,
-} from "Util/test";
+} from "./util";
 
 import { isNil, omit } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
-import { TNullable } from "Util/misc";
-import { TOmit } from "Types/knex";
+import { type TNullable, type TOmit } from "Util/misc";
 import { graphql } from "./graphql";
 
 const guestUserFragment = graphql(/* GraphQL */ `

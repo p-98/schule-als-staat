@@ -3,7 +3,7 @@ import { type FC, useState } from "react";
 import { Fab } from "Components/material/fab/fab";
 import { Dialog } from "Components/material/dialog";
 
-import { ActionCard, TAction } from "Components/actionCard/actionCard";
+import { ActionCard, type TAction } from "Components/actionCard/actionCard";
 import { currency, parseCurrency } from "Utility/data";
 import { graphql } from "Utility/graphql";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";

@@ -1,7 +1,7 @@
 import {
     useDispatch as useUntypedDispatch,
     useSelector as useUntypedSelector,
-    TypedUseSelectorHook,
+    type TypedUseSelectorHook,
 } from "react-redux";
 
 // local

@@ -1,4 +1,4 @@
-import { ThemeProviderProps } from "Components/material/theme";
+import { type ThemeProviderProps } from "Components/material/theme";
 
 const theme: ThemeProviderProps["options"] = {
     primary: "#6200ee",

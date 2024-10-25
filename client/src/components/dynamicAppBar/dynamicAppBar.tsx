@@ -1,7 +1,7 @@
 import cn from "classnames";
 import { createPortal } from "react-dom";
 import React, {
-    HTMLAttributes,
+    type HTMLAttributes,
     useEffect,
     useRef,
     useState,

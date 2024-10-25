@@ -3,7 +3,7 @@ import {
     DrawerContent,
 } from "Components/material/drawer";
 import { ListDivider } from "Components/material/list";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { type FragmentType, graphql, useFragment } from "Utility/graphql";
 
 import { Navigation } from "./navigation";
 import { DrawerHeader } from "./drawerHeader";

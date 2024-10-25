@@ -3,6 +3,7 @@ import "./admin.mock";
 import { test, beforeEach, afterEach, jest } from "@jest/globals";
 import { type Mock } from "jest-mock";
 import { assert } from "chai";
+import { config as _config } from "Util/test";
 import {
     assertNoErrors,
     assertSingleValue,
@@ -10,9 +11,8 @@ import {
     buildHTTPUserExecutor,
     type TUserExecutor,
     assertInvalid,
-    config as _config,
     assertSingleError,
-} from "Util/test";
+} from "./util";
 
 import { constant } from "lodash/fp";
 import { type Config } from "Root/types/config";

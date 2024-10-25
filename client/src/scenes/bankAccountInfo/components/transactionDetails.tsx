@@ -1,4 +1,4 @@
-import { ResultOf } from "@graphql-typed-document-node/core";
+import { type ResultOf } from "@graphql-typed-document-node/core";
 import { useMemo } from "react";
 import { join, map } from "lodash/fp";
 import { CardContent } from "Components/material/card";
@@ -6,7 +6,7 @@ import { SimpleDialog } from "Components/material/dialog";
 
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import { pipe1 } from "Utility/misc";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { type FragmentType, graphql, useFragment } from "Utility/graphql";
 import { bool, currency, currencyName, name } from "Utility/data";
 
 export const Details_TransactionFragment = graphql(/* GraohQL */ `

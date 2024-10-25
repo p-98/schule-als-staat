@@ -6,16 +6,16 @@ import { Card } from "Components/material/card";
 import { GridPage } from "Components/page/page";
 import {
     InputUser,
-    TQrAction,
-    TKbAction,
+    type TQrAction,
+    type TKbAction,
 } from "Components/credentials/inputUser";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import {
-    FragmentType,
+    type FragmentType,
     graphql,
     useFragment as getFragment,
 } from "Utility/graphql";
-import { Nullable } from "Utility/types";
+import { type Nullable } from "Utility/types";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";
 import { endsWith } from "lodash/fp";
 import { CreateGuest, RemoveGuest } from "./components/guestDialog";

@@ -2,11 +2,11 @@ import { any, constant, isNil, isUndefined } from "lodash/fp";
 import { useRouter } from "next/router";
 import { useEffect, useMemo } from "react";
 import {
-    FragmentType,
+    type FragmentType,
     graphql,
     useFragment as getFragment,
 } from "Utility/graphql";
-import { UserRole } from "Utility/graphql/graphql";
+import { type UserRole } from "Utility/graphql/graphql";
 import { syncify } from "Utility/misc";
 
 export const Routing_SessionFragment = graphql(/* GraphQL */ `

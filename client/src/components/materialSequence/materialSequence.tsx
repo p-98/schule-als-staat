@@ -4,9 +4,7 @@ import {
     Modes,
     SiblingTransitionBase,
 } from "Components/transition/siblingTransitionBase/siblingTransitionBase";
-import {
-    ISiblingTransitionBaseElementProps
-} from "Components/transition/siblingTransitionBase/children"
+import { type ISiblingTransitionBaseElementProps } from "Components/transition/siblingTransitionBase/children";
 import { Button } from "Components/material/button";
 
 import styles from "./materialSequence.module.css";

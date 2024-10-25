@@ -1,10 +1,10 @@
-import { ResultOf } from "@graphql-typed-document-node/core";
+import { type ResultOf } from "@graphql-typed-document-node/core";
 import { endsWith } from "lodash/fp";
 import cn from "classnames";
 import {
-    ComponentPropsWithoutRef,
-    ReactElement,
-    ReactNode,
+    type ComponentPropsWithoutRef,
+    type ReactElement,
+    type ReactNode,
     useState,
 } from "react";
 
@@ -13,13 +13,13 @@ import {
     ContainerTransformElement,
 } from "Components/transition/containerTransform/containerTransform";
 import { type FCT } from "Components/transition/fullscreenContainerTransform/fullscreenContainerTransform";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { type FragmentType, graphql, useFragment } from "Utility/graphql";
 import { useCache } from "Utility/hooks/useCache";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";
-import { UserType } from "Utility/graphql/graphql";
+import { type UserType } from "Utility/graphql/graphql";
 import { event, getByClass, syncifyF } from "Utility/misc";
-import { InputQr, TAction as TQrAction } from "Components/qr/qr";
-import { InputUserKb, TAction as TKbAction } from "./inputUserKb";
+import { InputQr, type TAction as TQrAction } from "Components/qr/qr";
+import { InputUserKb, type TAction as TKbAction } from "./inputUserKb";
 import { InputPassword } from "./inputPassword";
 
 import css from "./credentials.module.css";

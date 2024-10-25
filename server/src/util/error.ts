@@ -1,4 +1,4 @@
-import { GraphQLError, GraphQLErrorExtensions } from "graphql";
+import { GraphQLError, type GraphQLErrorExtensions } from "graphql";
 import { inOperator } from "Util/misc";
 
 /** Conveniently represents flow's "Maybe" type https://flow.org/en/docs/types/maybe/ */

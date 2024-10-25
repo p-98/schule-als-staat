@@ -1,14 +1,17 @@
 import { startsWith } from "lodash/fp";
-import { ResultOf } from "@graphql-typed-document-node/core";
+import { type ResultOf } from "@graphql-typed-document-node/core";
 import { useQuery } from "urql";
 import React, { useState } from "react";
 import { Dialog } from "Components/material/dialog";
 
 // local
-import { Pos as PosComponent, TAction as TPosAction } from "Components/pos/pos";
+import {
+    Pos as PosComponent,
+    type TAction as TPosAction,
+} from "Components/pos/pos";
 import {
     InputCredentials,
-    TAction as TCredentialsAction,
+    type TAction as TCredentialsAction,
 } from "Components/credentials/inputCredentials";
 import { CartTable } from "Components/pos/components/cart";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";

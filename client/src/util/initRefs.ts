@@ -1,4 +1,4 @@
-import { Ref } from "react";
+import { type Ref } from "react";
 
 /* eslint-disable no-param-reassign */
 export const initRefsFactory =

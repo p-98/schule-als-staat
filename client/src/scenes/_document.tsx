@@ -1,7 +1,7 @@
 import Document, { Html, Head, Main, NextScript } from "next/document";
 
 export class CustomDocument extends Document {
-    render(): JSX.Element {
+    override render(): JSX.Element {
         return (
             <Html>
                 <Head>

@@ -3,7 +3,7 @@ import {
     FullscreenContainerTransformElement,
     FullscreenContainerTransformHandle,
 } from "./subComponents";
-import { TChildren, TChildrenMap } from "./types";
+import { type TChildren, type TChildrenMap } from "./types";
 
 const childrenTypeMap = {
     Handle: FullscreenContainerTransformHandle,

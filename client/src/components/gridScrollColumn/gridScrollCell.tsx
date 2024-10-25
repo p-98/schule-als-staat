@@ -1,5 +1,5 @@
 import cn from "classnames";
-import { ReactNode } from "react";
+import { type ReactNode } from "react";
 
 // local
 import styles from "./gridScrollColumn.module.scss";

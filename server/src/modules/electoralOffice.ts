@@ -12,7 +12,7 @@ import {
 } from "Util/parse";
 import type { IVoteModel } from "Types/models";
 import type { TVoteInput } from "Types/schema";
-import { IVote, IVotingPaper } from "Types/knex";
+import { type IVote, type IVotingPaper } from "Types/knex";
 import { assertRole, checkRole } from "Util/auth";
 import { assert, GraphQLYogaError } from "Util/error";
 import { isFuture } from "date-fns";

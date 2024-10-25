@@ -11,7 +11,7 @@ import {
 // local
 import { HightlightStates } from "Components/highlightStates/highlightStates";
 import type { ChangeEvent } from "Utility/types";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { type FragmentType, graphql, useFragment } from "Utility/graphql";
 import { currency } from "Utility/data";
 
 import styles from "../pos.module.css";

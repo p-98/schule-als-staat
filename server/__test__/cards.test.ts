@@ -1,5 +1,6 @@
 import { test, beforeEach, afterEach } from "@jest/globals";
 import { assert } from "chai";
+import { config } from "Util/test";
 import {
     assertNoErrors,
     assertSingleValue,
@@ -7,13 +8,12 @@ import {
     type TUserExecutor,
     assertInvalid,
     createTestServer,
-    config,
-} from "Util/test";
+} from "./util";
 
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
-import { IUserSignature } from "Types/models";
+import { type IUserSignature } from "Types/models";
 import { graphql } from "./graphql";
 
 graphql(/* GraphQL */ `

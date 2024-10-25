@@ -3,7 +3,7 @@ import { Button } from "Components/material/button";
 import {
     SimpleMenu,
     MenuItem,
-    SimpleMenuProps,
+    type SimpleMenuProps,
 } from "Components/material/menu";
 
 // local

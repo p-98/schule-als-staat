@@ -10,8 +10,8 @@ import {
     ContainerTransform,
     ContainerTransformElement,
 } from "Components/transition/containerTransform/containerTransform";
-import { InputQr, TAction as TQrAction } from "Components/qr/qr";
-import { InputCardKb, TAction as TKbAction } from "./inputCardKb";
+import { InputQr, type TAction as TQrAction } from "Components/qr/qr";
+import { InputCardKb, type TAction as TKbAction } from "./inputCardKb";
 
 import css from "./card.module.css";
 

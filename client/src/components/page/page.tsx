@@ -1,5 +1,5 @@
 import cn from "classnames";
-import React, { forwardRef, HTMLAttributes } from "react";
+import React, { forwardRef, type HTMLAttributes } from "react";
 import { Theme } from "Components/material/theme";
 import { Grid } from "Components/material/grid";
 

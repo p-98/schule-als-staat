@@ -1,12 +1,20 @@
 {
+    "$schema": "https://json.schemastore.org/tsconfig",
+
     "extends": "../tsconfig.json",
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"], // recommended for next
+    "exclude": ["node_modules"], // required for next
+
     "compilerOptions": {
-        "types": [],
-        "isolatedModules": true,
-        "jsx": "preserve",
-        "noEmit": true,
-        "lib": ["ESNext", "DOM"],
-        "baseUrl": ".",
+        /* Type Checking
+         */
+        "strict": true, // recommended for next
+
+        /* Modules
+         */
+        "allowArbitraryExtensions": true,
+        "module": "esnext", // recommended for next
+        "moduleResolution": "bundler", // recommended for next
         "paths": {
             "Components/*": ["./src/components/*"],
             "Scenes/*": ["./src/scenes/*"],
@@ -14,8 +22,56 @@
             "Config": ["../config.ts"],
             "*": ["./src/@types/*"]
         },
-        "incremental": true
+        "resolveJsonModule": true, // recommended for next
+        // "resolvePackageJsonExports" set by moduleResolution
+        // "resolvePackageJsonImports" set by moduleResolution
+
+        /* Emit
+         */
+        "noEmit": true, // recommended for next
+
+        /* Javascript Support
+         */
+        "allowJs": false, // `true` recommended for next
+
+        /* Editor Support
+         */
+        // "plugins": [{ "name": "next" }], // recommended for next
+
+        /* Interop Constraints
+         */
+        "esModuleInterop": true, // recommended for next
+        "isolatedModules": true, // recommended for next
+
+        /* Backwards Compatibility
+         */
+
+        /* Language and Environment
+         */
+        "jsx": "preserve", // recommended for next
+        "lib": ["dom", "dom.iterable", "esnext"], // recommended for next
+        "target": "es2022", // handled by next
+
+        /* Compiler Diagnostics
+         */
+
+        /* Projects
+         */
+        "composite": false,
+        "incremental": true, // recommended for next
+        // "tsBuildInfoFile" set by others
+
+        /* Output Formatting
+         */
+
+        /* Completeness
+         */
+        "skipLibCheck": true, // recommended for next
+
+        /* Command Line
+         */
+
+        /* Watch Options
+         */
     },
-    "include": ["src/**/*", "next-env.d.ts", "../types.ts", "../config.ts", "../types/*"],
-    "exclude": ["node_modules"]
 }

@@ -1,7 +1,7 @@
 import {
-    ComponentPropsWithoutRef,
-    ReactElement,
-    ReactNode,
+    type ComponentPropsWithoutRef,
+    type ReactElement,
+    type ReactNode,
     useCallback,
     useState,
 } from "react";
@@ -17,7 +17,7 @@ import { TextField } from "Components/material/textfield";
 import { Theme } from "Components/material/theme";
 
 // local
-import { ChangeEvent } from "Utility/types";
+import { type ChangeEvent } from "Utility/types";
 import { graphql } from "Utility/graphql";
 
 export const InputPassword_UserFragment = graphql(/* GraphQL */ `

@@ -2,7 +2,7 @@ import { Card, CardHeader, CardContent } from "Components/material/card";
 
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import { currency } from "Utility/data";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { type FragmentType, graphql, useFragment } from "Utility/graphql";
 
 export const BankAccountInfo_UserFragment = graphql(/* GraohQL */ `
     fragment BankAccountInfo_UserFragment on User {

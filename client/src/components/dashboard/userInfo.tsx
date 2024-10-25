@@ -3,7 +3,7 @@ import { Card, CardHeader, CardContent } from "Components/material/card";
 
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import { name, tyqe } from "Utility/data";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { type FragmentType, graphql, useFragment } from "Utility/graphql";
 
 export const UserInfo_UserFragment = graphql(/* GraphQL */ `
     fragment UserInfo_UserFragment on User {

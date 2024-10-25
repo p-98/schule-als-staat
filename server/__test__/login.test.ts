@@ -6,9 +6,9 @@ import {
     buildHTTPCookieExecutor,
     assertInvalid,
     seedUser,
-    TYogaExecutor,
+    type TYogaExecutor,
     createTestServer,
-} from "Util/test";
+} from "./util";
 
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";

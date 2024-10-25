@@ -1,4 +1,4 @@
-import { FormEvent, useCallback } from "react";
+import { type FormEvent, useCallback } from "react";
 import { useUpdateState } from "./forceUpdate";
 
 /** Handle logic for controlled number component

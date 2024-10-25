@@ -1,4 +1,4 @@
-import { Meta, Story } from "@storybook/react";
+import { type Meta, type Story } from "@storybook/react";
 import {
     ContainerTransform as ContainerTransformComponent,
     ContainerTransformElement,

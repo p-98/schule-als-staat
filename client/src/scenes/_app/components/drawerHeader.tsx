@@ -1,10 +1,10 @@
 import { useMutation } from "urql";
 import { Typography } from "Components/material/typography";
-import { ThemePropT } from "Components/material/types";
+import { type ThemePropT } from "Components/material/types";
 import { Button } from "Components/material/button";
 
 import { Avatar } from "Components/avatar/avatar";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { type FragmentType, graphql, useFragment } from "Utility/graphql";
 import { useCategorizeError, useSafeData } from "Utility/urql";
 import { syncify } from "Utility/misc";
 import { name } from "Utility/data";

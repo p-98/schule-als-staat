@@ -1,9 +1,9 @@
 import {
     SimpleDataTable as RMWCSimpleDataTable,
-    SimpleDataTableProps as RMWCSimpleDataTableProps,
-    DataTableProps as RMWCDataTableProps,
+    type SimpleDataTableProps as RMWCSimpleDataTableProps,
+    type DataTableProps as RMWCDataTableProps,
 } from "@rmwc/data-table";
-import { ComponentProps } from "@rmwc/types";
+import { type ComponentProps } from "@rmwc/types";
 import cn from "classnames";
 
 // data-table imports

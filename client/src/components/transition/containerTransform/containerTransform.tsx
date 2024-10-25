@@ -1,5 +1,5 @@
 import React, {
-    CSSProperties,
+    type CSSProperties,
     forwardRef,
     useEffect,
     useMemo,

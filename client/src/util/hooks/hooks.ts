@@ -1,5 +1,5 @@
 import { add } from "lodash/fp";
-import { ComponentProps, useEffect, useReducer, useState } from "react";
+import { type ComponentProps, useEffect, useReducer, useState } from "react";
 import { animationFrame, syncify, syncifyF } from "Utility/misc";
 
 type AsyncCallback = () => Promise<void>;

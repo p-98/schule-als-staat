@@ -1,4 +1,4 @@
-import { Fab as RMWCFab, FabProps as RMWCFabProps } from "@rmwc/fab";
+import { Fab as RMWCFab, type FabProps as RMWCFabProps } from "@rmwc/fab";
 import RMWC from "@rmwc/types";
 import cn from "classnames";
 

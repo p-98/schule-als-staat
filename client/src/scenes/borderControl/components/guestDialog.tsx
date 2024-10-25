@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useState } from "react";
+import { type FormEvent, useCallback, useState } from "react";
 import { TextField } from "Components/material/textfield";
 import {
     Dialog,
@@ -13,7 +13,7 @@ import { Typography } from "Components/material/typography";
 // local
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import config from "Config";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { type FragmentType, graphql, useFragment } from "Utility/graphql";
 import {
     byCode,
     categorizeError,

@@ -2,7 +2,7 @@ import { minidenticon } from "minidenticons";
 import { pick } from "lodash/fp";
 import cn from "classnames";
 import { memo, useMemo } from "react";
-import { IconSizeT } from "@rmwc/types";
+import { type IconSizeT } from "@rmwc/types";
 // import { Avatar as RmwcAvatar } from "Components/material/avatar";
 
 import { graphql, useFragment, type FragmentType } from "Utility/graphql";

@@ -7,9 +7,9 @@ import {
     assertInvalid,
     type TUserExecutor,
     createTestServer,
-    TYogaExecutor,
+    type TYogaExecutor,
     buildHTTPAnonymousExecutor,
-} from "Util/test";
+} from "./util";
 
 import { omit, set } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";

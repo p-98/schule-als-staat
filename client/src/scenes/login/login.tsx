@@ -7,7 +7,7 @@ import { Card } from "Components/material/card";
 import { GridPage } from "Components/page/page";
 import {
     InputCredentials,
-    TAction as TCredentialsAction,
+    type TAction as TCredentialsAction,
 } from "Components/credentials/inputCredentials";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
 import { syncify } from "Utility/misc";

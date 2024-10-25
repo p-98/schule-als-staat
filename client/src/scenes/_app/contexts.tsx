@@ -1,6 +1,6 @@
-import { ResultOf } from "@graphql-typed-document-node/core";
+import { type ResultOf } from "@graphql-typed-document-node/core";
 import { createContext, type FC, memo, type ReactNode } from "react";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { type FragmentType, graphql, useFragment } from "Utility/graphql";
 
 const Session_SessionFragment = graphql(/* GraphQL */ `
     fragment Session_SessionFragment on Session {

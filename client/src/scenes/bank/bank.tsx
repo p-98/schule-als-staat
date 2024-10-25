@@ -1,7 +1,7 @@
 import { endsWith, keys, mapValues, startsWith } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import cn from "classnames";
-import { FC, memo, useMemo, useState } from "react";
+import { type FC, memo, useMemo, useState } from "react";
 import { useQuery } from "urql";
 import { Dialog } from "Components/material/dialog";
 import { GridCell } from "Components/material/grid";
@@ -27,14 +27,14 @@ import {
 import { BankAccountInfo } from "Components/dashboard/bankAccountInfo";
 import {
     InputPassword,
-    TAction as TActionPw,
+    type TAction as TActionPw,
 } from "Components/credentials/inputPassword";
 import { GridScrollColumn } from "Components/gridScrollColumn/gridScrollCell";
 import { UserInfo } from "Components/dashboard/userInfo";
-import { UserType } from "Utility/graphql/graphql";
+import { type UserType } from "Utility/graphql/graphql";
 import { currency, currencyName, parseCurrency } from "Utility/data";
 import {
-    FragmentType,
+    type FragmentType,
     graphql,
     useFragment as getFragment,
     useFragment,

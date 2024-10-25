@@ -9,14 +9,14 @@ import React, {
 import {
     Dialog as RMWCDialog,
     DialogContent as RMWCDialogContent,
-    DialogContentProps as RMWCDialogContentProps,
-    DialogOnClosedEventT,
-    DialogOnCloseEventT,
-    DialogOnOpenedEventT,
-    DialogOnOpenEventT,
-    DialogProps,
+    type DialogContentProps as RMWCDialogContentProps,
+    type DialogOnClosedEventT,
+    type DialogOnCloseEventT,
+    type DialogOnOpenedEventT,
+    type DialogOnOpenEventT,
+    type DialogProps,
 } from "@rmwc/dialog";
-import { PortalPropT } from "@rmwc/base";
+import { type PortalPropT } from "@rmwc/base";
 import RMWC from "@rmwc/types";
 import { Typography } from "@rmwc/typography";
 import { MDCDialogFoundation } from "@material/dialog";

@@ -1,5 +1,5 @@
 import { over } from "lodash/fp";
-import { ComponentType, ReactNode, useState, type FC } from "react";
+import { type ComponentType, type ReactNode, useState, type FC } from "react";
 import { Button } from "Components/material/button";
 import { SimpleDialog } from "Components/material/dialog/dialog";
 

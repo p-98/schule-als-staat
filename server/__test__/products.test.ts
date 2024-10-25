@@ -8,7 +8,7 @@ import {
     type TUserExecutor,
     assertInvalid,
     createTestServer,
-} from "Util/test";
+} from "./util";
 
 import { omit, negate, set, pick } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";
@@ -16,7 +16,7 @@ import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
 import { EUserTypes } from "Types/models";
 import { graphql } from "./graphql";
-import { ProductRevisionInput } from "./graphql/graphql";
+import { type ProductRevisionInput } from "./graphql/graphql";
 
 graphql(/* GraphQL */ `
     fragment NoStats_ProductFragment on Product {

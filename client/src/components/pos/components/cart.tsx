@@ -1,5 +1,10 @@
 import { pick, pipe } from "lodash/fp";
-import React, { ReactElement, useCallback, useMemo, useState } from "react";
+import React, {
+    type ReactElement,
+    useCallback,
+    useMemo,
+    useState,
+} from "react";
 import {
     Dialog,
     DialogActions,
@@ -13,7 +18,7 @@ import { Typography } from "Components/material/typography";
 
 // local
 import {
-    FragmentType,
+    type FragmentType,
     graphql,
     useFragment as getFragment,
 } from "Utility/graphql";

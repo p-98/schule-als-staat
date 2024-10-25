@@ -27,8 +27,8 @@ import {
 import { formatDateTimeZ } from "Util/date";
 import { v4 as uuidv4 } from "uuid";
 import { assert, GraphQLYogaError } from "Util/error";
-import { TChangeInput, TCredentialsInput } from "Types/schema";
-import { TNullable } from "Util/misc";
+import { type TChangeInput, type TCredentialsInput } from "Types/schema";
+import { type TNullable } from "Util/misc";
 import { assertCredentials, assertRole, checkRole } from "Util/auth";
 import { values } from "Util/sql";
 import { getUser } from "Modules/users";

@@ -2,10 +2,10 @@
 import type { YogaInitialContext, YogaServerInstance } from "graphql-yoga";
 import type { Db, Knex } from "Database";
 import type { TEvents } from "Types/models";
-import { WithCookieStore, UnPromise, pipe1 } from "Util/misc";
+import { type WithCookieStore, type UnPromise, pipe1 } from "Util/misc";
 
 import { entries, mapValues } from "lodash/fp";
-import { DocumentNode, parse } from "graphql";
+import { type DocumentNode, parse } from "graphql";
 import { createPubSub, createSchema, createYoga } from "graphql-yoga";
 import { usePersistedOperations } from "@graphql-yoga/plugin-persisted-operations";
 import { useCookies } from "@whatwg-node/server-plugin-cookies";

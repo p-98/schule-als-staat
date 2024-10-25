@@ -2,13 +2,13 @@
 import { Typography } from "@rmwc/typography";
 import {
     Card as RMWCCard,
-    CardProps as RMWCCardProps,
+    type CardProps as RMWCCardProps,
     CardActions as RMWCCardActions,
-    CardActionsProps as RMWCCardActionsProps,
+    type CardActionsProps as RMWCCardActionsProps,
     CardMedia as RMWCCardMedia,
-    CardMediaProps as RMWCCardMediaProps,
+    type CardMediaProps as RMWCCardMediaProps,
     CardPrimaryAction as RMWCCardPrimaryAction,
-    CardMediaContentProps as RMWCCardMediaContentProps,
+    type CardMediaContentProps as RMWCCardMediaContentProps,
 } from "@rmwc/card";
 import { ListDivider, List } from "@rmwc/list";
 import RMWC from "@rmwc/types";
@@ -30,7 +30,7 @@ import "@material/typography/dist/mdc.typography.css";
 import "@material/list/dist/mdc.list.css";
 
 // local
-import { TWithThemeProp } from "Utility/types";
+import { type TWithThemeProp } from "Utility/types";
 
 import styles from "./card.module.css";
 

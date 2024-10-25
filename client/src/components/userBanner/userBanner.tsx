@@ -2,7 +2,7 @@ import { memo } from "react";
 import { Typography } from "Components/material/typography";
 
 import { Avatar } from "Components/avatar/avatar";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { type FragmentType, graphql, useFragment } from "Utility/graphql";
 import { name } from "Utility/data";
 
 // local

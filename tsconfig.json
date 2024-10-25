@@ -1,19 +1,183 @@
+// Written for typescript 5.6
 {
+    "$schema": "https://json.schemastore.org/tsconfig",
+
+    // "files"
+    // "extends"
+    // "include"
+    // "exclude"
+    // "references"
+
     "compilerOptions": {
-        "esModuleInterop": true,
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,
-        "resolveJsonModule": true,
-        "lib": ["ESNext"],
-        "target": "ESNext",
-        "module": "ESNext",
-        "moduleResolution": "node",
-        "types": ["bun-types"],
-        "strict": true,
-        "allowJs": false,
-        // "noPropertyAccessFromIndexSignature": true,
+        /* Type Checking
+         */
+        "allowUnreachableCode": true, // handles by eslint
+        "allowUnusedLabels": true, // handled by eslint
+        // "alwaysStrict": true, // set by strict
+        "exactOptionalPropertyTypes": false, // TODO: change to `true`
+        "noFallthroughCasesInSwitch": false, // handled by eslint
+        // "noImplicitAny": true, // set by strict
+        "noImplicitOverride": true,
+        "noImplicitReturns": false,
+        // "noImplicitThis": true, // set by strict
+        "noPropertyAccessFromIndexSignature": false, // TODO: change to `true`
         "noUncheckedIndexedAccess": true,
-        "useDefineForClassFields": true,
-        "typeRoots": ["./node_module/@types/", "./@types/"]
+        "noUnusedLocals": false, // handled by eslint
+        "noUnusedParameters": false, // handled by eslint
+        "strict": true, // sets alwaysStrict, strictNullChecks, strictBindCallApply, strictFunctionTypes, strictPropertyInitialization, noImplicitAny, noImplicitThis, useUnknownInCatchVariables
+        // "strictBindCallApply": true, // set by strict
+        // "strictBuiltinIteratorReturn": true, // set by strict
+        // "strictFunctionTypes": true, // set by strict
+        // "strictNullChecks": true, // set by strict
+        // "strictPropertyInitialization": true, // set by strict
+        // "useUnknownInCatchVariables": true, // set by strict
+
+        /* Modules
+         */
+        // "allowArbitraryExtensions"
+        "allowImportingTsExtensions": false,
+        "allowUmdGlobalAccess": false,
+        // "baseUrl"
+        // "customConditions"
+        // "module"
+        // "moduleResolution"
+        // "moduleSuffixes"
+        "noResolve": false,
+        "noUncheckedSideEffectImports": true,
+        // "paths"
+        // "resolveJsonModule"
+        // "resolvePackageJsonExports"
+        // "resolvePackageJsonImports"
+        // "rootDir"
+        // "rootDirs"
+        // "typeRoots"
+        // "types"
+
+        /* Emit
+         */
+        // "declaration"
+        // "declarationDir"
+        // "declarationMap"
+        "downlevelIteration": true,
+        "emitBOM": false,
+        // "emitDeclarationOnly"
+        // "importHelpers"
+        // "inlineSourceMap"
+        // "inlineSources"
+        // "mapRoot"
+        "newLine": "lf",
+        // "noEmit"
+        // "noEmitHelpers"
+        "noEmitOnError": false,
+        // "outDir"
+        // "outFile"
+        // "preserveConstEnums" set by isolatedModules
+        // "removeComments"
+        // "sourceMap"
+        // "sourceRoot"
+        // "stripInternal" internal
+
+        /* Javascript Support
+         */
+        "allowJs": false,
+        // "checkJs"
+        // "maxNodeModuleJsDepth"
+
+        /* Editor Support
+         */
+        "disableSizeLimit": false,
+        // "plugins"
+
+
+        /* Interop Constraints
+         */
+        "allowSyntheticDefaultImports": true, // TODO: change to `false`
+        // "esModuleInterop" set by module
+        "forceConsistentCasingInFileNames": true,
+        "isolatedDeclarations": false,
+        "isolatedModules": true,
+        "preserveSymlinks": false,
+        "verbatimModuleSyntax": true,
+
+        /* Backwards Compatibility
+         */
+        // "charset" deprecated
+        // "importsNotUsedAsValues" deprecated
+        // "keyofStringsOnly" deprecated
+        // "noImplicitUseStrict" deprecated
+        // "noStrictGenericChecks" deprecated
+        // "out" deprecated
+        // "preserveValueImports" deprecated
+        // "suppressExcessPropertyErrors" deprecated
+        // "suppressImplicitAnyIndexErrors" deprecated
+
+        /* Language and Environment
+         */
+        "emitDecoratorMetadata": false,
+        "experimentalDecorators": false,
+        // "jsx"
+        // "jsxFactory"
+        // "jsxFragmentFactory"
+        // "jsxImportSource"
+        // "lib"
+        "moduleDetection": "auto",
+        "noLib": false,
+        // "reactNamespace" deprecated
+        // "target"
+        // "useDefineForClassFields" set by target
+
+        /* Compiler Diagnostics
+         */
+        // "diagnostics" deprecated
+        "explainFiles": false,
+        "extendedDiagnostics": false,
+        // "generateCpuProfile" cli only
+        "generateTrace": null,
+        "listEmittedFiles": false,
+        "listFiles": false,
+        "noCheck": false,
+        "traceResolution": false,
+
+        /* Projects
+         */
+        // "composite"
+        "disableReferencedProjectLoad": false,
+        "disableSolutionSearching": false,
+        "disableSourceOfProjectReferenceRedirect": false,
+        "incremental": true,
+        // "tsBuildInfoFile" set by others
+
+        /* Output Formatting
+         */
+        "noErrorTruncation": false,
+        // "preserveWatchOutput" internal
+        "pretty": true,
+
+        /* Completeness
+         */
+        // "skipDefaultLibCheck" not recommended
+        "skipLibCheck": true,
+
+        /* Command Line
+         */
+
+        /* Watch Options
+         */
+        "assumeChangesOnlyAffectDirectDependencies": false,
+    },
+
+    "watchOptions": {
+        // "watchFile"
+        // "watchDirectory"
+        // "fallbackPolling"
+        // "synchronousWatchDirectory"
+        // "excludeDirectories"
+        // "excludeFiles"
+    },
+
+    "typeAcquisition": {
+        // "enable"
+        // "include"
+        // "exclude"
     }
 }

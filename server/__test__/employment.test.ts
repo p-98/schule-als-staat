@@ -7,7 +7,7 @@ import {
     assertInvalid,
     type TUserExecutor,
     createTestServer,
-} from "Util/test";
+} from "./util";
 
 import { omit } from "lodash/fp";
 import { type ResultOf } from "@graphql-typed-document-node/core";

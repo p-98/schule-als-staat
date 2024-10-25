@@ -8,6 +8,9 @@ import { curry, isNull, keys, omit, sum, values } from "lodash/fp";
 export type WithCookieStore<T> = T & { cookieStore: CookieStore };
 
 export type TNullable<T> = T | null;
+/* Like Omit, but with typed keys */
+export type TOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+export type Valueof<T> = T[keyof T];
 export type UnPromise<P> = P extends Promise<infer T> ? T : never;
 export type Fn0<R> = () => R;
 export type Fn1<A1, R> = (a1: A1) => R;

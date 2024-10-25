@@ -1,4 +1,4 @@
-import { Config } from "./types/config";
+import { type Config } from "./types/config";
 
 /** Minutes to milliseconds */
 const minutes = (_: number) => _ * 60 * 1000;

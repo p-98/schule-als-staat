@@ -1,4 +1,4 @@
-import React, { forwardRef, CSSProperties, ReactNode } from "react";
+import React, { forwardRef, type CSSProperties, type ReactNode } from "react";
 import cn from "classnames";
 
 import styles from "../*containerTransform.module.css";

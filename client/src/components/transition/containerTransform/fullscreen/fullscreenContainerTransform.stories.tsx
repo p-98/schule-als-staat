@@ -1,4 +1,4 @@
-import { Meta, Story } from "@storybook/react";
+import { type Meta, type Story } from "@storybook/react";
 import { Provider } from "react-redux";
 
 // local

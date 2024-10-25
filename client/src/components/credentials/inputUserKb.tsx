@@ -16,7 +16,7 @@ import { TextField } from "Components/material/textfield";
 import { Select } from "Components/material/select";
 import { type UserType } from "Utility/graphql/graphql";
 import { syncify } from "Utility/misc";
-import { ChangeEvent } from "Utility/types";
+import { type ChangeEvent } from "Utility/types";
 import { Theme } from "Components/material/theme";
 import { InvalidInput, parseUserId } from "Utility/data";
 

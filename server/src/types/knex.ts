@@ -1,12 +1,14 @@
-import { Knex } from "knex";
-import { type TNullable } from "Util/misc";
+import type { Knex } from "knex";
+import type { TNullable, TOmit, Valueof } from "Util/misc";
 
-type TNullableToOptional<T extends Record<PropertyKey, unknown>> = {
-    [K in keyof T]: null extends T[K] ? T[K] | undefined : T[K];
+type KeysWithNull<T extends Record<keyof T, unknown>> = Valueof<{
+    [K in keyof T]: null extends T[K] ? K : never;
+}>;
+type TNullableToOptional<T extends Record<keyof T, unknown>> = {
+    [K in KeysWithNull<T>]?: T[K];
+} & {
+    [K in Exclude<keyof T, KeysWithNull<T>>]: T[K];
 };
-
-// like Omit, but with typed keys
-type TOmit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 export interface ISession {
     id: string;

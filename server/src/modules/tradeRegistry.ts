@@ -15,23 +15,23 @@ import {
     assign,
 } from "lodash/fp";
 import {
-    ICompanyStatsFragmentModel,
-    ICompanyUserModel,
-    IEmploymentModel,
-    IEmploymentOfferModel,
-    IProductModel,
-    IProductStatsFragmentModel,
-    IPurchaseItemModel,
-    IUserSignature,
-    IWorktimeModel,
+    type ICompanyStatsFragmentModel,
+    type ICompanyUserModel,
+    type IEmploymentModel,
+    type IEmploymentOfferModel,
+    type IProductModel,
+    type IProductStatsFragmentModel,
+    type IPurchaseItemModel,
+    type IUserSignature,
+    type IWorktimeModel,
 } from "Types/models";
 import {
-    TEmploymentOfferInput,
-    TEmploymentOfferStateCitizenInput,
-    TEmploymentOfferStateCompanyInput,
-    TProductInput,
+    type TEmploymentOfferInput,
+    type TEmploymentOfferStateCitizenInput,
+    type TEmploymentOfferStateCompanyInput,
+    type TProductInput,
 } from "Types/schema";
-import { IBankAccount, ICompany } from "Types/knex";
+import { type IBankAccount, type ICompany } from "Types/knex";
 import { type TNullable } from "Util/misc";
 import {
     startOfHour as sqlStartOfHour,

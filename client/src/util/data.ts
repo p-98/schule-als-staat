@@ -2,7 +2,11 @@ import { toLower } from "lodash/fp";
 import { formatDurationWithOptions, intervalToDuration } from "date-fns/fp";
 import { de } from "date-fns/locale";
 import config from "Config";
-import { FragmentType, graphql, useFragment as getFragment } from "./graphql";
+import {
+    type FragmentType,
+    graphql,
+    useFragment as getFragment,
+} from "./graphql";
 import { type UserType } from "./graphql/graphql";
 
 export class InvalidInput {}

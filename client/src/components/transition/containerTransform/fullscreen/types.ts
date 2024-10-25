@@ -1,6 +1,6 @@
 import {
-    IFullscreenContainerTransformElementProps,
-    IFullscreenContainerTransformHandleProps,
+    type IFullscreenContainerTransformElementProps,
+    type IFullscreenContainerTransformHandleProps,
 } from "./subComponents";
 
 export type TChildren = React.ReactElement<

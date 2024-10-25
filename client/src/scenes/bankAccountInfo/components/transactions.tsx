@@ -19,7 +19,7 @@ import {
     FullscreenContainerTransformElement,
 } from "Components/transition/containerTransform/fullscreen/fullscreenContainerTransform";
 import { FullscreenAppBarHandle } from "Components/dynamicAppBar/presets";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { type FragmentType, graphql, useFragment } from "Utility/graphql";
 import { Eq_UserFragment } from "Utility/data";
 import { TransactionSummary } from "./transactionSummary";
 import { TransactionDetails } from "./transactionDetails";

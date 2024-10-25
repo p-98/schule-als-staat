@@ -2,7 +2,7 @@ import React from "react";
 import { List, SimpleListItem } from "Components/material/list";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FragmentType } from "Utility/graphql";
+import { type FragmentType } from "Utility/graphql";
 import { routes, Routing_SessionFragment } from "../util/routing";
 
 import styles from "../_app.module.scss";

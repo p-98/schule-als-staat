@@ -5,7 +5,7 @@ import cn from "classnames";
 import { initRefsFactory } from "Utility/initRefs";
 import ElementSwitcher from "../util/elementSwitcher";
 import { transitionStyleMap, Modes } from "./transitionStyles";
-import { useChildren, TChildren } from "./children";
+import { useChildren, type TChildren } from "./children";
 
 import styles from "./siblingTransitionBase.module.css";
 

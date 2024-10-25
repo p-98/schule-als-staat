@@ -1,7 +1,7 @@
 import { memo, useContext } from "react";
-import { ActionCard, TAction } from "Components/actionCard/actionCard";
+import { ActionCard, type TAction } from "Components/actionCard/actionCard";
 import { graphql } from "Utility/graphql";
-import { UserType } from "Utility/graphql/graphql";
+import { type UserType } from "Utility/graphql/graphql";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";
 import { identity } from "lodash/fp";
 import { currency, parseCurrency, parseUserId } from "Utility/data";

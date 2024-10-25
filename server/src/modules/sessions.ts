@@ -5,7 +5,7 @@ import type { ISessionModel, TUserModel } from "Types/models";
 import bcrypt from "bcrypt";
 import { type TNullable } from "Util/misc";
 import { parseUserSignature, stringifyUserSignature } from "Util/parse";
-import { TCredentialsInput } from "Types/schema";
+import { type TCredentialsInput } from "Types/schema";
 import { assertCredentials } from "Util/auth";
 import { omit } from "lodash/fp";
 

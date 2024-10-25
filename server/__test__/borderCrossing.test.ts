@@ -1,5 +1,6 @@
 import { test, beforeEach, afterEach, jest } from "@jest/globals";
 import { assert } from "chai";
+import { config } from "Util/test";
 import {
     assertNoErrors,
     assertSingleValue,
@@ -7,8 +8,7 @@ import {
     type TUserExecutor,
     assertInvalid,
     createTestServer,
-    config,
-} from "Util/test";
+} from "./util";
 
 import { type Unarray } from "@envelop/types";
 import { type ResultOf } from "@graphql-typed-document-node/core";

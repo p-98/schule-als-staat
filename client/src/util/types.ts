@@ -1,5 +1,5 @@
 import React from "react";
-import { ThemePropT } from "Components/material/types";
+import { type ThemePropT } from "Components/material/types";
 import config from "Config";
 
 export type TUser = string;

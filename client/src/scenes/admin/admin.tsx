@@ -1,4 +1,4 @@
-import { FC, memo, useState } from "react";
+import { type FC, memo, useState } from "react";
 import { GridCell } from "Components/material/grid";
 import { Typography } from "Components/material/typography";
 import { Card, CardContent } from "Components/material/card/card";
@@ -8,8 +8,14 @@ import { Dialog } from "Components/material/dialog";
 
 import { GridPage } from "Components/page/page";
 import { DrawerAppBarHandle } from "Components/dynamicAppBar/presets";
-import { InputCard, TAction as TCardAction } from "Components/card/inputCard";
-import { ActionButton, TAction } from "Components/actionButton/actionButton";
+import {
+    InputCard,
+    type TAction as TCardAction,
+} from "Components/card/inputCard";
+import {
+    ActionButton,
+    type TAction,
+} from "Components/actionButton/actionButton";
 import { graphql } from "Utility/graphql";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";
 import { useRemount } from "Utility/hooks/hooks";

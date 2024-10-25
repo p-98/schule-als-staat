@@ -1,7 +1,7 @@
 import { reduce } from "lodash/fp";
-import { ResultOf } from "@graphql-typed-document-node/core";
+import { type ResultOf } from "@graphql-typed-document-node/core";
 import React, {
-    ReactElement,
+    type ReactElement,
     useEffect,
     useMemo,
     useRef,
@@ -13,13 +13,13 @@ import { GridPage } from "Components/page/page";
 
 // local
 import {
-    FragmentType,
+    type FragmentType,
     graphql,
     useFragment as getFragment,
 } from "Utility/graphql";
 import { compareBy } from "Utility/misc";
 import { ProductCard } from "./components/productCard";
-import { Cart, TAction } from "./components/cart";
+import { Cart, type TAction } from "./components/cart";
 
 /** Execute effect except on first render */
 const useRerenderEffect: typeof useEffect = (effect, deps) => {

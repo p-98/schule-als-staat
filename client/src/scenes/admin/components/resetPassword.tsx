@@ -1,9 +1,9 @@
 import { identity } from "lodash/fp";
 import { memo } from "react";
 
-import { ActionCard, TAction } from "Components/actionCard/actionCard";
+import { ActionCard, type TAction } from "Components/actionCard/actionCard";
 import { graphql } from "Utility/graphql";
-import { UserType } from "Utility/graphql/graphql";
+import { type UserType } from "Utility/graphql/graphql";
 import { byCode, categorizeError, client, safeData } from "Utility/urql";
 import { parseUserId } from "Utility/data";
 

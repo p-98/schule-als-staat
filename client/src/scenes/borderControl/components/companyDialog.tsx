@@ -12,7 +12,7 @@ import { TextField } from "Components/material/textfield";
 
 // local
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { type FragmentType, graphql, useFragment } from "Utility/graphql";
 import {
     byCode,
     categorizeError,

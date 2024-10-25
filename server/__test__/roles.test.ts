@@ -1,13 +1,13 @@
 import { test, beforeEach, afterEach } from "@jest/globals";
 import { assert } from "chai";
+import { config } from "Util/test";
 import {
     assertNoErrors,
     assertSingleValue,
     buildHTTPUserExecutor,
     createTestServer,
     type TUserExecutor,
-    config,
-} from "Util/test";
+} from "./util";
 
 import { type ResultOf } from "@graphql-typed-document-node/core";
 import { type TYogaServerInstance } from "Server";

@@ -2,6 +2,7 @@ node_modules
 server/dist
 client/dist
 client/.next
+*.tsbuildinfo
 
 # macOS files
 .DS_Store

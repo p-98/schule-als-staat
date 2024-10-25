@@ -1,9 +1,9 @@
 import {
     focusTrapFactory,
-    FocusOptions,
+    type FocusOptions,
     FocusTrap,
 } from "Components/material/base";
-import { RefObject, useEffect, useRef } from "react";
+import { type RefObject, useEffect, useRef } from "react";
 
 export const useFocusTrapOld = (
     element: RefObject<HTMLElement>["current"] | false,

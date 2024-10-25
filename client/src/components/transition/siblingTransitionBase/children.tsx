@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, useMemo } from "react";
+import React, { type HTMLAttributes, useMemo } from "react";
 import cn from "classnames";
 
 import styles from "./siblingTransitionBase.module.css";

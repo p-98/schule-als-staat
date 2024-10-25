@@ -7,7 +7,7 @@ import type { TUserSignatureInput } from "Types/schema";
 import { assert, fail, hasCode } from "Util/error";
 import { parseUserSignature, stringifyUserSignature } from "Util/parse";
 import { getUser } from "Modules/users";
-import { ICard } from "Types/knex";
+import { type ICard } from "Types/knex";
 import { curry, get, isUndefined } from "lodash/fp";
 import { assertRole } from "Util/auth";
 import { mapNullableC, pipe1 } from "Util/misc";

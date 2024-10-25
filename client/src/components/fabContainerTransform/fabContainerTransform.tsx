@@ -1,13 +1,13 @@
 import React, {
     Children,
-    HTMLAttributes,
-    ReactElement,
+    type HTMLAttributes,
+    type ReactElement,
     useCallback,
     useEffect,
     useRef,
 } from "react";
 import cn from "classnames";
-import { IconPropT } from "Components/material/types";
+import { type IconPropT } from "Components/material/types";
 import { Fab, fabClassName } from "Components/material/fab";
 
 // local

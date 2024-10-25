@@ -1,8 +1,8 @@
 import cn from "classnames";
 import {
     IconButton,
-    IconButtonProps,
-    IconButtonHTMLProps,
+    type IconButtonProps,
+    type IconButtonHTMLProps,
 } from "Components/material/icon-button";
 import { Typography } from "Components/material/typography";
 import RMWC from "Components/material/types";

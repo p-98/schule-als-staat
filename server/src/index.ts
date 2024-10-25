@@ -2,13 +2,13 @@ import { type RequestListener, createServer } from "http";
 import exitHook from "async-exit-hook";
 
 import { yogaFactory } from "Server";
-import { backup, Db, loadKnex } from "Database";
+import { backup, type Db, loadKnex } from "Database";
 import { FileConfig } from "Util/config";
 import { syncifyF } from "Util/misc";
 import { type Config } from "Root/types/config";
 
 const periodicBackups = (() => {
-    let backupInterval: NodeJS.Timer;
+    let backupInterval: Timer;
     return {
         restart(db: Db, config: Config) {
             clearInterval(backupInterval);

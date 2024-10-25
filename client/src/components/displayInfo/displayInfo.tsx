@@ -7,7 +7,7 @@ import React, {
 import { Icon } from "Components/material/icon";
 import { Typography } from "Components/material/typography";
 import { Theme } from "Components/material/theme";
-import { IconOptions } from "Components/material/types";
+import { type IconOptions } from "Components/material/types";
 import cn from "classnames";
 
 // local

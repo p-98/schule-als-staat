@@ -21,12 +21,12 @@ import { GridPage } from "Components/page/page";
 import { FallbackText } from "Components/fallbackText/fallbackText";
 import { DisplayInfo } from "Components/displayInfo/displayInfo";
 import { Dot } from "Components/dot/dot";
-import { ActionCard, TAction } from "Components/actionCard/actionCard";
+import { ActionCard, type TAction } from "Components/actionCard/actionCard";
 import {
     ActionButton,
-    TAction as TButtonAction,
+    type TAction as TButtonAction,
 } from "Components/actionButton/actionButton";
-import { FragmentType, graphql, useFragment } from "Utility/graphql";
+import { type FragmentType, graphql, useFragment } from "Utility/graphql";
 import {
     byCode,
     categorizeError,

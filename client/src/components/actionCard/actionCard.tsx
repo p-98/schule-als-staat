@@ -4,7 +4,7 @@ import {
     type FormEvent,
     type ReactElement,
     useState,
-    ReactNode,
+    type ReactNode,
     useMemo,
 } from "react";
 import {
@@ -20,7 +20,7 @@ import { Select } from "Components/material/select";
 import { TextField } from "Components/material/textfield";
 import { SimpleDialog } from "Components/material/dialog/dialog";
 
-import { ChangeEvent } from "Utility/types";
+import { type ChangeEvent } from "Utility/types";
 import { syncifyF } from "Utility/misc";
 import { useStable } from "Utility/urql";
 import { InvalidInput, type Parser } from "Utility/data";

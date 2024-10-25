@@ -5,7 +5,7 @@ import {
     DialogActions,
     DialogButton,
 } from "@rmwc/dialog";
-import { Meta, Story } from "@storybook/react";
+import { type Meta, type Story } from "@storybook/react";
 import React from "react";
 
 import "./corners.css";

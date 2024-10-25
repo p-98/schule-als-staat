@@ -1,17 +1,75 @@
 {
+    "$schema": "https://json.schemastore.org/tsconfig",
+
+    // "files"
     "extends": "../tsconfig.json",
+    // "include"
+    // "exclude"
+    // "references"
+
     "compilerOptions": {
-        "outDir": "./dist",
-        "noEmit": true,
-        "baseUrl": ".",
+        /* Type Checking
+         */
+
+        /* Modules
+         */
+        "allowArbitraryExtensions": false,
+        "module": "es2022",
+        "moduleResolution": "bundler",
         "paths": {
-            "Types/*": ["src/types/*"],
-            "Server": ["src/server.ts"],
-            "Modules/*": ["src/modules/*"],
-            "Database": ["src/database/database.ts"],
-            "Util/*": ["src/util/*"],
+            "Types/*": ["./src/types/*"],
+            "Server": ["./src/server.ts"],
+            "Modules/*": ["./src/modules/*"],
+            "Database": ["./src/database/database.ts"],
+            "Util/*": ["./src/util/*"],
             "Root/*": ["../*"]
-        }
-    },
-    "include": [".", "../types/*"]
+        },
+        "resolveJsonModule": true,
+        // "resolvePackageJsonExports" set by moduleResolution
+        // "resolvePackageJsonImports" set by moduleResolution
+
+        /* Emit
+         */
+        "declaration": false,
+        "noEmit": true,
+        "removeComments": true,
+        "sourceMap": false,
+
+        /* Javascript Support
+         */
+
+        /* Editor Support
+         */
+
+        /* Interop Constraints
+         */
+
+        /* Backwards Compatibility
+         */
+
+        /* Language and Environment
+         */
+        "lib": ["es2022"],
+        "target": "es2022",
+
+        /* Compiler Diagnostics
+         */
+
+        /* Projects
+         */
+        "composite": false,
+        // "tsBuildInfoFile" set by others
+
+        /* Output Formatting
+         */
+
+        /* Completeness
+         */
+
+        /* Command Line
+         */
+
+        /* Watch Options
+         */
+    }
 }

@@ -9,9 +9,9 @@ import {
     ContainerTransformElement,
 } from "Components/transition/containerTransform/containerTransform";
 import { type FCT } from "Components/transition/fullscreenContainerTransform/fullscreenContainerTransform";
-import { InputQr, TAction as TQrAction } from "Components/qr/qr";
+import { InputQr, type TAction as TQrAction } from "Components/qr/qr";
 import { getByClass, videoToCanvas, syncifyF, event } from "Utility/misc";
-import { InputUserKb, TAction as TKbAction } from "./inputUserKb";
+import { InputUserKb, type TAction as TKbAction } from "./inputUserKb";
 
 import css from "./credentials.module.css";
 

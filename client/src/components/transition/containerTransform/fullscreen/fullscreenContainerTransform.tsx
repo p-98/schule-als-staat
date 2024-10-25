@@ -5,7 +5,7 @@ import React, {
     useRef,
     useState,
 } from "react";
-import { PortalChild, PortalPropT } from "Components/material/base";
+import { PortalChild, type PortalPropT } from "Components/material/base";
 import cn from "classnames";
 
 // local
@@ -16,7 +16,7 @@ import {
 } from "./subComponents";
 import { useChildren } from "./children";
 import ElementSwitcher from "../../util/elementSwitcher";
-import { TChildren } from "./types";
+import { type TChildren } from "./types";
 import {
     clearDimensions,
     clearOffset,

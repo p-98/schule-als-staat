@@ -1,10 +1,10 @@
-import { ResultOf } from "@graphql-typed-document-node/core";
+import { type ResultOf } from "@graphql-typed-document-node/core";
 import React, { useMemo } from "react";
 import cn from "classnames";
 import config from "Config";
 import { SimpleListItem } from "Components/material/list";
 import {
-    FragmentType,
+    type FragmentType,
     graphql,
     makeFragmentData,
     useFragment,
