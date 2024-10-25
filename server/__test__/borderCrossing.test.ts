@@ -12,12 +12,12 @@ import {
 
 import { type Unarray } from "@envelop/types";
 import { type ResultOf } from "@graphql-typed-document-node/core";
-import { multiply, pick, pipe } from "lodash/fp";
+import { multiply, pick } from "lodash/fp";
 import { addHours, subHours } from "date-fns/fp";
 import { type TYogaServerInstance } from "Server";
 import { type Knex } from "Database";
 import { formatDateTimeZ } from "Util/date";
-import { mapValues, moveKeys } from "Util/misc";
+import { mapValues, moveKeys, pipe } from "Util/misc";
 import { graphql } from "./graphql";
 
 /* General helpers
@@ -273,7 +273,7 @@ test("leave all citizens", async () => {
         [updatedStays[0]!, updatedStays[2]!].map(
             pipe(
                 moveKeys({ citizen: "citizenId" } as const),
-                mapValues({ citizen: (_) => ({ id: _ }) })
+                mapValues({ citizen: (_: string) => ({ id: _ }) })
             )
         )
     );

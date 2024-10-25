@@ -186,10 +186,12 @@ export const useCheckRouteAndAuth = (
         [router.asPath]
     );
 
-    const invalidRoute = isUndefined(route);
-    const invalidAuth = isNil(session)
-        ? false // don't redirect if the session has not loaded yet
-        : !route?.authorized(session) ?? false;
-    useRedirect(invalidRoute || invalidAuth, "/login");
-    return !(invalidRoute || invalidAuth);
+    // eslint-disable-next-line no-nested-ternary
+    const valid = isUndefined(route)
+        ? false
+        : isNil(session)
+        ? true // don't redirect if the session has not loaded yet
+        : route.authorized(session);
+    useRedirect(!valid, "/login");
+    return valid;
 };

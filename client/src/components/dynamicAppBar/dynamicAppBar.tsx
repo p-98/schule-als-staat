@@ -1,3 +1,4 @@
+import cn from "classnames";
 import { createPortal } from "react-dom";
 import React, {
     HTMLAttributes,
@@ -5,7 +6,7 @@ import React, {
     useRef,
     useState,
     useMemo,
-    ReactElement,
+    type ReactNode,
 } from "react";
 import {
     TopAppBar,
@@ -16,7 +17,7 @@ import {
     TopAppBarActionItem,
 } from "Components/material/top-app-bar";
 import { ThemeProvider } from "Components/material/theme";
-import cn from "classnames";
+import { isValidNode } from "Utility/misc";
 
 // local
 import styles from "./dynamicAppBar.module.scss";
@@ -60,7 +61,7 @@ interface IDynamicAppBarHandleProps extends HTMLAttributes<HTMLHeadElement> {
     /** default true */
     render?: boolean;
     /** for changes to take effect, component must be remounted */
-    navIcon?: { icon: string; onNav: () => void } | ReactElement;
+    navIcon?: { icon: string; onNav: () => void } | ReactNode;
     /** for changes to take effect, component must be remounted */
     actionItems?: { icon: string; onClick: () => void }[];
     /** for changes to take effect, component must be remounted */
@@ -139,7 +140,7 @@ export const DynamicAppBarHandle: React.FC<IDynamicAppBarHandleProps> = ({
                 >
                     <TopAppBarRow>
                         <TopAppBarSection alignStart>
-                            {React.isValidElement(info.navIcon) ? (
+                            {isValidNode(info.navIcon) ? (
                                 info.navIcon
                             ) : (
                                 <TopAppBarNavigationIcon

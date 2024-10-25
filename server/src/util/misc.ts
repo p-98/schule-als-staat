@@ -42,25 +42,23 @@ export const average = (arr: number[]): number => {
 };
 
 interface Pipe {
-    <A, R1, R2>(f1: (_: A) => R1, f2: (_: R1) => R2): <B extends A>(v: B) => R2;
-    <A, R1, R2, R3>(f1: (_: A) => R1, f2: (_: R1) => R2, f3: (_: R2) => R3): <
-        B extends A
-    >(
-        v: B
+    <A, R1, R2>(f1: (_: A) => R1, f2: (_: R1) => R2): (v: A) => R2;
+    <A, R1, R2, R3>(f1: (_: A) => R1, f2: (_: R1) => R2, f3: (_: R2) => R3): (
+        v: A
     ) => R3;
     <A, R1, R2, R3, R4>(
         f1: (_: A) => R1,
         f2: (_: R1) => R2,
         f3: (_: R2) => R3,
         f4: (_: R3) => R4
-    ): <B extends A>(v: B) => R4;
+    ): (v: A) => R4;
     <A, R1, R2, R3, R4, R5>(
         f1: (_: A) => R1,
         f2: (_: R1) => R2,
         f3: (_: R2) => R3,
         f4: (_: R3) => R4,
         f5: (_: R4) => R5
-    ): <B extends A>(v: B) => R5;
+    ): (v: A) => R5;
     <A, R1, R2, R3, R4, R5, R6>(
         f1: (_: A) => R1,
         f2: (_: R1) => R2,
@@ -68,7 +66,7 @@ interface Pipe {
         f4: (_: R3) => R4,
         f5: (_: R4) => R5,
         f6: (_: R5) => R6
-    ): <B extends A>(v: B) => R6;
+    ): (v: A) => R6;
     <A, R1, R2, R3, R4, R5, R6, R7>(
         f1: (_: A) => R1,
         f2: (_: R1) => R2,
@@ -77,7 +75,7 @@ interface Pipe {
         f5: (_: R4) => R5,
         f6: (_: R5) => R6,
         f7: (_: R6) => R7
-    ): <B extends A>(v: B) => R7;
+    ): (v: A) => R7;
     (...fs: ((_: unknown) => unknown)[]): (v: unknown) => unknown;
 }
 export const pipe: Pipe =
@@ -162,11 +160,11 @@ interface MapValues {
  * Curried usage possible.
  *
  * @example
- * // o has inferred type `{key: string}`
+ * // o has inferred type `{key: number}`
  * const o = mapValues(
- *    // val has inferred type `number`
- *   { key: (val) => val.toString() },
- *   { key: 1}
+ *    // setting val to `string` would throw an error
+ *   { key: (val: number) => val + 1 },
+ *   { key: 1 }
  * )
  */
 export const mapValues: MapValues = curry((fs: object, o: object): object => ({

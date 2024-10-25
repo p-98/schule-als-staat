@@ -1,6 +1,7 @@
 {
     "extends": "../tsconfig.json",
     "compilerOptions": {
+        "types": [],
         "isolatedModules": true,
         "jsx": "preserve",
         "noEmit": true,
