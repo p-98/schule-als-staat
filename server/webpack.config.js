@@ -4,8 +4,8 @@ const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const ESLintPlugin = require("eslint-webpack-plugin");
-const webpack = require("webpack");
-const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+const { HotModuleReplacementPlugin } = require("webpack");
+const hq = require("alias-hq");
 
 /** @returns {import('webpack').Configuration} */
 module.exports = (env, argv) => {
@@ -19,12 +19,7 @@ module.exports = (env, argv) => {
         ],
         resolve: {
             extensions: [".js", ".ts"],
-            plugins: [
-                new TsconfigPathsPlugin({
-                    configFile: "./tsconfig.json",
-                    extensions: [".js", ".ts"],
-                }),
-            ],
+            alias: hq.get("webpack"),
         },
         externals: [
             nodeExternals({
@@ -59,7 +54,7 @@ module.exports = (env, argv) => {
             ...(production
                 ? [new ForkTsCheckerWebpackPlugin({ formatter: "basic" })]
                 : []),
-            ...(!production ? [new webpack.HotModuleReplacementPlugin()] : []),
+            ...(!production ? [new HotModuleReplacementPlugin()] : []),
         ],
         stats: production ? "normal" : "errors-warnings",
         target: "node",
