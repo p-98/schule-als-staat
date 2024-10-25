@@ -3,9 +3,11 @@ const path = require("path");
 const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 const nodeExternals = require("webpack-node-externals");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const ESLintPlugin = require("eslint-webpack-plugin");
 const webpack = require("webpack");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 
+/** @returns {import('webpack').Configuration} */
 module.exports = (env, argv) => {
     const production = argv.mode === "production";
 
@@ -53,19 +55,11 @@ module.exports = (env, argv) => {
         },
         plugins: [
             new CleanWebpackPlugin(),
+            ...(production ? [new ESLintPlugin({ files: "." })] : []),
             ...(production
-                ? [
-                      new ForkTsCheckerWebpackPlugin({
-                          eslint: {
-                              files: ".",
-                              // options: {
-                              //     baseConfig: {},
-                              // },
-                          },
-                          formatter: "basic",
-                      }),
-                  ]
-                : [new webpack.HotModuleReplacementPlugin()]),
+                ? [new ForkTsCheckerWebpackPlugin({ formatter: "basic" })]
+                : []),
+            ...(!production ? [new webpack.HotModuleReplacementPlugin()] : []),
         ],
         stats: production ? "normal" : "errors-warnings",
         target: "node",

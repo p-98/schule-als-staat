@@ -25,13 +25,13 @@ interface INamedMigration extends _Knex.Migration {
 }
 const migrations: INamedMigration[] = [initSchemaMigration];
 
-/* eslint-disable @typescript-eslint/lines-between-class-members */
+/* eslint-disable @typescript-eslint/lines-between-class-members, class-methods-use-this */
 class MigrationSource implements _Knex.MigrationSource<INamedMigration> {
     getMigrations = () => Promise.resolve(migrations);
     getMigrationName = get("name");
     getMigration = identity;
 }
-/* eslint-enable @typescript-eslint/lines-between-class-members */
+/* eslint-enable @typescript-eslint/lines-between-class-members, class-methods-use-this */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Knex = _Knex<any, unknown[]>;
