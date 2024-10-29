@@ -7,7 +7,7 @@ import {
     formatTimeZ,
     openingHours,
 } from "Util/date";
-import { type Config } from "Root/types/config";
+import { type Config } from "Types/config";
 
 const date = new Date("2023-04-18T18:24:07.177Z");
 

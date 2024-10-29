@@ -3,7 +3,7 @@ import { identity, get } from "lodash/fp";
 import _knex, { Knex as _Knex } from "knex";
 import { type Database } from "better-sqlite3";
 import { resolveRoot } from "Util/misc";
-import { type Config } from "Root/types/config";
+import { type Config } from "Types/config";
 
 import * as initSchemaMigration from "./migrations/init-schema";
 

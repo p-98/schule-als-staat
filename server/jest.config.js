@@ -5,7 +5,7 @@ module.exports = {
     moduleFileExtensions: ["ts", "js", "d.ts"],
     testMatch: ["**/*.test.ts"],
     modulePaths: ["<rootDir>"],
-    moduleNameMapper: hq.get("jest"),
+    moduleNameMapper: hq.get("jest", { format: "array" }),
     injectGlobals: false,
     transform: {
         "^.+\\.ts$": ["@swc/jest"],

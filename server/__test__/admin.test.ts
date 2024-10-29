@@ -15,7 +15,7 @@ import {
 } from "./util";
 
 import { constant } from "lodash/fp";
-import { type Config } from "Root/types/config";
+import { type Config } from "Types/config";
 import { type IEmployment } from "Types/knex";
 import { yogaFactory, type TYogaServerInstance } from "Server";
 import { emptyKnex, type Db, type Knex } from "Database";

@@ -29,7 +29,11 @@ module.exports = {
             files: ["*.tsx", "*.ts"],
             parser: "@typescript-eslint/parser",
             parserOptions: {
-                project: ["server/tsconfig.json", "client/tsconfig.json"],
+                project: [
+                    "server/tsconfig.json",
+                    "client/tsconfig.json",
+                    "shared/tsconfig.json",
+                ],
                 tsconfigRootDir: path.resolve(rootPath),
             },
             plugins: ["@typescript-eslint"],

@@ -5,7 +5,7 @@ import { yogaFactory } from "Server";
 import { backup, type Db, loadKnex } from "Database";
 import { FileConfig } from "Util/config";
 import { syncifyF } from "Util/misc";
-import { type Config } from "Root/types/config";
+import { type Config } from "Types/config";
 
 const periodicBackups = (() => {
     let backupInterval: Timer;

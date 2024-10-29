@@ -1,11 +1,8 @@
+// Written for typescript 5.6
 {
     "$schema": "https://json.schemastore.org/tsconfig",
 
-    // "files"
     "extends": "../tsconfig.json",
-    // "include"
-    // "exclude"
-    // "references"
 
     "compilerOptions": {
         /* Type Checking
@@ -14,26 +11,19 @@
         /* Modules
          */
         "allowArbitraryExtensions": false,
+        // "baseUrl"
+        // "customConditions"
         "module": "es2022",
         "moduleResolution": "bundler",
         "paths": {
-            "Types/*": ["../shared/src/types/*", "./src/types/*"],
-            "Server": ["./src/server.ts"],
-            "Modules/*": ["./src/modules/*"],
-            "Database": ["./src/database/database.ts"],
-            "Util/*": ["./src/util/*"],
-            "Root/*": ["../*"]
+            "Types/*": ["./src/types/*"],
         },
-        "resolveJsonModule": true,
+        "resolveJsonModule": false,
         // "resolvePackageJsonExports" set by moduleResolution
         // "resolvePackageJsonImports" set by moduleResolution
 
         /* Emit
          */
-        "declaration": false,
-        "noEmit": true,
-        "removeComments": true,
-        "sourceMap": false,
 
         /* Javascript Support
          */
@@ -49,7 +39,6 @@
 
         /* Language and Environment
          */
-        "lib": ["es2022"],
         "target": "es2022",
 
         /* Compiler Diagnostics
@@ -71,5 +60,5 @@
 
         /* Watch Options
          */
-    }
+    },
 }

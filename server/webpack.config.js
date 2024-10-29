@@ -19,7 +19,7 @@ module.exports = (env, argv) => {
         ],
         resolve: {
             extensions: [".js", ".ts"],
-            alias: hq.get("webpack"),
+            alias: hq.get("webpack", { format: "array" }),
         },
         externals: [
             nodeExternals({

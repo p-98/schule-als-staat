@@ -1,4 +1,4 @@
-import { type Config } from "Root/types/config";
+import { type Config } from "Types/config";
 import { filter, map, negate, pipe, zip } from "lodash/fp";
 import { eachHourOfInterval, endOfHour, isEqual } from "date-fns/fp";
 

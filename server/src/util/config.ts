@@ -1,7 +1,7 @@
 import { TypedEventTarget } from "typescript-event-target";
 import createJITI from "jiti";
 
-import { type Config } from "Root/types/config";
+import { type Config } from "Types/config";
 import { type IDynamicConfig } from "Server";
 import { fail } from "Util/error";
 import { resolveRoot, CustomEvent, inOperator } from "Util/misc";
@@ -27,7 +27,7 @@ async function loadFile(path: string): Promise<object> {
 }
 
 async function loadConfigFile(): Promise<Config> {
-    const path = resolveRoot("config.ts");
+    const path = resolveRoot("shared/src/config.ts");
     const module = await loadFile(path);
     if (!inOperator("default", module))
         fail(

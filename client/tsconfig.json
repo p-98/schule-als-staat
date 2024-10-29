@@ -19,8 +19,9 @@
             "Components/*": ["./src/components/*"],
             "Scenes/*": ["./src/scenes/*"],
             "Utility/*": ["./src/util/*"],
-            "Config": ["../config.ts"],
-            "*": ["./src/@types/*"]
+            "Config": ["../shared/src/config.ts"],
+            "*": ["./src/@types/*"],
+            "Types/*": ["../shared/src/types/*"],
         },
         "resolveJsonModule": true, // recommended for next
         // "resolvePackageJsonExports" set by moduleResolution

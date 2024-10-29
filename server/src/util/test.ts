@@ -16,7 +16,7 @@ import {
     multiply,
 } from "lodash/fp";
 
-import { type Config } from "Root/types/config";
+import { type Config } from "Types/config";
 
 /* Assertion functions
  */

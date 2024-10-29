@@ -14,7 +14,7 @@ import {
     DateTimeTypeDefinition,
     JSONDefinition,
 } from "graphql-scalars";
-import { type Config } from "Root/types/config";
+import { type Config } from "Types/config";
 
 import * as typeDefs from "Root/schema.graphql";
 import persistedDocumentsJson from "Util/graphql/persisted-documents.json";
