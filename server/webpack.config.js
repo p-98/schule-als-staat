@@ -37,11 +37,6 @@ module.exports = (env, argv) => {
                         transpileOnly: true,
                     },
                 },
-                {
-                    test: /\.(graphql|gql)$/,
-                    exclude: /node_modules/,
-                    loader: "graphql-tag/loader",
-                },
             ],
         },
         output: {

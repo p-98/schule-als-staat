@@ -16,8 +16,8 @@ import {
 } from "graphql-scalars";
 import { type Config } from "Types/config";
 
-import * as typeDefs from "Root/schema.graphql";
 import persistedDocumentsJson from "Util/graphql/persisted-documents.json";
+import { typeDefs } from "./schema.generated";
 import sessionFactory from "./sessionFactory";
 import { resolvers } from "./resolvers";
 

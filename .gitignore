@@ -13,6 +13,7 @@ server/__test__/graphql/
 server/src/util/graphql/
 client/src/util/graphql/
 !client/src/util/graphql/urql-introspection-plugin.js
+*.generated.ts
 
 # database file
 *.sqlite3*

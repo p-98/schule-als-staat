@@ -9,6 +9,5 @@ module.exports = {
     injectGlobals: false,
     transform: {
         "^.+\\.ts$": ["@swc/jest"],
-        "^.+\\.(gql|graphql)$": "@graphql-tools/jest-transform",
     },
 };

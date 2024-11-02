@@ -86,6 +86,9 @@ const config: CodegenConfig = {
                 },
             },
         },
+        "./server/src/schema.generated.ts": {
+            plugins: ["./server/src/util/graphql/typeDefs-plugin.js"],
+        },
     },
 };
 
