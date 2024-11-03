@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import type { YogaInitialContext, YogaServerInstance } from "graphql-yoga";
-import type { Db, Knex } from "Database";
+import type { Knex } from "Database";
 import type { TEvents } from "Types/models";
 import { type WithCookieStore, type UnPromise, pipe1 } from "Util/misc";
 
@@ -37,11 +37,10 @@ export type TBackup = () => Promise<void>;
 const pubsub = createPubSub<TEvents>();
 
 const createAppContext =
-    (db: Db, knex: Knex, config: IDynamicConfig) =>
+    (knex: Knex, config: IDynamicConfig) =>
     async ({ request }: IInitialContext) => ({
         session: await sessionFactory(knex, request),
         knex,
-        db,
         // config reload only takes effect for future requests
         config: { ...(await config.get()), reload: () => config.reload() },
         pubsub,
@@ -62,7 +61,6 @@ export type TYogaServerInstance = YogaServerInstance<
 
 /** Factory function for usage in unit tests */
 export const yogaFactory = (
-    db: Db,
     knex: Knex,
     config: IDynamicConfig
 ): TYogaServerInstance =>
@@ -76,7 +74,7 @@ export const yogaFactory = (
             ],
             resolvers,
         }),
-        context: createAppContext(db, knex, config),
+        context: createAppContext(knex, config),
         plugins: [
             useCookies(),
             usePersistedOperations({

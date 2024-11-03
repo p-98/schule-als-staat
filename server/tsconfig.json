@@ -19,6 +19,7 @@
         "paths": {
             "Types/*": ["../shared/src/types/*", "./src/types/*"],
             "Server": ["./src/server.ts"],
+            "Server/*": ["./src/*"],
             "Modules/*": ["./src/modules/*"],
             "Database": ["./src/database/database.ts"],
             "Util/*": ["./src/util/*"],

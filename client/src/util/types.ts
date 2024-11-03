@@ -17,6 +17,8 @@ type TValidToNever<T> = T extends string
     : never;
 export type TIsAny<T> = [TValidToNever<T>] extends [never] ? false : true;
 
+export type TSet<T, K extends keyof T, KT> = Omit<T, K> & Record<K, KT>;
+
 export type LengthArray<
     T,
     N extends number,

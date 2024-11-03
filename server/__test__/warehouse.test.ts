@@ -1,3 +1,5 @@
+import "./mock";
+
 import { test, beforeEach, afterEach } from "@jest/globals";
 import { assert } from "chai";
 import { config } from "Util/test";

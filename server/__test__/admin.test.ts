@@ -1,4 +1,4 @@
-import "./admin.mock";
+import { mocks } from "./mock";
 
 import { test, beforeEach, afterEach, jest } from "@jest/globals";
 import { type Mock } from "jest-mock";
@@ -14,14 +14,12 @@ import {
     assertSingleError,
 } from "./util";
 
-import { constant } from "lodash/fp";
+import { constant, get } from "lodash/fp";
 import { type Config } from "Types/config";
 import { type IEmployment } from "Types/knex";
 import { yogaFactory, type TYogaServerInstance } from "Server";
-import { emptyKnex, type Db, type Knex } from "Database";
+import { emptyKnex, type Knex } from "Database";
 import { graphql } from "./graphql";
-
-type TSet<T, K extends keyof T, KT> = Omit<T, K> & Record<K, KT>;
 
 graphql(/* GraphQL */ `
     fragment Signature_UserFragment on User {
@@ -78,7 +76,6 @@ const dconfig = {
     get: jest.fn(() => Promise.resolve(config)),
     reload: jest.fn(constant(Promise.resolve())),
 };
-let db: TSet<Db, "backup", Mock<Db["backup"]>>;
 let knex: Knex;
 let yoga: TYogaServerInstance;
 let admin: TUserExecutor;
@@ -87,14 +84,9 @@ let company: TUserExecutor;
 let guest: TUserExecutor;
 beforeEach(async () => {
     config = _config;
-    const [_db, _knex] = await emptyKnex();
-    db = Object.defineProperty(_db, "backup", {
-        value: jest.fn(() =>
-            Promise.resolve({ totalPages: 10, remainingPages: 0 })
-        ),
-    }) as TSet<Db, "backup", jest.Mock<Db["backup"]>>;
+    const [, _knex] = await emptyKnex();
     knex = _knex;
-    yoga = yogaFactory(db, knex, dconfig);
+    yoga = yogaFactory(knex, dconfig);
     admin = await buildHTTPUserExecutor(knex, yoga, {
         type: "CITIZEN",
         id: config.roles.adminCitizenIds[0],
@@ -138,9 +130,9 @@ async function testBackupDatabase() {
     assertNoErrors(backup);
     assert.isNull(backup.data.backupDatabase);
 
-    assertTimesCalled(db.backup, 1);
-    assert.deepStrictEqual(db.backup.mock.calls, [
-        ["backup-dir/backup-file-0.sqlite3"],
+    assertTimesCalled(mocks._backup, 1);
+    assert.deepStrictEqual(mocks._backup.mock.calls.map(get(1)), [
+        "backup-dir/backup-file-0.sqlite3",
     ]);
 }
 
@@ -204,10 +196,10 @@ async function testExecDatabase() {
     assertNoErrors(exec);
     assert.deepStrictEqual(exec.data.execDatabase, data);
 
-    assertTimesCalled(db.backup, 2);
-    assert.deepStrictEqual(db.backup.mock.calls, [
-        ["backup-dir/backup-file-1.sqlite3"],
-        ["backup-dir/backup-file-2.sqlite3"],
+    assertTimesCalled(mocks._backup, 2);
+    assert.deepStrictEqual(mocks._backup.mock.calls.map(get(1)), [
+        "backup-dir/backup-file-1.sqlite3",
+        "backup-dir/backup-file-2.sqlite3",
     ]);
 }
 
@@ -224,9 +216,9 @@ async function testReloadConfig() {
     assertNoErrors(reload);
     assert.isNull(reload.data.reloadConfig);
 
-    assertTimesCalled(db.backup, 1);
-    assert.deepStrictEqual(db.backup.mock.calls, [
-        ["backup-dir/backup-file-3.sqlite3"],
+    assertTimesCalled(mocks._backup, 1);
+    assert.deepStrictEqual(mocks._backup.mock.calls.map(get(1)), [
+        "backup-dir/backup-file-3.sqlite3",
     ]);
     assertTimesCalled(dconfig.reload, 1);
 }

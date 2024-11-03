@@ -1,9 +1,9 @@
-import { mkdir } from "fs/promises";
 import { identity, get } from "lodash/fp";
 import _knex, { Knex as _Knex } from "knex";
 import { type Database } from "better-sqlite3";
 import { resolveRoot } from "Util/misc";
 import { type Config } from "Types/config";
+import { _backup } from "./_database";
 
 import * as initSchemaMigration from "./migrations/init-schema";
 
@@ -77,9 +77,8 @@ export const emptyKnex = async (): Promise<[Db, Knex]> => {
     return [db, knex];
 };
 
-export async function backup(db: Db, config: Config): Promise<void> {
+export async function backup(knex: Knex, config: Config): Promise<void> {
     const { dir, file } = config.database.backup;
-    // create directory if not exists
-    await mkdir(resolveRoot(dir), { recursive: true });
-    await db.backup(resolveRoot(dir, file()));
+    const path = resolveRoot(dir, file());
+    await _backup(knex, path);
 }

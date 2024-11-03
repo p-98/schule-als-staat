@@ -8,23 +8,23 @@ import { EUserTypeTableMap, stringifyUserSignature } from "Util/parse";
 import { getUser } from "./users";
 
 export function backupDatabase(ctx: IAppContext): Promise<void> {
-    const { db, config, session } = ctx;
+    const { knex, config, session } = ctx;
     assertRole(ctx, session.userSignature, "ADMIN");
-    return backup(db, config);
+    return backup(knex, config);
 }
 
 export async function execDatabase(
     ctx: IAppContext,
     sql: string
 ): Promise<object> {
-    const { db, knex, config, session } = ctx;
+    const { knex, config, session } = ctx;
     assertRole(ctx, session.userSignature, "ADMIN");
     assert(
         config.database.allowRawSql,
         "Configuration database.allowRawSql not set.",
         "RESTRICTION_ALLOW_RAW_SQL"
     );
-    await backup(db, config);
+    await backup(knex, config);
     try {
         return await knex.raw(sql);
     } catch (err) {
@@ -34,9 +34,9 @@ export async function execDatabase(
 }
 
 export async function reloadConfig(ctx: IAppContext): Promise<void> {
-    const { db, config, session } = ctx;
+    const { knex, config, session } = ctx;
     assertRole(ctx, session.userSignature, "ADMIN");
-    await backup(db, config);
+    await backup(knex, config);
     await config.reload();
 }
 

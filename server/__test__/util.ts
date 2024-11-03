@@ -33,7 +33,7 @@ import bcrypt from "bcrypt";
 
 import { formatDateTimeZ } from "Util/date";
 import { type UnPromise, type TNullable } from "Util/misc";
-import { assertIsNotNil, notImplementedFn, config } from "Util/test";
+import { assertIsNotNil, config } from "Util/test";
 import { graphql } from "./graphql";
 
 /**
@@ -301,9 +301,7 @@ export async function buildHTTPUserExecutor(
 export type TUserExecutor = UnPromise<ReturnType<typeof buildHTTPUserExecutor>>;
 
 export async function createTestServer(): Promise<[Knex, TYogaServerInstance]> {
-    const [db, knex] = await emptyKnex();
-    // disable backups
-    db.backup = notImplementedFn;
+    const [, knex] = await emptyKnex();
     const dconfig: IDynamicConfig = {
         async get() {
             return config;
@@ -311,6 +309,6 @@ export async function createTestServer(): Promise<[Knex, TYogaServerInstance]> {
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         async reload() {},
     };
-    const yoga = yogaFactory(db, knex, dconfig);
+    const yoga = yogaFactory(knex, dconfig);
     return [knex, yoga];
 }
