@@ -4,7 +4,7 @@ import type { ICardModel, TUserModel } from "Types/models";
 import type { Tables } from "knex/types/tables";
 import type { TUserSignatureInput } from "Types/schema";
 
-import { assert, fail, hasCode } from "Util/error";
+import { assert, fail, isSqlitePrimaryKeyError } from "Util/error";
 import { parseUserSignature, stringifyUserSignature } from "Util/parse";
 import { getUser } from "Modules/users";
 import { type ICard } from "Types/knex";
@@ -88,7 +88,7 @@ export async function registerCard(
             .returning("*");
         return cardDbToModel(card!);
     } catch (err) {
-        if (hasCode(err) && err.code === "SQLITE_CONSTRAINT_PRIMARYKEY")
+        if (isSqlitePrimaryKeyError(err))
             fail("Card id already exists.", "CARD_ALREADY_REGISTERED");
 
         throw err;

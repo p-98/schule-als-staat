@@ -1,7 +1,7 @@
 import { backup } from "Database";
 import { type IAppContext } from "Server";
 import { assertRole, checkRole, encryptPassword } from "Util/auth";
-import { assert, fail, hasCode } from "Util/error";
+import { assert, fail, isSqliteErrorLike } from "Util/error";
 import { type TUserSignatureInput } from "Types/schema";
 import { type TUserModel } from "Types/models";
 import { EUserTypeTableMap, stringifyUserSignature } from "Util/parse";
@@ -28,8 +28,8 @@ export async function execDatabase(
     try {
         return await knex.raw(sql);
     } catch (err) {
-        if (!(err instanceof Error) || !hasCode(err)) throw err;
-        fail(err.message, err.code);
+        if (isSqliteErrorLike(err)) fail(err.message, err.code);
+        throw err;
     }
 }
 

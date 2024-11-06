@@ -1,6 +1,6 @@
 import { identity, get } from "lodash/fp";
 import _knex, { Knex as _Knex } from "knex";
-import { type Database } from "better-sqlite3";
+import { type Database } from "sqlite3";
 import { resolveRoot } from "Util/misc";
 import { type Config } from "Types/config";
 import { _backup } from "./_database";
@@ -37,13 +37,10 @@ class MigrationSource implements _Knex.MigrationSource<INamedMigration> {
 export type Knex = _Knex<any, unknown[]>;
 export type Db = Database;
 
-export const createKnex = async (
-    filename: string,
-    opts?: { client?: "sqlite3" | "better-sqlite3" }
-): Promise<[Db, Knex]> => {
+export const createKnex = async (filename: string): Promise<[Db, Knex]> => {
     const [db, resolveDb] = externalPromsie<Db>();
     const knex = _knex({
-        client: opts?.client ?? "better-sqlite3",
+        client: "sqlite3",
         connection: {
             filename,
         },

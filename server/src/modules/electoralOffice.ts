@@ -14,7 +14,7 @@ import type { IVoteModel } from "Types/models";
 import type { TVoteInput } from "Types/schema";
 import { type IVote, type IVotingPaper } from "Types/knex";
 import { assertRole, checkRole } from "Util/auth";
-import { assert, GraphQLYogaError } from "Util/error";
+import { assert, GraphQLYogaError, isSqlitePrimaryKeyError } from "Util/error";
 import { isFuture } from "date-fns";
 import {
     all,
@@ -191,8 +191,8 @@ export async function castVote(
                 citizenId: session.userSignature.id,
                 vote: stringifyVoteVote(votingPaper),
             })
-            .catch((err: Error & { code?: string }) => {
-                if (err.code === "SQLITE_CONSTRAINT_PRIMARYKEY")
+            .catch((err) => {
+                if (isSqlitePrimaryKeyError(err))
                     throw new GraphQLYogaError(
                         `Vote for id ${voteId} already casted`,
                         { code: "VOTE_ALREADY_CASTED" }

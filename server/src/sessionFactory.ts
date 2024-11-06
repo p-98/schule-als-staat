@@ -4,6 +4,7 @@ import type { Knex } from "Database";
 
 import { v4 as uuid } from "uuid";
 import { addMonths } from "date-fns";
+import { isSqlitePrimaryKeyError } from "Util/error";
 
 async function create(knex: Knex, tries = 100): Promise<ISessionModel> {
     const session = { id: uuid(), userSignature: null };
@@ -11,11 +12,7 @@ async function create(knex: Knex, tries = 100): Promise<ISessionModel> {
     try {
         await knex("sessions").insert(session);
     } catch (err) {
-        if (
-            (err as Error & { code: string }).code !==
-            "SQLITE_CONSTRAINT_PRIMARYKEY"
-        )
-            throw err;
+        if (!isSqlitePrimaryKeyError(err)) throw err;
 
         if (tries > 0) return create(knex, tries - 1);
         throw new Error("Failed to generate unique sessionID");

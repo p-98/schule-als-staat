@@ -1,6 +1,6 @@
 import type { IAppContext } from "Server";
 
-import { assert, GraphQLYogaError, hasCode } from "Util/error";
+import { assert, GraphQLYogaError, isSqliteForeignKeyError } from "Util/error";
 import { v4 as uuidv4 } from "uuid";
 import { startOfDay } from "date-fns";
 import { addDays, endOfDay } from "date-fns/fp";
@@ -446,11 +446,12 @@ export async function createEmploymentOffer(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return inserted[0]!;
     } catch (err) {
-        if (hasCode(err) && err.code === "SQLITE_CONSTRAINT_FOREIGNKEY")
+        if (isSqliteForeignKeyError(err)) {
             throw new GraphQLYogaError(
                 `Citizen with id ${offer.citizenId} does not exist`,
                 { code: "CITIZEN_NOT_FOUND" }
             );
+        }
         throw err;
     }
 }

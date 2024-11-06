@@ -22,6 +22,128 @@ export function inOperator<K extends PropertyKey, O>(
     return typeof obj === "object" && obj !== null && key in obj;
 }
 
+function isObjectLiteral(val: unknown): val is { [_ in PropertyKey]: unknown } {
+    return (
+        typeof val === "object" &&
+        val !== null &&
+        Object.getPrototypeOf(val) === Object.prototype
+    );
+}
+
+export const boolean = Symbol("boolean");
+export const number = Symbol("number");
+export const bigint = Symbol("bigint");
+export const string = Symbol("string");
+export const symbol = Symbol("symbol");
+export const object = Symbol("object");
+type Template =
+    | boolean
+    | typeof boolean
+    | number
+    | typeof number
+    | bigint
+    | typeof bigint
+    | string
+    | typeof string
+    | symbol
+    | typeof symbol
+    | null
+    | { [_ in PropertyKey]: Template }
+    | typeof object
+    | undefined;
+
+// prettier-ignore
+type TemplateType<T extends Template> =
+    T extends boolean ? T :
+    T extends typeof boolean ? boolean :
+    T extends number ? T :
+    T extends typeof number ? number :
+    T extends bigint ? T :
+    T extends typeof bigint ? bigint :
+    T extends string ? T :
+    T extends typeof string ? string :
+    T extends symbol ? T :
+    T extends typeof symbol ? symbol :
+    T extends null ? null :
+    T extends { [_ in PropertyKey]: Template } ? { [K in keyof T]: TemplateType<T[K]>} :
+    T extends typeof object ? object :
+    T extends undefined ? undefined :
+    never
+
+interface IsFn {
+    <T extends Template>(template: T, val: unknown): val is TemplateType<T>;
+    <T extends Template>(template: T): (val: unknown) => val is TemplateType<T>;
+}
+/** Test whether a value is a specific type.
+ *
+ * `template` only supports object literals and not class instances as object types.
+ *
+ * `template` must be cast `as const` when one of the primitive symbols
+ * `boolean`, `number` etc. is used.
+ *
+ * @example <caption>Basic Usage</caption>
+ * const value: unknown = undefined;
+ * if ((is({ message: string }), value)) {
+ *     // value has inferred type { message: string }
+ * }
+ *
+ * @example <caption>Usage with `Is`</caption>
+ * // error.ts
+ * export const isErrorLike = is({ message: string } as const);
+ * // or with stricter eslint config
+ * export const isErrorLike: Is<{ message: string }> = is({ message: string } as const);
+ *
+ * // main.ts
+ * import { isErrorLike } from "./error"
+ * const value: unknown = undefined;
+ * if (isErrorLike(value)) {
+ *     // value has inferred type { message: string }
+ * }
+ */
+// @ts-expect-error can't infer return type as type predicate
+export const is: IsFn = curry(
+    <T extends Template>(template: T, val: unknown): val is TemplateType<T> => {
+        if (typeof template === "boolean") return val === template;
+        if (template === boolean) return typeof val === "boolean";
+        if (typeof template === "number") return val === template;
+        if (template === number) return typeof val === "number";
+        if (typeof template === "bigint") return val === template;
+        if (template === bigint) return typeof val === "bigint";
+        if (typeof template === "string") return val === template;
+        if (template === string) return typeof val === "string";
+        if (template === symbol) return typeof val === "symbol";
+        if (template === null) return val === null;
+        if (isObjectLiteral(template))
+            return (
+                typeof val === "object" &&
+                val !== null &&
+                Object.getOwnPropertyNames(template).every(
+                    // @ts-expect-error val has p as property
+                    (p) => p in val && is(template[p], val[p])
+                ) &&
+                Object.getOwnPropertySymbols(template).every(
+                    // @ts-expect-error val has p as property
+                    (p) => p in val && is(template[p], val[p])
+                )
+            );
+        if (typeof template === "object")
+            throw new Error("Invalid template: non-literal object");
+        if (template === object) return typeof val === "object";
+        if (template === undefined) return val === undefined;
+        throw Error("Invalid template");
+    }
+);
+
+/** Shorthand for type predicate functions
+ *
+ * @example <caption>Usage</caption>
+ * // ok
+ * const isString: Is<string> = is(string)
+ * // type error
+ * const isString: Is<string> = is(number)
+ */
+export type Is<T> = (_: unknown) => _ is T;
+
 /** Function resolving paths relative project root */
 export const resolveRoot = (...pathSegments: string[]): string =>
     path.resolve(__dirname, "../../", ...pathSegments);
