@@ -1,0 +1,23 @@
+[
+    {
+        "id": "silas",
+        "class": "j1",
+        "firstName": "Silas",
+        "lastName": "Hille",
+        "qr": "silas",
+        "password": "abcd",
+        "type": "CITIZEN"
+    },
+    {
+        "type": "COMPANY",
+        "id": "zoll",
+        "password": "abcd",
+        "name": "Zoll",
+        "qr": "zoll"
+    },
+    {
+        "type": "CARD",
+        "qr": "gast1",
+        "id": ""
+    }
+]

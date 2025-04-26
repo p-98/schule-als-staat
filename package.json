@@ -17,7 +17,8 @@
         "graphql-codegen": "graphql-codegen",
         "eslint": "eslint .",
         "storybook": "start-storybook -p 6006",
-        "build-storybook": "build-storybook"
+        "build-storybook": "build-storybook",
+        "create-new-db":"rm database.sqlite3 && bun scripts/create-empty-db.ts"
     },
     "author": "Timon Martins",
     "dependencies": {

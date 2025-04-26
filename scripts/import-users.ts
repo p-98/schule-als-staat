@@ -55,6 +55,9 @@ const description = `Import user data from csv/json files into the database.
 A user record must have one of field combinations. In brackets are optional:
 - type='CITIZEN', id, [qr], [password], firstName, lastName, class
 - type='COMPANY', id, [qr], [password], name
+- type='CARD', qr
+
+CARD: intended to be used for Guests.
 
 The password sources are:
 - 'gen-words' generates a password of 3 human-readable words
@@ -169,7 +172,11 @@ type Company = {
     name: string;
     password: string;
 };
-type User = Citizen | Company;
+type GuestCard = {
+    type: "CARD";
+    qr: string;
+};
+type User = Citizen | Company | GuestCard;
 
 type FileType = "csv" | "json";
 
@@ -247,13 +254,20 @@ const checkFns: { [K in User["type"]]: CheckFn<User & { type: K }> } = {
             password: passwords[pwFrom]({ id, ...company }),
         };
     },
+    CARD: (card): GuestCard => {
+        const qr = applyIdTransforms(safeGet("qr", card));
+        return {
+            type: card.type,
+            qr,
+        };
+    },
 };
 const checkUser = (user: unknown): User => {
     if (typeof user !== "object" || user === null)
         throw Error("User is no object");
     const type: User["type"] = (() => {
         const _type = safeGet("type", user as Record<string, unknown>);
-        if (!["CITIZEN", "COMPANY"].includes(_type))
+        if (!["CITIZEN", "COMPANY", "CARD"].includes(_type))
             throw Error('User.type not "CITIZEN" or "COMPANY"');
         return _type as User["type"];
     })();
@@ -269,7 +283,7 @@ const importQr = async (knex: Knex, user: User): Promise<void> => {
     await knex("cards").insert({
         id: user.qr,
         // @ts-expect-error userSignature must be set initially
-        userSignature: stringifyUserSignature(user),
+        userSignature: user.type === "CARD" ? "" : stringifyUserSignature(user),
         blocked: false,
     });
 };
@@ -295,6 +309,7 @@ const importFns: { [K in User["type"]]: ImportFn<User & { type: K }> } = {
             image: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"/>',
         });
     },
+    CARD: async () => {}, //Do nothing because a guest crad is created just by the import Qr function.
 };
 const importUsers = async (users: User[]) => {
     const [, knex] = await createKnex(config.database.file, {
@@ -302,7 +317,8 @@ const importUsers = async (users: User[]) => {
     });
     const logger = createLogger("", users.length, 5);
     for (const [i, user] of users.entries()) {
-        logger.log(`Importing user '${user.id}'`);
+        const identifier = user.type === "CARD" ? user.qr : user.id;
+        logger.log(`Importing user '${identifier}'`);
         await importQr(knex, user);
         await importFns[user.type](knex, user as never);
         logger.progress(i + 1);
