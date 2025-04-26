@@ -63,7 +63,7 @@ export default {
     roles: {
         stateBankAccountId: "",
 
-        adminCitizenIds: ["silhil24", "jakwen10", "floorl24"],
+        adminCitizenIds: ["silhil24", "jakwen10", "floorl24", "silas"],
         teacherCitizenIds: [
             "ass",
             "aub",
@@ -165,7 +165,7 @@ export default {
 
         warehouseCompanyId: "",
         bankCompanyId: "008",
-        borderControlCompanyId: "004",
+        borderControlCompanyId: "zoll",
         taxOfficeCompanyId: "002",
         policeCompanyId: "005",
         policiticsCompanyId: "",
@@ -178,7 +178,7 @@ export default {
     },
     guestInitialBalance: 10,
     server: {
-        url: "https://www.planckbank.com/graphql",
+        url: "http://localhost:4000/graphql",
         host: "127.0.0.1",
         port: 4000,
         trustedOperations: [

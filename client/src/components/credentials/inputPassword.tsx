@@ -124,7 +124,7 @@ export const InputPassword = <TData,>({
                 <CardActionButton
                     label={confirmButton.label}
                     raised
-                    disabled={!password}
+                    disabled={!password && !noPassword}
                     // eslint-disable-next-line no-void
                     onClick={() => void handleConfirm(password)}
                     danger={confirmButton.danger}

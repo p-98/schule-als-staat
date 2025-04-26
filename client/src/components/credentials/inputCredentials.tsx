@@ -170,6 +170,7 @@ export const InputCredentials = <Data,>({
                             confirmButton={confirmButton}
                             onSuccess={onSuccess}
                             title={title}
+                            noPassword={user?.type === "GUEST"}
                             actionSummary={
                                 typeof actionSummary === "function"
                                     ? actionSummary(cachedUser)
