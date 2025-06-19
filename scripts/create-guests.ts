@@ -47,8 +47,7 @@ type Card = {
     blocked: boolean; //Whether the card is blocked (Newly created cards are not)
 };
 
-const alphanum =
-    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+const alphanum = "0123456789abcdefghijklmnopqrstuvwxyz";
 const randomChar = (alphabet: string): string =>
     alphabet[crypto.randomInt(alphabet.length)]!;
 const randomString = (length: number, alphabet: string) =>
