@@ -107,7 +107,7 @@ export function currencyName(_currency: string): string {
 export const parseCurrency: Parser<number> = (string) => {
     if (string === "") return 0;
 
-    const value = parseInt(string, 10);
+    const value = parseFloat(string);
     if (Number.isNaN(value)) return new InvalidInput();
     return value;
 };
