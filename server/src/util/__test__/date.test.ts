@@ -1,4 +1,4 @@
-import { test } from "@jest/globals";
+import { test } from "bun:test";
 import { assert } from "chai";
 
 import {

@@ -1,5 +1,5 @@
 import type { Knex } from "knex";
-import { afterEach, beforeEach, describe, test } from "@jest/globals";
+import { afterEach, beforeEach, describe, test } from "bun:test";
 import { assert } from "chai";
 
 import { emptyKnex } from "Database";

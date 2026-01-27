@@ -1,6 +1,6 @@
 import "./mock";
 
-import { afterEach, beforeEach, test } from "@jest/globals";
+import { afterEach, beforeEach, test } from "bun:test";
 import { assert } from "chai";
 import {
     assertNoErrors,

@@ -163,6 +163,8 @@ export function buildHTTPCookieExecutor(
 }
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+export { buildHTTPExecutor };
+
 export type TYogaExecutor = AsyncExecutor<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     any,
@@ -172,9 +174,12 @@ export type TYogaExecutor = AsyncExecutor<
 export function buildHTTPAnonymousExecutor(
     yoga: TYogaServerInstance
 ): TYogaExecutor {
-    // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    return buildHTTPCookieExecutor({ fetch: yoga.fetch });
+    return buildHTTPCookieExecutor({
+        // below usage according to documentation (https://the-guild.dev/graphql/yoga-server/docs/features/testing#test-utility)
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        fetch: yoga.fetch,
+        endpoint: "http://test.url/graphql",
+    });
 }
 
 export interface ICredentials extends IUserSignature {

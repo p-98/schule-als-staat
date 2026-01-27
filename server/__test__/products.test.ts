@@ -1,7 +1,7 @@
 /* eslint-disable jest/expect-expect */
 import "./mock";
 
-import { test, beforeEach, afterEach } from "@jest/globals";
+import { test, beforeEach, afterEach } from "bun:test";
 import { assert } from "chai";
 import {
     assertNoErrors,

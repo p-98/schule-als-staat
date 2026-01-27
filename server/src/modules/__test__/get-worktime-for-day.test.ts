@@ -1,7 +1,7 @@
 import type { Knex } from "knex";
 import type { IAppContext } from "Server";
 
-import { afterEach, beforeEach, test } from "@jest/globals";
+import { afterEach, beforeEach, test } from "bun:test";
 import { assert } from "chai";
 import { addHours, addDays } from "date-fns/fp";
 import { curry, curryN, __, map, pipe } from "lodash/fp";
